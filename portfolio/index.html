@@ -1,0 +1,2547 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My Family Funds — DCA Portfolio V22</title>
+<meta name="theme-color" content="#0F5B4D">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root{
+    --bg:#F6F8F7;
+    --surface:#FFFFFF;
+    --ink:#14211D;
+    --ink-soft:#66736E;
+    --ink-faint:#9AA6A1;
+    --primary:#0F5B4D;
+    --primary-light:#1F806D;
+    --primary-soft:#E7F2EF;
+    --positive:#1B8A62;
+    --positive-soft:#E5F4ED;
+    --warning:#E8A33D;
+    --warning-soft:#FBF0DE;
+    --danger:#F0506E;
+    --line:#DDE7E3;
+    --teal:#2C8A78;
+    --amber:#C18B2E;
+    --coral:#D95C70;
+    --sky:#3B82A0;
+    --gold:#C89B3C;
+    --mint:#35A98E;
+    --gold-soft:#F7F0D9;
+    --radius-s:10px;
+    --radius-m:16px;
+    --radius-l:24px;
+    --shadow-hero: 0 18px 40px -20px rgba(15,91,77,0.25);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Noto Sans Thai','Prompt',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:84px;
+  }
+  h1,h2,h3,.num{font-family:'Prompt','Noto Sans Thai',sans-serif;}
+  button{font-family:inherit;}
+  input{font-family:inherit;}
+
+  /* ---------- topbar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:30;
+    background:linear-gradient(180deg,var(--bg) 80%, rgba(245,244,250,0));
+    padding:18px 18px 6px;
+  }
+  .brand{
+    display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px;
+  }
+  .brand-left{ display:flex; align-items:center; gap:10px; }
+  .sync-btn{
+    display:flex; align-items:center; gap:6px; border:1px solid var(--line); background:var(--surface);
+    padding:7px 12px; border-radius:999px; font-size:12.5px; font-weight:600; color:var(--ink-soft);
+    cursor:pointer; flex:none;
+  }
+  .sync-dot{ width:7px; height:7px; border-radius:50%; background:var(--ink-faint); flex:none; }
+  .sync-dot.connected{ background:var(--positive); }
+  .sync-dot.syncing{ background:var(--gold); animation:syncpulse 1s infinite; }
+  @keyframes syncpulse{ 0%,100%{opacity:1;} 50%{opacity:.25;} }
+  .brand-mark{
+    width:34px;height:34px;border-radius:10px;
+    background:linear-gradient(145deg,var(--primary-light),var(--primary));
+    display:flex;align-items:center;justify-content:center;
+    color:#fff; font-weight:700; font-size:15.5px;
+  }
+  .brand-name{font-size:18px;font-weight:600;letter-spacing:.2px;}
+  .last-updated{font-size:12px;color:var(--primary);font-weight:600;margin-top:3px;}
+  .brand-sub{font-size:12.5px;color:var(--ink-soft);margin-top:-2px;}
+
+  /* ---------- bottom nav (replaces old top tabs + FAB) ---------- */
+  .bottom-nav{
+    position:fixed; left:0; right:0; bottom:0; z-index:45;
+    display:grid; grid-template-columns:1fr 1fr 1fr 1fr;
+    align-items:center; gap:2px;
+    background:var(--surface); border-top:1px solid var(--line);
+    padding:7px 8px calc(7px + env(safe-area-inset-bottom));
+    box-shadow:0 -10px 26px -18px rgba(15,91,77,.4);
+  }
+  .bn-item{
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    border:none; background:transparent; color:var(--ink-faint);
+    font-size:10px; font-weight:700; padding:5px 2px; border-radius:12px;
+    cursor:pointer; transition:color .15s ease;
+  }
+  .bn-item.active{ color:var(--primary); }
+  .bn-ico{width:21px;height:21px;}
+
+  main{padding:6px 18px 20px;}
+  section[hidden]{display:none !important;}
+
+  /* ---------- hero ---------- */
+  .hero{
+    background:radial-gradient(120% 140% at 15% 0%, #1F806D 0%, var(--primary) 46%, #0F5B4D 100%);
+    border-radius:var(--radius-l);
+    padding:24px 20px 22px;
+    color:#fff;
+    box-shadow:var(--shadow-hero);
+    position:relative;
+    overflow:hidden;
+    margin-top:6px;
+  }
+  .hero::after{
+    content:"";
+    position:absolute; right:-40px; top:-60px; width:220px; height:220px;
+    border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,.14), rgba(255,255,255,0) 70%);
+  }
+  .hero-top{display:flex; justify-content:space-between; align-items:flex-start; gap:14px;}
+  .hero-label{font-size:13px; color:rgba(255,255,255,.75); margin:0 0 6px;}
+  .hero-amount{font-size:27px; font-weight:700; letter-spacing:.2px; margin:0;}
+  .hero-target{font-size:13px; color:rgba(255,255,255,.8); margin-top:6px;}
+  .hero-target b{color:#fff; font-weight:600;}
+
+  .gauge{ position:relative; width:86px; height:86px; flex:none; }
+  .gauge svg{ width:100%; height:100%; transform:rotate(-90deg); }
+  .gauge-pct{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:15.5px; font-weight:700; color:#fff;
+  }
+
+  .hero-bottom{
+    display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;
+  }
+  .hero-chip{
+    background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.18);
+    border-radius:12px; padding:9px 12px; flex:1; min-width:96px;
+    position:relative; overflow:hidden;
+  }
+  .hero-chip::before{
+    content:""; position:absolute; left:0; top:0; bottom:0; width:3px;
+  }
+  .hero-chip:nth-child(1)::before{ background:var(--gold); }
+  .hero-chip:nth-child(2)::before{ background:var(--mint); }
+  .hero-chip:nth-child(3)::before{ background:var(--coral); }
+  .hero-chip:nth-child(4)::before{ background:var(--sky); }
+  .hero-chip .k{font-size:12.5px; color:rgba(255,255,255,.7);}
+  .hero-chip .v{font-size:15.5px; font-weight:700; margin-top:2px;}
+
+  /* ---------- allocation donut ---------- */
+  .panel{
+    background:var(--surface); border-radius:var(--radius-l);
+    padding:18px; margin-top:16px; box-shadow:0 2px 14px -8px rgba(34,28,53,.14);
+  }
+  .panel-title{font-size:14.5px; font-weight:600; margin:0 0 14px;}
+  .alloc-row{ display:flex; align-items:flex-start; gap:18px; }
+  .donut{ width:104px; height:104px; border-radius:50%; flex:none; position:relative;
+    box-shadow:0 10px 24px -12px rgba(15,91,77,.28);}
+  .donut::before{
+    content:""; position:absolute; inset:18px; border-radius:50%; background:var(--surface);
+    box-shadow:inset 0 0 0 1px var(--line);
+  }
+  .legend{flex:1; display:flex; flex-direction:column; gap:12px;}
+  .legend-item{display:flex; flex-direction:column; gap:5px; font-size:13px;}
+  .legend-item:not(:last-child){ padding-bottom:10px; border-bottom:1px dashed var(--line); }
+  .legend-row{ display:flex; align-items:center; gap:8px; }
+  .legend-dot{width:9px;height:9px;border-radius:3px;flex:none;}
+  .legend-name{flex:1; color:var(--ink-soft);}
+  .legend-val{font-weight:600;}
+  .legend-sub{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding-left:17px; }
+  .legend-sub span:first-child{ font-size:12.5px; color:var(--ink-faint); }
+
+  /* ---------- owner filter pills ---------- */
+  .filters{ display:flex; gap:8px; margin-top:18px; overflow-x:auto; padding-bottom:2px;}
+  .pill{
+    border:1px solid var(--line); background:var(--surface); color:var(--ink-soft);
+    padding:7px 14px; border-radius:999px; font-size:13px; font-weight:600;
+    white-space:nowrap; cursor:pointer;
+  }
+  .pill.active{ background:var(--ink); color:#fff; border-color:var(--ink);}
+
+  /* ---------- owner group ---------- */
+  .owner-group{ margin-top:14px; }
+  .owner-head{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;
+    padding-left:2px;
+  }
+  .owner-title{display:flex; align-items:center; gap:8px;}
+  .owner-dot{width:9px;height:9px;border-radius:50%;}
+  .owner-name{font-size:11px; font-weight:700;}
+  .owner-total{font-size:10px; color:var(--ink-soft);}
+  .add-fund-link{
+    border:none; background:none; color:var(--primary); font-size:10.5px; font-weight:700;
+    cursor:pointer; padding:4px 2px;
+  }
+
+  .fund-row{
+    display:flex; align-items:center; gap:9px;
+    padding:8px 3px; border-bottom:1px solid var(--line);
+    cursor:pointer;
+  }
+  .fund-row:last-child{ border-bottom:0; }
+  .fund-row-badge{
+    width:28px; height:28px; border-radius:50%; flex:0 0 auto;
+    display:flex; align-items:center; justify-content:center;
+    font-size:10px; font-weight:900; color:#fff;
+  }
+  .fund-row-body{ flex:1; min-width:0; }
+  .fund-row-line1{ display:flex; align-items:center; gap:3px; }
+  .fund-row-name{
+    font-size:12.5px; font-weight:800; color:var(--ink);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .fund-row-line1 .favorite-btn{ font-size:11px; padding:0 0 0 3px; }
+  .fund-row-nav{
+    font-size:9.5px; color:var(--ink-faint); margin-top:2px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .fund-bar-track{ height:3px; background:var(--primary-soft); border-radius:4px; margin-top:4px; overflow:hidden;}
+  .fund-bar-fill{ height:100%; border-radius:4px; background:linear-gradient(90deg,var(--coral),var(--coral)); transition:width .3s ease;}
+  .fund-bar-fill.low{ background:linear-gradient(90deg,var(--coral),#F0506E); }
+  .fund-bar-fill.mid{ background:linear-gradient(90deg,var(--amber),var(--gold)); }
+  .fund-bar-fill.high{ background:linear-gradient(90deg,var(--sky),var(--mint)); }
+  .fund-bar-fill.met{ background:linear-gradient(90deg,var(--positive),var(--mint)); }
+  .fund-row-right{ flex:0 0 auto; display:flex; align-items:center; gap:7px; }
+  .fund-row-nums{ display:flex; flex-direction:column; align-items:flex-end; line-height:1.2; }
+  .fund-row-actual{ font-size:14.5px; font-weight:900; color:var(--ink); white-space:nowrap; }
+  .fund-row-target{ font-size:11px; font-weight:700; color:var(--ink-faint); white-space:nowrap; }
+  .fund-row-target.met{ color:var(--positive); }
+  .fund-row .pct-chip{ flex:0 0 auto; }
+  .pct-chip{
+    font-size:10px; font-weight:700; padding:3px 6px; border-radius:999px;
+  }
+  .pct-chip.low{ background:#FCEBED; color:var(--coral); }
+  .pct-chip.mid{ background:var(--gold-soft); color:#C18B2E; }
+  .pct-chip.high{ background:#E7F2EF; color:var(--sky); }
+  .pct-chip.met{ background:var(--positive-soft); color:var(--positive); }
+
+  .empty-state{
+    text-align:center; padding:34px 10px; color:var(--ink-soft); font-size:13.5px;
+  }
+
+  /* ---------- (old floating FAB removed — see .bn-fab in bottom nav) ---------- */
+
+  /* ---------- modal ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(34,28,53,.5); z-index:50;
+    display:flex; align-items:flex-end; justify-content:center;
+    backdrop-filter:blur(2px);
+  }
+  .modal-overlay[hidden]{display:none;}
+  .modal-sheet{
+    background:var(--surface); width:100%; max-width:460px;
+    border-radius:22px 22px 0 0; padding:22px 20px 26px;
+    animation:slideup .22s ease;
+  }
+  @keyframes slideup{ from{transform:translateY(24px); opacity:0;} to{transform:translateY(0); opacity:1;} }
+  .modal-title{font-size:17px; font-weight:700; margin:0 0 4px;}
+  .modal-sub{font-size:13px; color:var(--ink-soft); margin:0 0 18px;}
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:13px; font-weight:600; color:var(--ink-soft); margin-bottom:6px;}
+  .field select, .field input{
+    width:100%; padding:11px 12px; border-radius:12px; border:1px solid var(--line);
+    background:#FBFAFE; font-size:14.5px; color:var(--ink);
+  }
+  .field select:focus, .field input:focus{ outline:2px solid var(--primary-light); outline-offset:1px;}
+  .field-row{ display:flex; gap:10px; }
+  .field-row .field{ flex:1; }
+  .toggle-owner{ font-size:12.5px; color:var(--primary); background:none; border:none; cursor:pointer; margin-top:6px;}
+  .modal-actions{ display:flex; gap:10px; margin-top:6px; }
+  .btn{
+    flex:1; padding:13px; border-radius:12px; border:none; font-size:14.5px; font-weight:700; cursor:pointer;
+  }
+  .btn-primary{ background:var(--primary); color:#fff; }
+  .btn-ghost{ background:var(--primary-soft); color:var(--primary); }
+
+  /* ---------- cloud sync modal: mobile fit ---------- */
+  #modalCloud .modal-sheet{
+    max-height:calc(100dvh - 10px);
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    padding:18px 16px calc(18px + env(safe-area-inset-bottom));
+  }
+  #modalCloud .modal-title{font-size:16px;}
+  #modalCloud .modal-sub{font-size:12px;line-height:1.45;margin-bottom:12px;}
+  #modalCloud .sheet-connect-box{margin-top:9px;padding:11px;border-radius:14px;}
+  #modalCloud .field{margin-bottom:10px;}
+  #modalCloud .field label{font-size:12px;margin-bottom:5px;}
+  #modalCloud .field input{padding:9px 10px;font-size:13px;}
+  #modalCloud .modal-actions{gap:7px;margin-top:5px;}
+  #modalCloud .btn{padding:10px 8px;font-size:13px;}
+  #modalCloud .setup-note{font-size:11px;line-height:1.4;margin-top:6px;}
+  #modalCloud .sheet-status{font-size:11.5px;line-height:1.4;margin-top:5px;}
+  #modalCloud .modal-actions:last-child{margin-top:9px !important;}
+  @media (max-width:380px){
+    #modalCloud .modal-sheet{padding-left:12px;padding-right:12px;}
+    #modalCloud .sheet-connect-box{padding:10px;}
+    #modalCloud .btn{font-size:12px;padding:9px 6px;}
+  }
+
+  /* ---------- table view ---------- */
+  .table-toolbar{
+    display:flex; flex-direction:column; align-items:stretch; margin:4px 0 10px; gap:8px;
+  }
+  .table-toolbar h2{font-size:17px; margin:0; line-height:1.25;}
+  .table-toolbar-actions{ display:flex; gap:5px; width:100%; }
+  .table-toolbar-actions .sync-btn,
+  .table-toolbar-actions .export-btn{
+    flex:1 1 0; min-width:0; justify-content:center;
+    padding:7px 3px; font-size:10.5px; white-space:nowrap;
+    overflow:hidden; text-overflow:ellipsis;
+  }
+  .export-btn{
+    background:var(--ink); color:#fff; border:none; padding:9px 14px; border-radius:10px;
+    font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px;
+  }
+  /* ---------- responsive investment table ---------- */
+  .table-scroll-wrap{
+    position:relative;
+    min-width:0;
+    width:100%;
+  }
+  .table-scroll{
+    overflow:auto;
+    position:relative;
+    max-height:calc(100vh - 190px);
+    min-height:180px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius-m);
+    box-shadow:0 2px 14px -8px rgba(34,28,53,.14);
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    scrollbar-gutter:stable both-edges;
+  }
+  .table-scroll::-webkit-scrollbar{width:12px;height:12px;}
+  .table-scroll::-webkit-scrollbar-track{background:#F1F5F3;border-radius:999px;}
+  .table-scroll::-webkit-scrollbar-thumb{background:#9DBAB2;border-radius:999px;border:3px solid #F1F5F3;}
+  table{
+    border-collapse:separate;
+    border-spacing:0;
+    width:100%;
+    min-width:960px;
+    font-size:13px;
+  }
+  thead{
+    position:sticky;
+    top:0;
+    z-index:11;
+  }
+  thead th{
+    position:sticky;
+    top:0;
+    z-index:12;
+    background:var(--surface);
+    font-weight:600;
+    color:var(--ink-soft);
+    font-size:12.5px;
+    text-align:right;
+    padding:10px 8px;
+    border-bottom:2px solid var(--line);
+    white-space:nowrap;
+  }
+  thead th:first-child{
+    text-align:left;
+    position:sticky;
+    left:0;
+    top:0;
+    z-index:15;
+    background:var(--surface);
+    box-shadow:1px 0 0 var(--line);
+  }
+  tbody td{
+    padding:7px 8px;
+    border-bottom:1px solid var(--line);
+    text-align:right;
+    white-space:nowrap;
+    background:var(--surface);
+  }
+  tbody td:first-child{
+    text-align:left;
+    position:sticky;
+    left:0;
+    z-index:8;
+    background:var(--surface);
+    font-weight:500;
+    box-shadow:1px 0 0 var(--line);
+  }
+  .group-row td{
+    background:var(--teal);
+    color:#fff;
+    font-weight:700;
+    font-size:13px;
+    padding:9px 10px;
+  }
+  .group-row td:first-child{
+    position:sticky;
+    left:0;
+    z-index:9;
+    background:var(--teal);
+    box-shadow:1px 0 0 rgba(255,255,255,.15);
+  }
+  .group-row{ background:var(--primary); }
+  .cell-input{
+    width:56px; text-align:right; border:1px solid transparent; background:transparent;
+    border-radius:6px; padding:5px 4px; font-size:13px; color:var(--ink);
+  }
+  .cell-input:hover{ border-color:var(--line); }
+  .cell-input:focus{ border-color:var(--primary-light); outline:none; background:var(--primary-soft); }
+  .target-input{ width:64px; font-weight:600;}
+  .actual-cell{ font-weight:700; }
+  .badge{ font-size:12.5px; font-weight:700; padding:4px 9px; border-radius:999px; display:inline-block;}
+  .badge-met{ background:var(--positive-soft); color:var(--positive); }
+  .badge-warn{ background:var(--warning-soft); color:var(--warning); }
+  .badge-none{ background:var(--bg); color:var(--ink-faint); }
+  .row-del{ border:none; background:none; color:var(--ink-faint); cursor:pointer; font-size:13.5px;}
+  .row-del:hover{ color:var(--danger); }
+  .fund-name-cell{ cursor:pointer; color:var(--primary); text-decoration:underline; text-decoration-color:var(--primary-soft); text-underline-offset:2px; }
+
+  .toast{
+    position:fixed; left:50%; bottom:96px; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:#fff; padding:11px 18px; border-radius:12px; font-size:13px;
+    opacity:0; pointer-events:none; transition:all .25s ease; z-index:60;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  @media (min-width:720px){
+    main{ max-width:900px; margin:0 auto; }
+    .topbar{ padding-left:calc(50% - 450px); padding-right:calc(50% - 450px); }
+  }
+
+  .yearbar{
+    display:flex;
+    align-items:center;
+    flex-wrap:nowrap;
+    gap:6px;
+    width:100%;
+    margin:0 0 10px;
+    padding:8px 10px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:12px;
+    position:relative;
+  }
+  .year-title{font-size:13.5px;font-weight:700;color:var(--ink-soft);margin-right:2px;white-space:nowrap;flex:0 0 auto}
+  .year-select{border:1px solid var(--line);border-radius:9px;padding:6px 8px;background:#fff;font-weight:800;color:var(--ink);font-size:13px;min-width:76px;flex:1 1 auto}
+  .year-nav,.year-add{border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 9px;cursor:pointer;font-weight:700;color:var(--ink);font-size:13px;white-space:nowrap;flex:0 0 auto}
+  .year-add{color:var(--primary);border-color:var(--primary-soft)}
+
+/* ===== V4 FUND DETAIL — PURPLE / WHITE 3D-LITE EXPERIENCE ===== */
+.fund-row{cursor:pointer;}
+.fund-detail-overlay{
+  position:fixed;inset:0;
+  background:rgba(15,91,77,.12);
+  backdrop-filter:blur(10px);
+  z-index:70;display:flex;align-items:flex-end;justify-content:center;
+}
+.fund-detail-overlay[hidden]{display:none}
+.fund-detail-sheet{
+  width:100%;max-width:760px;max-height:92vh;overflow:auto;
+  background:
+    radial-gradient(120% 70% at 0% 0%, #EAF5F1 0%, rgba(241,235,255,0) 55%),
+    linear-gradient(180deg,#FFFFFF 0%,#FCFEFD 100%);
+  border:1px solid #D8E8E2;
+  border-radius:28px 28px 0 0;
+  box-shadow:0 -24px 70px rgba(15,91,77,.18),0 10px 35px rgba(34,28,53,.10);
+  padding:18px 16px 30px;
+}
+.fund-detail-close{
+  float:right;border:1px solid #DDE7E3;background:#E7F2EF;color:var(--primary);
+  border-radius:12px;width:38px;height:38px;font-size:20px;cursor:pointer;
+  box-shadow:0 4px 12px rgba(15,91,77,.08);
+}
+.detail-owner{font-size:12.5px;color:var(--primary);margin-top:4px;font-weight:600}
+.detail-name{font-size:21.5px;font-weight:800;color:var(--ink);margin:8px 48px 2px 0;line-height:1.25}
+.detail-year{font-size:12.5px;color:var(--ink-soft)}
+.detail-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.detail-kpi{
+  background:linear-gradient(145deg,#FFFFFF,#F0F7F4);
+  border:1px solid #DCEAE5;border-radius:16px;padding:12px;
+  box-shadow:0 8px 18px -14px rgba(15,91,77,.28);
+}
+.detail-kpi .k{font-size:12px;color:var(--ink-soft)}
+.detail-kpi .v{font-size:17px;font-weight:800;color:var(--ink);margin-top:4px}
+.detail-progress{
+  margin-top:12px;background:#FFFFFF;border:1px solid #DCEAE5;border-radius:16px;padding:12px;
+  box-shadow:0 8px 18px -14px rgba(75,46,158,.35);
+}
+.detail-progress-head{display:flex;justify-content:space-between;color:var(--ink-soft);font-size:12.5px;margin-bottom:8px}
+.detail-track{height:9px;background:#E6F0ED;border-radius:99px;overflow:hidden}
+.detail-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#1F806D,#58B49E)}
+.detail-chart-card{
+  margin-top:14px;background:#FFFFFF;border:1px solid #DCEAE5;border-radius:20px;padding:14px;
+  box-shadow:0 8px 20px -15px rgba(15,91,77,.20);
+}
+.detail-chart-title{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:10px}
+.detail-chart{height:210px;position:relative}
+.detail-chart svg{width:100%;height:100%;overflow:visible}
+.chart-grid{stroke:#E0EBE7;stroke-width:1}
+.chart-area{fill:rgba(124,92,252,.10)}
+.chart-line{fill:none;stroke:#1F806D;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.chart-point{fill:#fff;stroke:#1F806D;stroke-width:2}
+.chart-label{fill:#78857F;font-size:11px}
+.chart-value{fill:#0F5B4D;font-size:11px;font-weight:700;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
+.chart-unit{float:right;font-size:12px;font-weight:500;color:#78857F}
+.detail-chart-legend{font-size:12px;color:#66736E;margin:-4px 0 3px}
+.detail-chart-legend i{display:inline-block;width:20px;border-top:3px solid #1F806D;vertical-align:middle;margin-right:5px}
+.detail-chart{height:260px;position:relative}
+.detail-chart svg{width:100%;height:100%;overflow:visible}
+.chart-axis{stroke:#D2DFDA;stroke-width:1}
+.chart-axis-title,.chart-axis-y,.chart-axis-x{fill:#6E7C76;font-size:12px}
+.chart-axis-y{font-size:12px;font-weight:600}
+.chart-axis-x{font-size:12px}
+.chart-grid{stroke:#DCE8E3;stroke-width:1;stroke-dasharray:3 4}
+.chart-area{fill:rgba(124,92,252,.10)}
+.chart-line{fill:none;stroke:#1F806D;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.chart-cum-line{stroke:#22A995}
+.chart-point{fill:#fff;stroke:#1F806D;stroke-width:2}
+.chart-point-cum{stroke:#22A995}
+.chart-value{fill:#0F5B4D;font-size:12px;font-weight:700;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
+.target-line{stroke:#C18B2E;stroke-width:2;stroke-dasharray:7 5}
+.target-label{fill:#9A6C20;font-size:12px;font-weight:700}
+.detail-months{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:12px}
+.detail-month{
+  background:#F7FBF9;border:1px solid #DFEBE6;border-radius:12px;padding:9px;
+  box-shadow:0 4px 12px -10px rgba(75,46,158,.35);
+}
+.detail-month.current{border-color:var(--primary);background:var(--primary-soft);}
+.detail-month .m{font-size:12px;color:#78857F}
+.detail-month input.detail-month-input{
+  width:100%;border:none;background:transparent;padding:0;margin-top:3px;
+  font-size:13px;font-weight:700;color:var(--ink);font-family:inherit;outline:none;
+  -moz-appearance:textfield;
+}
+.detail-month input.detail-month-input::-webkit-outer-spin-button,
+.detail-month input.detail-month-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.detail-month input.detail-month-input:focus{color:var(--primary);}
+@media(max-width:520px){
+  .detail-kpis{grid-template-columns:1fr 1fr}
+  .detail-kpi:last-child{grid-column:1/-1}
+  .detail-months{grid-template-columns:repeat(3,1fr)}
+}
+
+
+
+/* ===== V7 SMART UX ===== */
+.smart-tools{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:16px}
+.search-box{position:relative}.search-box input{width:100%;padding:11px 40px 11px 38px;border:1px solid var(--line);border-radius:13px;background:var(--surface);font-size:13.5px;color:var(--ink)}
+.search-box svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:17px;color:var(--ink-faint)}
+.search-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:var(--primary-soft);color:var(--primary);border-radius:8px;width:28px;height:28px;cursor:pointer}
+.tool-btn{border:1px solid var(--line);background:var(--surface);color:var(--primary);border-radius:13px;padding:0 13px;font-weight:700;cursor:pointer}
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:16px}.summary-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px;box-shadow:0 2px 12px -8px rgba(15,91,77,.14)}
+.summary-card .s-k{font-size:12.5px;color:var(--ink-soft)}.summary-card .s-v{font-size:18px;font-weight:800;margin-top:4px}.summary-card .s-sub{font-size:12.5px;color:var(--ink-faint);margin-top:2px}
+.summary-card.action{border-color:#DDE7E3;background:linear-gradient(145deg,#fff,#F0F7F4)}.summary-card.action .s-v{color:var(--primary)}
+.notice-list{margin-top:12px;display:flex;flex-direction:column;gap:7px}.notice{display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--line);font-size:12.5px}.notice .dot{width:8px;height:8px;border-radius:50%;flex:none}.notice.warn .dot{background:var(--warning)}.notice.ok .dot{background:var(--positive)}
+.favorite-btn{border:none;background:transparent;color:var(--ink-faint);font-size:15.5px;line-height:1;cursor:pointer;padding:2px 0 2px 6px}.favorite-btn.active{color:#C89B3C}
+.fund-actions{display:flex;align-items:center;gap:5px}.fund-status{font-size:12px;color:var(--ink-soft);margin-top:0;margin-left:8px}
+.detail-actions{display:flex;gap:8px;margin-top:12px}.detail-action-btn{flex:1;border:1px solid var(--line);background:var(--surface);color:var(--primary);border-radius:11px;padding:10px;font-weight:700;cursor:pointer}
+.history-list{display:flex;flex-direction:column;gap:7px;margin-top:10px}.history-item{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:10px 11px;background:var(--surface);border:1px solid var(--line);border-radius:12px}.history-date{font-size:12.5px;color:var(--ink-soft)}.history-note{font-size:12px;color:var(--ink-faint)}.history-amt{font-weight:800;font-size:13.5px}.history-actions{display:flex;gap:4px}.history-actions button{border:none;background:var(--primary-soft);color:var(--primary);border-radius:7px;width:28px;height:28px;cursor:pointer}.history-note-text{font-size:12.5px;color:var(--ink);margin-top:4px;line-height:1.45;word-break:break-word}.history-note-empty{font-size:12px;color:var(--ink-faint);margin-top:4px;font-style:italic}.note-field textarea{width:100%;min-height:74px;resize:vertical;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font:inherit;font-size:13px;background:var(--surface);color:var(--ink);outline:none}.note-field textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(104,189,178,.10)}.history-help{font-size:12px;color:var(--ink-faint);margin-top:3px}
+.sheet-connect-box{background:linear-gradient(145deg,#F0F7F4,#fff);border:1px solid #D7E7E1;border-radius:16px;padding:13px;margin-top:12px}.sheet-status{font-size:12.5px;color:var(--ink-soft);line-height:1.5;margin-top:6px}.setup-note{font-size:12.5px;color:var(--ink-faint);line-height:1.5;margin-top:7px}
+.quick-month{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;padding:9px 6px;border-radius:12px;background:var(--primary-soft);margin-top:9px;font-size:12px;line-height:1.25;overflow:hidden}.quick-month .qm-item{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2px 7px}.quick-month .qm-item+.qm-item{border-left:1px solid rgba(15,91,77,.12)}.quick-month .qm-label{display:block;min-height:30px;color:var(--ink-soft);font-size:11.5px;line-height:1.3;white-space:normal}.quick-month b{display:block;margin-top:3px;color:var(--primary);font-size:14px;line-height:1.2;white-space:nowrap;font-variant-numeric:tabular-nums}.quick-month .qm-value{min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis}@media(max-width:420px){.quick-month{padding:8px 3px}.quick-month .qm-item{padding:2px 4px}.quick-month .qm-label{font-size:10.5px;min-height:28px}.quick-month b{font-size:13px}}
+@media(max-width:650px){.summary-grid{grid-template-columns:1fr 1fr}.summary-card:last-child{grid-column:1/-1}.tool-btn{padding:0 10px}}
+
+
+.market-panel{overflow:hidden;padding:0}.market-ticker-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#fff,#F6F8F7)}.market-ticker-title{font-size:12.5px;font-weight:800;color:var(--primary);white-space:nowrap}.market-subtitle{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.market-ticker-wrap{position:relative;overflow:hidden;width:100%;background:#fff}.market-ticker-row{position:relative;overflow:hidden;width:100%;border-bottom:1px solid #DDE7E3}.market-ticker-row:last-child{border-bottom:0}.market-ticker-row:before,.market-ticker-row:after{content:'';position:absolute;top:0;bottom:0;width:34px;z-index:2;pointer-events:none}.market-ticker-row:before{left:0;background:linear-gradient(90deg,#fff,transparent)}.market-ticker-row:after{right:0;background:linear-gradient(270deg,#fff,transparent)}.market-ticker-track{display:flex;width:max-content;will-change:transform}.market-ticker-track.stocks{animation:marketTickerStock 46s linear infinite}.market-ticker-track.etfs{animation:marketTickerStock 46s linear infinite}.market-ticker-wrap:hover .market-ticker-track,.market-ticker-wrap:active .market-ticker-track{animation-play-state:paused}.market-ticker-item{display:inline-flex;align-items:center;gap:7px;padding:8px 18px;border-right:1px solid #DDE7E3;white-space:nowrap;font-size:13px}.market-ticker-item .ticker{font-weight:900;color:var(--primary);font-size:13.5px}.market-ticker-item .group{font-size:11px;font-weight:800;color:#66736E;background:#E7F2EF;border-radius:999px;padding:2px 5px}.market-ticker-item .name{color:var(--muted);font-size:12px;max-width:125px;overflow:hidden;text-overflow:ellipsis}.market-ticker-item .price{font-weight:800;font-variant-numeric:tabular-nums}.market-ticker-item .chg{font-weight:800;font-variant-numeric:tabular-nums}.market-ticker-item.up .chg{color:#1B8A62}.market-ticker-item.down .chg{color:#D95C70}.market-ticker-item.na .price,.market-ticker-item.na .chg{color:var(--muted)}.market-ticker-item .dot{width:5px;height:5px;border-radius:50%;background:#9AA6A1;flex:0 0 auto}.market-ticker-item.up .dot{background:#1B8A62}.market-ticker-item.down .dot{background:#D95C70}.market-row-label{display:inline-flex;align-items:center;justify-content:center;min-width:72px;padding:3px 7px;margin:0 5px 0 8px;border-radius:999px;font-size:11px;font-weight:900;background:#E7F2EF;color:var(--primary);position:relative;z-index:3}.market-row-label.etf{background:#F7F3E9;color:#9A8050}.market-row-label.stock{background:#EAF1FB;color:#3A5A8C}@keyframes marketTickerStock{from{transform:translateX(0)}to{transform:translateX(-50%)}}@media(prefers-reduced-motion:reduce){.market-ticker-track{animation:none}}@media(max-width:560px){.market-ticker-head{padding:8px 10px}.market-ticker-item{padding:8px 12px;font-size:12.5px}.market-ticker-item .name{display:none}.market-ticker-item .group{font-size:10.5px}.market-ticker-item .ticker{font-size:13px}.market-row-label{min-width:58px;font-size:10.5px;margin-left:5px}}
+.finance-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}.finance-toolbar .sub{font-size:12.5px;color:var(--ink-faint)}
+.finance-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#E9EFED;border-radius:13px;padding:4px;margin-bottom:10px}.finance-seg button{border:0;background:transparent;padding:8px 5px;border-radius:10px;font-weight:900;color:#61716D;font-size:12px;cursor:pointer;font-family:inherit}.finance-seg button.active{background:#fff;color:var(--primary);box-shadow:0 2px 8px rgba(35,73,65,.12)}
+.finance-list-head{display:grid;grid-template-columns:1fr 76px 100px;gap:6px;padding:2px 12px 8px;font-size:12px;color:var(--ink-faint);font-weight:800}.finance-list-head span:nth-child(2),.finance-list-head span:nth-child(3){text-align:right}.finance-list{background:var(--surface);border:1px solid var(--line);border-radius:15px;overflow:hidden;box-shadow:0 2px 12px -8px rgba(15,91,77,.18)}.finance-row{display:grid;grid-template-columns:1fr 76px 100px;align-items:center;gap:6px;padding:11px 12px;border-bottom:1px solid var(--line);cursor:pointer}.finance-row:last-child{border-bottom:0}.finance-row:active{background:var(--primary-soft)}.finance-row-id{display:flex;align-items:center;gap:9px;min-width:0}.finance-badge{width:32px;height:32px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff}.finance-row-text{min-width:0}.finance-row-symbol{font-weight:900;font-size:13.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.finance-row-name{font-size:12px;color:var(--ink-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.finance-row-owner{font-size:10px;color:#84938F;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.finance-row-price{text-align:right;font-weight:800;font-size:13px;font-variant-numeric:tabular-nums}.finance-row-price.finance-na{color:var(--ink-faint);font-weight:600}.finance-row-pct{justify-self:end;font-size:12.5px;font-weight:800;padding:4px 8px;border-radius:8px;text-align:center;min-width:66px;font-variant-numeric:tabular-nums}.finance-row-pct.up{background:#E4F6EE;color:#1B8A62}.finance-row-pct.down{background:#FDECEF;color:#D95C70}.finance-row-pct.na{background:#F2F4F3;color:var(--ink-faint)}.finance-section-title{font-size:13.5px;font-weight:900;color:var(--primary);margin:16px 0 8px}.market-manager-list{display:flex;flex-direction:column;gap:7px}.market-manager-row{display:grid;grid-template-columns:70px 1fr 105px 85px 80px 34px;gap:7px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:11px;background:var(--surface)}.market-manager-row input,.market-manager-row select{width:100%;border:1px solid var(--line);border-radius:8px;padding:7px;font:inherit;font-size:12px;background:var(--surface);color:var(--ink)}.market-manager-row .remove{border:none;background:#FDECEF;color:#C24D63;border-radius:8px;height:30px;cursor:pointer}.market-manager-head{display:grid;grid-template-columns:70px 1fr 105px 85px 80px 34px;gap:7px;font-size:11px;color:var(--ink-faint);padding:0 8px}.finance-empty{padding:20px;text-align:center;color:var(--ink-faint);font-size:12.5px}.finance-modal .fund-detail-sheet{max-width:560px}.finance-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.finance-detail-kpi{padding:10px;border:1px solid var(--line);border-radius:11px;background:var(--surface)}.finance-detail-kpi .k{font-size:11px;color:var(--ink-faint)}.finance-detail-kpi .v{font-size:13.5px;font-weight:800;margin-top:3px}.finance-manager-actions{display:flex;gap:8px;margin-top:10px}.finance-manager-actions .btn{flex:1}.finance-note{font-size:12px;color:var(--ink-faint);line-height:1.5;margin-top:8px}
+@media(max-width:650px){.market-manager-row,.market-manager-head{grid-template-columns:62px 1fr 88px 70px 60px 32px}.market-manager-row{padding:6px;gap:5px}.market-manager-head{gap:5px}.finance-detail-grid{grid-template-columns:1fr 1fr}.finance-list-head,.finance-row{grid-template-columns:1fr 64px 84px}.finance-row-name{display:none}}
+
+
+/* ===== V39 FINANCE MAIN UI PREVIEW ===== */
+.finance-main-panel{padding:14px;background:linear-gradient(180deg,#ffffff 0%,#f7faf9 100%)}
+.finance-main-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.finance-main-brand{display:flex;align-items:center;gap:10px;min-width:0}
+.finance-main-icon{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:var(--primary-soft);color:var(--primary);font-size:20px;border:1px solid #D8E9E4;box-shadow:0 4px 12px rgba(15,91,77,.08)}
+.finance-main-title{font-size:18px;font-weight:950;letter-spacing:-.2px;color:var(--ink)}
+.finance-main-sub{font-size:11.5px;color:var(--ink-faint);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.finance-main-actions{display:flex;gap:6px;flex:none}
+.finance-main-actions .tool-btn{height:30px;border-radius:9px;padding:0 8px;background:#fff;box-shadow:0 2px 8px rgba(15,91,77,.06);font-size:10.5px}
+.finance-market-status{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 11px;margin-bottom:10px;border:1px solid #DCE9E5;border-radius:12px;background:#F2F8F6;color:var(--ink-soft);font-size:11.5px}
+.finance-market-status .status-left{display:flex;align-items:center;gap:6px;min-width:0}
+.finance-market-status .live-dot{width:7px;height:7px;border-radius:50%;background:#35A978;box-shadow:0 0 0 3px rgba(53,169,120,.10);flex:none}
+.finance-market-status .status-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.finance-market-status .status-tag{font-weight:900;color:var(--primary);background:#fff;border:1px solid #D8E9E4;border-radius:999px;padding:3px 7px;white-space:nowrap}
+.finance-main-tabs{background:#E9EFED;border:1px solid #DFE9E5;border-radius:13px;padding:4px;margin-bottom:10px;box-shadow:inset 0 1px 2px rgba(15,91,77,.04)}
+.finance-main-tabs button{padding:6px 4px;font-size:10.5px;border-radius:8px}
+.finance-list-head{padding:3px 11px 7px;font-size:10.5px;letter-spacing:.15px;text-transform:uppercase}
+.finance-list{border-radius:14px;box-shadow:0 4px 16px -10px rgba(15,91,77,.22)}
+.finance-row{padding:10px 11px;transition:background .15s ease,transform .15s ease}
+.finance-row:hover{background:#F6FAF8}
+.finance-row-id{gap:9px}
+.finance-badge{width:34px;height:34px;border-radius:11px;font-size:11px;box-shadow:0 2px 7px rgba(15,91,77,.10)}
+.finance-row-symbol{font-size:13px}
+.finance-row-name{font-size:11.5px;margin-top:1px}
+.finance-row-owner{display:inline-flex;margin-top:3px;padding:2px 6px;border-radius:999px;background:#F0F5F3;color:#71817C;font-size:9.5px;width:max-content;max-width:100%}
+.finance-row-price{font-size:13px}
+.finance-row-pct{min-width:62px;padding:4px 7px;border-radius:9px;font-size:11.5px}
+.finance-note{padding:8px 2px 1px;margin-top:3px;font-size:10.5px;color:#8A9894}
+@media(max-width:650px){
+ .finance-main-panel{padding:12px}
+ .finance-main-head{align-items:flex-start}
+ .finance-main-icon{width:38px;height:38px;border-radius:11px;font-size:18px}
+ .finance-main-title{font-size:16px}
+ .finance-main-sub{font-size:10.5px;max-width:190px}
+ .finance-main-actions .tool-btn{height:29px;padding:0 7px;font-size:10px}
+ 
+ .finance-row{padding:10px 9px}
+}
+
+</style>
+<script src="../config.js"></script>
+<script src="auth-open.js"></script>
+<style id="v39-manager-redesign">
+.v39-manager-sheet{max-width:920px!important;width:96%!important;padding:0!important;overflow:hidden;background:#f7fbfa!important;border-radius:24px!important}
+.v39-manager-head{display:grid;grid-template-columns:44px 1fr 42px;align-items:center;gap:10px;padding:18px 18px 14px;background:linear-gradient(135deg,#0d705f,#087864);color:#fff}
+.v39-manager-back,.v39-manager-help{width:40px;height:40px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:30px;line-height:1;cursor:pointer}
+.v39-manager-help{font-size:20px;font-weight:900}
+.v39-manager-title{font-size:22px;font-weight:900;letter-spacing:-.2px}
+.v39-manager-sub{font-size:12px;opacity:.82;margin-top:2px}
+.v39-manager-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:12px 14px 10px;background:#fff;border-bottom:1px solid #e2ece9;position:sticky;top:0;z-index:3}
+.v39-manager-tabs button{border:1px solid #dce8e5;background:#f4f8f7;color:#47605a;border-radius:13px;padding:11px 8px;font:inherit;font-weight:850;cursor:pointer;white-space:nowrap}
+.v39-manager-tabs button.active{background:#0c715f;color:#fff;border-color:#0c715f;box-shadow:0 5px 14px -8px rgba(10,112,95,.7)}
+.v39-manager-tabs button span{margin-right:5px}.v39-manager-tabs button b{margin-left:4px;padding:2px 7px;border-radius:99px;background:rgba(255,255,255,.2)}
+.v39-manager-tabs button:not(.active) b{background:#e4efec;color:#0c715f}
+.v39-manager-addbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px 8px}
+.v39-manager-section-title{font-size:16px;font-weight:900;color:#163b34}.v39-manager-section-sub{font-size:11.5px;color:#82928e;margin-top:2px}
+.v39-add-fund-btn{border:0;background:#0c715f;color:#fff;border-radius:11px;padding:10px 13px;font:inherit;font-size:12.5px;font-weight:900;cursor:pointer;white-space:nowrap;box-shadow:0 5px 12px -8px #0c715f}
+.v39-manager-symbol-box{margin:0 16px 10px;padding:12px;border:1px solid #dce9e6;border-radius:15px;background:#fff}.v39-symbol-label{font-size:11.5px;font-weight:850;color:#55716a;margin-bottom:6px}.v39-symbol-row{display:grid;grid-template-columns:1fr auto;gap:7px}.v39-symbol-row input{min-width:0;border:1px solid #cfdeda;border-radius:11px;padding:10px 12px;font:inherit;background:#fbfdfc}.v39-symbol-add{border:0;border-radius:11px;background:#0c715f;color:#fff;padding:0 18px;font:inherit;font-weight:900;cursor:pointer}.v39-symbol-hint{font-size:10.5px;color:#8a9894;margin-top:6px;line-height:1.45}
+.v39-manager-list-head{display:grid;grid-template-columns:minmax(190px,1.6fr) minmax(120px,1fr) 90px 34px;gap:8px;padding:4px 16px 6px;color:#82928e;font-size:10.5px;font-weight:850}.v39-manager-list{padding:0 16px 10px;max-height:min(53vh,560px);overflow:auto;display:flex;flex-direction:column;gap:8px}.v39-manager-card{display:grid;grid-template-columns:minmax(190px,1.6fr) minmax(120px,1fr) 90px 34px;gap:8px;align-items:center;padding:11px;border:1px solid #dfeae7;border-radius:15px;background:#fff;box-shadow:0 2px 10px -9px rgba(12,70,60,.5)}
+.v39-card-main{display:flex;align-items:center;gap:10px;min-width:0}.v39-card-logo{width:38px;height:38px;border-radius:11px;background:#eaf4f1;color:#0c715f;display:grid;place-items:center;font-weight:950;font-size:11px;flex:0 0 auto;border:1px solid #d4e6e1}.v39-card-symbol{font-weight:950;font-size:13.5px;color:#193c35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v39-card-name{font-size:10.5px;color:#91a09c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}.v39-card-meta{font-size:10px;color:#758680;margin-top:3px}.v39-owner-select{width:100%;border:1px solid #d6e4e0;border-radius:9px;padding:8px;background:#fff;color:#24443e;font:inherit;font-size:11.5px}.v39-card-status{justify-self:start;padding:5px 8px;border-radius:99px;background:#e6f6ee;color:#21835f;font-size:10.5px;font-weight:900;white-space:nowrap}.v39-card-status.off{background:#fcecef;color:#c15d6c}.v39-card-remove{width:32px;height:32px;border:0;border-radius:9px;background:#fff0f2;color:#c45467;font-size:19px;cursor:pointer}.v39-manager-save-row{padding:6px 16px}.v39-manager-save-row .btn{width:100%;border-radius:12px;padding:11px}.v39-manager-note{margin:2px 16px 10px;padding:11px 12px;border-radius:12px;background:#edf7f4;color:#5b7b73;font-size:10.5px;line-height:1.5}.v39-manager-close{display:block;width:calc(100% - 32px);margin:0 16px 16px;border:0;border-radius:12px;padding:11px;background:#e7f2ef;color:#0c715f;font:inherit;font-weight:900;cursor:pointer}
+@media(max-width:650px){.v39-manager-sheet{width:100%!important;max-width:none!important;border-radius:20px 20px 0 0!important}.v39-manager-title{font-size:20px}.v39-manager-sub{font-size:11px}.v39-manager-addbar{padding-top:12px}.v39-add-fund-btn{padding:9px 10px;font-size:11.5px}.v39-manager-list-head{display:none}.v39-manager-list{max-height:58vh;padding:0 12px 10px}.v39-manager-card{grid-template-columns:1fr 36px;gap:7px;padding:10px}.v39-card-main{grid-column:1}.v39-owner-select{grid-column:1;padding:8px}.v39-card-status{grid-column:1;justify-self:start}.v39-card-remove{grid-column:2;grid-row:1 / span 3;align-self:center}.v39-manager-symbol-box{margin-left:12px;margin-right:12px}.v39-manager-save-row,.v39-manager-note{margin-left:12px;margin-right:12px}.v39-manager-close{width:calc(100% - 24px);margin-left:12px;margin-right:12px}.v39-symbol-row{grid-template-columns:1fr 82px}.v39-symbol-add{padding:0 8px}}
+</style>
+
+<style id="v39-manager-final-preview">
+.v39-manager-typehint{margin:10px 16px 0;padding:10px 12px;border:1px dashed #cfe1dc;border-radius:14px;background:#f8fcfb;display:flex;align-items:center;gap:8px;color:#35685d}.v39-manager-typehint span{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:#e4f2ee;color:#0c715f;font-weight:950}.v39-manager-typehint b{font-size:12px}.v39-manager-typehint em{font-style:normal;font-size:10.5px;color:#8a9894;margin-left:auto}@media(max-width:650px){.v39-manager-typehint{margin:8px 12px 0;display:block}.v39-manager-typehint span{display:inline-grid;vertical-align:middle;margin-right:5px}.v39-manager-typehint b{vertical-align:middle}.v39-manager-typehint em{display:block;margin:4px 0 0 33px}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-left">
+      <a href="../index.html" data-auth-allow="true" style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:var(--primary-soft,#e7f2ef);color:var(--primary,#0f5b4d);text-decoration:none;margin-right:2px;flex:none" aria-label="กลับเมนูหลัก" title="กลับเมนูหลัก">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M15 5 8 12l7 7"/></svg>
+      </a>
+      <div class="brand-mark">₿</div>
+      <div>
+        <div class="brand-name">My Portfolio</div>
+        <div class="brand-sub">พอร์ตการลงทุนรายเดือนของครอบครัว • V39 Consolidated</div>
+        <div class="last-updated" id="lastUpdated">อัปเดตล่าสุด: -</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main>
+  <!-- ============ DASHBOARD ============ -->
+  <section id="view-dashboard">
+    <div class="hero">
+      <div class="hero-top">
+        <div>
+          <p class="hero-label">เงินลงทุนสะสมทุกกองทุน</p>
+          <p class="hero-amount num privacy-number" id="heroActual">฿0</p>
+          <p class="hero-target">จากเป้าหมาย <b class="privacy-number" id="heroTarget">฿0</b> ต่อปี</p>
+        </div>
+        <div class="gauge">
+          <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="10"/>
+            <circle id="gaugeArc" cx="50" cy="50" r="42" fill="none" stroke="#fff" stroke-width="10"
+              stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="264"/>
+          </svg>
+          <div class="gauge-pct" id="gaugePct">0%</div>
+        </div>
+      </div>
+      <div class="hero-bottom">
+        <div class="hero-chip"><div class="k">จำนวนกองทุน</div><div class="v privacy-number" id="heroFundCount">0</div></div>
+        <div class="hero-chip"><div class="k">ครบเป้าหมายแล้ว</div><div class="v privacy-number" id="heroMetCount">0</div></div>
+        <div class="hero-chip"><div class="k">คงเหลือถึงเป้าหมาย</div><div class="v privacy-number" id="heroRemain">฿0</div></div>
+        <div class="hero-chip"><div class="k">สำเร็จแล้ว</div><div class="v privacy-number" id="heroPctChip">0%</div></div>
+      </div>
+    </div>
+
+    <div class="panel market-panel">
+      <div class="market-ticker-head">
+        <div class="market-ticker-title">📈 ETF WATCH</div>
+        <div class="market-subtitle">Google Finance • ETF Watch • อาจล่าช้าสูงสุดประมาณ 20 นาที</div>
+        <button class="tool-btn" id="marketRefreshBtn" style="padding:4px 8px;font-size:12px">↻</button>
+      </div>
+      <div class="market-ticker-wrap" id="marketTickerWrap">
+        <div class="market-ticker-row"><span class="market-row-label etf">ETF WATCH</span><div class="market-ticker-track etfs" id="marketEtfGrid"></div></div>
+      <div class="market-ticker-row"><span class="market-row-label stock">STOCK WATCH</span><div class="market-ticker-track stocks" id="marketStockGrid"></div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="panel-title">สัดส่วนเงินลงทุนตามเจ้าของพอร์ต</p>
+      <div class="alloc-row">
+        <div class="donut" id="allocDonut"></div>
+        <div class="legend" id="allocLegend"></div>
+      </div>
+    </div>
+
+    <div class="filters" id="ownerFilters"></div>
+    <div class="smart-tools">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        <input id="fundSearch" type="search" placeholder="ค้นหากองทุน / เจ้าของพอร์ต..." autocomplete="off">
+        <button class="search-clear" id="searchClear">×</button>
+      </div>
+      <button class="tool-btn" id="favoritesOnlyBtn">★ รายการโปรด</button>
+    </div>
+    <div class="summary-grid" id="smartSummary"></div>
+    <div class="notice-list" id="smartNotices"></div>
+
+    <div id="fundGroups"></div>
+  </section>
+
+  <!-- ============ FINANCE ============ -->
+  <section id="view-finance" hidden>
+    <div class="panel finance-main-panel">
+      <div class="finance-main-head">
+        <div class="finance-main-brand">
+          <div class="finance-main-icon">📈</div>
+          <div style="min-width:0"><div class="finance-main-title">Finance</div><div class="finance-main-sub">Market Watch • My funds • ETF • Stock</div></div>
+        </div>
+        <div class="finance-main-actions"><button class="tool-btn" id="financeRefreshBtn">↻ อัปเดต</button></div>
+      </div>
+      <div class="finance-seg finance-main-tabs" id="financeSeg">
+        <button type="button" class="active" data-tab="fund">My funds</button>
+        <button type="button" data-tab="etf">ETF</button>
+        <button type="button" data-tab="stock">Stock</button>
+      </div>
+      <div class="finance-list-head"><span>ชื่อ</span><span>ราคา/NAV</span><span>เปลี่ยนแปลง</span></div>
+      <div class="finance-list" id="financeCards"></div>
+      <div class="finance-note" id="financeHint">NAV ของ My funds ใช้ NAV จาก FundMaster/ฐานข้อมูลเท่านั้น • ไม่มีข้อมูล = รออัปเดต</div>
+    </div>
+  </section>
+
+  <!-- ============ TABLE ============ -->
+  <section id="view-table" hidden>
+    <div class="yearbar">
+      <div class="year-title">ปีลงทุน</div>
+      <button class="year-nav" id="prevYear" aria-label="ปีก่อน">‹</button>
+      <select id="yearSelect" class="year-select"></select>
+      <button class="year-nav" id="nextYear" aria-label="ปีถัดไป">›</button>
+      <button class="year-add" id="addYearBtn">＋ เพิ่มปี</button>
+    </div>
+    <div class="table-toolbar">
+      <div><h2>ตารางการลงทุนรายเดือน</h2><div style="font-size:13px;opacity:.72;margin-top:1px">Master ใน Google Sheets เป็นแผนหลัก • แก้ใน Sheet แล้วเว็บจะอัปเดตอัตโนมัติ</div></div>
+      <div class="table-toolbar-actions">
+      <button class="sync-btn" id="syncBtn">
+        <span class="sync-dot" id="syncDot"></span>
+        <span id="syncLabel">ซิงก์ข้อมูล</span>
+      </button>
+      <button class="export-btn" id="importMasterBtn">↻ ดึงจาก Master</button>
+      <button class="export-btn" id="exportBtn">⬇ Export CSV</button>
+    </div>
+    </div>
+    <div class="table-scroll-wrap" id="tableScrollWrap">
+      <div class="table-scroll" id="tableScroll">
+        <table id="mainTable">
+          <thead>
+            <tr id="tableHeadRow"></tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<nav class="bottom-nav" id="bottomNav">
+  <button class="bn-item active" data-view="dashboard">
+    <svg class="bn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5a1 1 0 0 0 1 1H9.5v-6.5h5V20.5h3a1 1 0 0 0 1-1V10"/></svg>
+    <span>ภาพรวม</span>
+  </button>
+  <button class="bn-item" data-view="table">
+    <svg class="bn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.2"/><path d="M3.5 9.5h17M8.5 4.5v15"/></svg>
+    <span class="detail-nav-label">รายละเอียด</span>
+  </button>
+  <button class="bn-item" id="bnInvest">
+    <svg class="bn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 8.2v7.6M8.2 12h7.6"/></svg>
+    <span>ลงทุน</span>
+  </button>
+  <button class="bn-item" data-view="finance">
+    <svg class="bn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V11M10 19V5M16 19v-8M4 19h16"/></svg>
+    <span>Finance</span>
+  </button>
+</nav>
+
+<!-- ============ INVEST MODAL ============ -->
+<div class="modal-overlay" id="modalInvest" hidden>
+  <div class="modal-sheet">
+    <p class="modal-title">บันทึกการลงทุน</p>
+    <p class="modal-sub">เลือกกองทุนและระบุจำนวนเงินที่ลงทุนในเดือนนี้</p>
+    <div class="field">
+      <label for="investOwner">เจ้าของพอร์ต</label>
+      <select id="investOwner"></select>
+    </div>
+    <div class="field">
+      <label for="investFund">กองทุน</label>
+      <select id="investFund"></select>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="investDate">วันที่ลงทุน</label>
+        <input type="date" id="investDate">
+      </div>
+      <div class="field">
+        <label for="investAmount">จำนวนเงิน (บาท)</label>
+        <input type="number" id="investAmount" placeholder="100.00" step="0.01" min="0">
+      </div>
+    </div>
+    <div class="field note-field">
+      <label for="investNote">โน้ต / บันทึกรายการ</label>
+      <textarea id="investNote" placeholder="เช่น DCA ประจำเดือน, ซื้อเพิ่ม, โบนัส, ปรับพอร์ต..."></textarea>
+      <div class="history-help">โน้ตจะถูกเก็บไว้กับรายการลงทุนนี้ และซิงก์ไป Google Sheets ได้</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="investCancel">ยกเลิก</button>
+      <button class="btn btn-primary" id="investSave">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ADD FUND MODAL ============ -->
+<div class="modal-overlay" id="modalAddFund" hidden>
+  <div class="modal-sheet">
+    <p class="modal-title">เพิ่มกองทุนใหม่</p>
+    <p class="modal-sub">เพิ่มกองทุนเข้าพอร์ตของเจ้าของที่เลือก</p>
+    <div class="field">
+      <label for="newFundOwnerSelect">เจ้าของพอร์ต</label>
+      <select id="newFundOwnerSelect"></select>
+      <button class="toggle-owner" id="toggleNewOwner">+ เจ้าของพอร์ตใหม่</button>
+      <input type="text" id="newFundOwnerText" placeholder="ชื่อเจ้าของพอร์ตใหม่" style="margin-top:8px; display:none;">
+    </div>
+    <div class="field">
+      <label for="newFundName">ชื่อกองทุน</label>
+      <input type="text" id="newFundName" placeholder="เช่น SCBRMS&amp;P500">
+    </div>
+    <div class="field">
+      <label for="newFundTarget">เป้าหมายการลงทุนต่อปี (บาท)</label>
+      <input type="number" id="newFundTarget" value="24000" step="1" min="0">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="addFundCancel">ยกเลิก</button>
+      <button class="btn btn-primary" id="addFundSave">เพิ่มกองทุน</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CLOUD SYNC MODAL ============ -->
+<div class="modal-overlay" id="modalCloud" hidden>
+  <div class="modal-sheet">
+    <p class="modal-title">☁️ ข้อมูลถาวรบน Google</p>
+    <p class="modal-sub">Google Sheets เป็นฐานข้อมูลกลางของระบบทั้งหมด • Web/PWA และ Backup ใช้ข้อมูลจาก Sheet เดียวกัน</p>
+    <div class="sheet-connect-box">
+      <b style="font-size:13.5px;color:var(--primary)">Google Sheets</b>
+      <div class="sheet-status" id="sheetStatusText">ยังไม่ได้เชื่อมต่อ</div>
+      <div class="field" style="margin-top:10px"><label for="googleClientId">Google OAuth Client ID</label><input type="text" id="googleClientId" placeholder="xxxxxxxx.apps.googleusercontent.com"></div>
+      <div class="field"><label for="googleSheetId">Spreadsheet ID (เว้นว่างเพื่อสร้างใหม่)</label><input type="text" id="googleSheetId" placeholder="1AbCdEf..."></div>
+      <div class="modal-actions"><button class="btn btn-ghost" id="sheetPullBtn">ดึงจาก Sheets</button><button class="btn btn-primary" id="sheetConnectBtn">เชื่อมต่อ / ซิงก์</button></div>
+      <div class="modal-actions" style="margin-top:10px"><button class="btn btn-ghost" id="sheetPushBtn">บันทึกลง Sheets</button><button class="btn btn-primary" id="sheetCreateBtn">สร้าง Sheet ใหม่</button></div>
+      <div class="setup-note">ต้องเปิด Google Sheets API และตั้ง Authorized JavaScript origins ของ OAuth Client ให้ตรงกับเว็บนี้ หากใช้ไฟล์ HTML ให้รันผ่าน localhost หรือเว็บโฮสต์ ไม่ใช่ file://</div>
+      <div class="setup-note">เมื่อเชื่อมต่อแล้ว แอปจะดึงข้อมูลใหม่จาก Sheets ให้อัตโนมัติทุก ~25 วินาที (ตอนแอปเปิดอยู่) และดึงทันทีเมื่อสลับกลับมาที่แท็บนี้ — แก้ไขตัวเลขในชีตแล้วจะขึ้นในเว็บให้เองโดยไม่ต้องกด "ดึงจาก Sheets"</div>
+    </div>
+    <div class="sheet-connect-box">
+      <b style="font-size:13.5px;color:var(--primary)">💾 Backup / Restore</b>
+      <div class="sheet-status">ใช้ Google Sheets เดิมเป็นฐานข้อมูลกลาง ไม่มีฐานข้อมูลสำรองแยกใน Google Drive</div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="exportJsonBtn">Export JSON</button>
+        <button class="btn btn-ghost" id="importJsonBtn">Import JSON</button>
+        <input type="file" id="importJsonFile" accept="application/json,.json" hidden>
+      </div>
+      <div class="setup-note">Export JSON ใช้เก็บสำรองหรือย้ายข้อมูลได้ ส่วน Import JSON จะนำข้อมูลเข้าเครื่อง แล้วบันทึกกลับ Google Sheets ซึ่งเป็นฐานข้อมูลกลางของระบบ</div>
+    </div>
+    <div class="modal-actions" style="margin-top:12px"><button class="btn btn-ghost" id="cloudCloseBtn">ปิด</button></div>
+  </div>
+</div>
+
+<!-- ============ FUND DETAIL MODAL ============ -->
+<div class="fund-detail-overlay" id="fundDetailOverlay" hidden>
+  <div class="fund-detail-sheet">
+    <button class="fund-detail-close" id="fundDetailClose">×</button>
+    <div class="detail-owner" id="detailOwner"></div>
+    <div class="detail-name" id="detailName"></div>
+    <div class="detail-year" id="detailYear"></div>
+    <div class="detail-kpis">
+      <div class="detail-kpi"><div class="k">ลงทุนสะสม</div><div class="v" id="detailActual">฿0</div></div>
+      <div class="detail-kpi"><div class="k">เป้าหมาย</div><div class="v" id="detailTarget">฿0</div></div>
+      <div class="detail-kpi"><div class="k">ความคืบหน้า</div><div class="v" id="detailPct">0%</div></div>
+    </div>
+    <div class="detail-progress"><div class="detail-progress-head"><span>ความคืบหน้าตามเป้าหมาย</span><b id="detailRemain">เหลือ ฿0</b></div><div class="detail-track"><div class="detail-fill" id="detailFill" style="width:0%"></div></div></div>
+    <div class="quick-month" id="detailMonthlyPlan"></div>
+    <div class="detail-actions">
+      <button class="detail-action-btn" id="detailInvestBtn">＋ บันทึกการลงทุน</button>
+      <button class="detail-action-btn" id="detailFavoriteBtn">☆ เพิ่มรายการโปรด</button>
+    </div>
+    <div class="detail-chart-card">
+      <div class="detail-chart-title">รายละเอียดแต่ละเดือน <span class="chart-unit">พิมพ์ตัวเลขแก้ไขได้ทันที</span></div>
+      <div class="detail-months" id="detailMonths"></div>
+    </div>
+    <div class="detail-chart-card">
+      <div class="detail-chart-title">กราฟการลงทุนรายเดือน <span class="chart-unit">หน่วย: บาท</span></div>
+      <div class="detail-chart-legend"><span><i class="legend-line"></i> เงินลงทุนรายเดือน</span></div>
+      <div class="detail-chart" id="detailChart"></div>
+    </div>
+    <div class="detail-chart-card">
+      <div class="detail-chart-title">เงินลงทุนสะสมเทียบเป้าหมาย <span class="chart-unit">หน่วย: บาท</span></div>
+      <div class="detail-chart" id="detailCumulativeChart"></div>
+    </div>
+    <div class="detail-chart-card">
+      <div class="detail-chart-title">ประวัติการลงทุน <span class="chart-unit">แก้ไข / ลบได้</span></div>
+      <div class="history-list" id="detailHistory"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============ MARKET MANAGER MODAL ============ -->
+
+
+<!-- ============ FINANCE DETAIL MODAL ============ -->
+<div class="fund-detail-overlay finance-modal" id="financeDetailOverlay" hidden>
+  <div class="fund-detail-sheet">
+    <button class="fund-detail-close" id="financeDetailClose">×</button>
+    <div class="detail-owner">MARKET WATCH</div>
+    <div class="detail-name" id="financeDetailName">-</div>
+    <div class="detail-year" id="financeDetailSymbol">-</div>
+    <div class="finance-detail-grid" id="financeDetailGrid"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= DATA ================= */
+const STORAGE_KEY = 'khlangthun_portfolio_oldui_latest_v4';
+const MONTHS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const CURRENT_YEAR = new Date().getFullYear();
+let selectedYear = CURRENT_YEAR;
+const OWNER_COLORS = {}; // filled dynamically
+const PALETTE = ['#5B4AE8','#2F8F83','#D49A2A','#E05A78','#3B82C4','#8A63D2','#2E9E8E'];
+const OWNER_FIXED_COLORS = {
+  'Suksan':'#2F8F83',
+  'Wirocha':'#5B4AE8',
+  'Phoom':'#D49A2A',
+  'สุขสันต์':'#2F8F83',
+  'วิโรจา':'#5B4AE8',
+  'ภูมิ':'#D49A2A'
+};
+
+/* ================= LATEST FUND NAV =================
+   Initial values verified from official fund-manager pages where available.
+   The app keeps the NAV editable/refreshable via the FundNAV sheet in Google Sheets.
+================= */
+const FUND_MASTER={
+  'SCBRMS&P500':{displayName:'SCBRMS&P500',officialName:'กองทุนเปิดไทยพาณิชย์หุ้นยูเอส เพื่อการเลี้ยงชีพ',manager:'SCBAM',assetClass:'RMF / US Equity'},
+  'SCBRMWORLD(A)':{displayName:'SCBRMWORLD(A)',officialName:'กองทุนเปิดไทยพาณิชย์ ดัชนีหุ้นโลก เพื่อการเลี้ยงชีพ (ชนิดสะสมมูลค่า)',manager:'SCBAM',assetClass:'RMF / Global Equity'},
+  'SCBRM1':{displayName:'SCBRM1',officialName:'กองทุนเปิดไทยพาณิชย์ตราสารหนี้ระยะสั้นเพื่อการเลี้ยงชีพ',manager:'SCBAM',assetClass:'RMF / Fixed Income'},
+  'SCBRM2':{displayName:'SCBRM2',officialName:'กองทุนเปิดไทยพาณิชย์พันธบัตรรัฐบาล เพื่อการเลี้ยงชีพ',manager:'SCBAM',assetClass:'RMF / Government Bond'},
+  'SCBGOLDHRMF':{displayName:'SCBGOLDHRMF',officialName:'กองทุนเปิดไทยพาณิชย์โกลด์ THB เฮดจ์ เพื่อการเลี้ยงชีพ',manager:'SCBAM',assetClass:'RMF / Gold'},
+  'SCBTM(ThaiESGE)':{displayName:'SCBTM(ThaiESGE)',officialName:'กองทุนเปิดไทยพาณิชย์ ไทยผสมยั่งยืน (ชนิดไทยเพื่อความยั่งยืนผ่านช่องทางอิเล็กทรอนิกส์)',manager:'SCBAM',assetClass:'Thai ESG'},
+  'SCBTM(ThaiESGA)':{displayName:'SCBTM(ThaiESGA)',officialName:'กองทุนเปิดไทยพาณิชย์ ไทยผสมยั่งยืน (ชนิดไทยเพื่อความยั่งยืนแบบสะสมมูลค่า)',manager:'SCBAM',assetClass:'Thai ESG'},
+  'TLUS500RMF':{displayName:'TLUS500RMF',officialName:'กองทุนเปิดทาลิส หุ้นยูเอส 500 เพื่อการเลี้ยงชีพ',manager:'TALIS',assetClass:'RMF / US Equity'},
+  'TLWORLDXUSRMF':{displayName:'TLWORLDXUSRMF',officialName:'กองทุนเปิดทาลิส เวิลด์ เอ็กซ์ ยูเอส เพื่อการเลี้ยงชีพ',manager:'TALIS',assetClass:'RMF / Global ex-US Equity'},
+  'TLWORLD-X':{displayName:'TLWORLD-X',officialName:'กองทุนเปิดทาลิส เวิลด์สต็อก',manager:'TALIS',assetClass:'Global Equity'},
+  'KKP-INRMF':{displayName:'KKP-INRMF',officialName:'กองทุนเปิดเคเคพี อินคัมเพื่อการเลี้ยงชีพ',manager:'KKPAM',assetClass:'RMF / Fixed Income'},
+  'KKP CorePath Balanced RMF':{displayName:'KKP CorePath Balanced RMF',officialName:'กองทุนเปิดเคเคพี CorePath Balanced Retirement Mutual Fund',manager:'KKPAM',assetClass:'RMF / Multi-Asset'},
+  'SCBSEMI(E)':{displayName:'SCBSEMI(E)',officialName:'กองทุนเปิดไทยพาณิชย์ Semiconductor (ชนิดช่องทางอิเล็กทรอนิกส์)',manager:'SCBAM',assetClass:'Equity / Semiconductor'},
+  'SCBVIET(E)':{displayName:'SCBVIET(E)',officialName:'กองทุนเปิดไทยพาณิชย์ หุ้นเวียดนาม (ชนิดช่องทางอิเล็กทรอนิกส์)',manager:'SCBAM',assetClass:'Equity / Vietnam'},
+  'SCBGVALUE(E)':{displayName:'SCBGVALUE(E)',officialName:'กองทุนเปิดไทยพาณิชย์ Global Value Equity (ชนิดช่องทางอิเล็กทรอนิกส์)',manager:'SCBAM',assetClass:'Equity / Global Value'},
+  'SCBNK225E':{displayName:'SCBNK225E',officialName:'SCB Japan Equity Fund (E-channel)',manager:'SCBAM',assetClass:'Equity / Japan'},
+  'SCBS&P500E':{displayName:'SCBS&P500E',officialName:'กองทุนเปิดไทยพาณิชย์หุ้นยูเอส (ชนิดช่องทางอิเล็กทรอนิกส์)',manager:'SCBAM',assetClass:'Equity / US'},
+  'SCBSTMFPLUS-I':{displayName:'SCBSTMFPLUS-I',officialName:'SCB Short Term Fixed Income Fund',manager:'SCBAM',assetClass:'Fixed Income'},
+  'SCBSTMFPLUS-E':{displayName:'SCBSTMFPLUS-E',officialName:'SCB Short Term Fixed Income Fund (E-channel)',manager:'SCBAM',assetClass:'Fixed Income'},
+  'SCBFIXEDA':{displayName:'SCBFIXEDA',officialName:'SCB Fixed Income Fund',manager:'SCBAM',assetClass:'Fixed Income'},
+  'VOO':{displayName:'VOO',officialName:'Vanguard S&P 500 ETF',manager:'Vanguard',assetClass:'ETF'},
+  'SCHD':{displayName:'SCHD',officialName:'Schwab U.S. Dividend Equity ETF',manager:'Schwab',assetClass:'ETF'},
+  'VXUS':{displayName:'VXUS',officialName:'Vanguard Total International Stock ETF',manager:'Vanguard',assetClass:'ETF'},
+  'GOOGL':{displayName:'GOOGL',officialName:'Alphabet Class A',manager:'Alphabet',assetClass:'US Stock'}
+};
+const FUND_ALIASES={
+  'TLUS500RMF':'TLUS500RMF','TLWORLDXUSRMF':'TLWORLDXUSRMF','TLWORLD-X':'TLWORLD-X',
+  'SCBSEMI(E)':'SCBSEMI(E)','SCBVIET(E)':'SCBVIET(E)','SCBGVALUE(E)':'SCBGVALUE(E)','SCBNK225E':'SCBNK225E',
+  'SCBS&P500E':'SCBS&P500E','SCBGVALUE(E)':'SCBGVALUE(E)'
+};
+const FUND_NAV={
+  'SCBRMS&P500':{nav:22.8811,date:'8 ก.ย. 2569',source:'SCBAM'},
+  'SCBRMWORLD(A)':{nav:16.4956,date:'8 ก.ย. 2569',source:'SCBAM'},
+  'SCBRM1':{nav:15.3929,date:'9 ก.ย. 2569',source:'SCBAM'},
+  'SCBRM2':{nav:15.9073,date:'9 ก.ย. 2569',source:'SCBAM'},
+  'SCBGOLDHRMF':{nav:19.0958,date:'9 ก.ย. 2569',source:'SCBAM'},
+  'SCBTM(ThaiESGE)':{nav:12.7677,date:'8 ก.ย. 2569',source:'SCBAM'},
+  'SCBFIXEDA':{nav:11.2877,date:'9 ก.ย. 2569',source:'SCBAM'},
+  'SCBTM(ThaiESGA)':{nav:12.4100,date:'9 ก.ย. 2569',source:'SCBAM'}
+};
+function fundNavInfo(f){
+  const exact=FUND_NAV[f.name];
+  if(exact) return exact;
+  const base=f.name.replace(/\s*\([^)]*\)\s*$/,'');
+  return FUND_NAV[base] || null;
+}
+(function loadWebFundRegistry(){
+ try{const saved=JSON.parse(localStorage.getItem('fund_master_web_registry_v1')||'null');if(saved&&typeof saved==='object'){Object.entries(saved).forEach(([k,v])=>{FUND_MASTER[k]={...(FUND_MASTER[k]||{}),...v};});}}catch(e){}
+})();
+
+// Web-added fund registry: funds created from Finance survive refresh and are merged
+// with the built-in/Google Sheet FundMaster without deleting existing records.
+(function loadWebFundRegistry(){
+  try{
+    const saved=JSON.parse(localStorage.getItem('fund_master_web_registry_v1')||'{}');
+    Object.entries(saved||{}).forEach(([code,m])=>{
+      if(code && m) FUND_MASTER[code]={...(FUND_MASTER[code]||{}),...m};
+    });
+  }catch(e){ console.warn('web fund registry',e); }
+})();
+
+function canonicalFundCode(name){
+  const raw=String(name||'').trim();
+  if(FUND_ALIASES[raw]) return FUND_ALIASES[raw];
+  const noWealth=raw.replace(/\s*\((?:WelthX|WealthX)\)\s*/ig,'').trim();
+  if(FUND_ALIASES[noWealth]) return FUND_ALIASES[noWealth];
+  // Numeric parentheses were legacy investment amounts, not fund-name suffixes.
+  const noAmount=noWealth.replace(/\s*\(\d+(?:[,.]\d+)?\)\s*$/,'').trim();
+  if(FUND_ALIASES[noAmount]) return FUND_ALIASES[noAmount];
+  return noAmount;
+}
+function cleanFundDisplayName(name){
+  const code=canonicalFundCode(name);
+  return FUND_MASTER[code]?.displayName || code;
+}
+
+
+function renderFundNav(f){
+  const n=fundNavInfo(f);
+  if(!n) return `<div class="fund-nav na"><span class="nav-dot" style="background:var(--ink-faint)"></span><span class="nav-label">NAV: รอข้อมูล</span></div>`;
+  return `<div class="fund-nav"><span class="nav-dot"></span><span class="nav-label">NAV ${Number(n.nav).toFixed(4)}</span><span class="nav-date">ณ ${n.date}</span></div>`;
+}
+
+function seedFunds(){
+  const m = arr => { const o={}; arr.forEach((v,i)=>o[i+1]=v); return o; };
+  return [
+    // Suksan
+    fund('Suksan','SCBRMS&P500', m([0,2000,2000,2000,2000,2000,0,1000,0,0,0,0]), 24000),
+    fund('Suksan','SCBRMWORLD(A)', m([0,2000,2000,2000,2000,2000,2000,2000,1000,0,0,0]), 24000),
+    fund('Suksan','SCBGOLDHRMF', m([0,0,1000,1000,1000,3000,1000,0,1000,0,0,0]), 24000),
+    fund('Suksan','SCBTM(ThaiESGE)', m([0,0,1000,1000,1000,1000,1000,1000,1000,0,0,0]), 24000),
+    fund('Suksan','SCBRM2', m([0,0,0,0,0,0,5000,0,1000,0,0,0]), 24000),
+    fund('Suksan','SCBSTMFPLUS-I', m([3000,3000,3000,3000,3000,2000,0,0,0,0,0,0]), 24000),
+    fund('Suksan','SCBFIXEDA', m([3000,3000,3000,3000,3000,3000,3000,3000,3000,0,0,0]), 24000),
+    fund('Suksan','TLUS500RMF', m([0,0,0,0,0,0,0,2000,2000,0,0,0]), 24000),
+    fund('Suksan','TLWORLDXUSRMF', m([0,0,0,0,0,0,0,2000,2000,0,0,0]), 24000),
+    fund('Suksan','KKP CorePath Balanced RMF', m([0,0,0,0,0,1000,1000,1000,2000,0,0,0]), 24000),
+    fund('Suksan','KKP-INRMF', m([0,0,0,0,0,1000,0,0,0,0,0,0]), 24000),
+    fund('Suksan','SCBSEMI(E)', m([0,0,0,500,500,500,500,0,500,0,0,0]), 24000),
+    fund('Suksan','SCBVIET(E)', m([0,0,0,500,500,500,500,0,500,0,0,0]), 24000),
+    fund('Suksan','SCBGVALUE(E)', m([0,0,0,500,500,500,500,0,500,0,0,0]), 24000),
+    fund('Suksan','SCBNK225E', m([0,0,0,500,500,500,500,0,0,0,0,0]), 24000),
+    fund('Suksan','VOO', m([0,0,0,5000,500,1000,1000,0,0,0,0,0]), 24000),
+    fund('Suksan','SCHD', m([0,0,0,0,500,0,0,0,0,0,0,0]), 24000),
+    fund('Suksan','VXUS', m([0,0,0,4500,700,1000,0,0,0,0,0,0]), 24000),
+    fund('Suksan','GOOGL', m([0,0,0,0,0,3000,400,1000,0,0,0,0]), 24000),
+    // Wirocha
+    fund('Wirocha','SCBS&P500E', m([0,0,0,0,0,1000,2000,0,0,0,0,0]), 24000),
+    fund('Wirocha','SCBGVALUE(E)', m([0,0,0,0,0,0,1000,0,0,0,0,0]), 24000),
+    fund('Wirocha','SCBSTMFPLUS-E (3000)', m([0,0,0,0,0,2000,5000,3000,0,0,0,0]), 24000),
+    // Phoom
+    fund('Phoom','TLWORLD-X', m([0,0,0,0,0,0,2000,2000,0,0,0,0]), 24000),
+  ];
+}
+function fund(owner,name,months,target){
+  return { id:'f_'+Math.random().toString(36).slice(2,9), owner:canonicalOwner(owner), name, months, target, years:{}, favorite:false, transactions:[] };
+}
+function canonicalOwner(owner){
+  const raw=String(owner||'').trim();
+  const key=raw.replace(/\s+/g,'').toLowerCase();
+  const map={
+    'suksan':'Suksan','สุขสันต์':'Suksan',
+    'wirocha':'Wirocha','วิโรจา':'Wirocha','วิโรชา':'Wirocha','วิรุชา':'Wirocha','วิโรช':'Wirocha',
+    'phoom':'Phoom','ภูมิ':'Phoom'
+  };
+  return map[key]||raw;
+}
+function normalizeFund(f){
+  f.owner=canonicalOwner(f.owner);
+  f.name=canonicalFundCode(f.name);
+  if(!f.years || typeof f.years!=='object') f.years={};
+  if(!Array.isArray(f.transactions)) f.transactions=[];
+  if(typeof f.favorite!=='boolean') f.favorite=false;
+  // Migrate the old single-year structure into the current calendar year once.
+  if(f.months && Object.keys(f.months).length && !f.years[CURRENT_YEAR]){
+    f.years[CURRENT_YEAR]={months:{...f.months}, planMonths:{...f.months}, target:Number(f.target)||0};
+  }
+  delete f.months;
+  if(f.target===undefined) f.target=24000;
+  return f;
+}
+function yearData(f, year=selectedYear, create=true){
+  normalizeFund(f);
+  if(!f.years[year] && create) f.years[year]={months:{}, planMonths:{}, target:Number(f.target)||0};
+  if(f.years[year] && !f.years[year].months) f.years[year].months={};
+  if(f.years[year] && !f.years[year].planMonths) f.years[year].planMonths={...f.years[year].months};
+  if(f.years[year] && f.years[year].target===undefined) f.years[year].target=Number(f.target)||0;
+  return f.years[year] || {months:{},target:Number(f.target)||0};
+}
+function availableYears(){
+  const ys=new Set([CURRENT_YEAR]);
+  DATA.funds.forEach(f=>Object.keys(f.years||{}).forEach(y=>ys.add(Number(y))));
+  return [...ys].filter(Number.isFinite).sort((a,b)=>a-b);
+}
+function ensureYear(year){ DATA.funds.forEach(f=>yearData(f,year,true)); saveData(DATA); }
+function renderYearSelector(){
+  const sel=document.getElementById('yearSelect');
+  const years=availableYears();
+  if(!years.includes(selectedYear)) selectedYear=years[years.length-1]||CURRENT_YEAR;
+  sel.innerHTML=years.map(y=>`<option value="${y}">${y+543}</option>`).join('');
+  sel.value=String(selectedYear);
+}
+function setYear(year){
+  selectedYear=Number(year);
+  renderYearSelector();
+  renderAll();
+}
+function syncMonthlyCellToTransactions(f, year, month, desiredAmount){
+  if(!f) return false;
+  normalizeFund(f);
+  year=Number(year); month=Number(month); desiredAmount=Math.max(0,Number(desiredAmount)||0);
+  const txs=(f.transactions||[]).filter(t=>Number(t.year)===year && Number(t.month)===month);
+  let current=txs.reduce((s,t)=>s+(Number(t.amount)||0),0);
+  if(Math.abs(current-desiredAmount)<0.0001) return false;
+  if(desiredAmount===0){
+    if(!txs.length) return false;
+    f.transactions=f.transactions.filter(t=>!(Number(t.year)===year && Number(t.month)===month));
+    return true;
+  }
+  if(txs.length===0){
+    const mm=String(month).padStart(2,'0');
+    f.transactions.push({id:'tx_'+Math.random().toString(36).slice(2,10),date:`${year}-${mm}-01`,year,month,amount:desiredAmount,note:''});
+    return true;
+  }
+  // Keep the history entries/notes intact while making their monthly total match the table cell.
+  let remaining=desiredAmount;
+  const sorted=[...txs].sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  sorted.forEach((t,i)=>{
+    const old=Math.max(0,Number(t.amount)||0);
+    if(i===sorted.length-1){ t.amount=remaining; }
+    else { const keep=Math.min(old,remaining); t.amount=keep; remaining-=keep; }
+  });
+  f.transactions=f.transactions.filter(t=>!(Number(t.year)===year && Number(t.month)===month) || Number(t.amount)>0);
+  return true;
+}
+function syncAllMonthlyCellsToTransactions(data){
+  let changed=false;
+  (data.funds||[]).forEach(f=>{
+    normalizeFund(f);
+    Object.entries(f.years||{}).forEach(([y,yd])=>{
+      if(!yd) return;
+      // Investments are authoritative for actuals when transaction history exists.
+      // Never manufacture transactions from the Master plan.
+      const txs=(f.transactions||[]).filter(t=>Number(t.year)===Number(y));
+      if(txs.length){
+        const actual={};
+        txs.forEach(t=>{const m=Number(t.month); actual[m]=(actual[m]||0)+(Number(t.amount)||0);});
+        yd.months=actual;
+      } else if(!yd.months) { yd.months={}; }
+      if(!yd.planMonths) yd.planMonths={...yd.months};
+    });
+  });
+  return changed;
+}
+
+function loadData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){ const d=JSON.parse(raw); (d.funds||[]).forEach(normalizeFund); syncAllMonthlyCellsToTransactions(d); return d; }
+  }catch(e){}
+  const data = { funds: seedFunds() };
+  data.funds.forEach(normalizeFund);
+  syncAllMonthlyCellsToTransactions(data);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  return data;
+}
+function updateLastUpdated(){
+  const el=document.getElementById('lastUpdated');
+  if(!el) return;
+  let ts=localStorage.getItem(STORAGE_KEY+'_last_updated');
+  if(!ts){
+    ts=new Date().toISOString();
+    localStorage.setItem(STORAGE_KEY+'_last_updated',ts);
+  }
+  const d=new Date(ts);
+  el.textContent='อัปเดตล่าสุด: '+d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'})+' • '+d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+' น.';
+}
+function saveData(data){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  localStorage.setItem(STORAGE_KEY+'_last_updated', new Date().toISOString());
+  updateLastUpdated();
+  scheduleSheetsPush();
+}
+let DATA = loadData();
+updateLastUpdated();
+let currentOwnerFilter = 'ALL'; window.favoritesOnly=false;
+
+/* ================= HELPERS ================= */
+
+function allTransactions(){return DATA.funds.flatMap(f=>(f.transactions||[]).map(t=>({...t,fundId:f.id,owner:f.owner,fundName:f.name})));}
+function monthTotalForYearMonth(year,month){return allTransactions().filter(t=>Number(t.year)===Number(year)&&Number(t.month)===Number(month)).reduce((s,t)=>s+(Number(t.amount)||0),0);}
+function currentMonthIndex(){return new Date().getMonth()+1;}
+function scopedFunds(){ return currentOwnerFilter==='ALL' ? DATA.funds : DATA.funds.filter(f=>f.owner===currentOwnerFilter); }
+function monthlyPlanTotal(){
+  const y=selectedYear, m=currentMonthIndex();
+  return scopedFunds().reduce((s,f)=>{
+    const yd=yearData(f,y,true);
+    const plans=yd.planMonths||{};
+    return s+(Number(plans[m])||0);
+  },0);
+}
+function currentMonthInvestment(){
+  const y=Number(selectedYear), m=currentMonthIndex();
+  return scopedFunds().reduce((s,f)=>s+currentMonthInvestmentForFund(f),0);
+}
+function currentMonthInvestmentForFund(f){
+  const y=Number(selectedYear), m=currentMonthIndex();
+  return (f.transactions||[]).filter(t=>Number(t.year)===y&&Number(t.month)===m)
+    .reduce((a,t)=>a+(Number(t.amount)||0),0);
+}
+function monthPlanForFund(f,y,m){
+  const yd=yearData(f,y,true);
+  return Number(yd.planMonths?.[m] ?? yd.months?.[m]) || 0;
+}
+function annualPlanTotal(){
+  const y=Number(selectedYear);
+  return scopedFunds().reduce((s,f)=>s+(Number(yearData(f,y,true).target)||0),0);
+}
+function annualActualTotal(){
+  // PlanMaster column Q = เงินลงทุนจริง is the annual actual source used by the overview.
+  return scopedFunds().reduce((s,f)=>s+fundActual(f),0);
+}
+function filteredFunds(){
+  const q=(document.getElementById('fundSearch')?.value||'').trim().toLowerCase();
+  return DATA.funds.filter(f=>(currentOwnerFilter==='ALL'||f.owner===currentOwnerFilter)&&(!q||f.name.toLowerCase().includes(q)||f.owner.toLowerCase().includes(q))&&(!window.favoritesOnly||f.favorite));
+}
+function renderSmartSummary(){
+  const funds=scopedFunds();
+  const y=Number(selectedYear);
+  const target=annualPlanTotal();
+  const invested=annualActualTotal();
+  const remain=Math.max(0,target-invested); // R (target) - Q (actual)
+  const pct=target?Math.round(invested/target*100):0;
+  const monthPlan=monthlyPlanTotal();
+  const monthActual=currentMonthInvestment();
+  document.getElementById('smartSummary').innerHTML=
+   `<div class="summary-card action"><div class="s-k">ปีนี้ควรลงทุน${currentOwnerFilter!=='ALL'?` · ${escapeHtml(currentOwnerFilter)}`:''}</div><div class="s-v">${fmtInt(target)}</div><div class="s-sub">เป้าหมายรวมทั้งปี ${y+543} • จาก Master</div></div>
+    <div class="summary-card"><div class="s-k">ลงทุนจริง${currentOwnerFilter!=='ALL'?` · ${escapeHtml(currentOwnerFilter)}`:''}</div><div class="s-v">${fmtInt(invested)}</div><div class="s-sub">ยอดลงทุนจริงสะสมตั้งแต่ต้นปี ${y+543}</div></div>
+    <div class="summary-card"><div class="s-k">คงเหลือต้องลงทุนเพิ่ม${currentOwnerFilter!=='ALL'?` · ${escapeHtml(currentOwnerFilter)}`:''}</div><div class="s-v">${fmtInt(remain)}</div><div class="s-sub">เป้าทั้งปี − ลงทุนจริง • สำเร็จแล้ว ${pct}%</div></div>`;
+  const noInvest=funds.filter(f=>monthPlanForFund(f,y,currentMonthIndex())>0 && currentMonthInvestmentForFund(f)===0);
+  const monthRemain=Math.max(0,monthPlan-monthActual);
+  const notices=[];
+  if(monthRemain>0) notices.push(`<div class="notice warn"><span class="dot"></span><span>เดือนนี้ตามแผนยังขาด <b>${fmtInt(monthRemain)}</b></span></div>`);
+  if(noInvest.length) notices.push(`<div class="notice warn"><span class="dot"></span><span>มี ${noInvest.length} กองทุนที่ยังไม่ได้ลงทุนในเดือนนี้</span></div>`);
+  if(!notices.length) notices.push(`<div class="notice ok"><span class="dot"></span><span>ยอดลงทุนเดือนนี้ครบตามแผนแล้ว 🎉</span></div>`);
+  document.getElementById('smartNotices').innerHTML=notices.slice(0,3).join('');
+}
+function transactionForFundYear(f){return (f.transactions||[]).filter(t=>Number(t.year)===Number(selectedYear)).sort((a,b)=>String(b.date).localeCompare(String(a.date)));}
+function rebuildFundMonths(f){
+  Object.keys(f.years||{}).forEach(y=>{if(f.years[y])f.years[y].months={};});
+  (f.transactions||[]).forEach(t=>{const yd=yearData(f,Number(t.year),true);yd.months[Number(t.month)]=(Number(yd.months[Number(t.month)])||0)+(Number(t.amount)||0);});
+}
+function addTransaction(f,date,amount,note=''){
+  const d=new Date(date+'T00:00:00');
+  const tx={id:'tx_'+Math.random().toString(36).slice(2,10),date,year:d.getFullYear(),month:d.getMonth()+1,amount:Number(amount),note:String(note||'').trim()};
+  f.transactions.push(tx);const yd=yearData(f,tx.year,true);yd.months[tx.month]=(Number(yd.months[tx.month])||0)+tx.amount; yd.planMonths=yd.planMonths||{}; yd.planMonths[tx.month]=(Number(yd.planMonths[tx.month])||0)+tx.amount;
+}
+function renderHistory(f){
+  const wrap=document.getElementById('detailHistory');if(!wrap)return;
+  const rows=transactionForFundYear(f);
+  wrap.innerHTML=rows.length?rows.map(t=>`<div class="history-item"><div><div class="history-date">${new Date(t.date+'T00:00:00').toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'})}</div><div class="history-note">${MONTHS[Number(t.month)-1]||''}</div>${t.note?`<div class="history-note-text">📝 ${escapeHtml(t.note)}</div>`:'<div class="history-note-empty">ยังไม่มีโน้ต</div>'}</div><div class="history-amt privacy-number">${fmtInt(t.amount)}</div><div class="history-actions"><button title="แก้ไขรายการและโน้ต" data-edit-tx="${t.id}">✎</button><button title="ลบรายการ" data-del-tx="${t.id}">×</button></div></div>`).join(''):'<div class="empty-state" style="padding:18px">ยังไม่มีประวัติการลงทุนของปีนี้</div>';
+  wrap.querySelectorAll('[data-edit-tx]').forEach(b=>b.onclick=()=>editTransaction(f.id,b.dataset.editTx));
+  wrap.querySelectorAll('[data-del-tx]').forEach(b=>b.onclick=()=>deleteTransaction(f.id,b.dataset.delTx));
+}
+function editTransaction(fundId,txId){
+  const f=DATA.funds.find(x=>x.id===fundId),t=(f?.transactions||[]).find(x=>x.id===txId);if(!t)return;
+  const date=prompt('วันที่ลงทุน (YYYY-MM-DD)',t.date);if(date===null)return;
+  const amount=parseFloat(prompt('จำนวนเงิน',t.amount));if(!amount||amount<=0){showToast('จำนวนเงินไม่ถูกต้อง');return;}
+  const d=new Date(date+'T00:00:00');if(Number.isNaN(d.getTime())){showToast('วันที่ไม่ถูกต้อง');return;}
+  const note=prompt('โน้ต / บันทึกรายการ (กด OK โดยเว้นว่างได้)',t.note||'');if(note===null)return;
+  const oldYear=t.year, oldMonth=t.month, oldAmount=Number(t.amount)||0;
+  t.date=date;t.year=d.getFullYear();t.month=d.getMonth()+1;t.amount=amount;t.note=String(note||'').trim();
+  rebuildFundMonths(f);
+  // Move the amount between monthly cells so Q (sum of E:P) always matches this edit.
+  const oldYd=yearData(f,oldYear,true); oldYd.planMonths=oldYd.planMonths||{}; oldYd.planMonths[oldMonth]=Math.max(0,(Number(oldYd.planMonths[oldMonth])||0)-oldAmount);
+  const newYd=yearData(f,t.year,true); newYd.planMonths=newYd.planMonths||{}; newYd.planMonths[t.month]=(Number(newYd.planMonths[t.month])||0)+t.amount;
+  saveData(DATA);renderAll();openFundDetail(f.id);showToast('แก้ไขรายการและโน้ตแล้ว');
+}
+function deleteTransaction(fundId,txId){
+  const f=DATA.funds.find(x=>x.id===fundId);if(!f)return;const t=(f.transactions||[]).find(x=>x.id===txId);if(!t)return;
+  if(!confirm(`ลบรายการ ${fmtInt(t.amount)} วันที่ ${t.date} ใช่หรือไม่?`))return;
+  f.transactions=f.transactions.filter(x=>x.id!==txId);rebuildFundMonths(f);
+  // Remove the amount from its monthly cell too, so Q (sum of E:P) stays correct.
+  const yd=yearData(f,t.year,true); yd.planMonths=yd.planMonths||{}; yd.planMonths[t.month]=Math.max(0,(Number(yd.planMonths[t.month])||0)-(Number(t.amount)||0));
+  saveData(DATA);renderAll();openFundDetail(f.id);showToast('ลบรายการแล้ว');
+}
+
+const fmtInt = n => '฿' + Math.round(n).toLocaleString('th-TH');
+const fmtNum = n => Math.round(n).toLocaleString('th-TH');
+function fundActual(f){
+  const y=Number(selectedYear);
+  const yd=yearData(f,y,true);
+  // Q (เงินลงทุนสะสม) must always equal the sum of the 12 monthly cells (E:P),
+  // so it is always derived from planMonths rather than trusted from a separately
+  // stored value. This keeps Q in sync with the monthly grid at all times, including
+  // right after adding/editing/deleting a transaction and after a Sheet sync.
+  return Object.values(yd.planMonths||{}).reduce((a,b)=>a+(Number(b)||0),0);
+}
+function fundPlan(f){
+  const yd=yearData(f,selectedYear,true);
+  return Object.values(yd.planMonths||{}).reduce((a,b)=>a+(Number(b)||0),0);
+}
+function fundTarget(f){ const yd=yearData(f,selectedYear,true); return Number(Object.prototype.hasOwnProperty.call(yd,'masterTarget')?yd.masterTarget:yd.target)||0; }
+function owners(){ return [...new Set(DATA.funds.map(f=>f.owner))]; }
+function ownerColor(owner){
+  if(!OWNER_COLORS[owner]){
+    OWNER_COLORS[owner] = OWNER_FIXED_COLORS[owner] || PALETTE[Object.keys(OWNER_COLORS).length % PALETTE.length];
+  }
+  return OWNER_COLORS[owner];
+}
+function ownerTotals(){
+  const map = {};
+  scopedFunds().forEach(f=>{
+    if(!map[f.owner]) map[f.owner] = { actual: 0, target: 0 };
+    map[f.owner].actual += fundActual(f);
+    map[f.owner].target += fundTarget(f);
+  });
+  return map;
+}
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._tm);
+  showToast._tm = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+/* ================= RENDER: HERO + DONUT ================= */
+function renderHero(){
+  const funds = scopedFunds();
+  const totalActual = funds.reduce((a,f)=>a+fundActual(f),0);
+  const totalTarget = funds.reduce((a,f)=>a+fundTarget(f),0);
+  const pct = totalTarget ? Math.min(100, (totalActual/totalTarget)*100) : 0;
+  document.getElementById('heroActual').textContent = fmtInt(totalActual);
+  document.getElementById('heroTarget').textContent = fmtInt(totalTarget);
+  document.getElementById('heroFundCount').textContent = funds.length;
+  document.getElementById('heroMetCount').textContent = funds.filter(f=>fundActual(f)>=fundTarget(f) && fundTarget(f)>0).length;
+  document.getElementById('heroRemain').textContent = fmtInt(Math.max(0,totalTarget-totalActual));
+  document.getElementById('heroPctChip').textContent = Math.round(pct)+'%';
+  const circumference = 2*Math.PI*42;
+  const arc = document.getElementById('gaugeArc');
+  arc.setAttribute('stroke-dasharray', circumference.toFixed(1));
+  arc.setAttribute('stroke-dashoffset', (circumference*(1-pct/100)).toFixed(1));
+  arc.setAttribute('stroke', pct>=100 ? '#F2D94E' : pct>=66 ? '#8FE3D0' : pct>=33 ? '#FFD37A' : '#FF9FAE');
+  document.getElementById('gaugePct').textContent = Math.round(pct)+'%';
+}
+function renderAllocation(){
+  const totals = ownerTotals();
+  const entries = Object.entries(totals);
+  const sum = entries.reduce((a,[,v])=>a+v.actual,0) || 1;
+  let acc = 0;
+  const stops = entries.map(([owner,v])=>{
+    const start = (acc/sum)*360;
+    acc += v.actual;
+    const end = (acc/sum)*360;
+    return `${ownerColor(owner)} ${start}deg ${end}deg`;
+  });
+  const donut = document.getElementById('allocDonut');
+  donut.style.background = stops.length ? `conic-gradient(${stops.join(',')})` : 'var(--primary-soft)';
+  const legend = document.getElementById('allocLegend');
+  legend.innerHTML = entries.map(([owner,v])=>{
+    const share = Math.round((v.actual/sum)*100);
+    const goalPct = v.target ? Math.round((v.actual/v.target)*100) : 0;
+    const band = goalPct>=100 ? 'met' : goalPct>=66 ? 'high' : goalPct>=33 ? 'mid' : 'low';
+    return `
+    <div class="legend-item">
+      <div class="legend-row">
+        <div class="legend-dot" style="background:${ownerColor(owner)}"></div>
+        <div class="legend-name">${owner}</div>
+        <div class="legend-val">${fmtInt(v.actual)} <span style="color:var(--ink-faint); font-weight:500;">(${share}%)</span></div>
+      </div>
+      <div class="legend-sub">
+        <span>${fmtInt(v.actual)} / ${fmtInt(v.target)}</span>
+        <span class="pct-chip ${band}">${goalPct}%${goalPct>=100?' ✓':''}</span>
+      </div>
+    </div>`;
+  }).join('') || '<div class="legend-item"><div class="legend-name">ยังไม่มีข้อมูล</div></div>';
+}
+
+/* ================= RENDER: FILTERS + FUND GROUPS ================= */
+function renderFilters(){
+  const wrap = document.getElementById('ownerFilters');
+  const list = ['ALL', ...owners()];
+  wrap.innerHTML = list.map(o=>{
+    const label = o==='ALL' ? 'ทั้งหมด' : o;
+    return `<button class="pill ${currentOwnerFilter===o?'active':''}" data-owner="${o}">${label}</button>`;
+  }).join('');
+  wrap.querySelectorAll('.pill').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      currentOwnerFilter = btn.dataset.owner;
+      renderDashboard();
+    });
+  });
+}
+function renderFundGroups(){
+  const wrap = document.getElementById('fundGroups');
+  const visible=filteredFunds(); const list=[...new Set(visible.map(f=>f.owner))];
+  if(DATA.funds.length===0){
+    wrap.innerHTML = `<div class="empty-state">ยังไม่มีกองทุนในพอร์ต แตะปุ่ม "ลงทุน" หรือเพิ่มกองทุนใหม่เพื่อเริ่มต้น</div>`;
+    return;
+  }
+  wrap.innerHTML = list.map(owner=>{
+    const funds = visible.filter(f=>f.owner===owner);
+    if(funds.length===0) return '';
+    const total = funds.reduce((a,f)=>a+fundActual(f),0);
+    const rows = funds.map(f=>{
+      const actual = fundActual(f);
+      const target = fundTarget(f);
+      const rawPct = target ? (actual/target)*100 : 0;
+      const pct = Math.min(100, rawPct);
+      const band = rawPct>=100 ? 'met' : rawPct>=66 ? 'high' : rawPct>=33 ? 'mid' : 'low';
+      const initials = String(cleanFundDisplayName(f.name)||'').replace(/[^A-Za-zก-๙0-9]/g,'').slice(0,2).toUpperCase();
+      const nav = fundNavInfo(f);
+      const navText = nav ? `NAV ${Number(nav.nav).toFixed(4)} · ${nav.date}` : 'NAV: รอข้อมูล';
+      return `
+      <div class="fund-row" data-fund-id="${f.id}">
+        <div class="fund-row-badge" style="background:${ownerColor(owner)}">${escapeHtml(initials)}</div>
+        <div class="fund-row-body">
+          <div class="fund-row-line1">
+            <span class="fund-row-name">${escapeHtml(cleanFundDisplayName(f.name))}</span>
+            <button class="favorite-btn ${f.favorite?'active':''}" data-fav="${f.id}">${f.favorite?'★':'☆'}</button>
+          </div>
+          <div class="fund-row-nav">${escapeHtml(navText)}</div>
+          <div class="fund-bar-track"><div class="fund-bar-fill ${band}" style="width:${pct}%"></div></div>
+        </div>
+        <div class="fund-row-right">
+          <div class="fund-row-nums">
+            <span class="fund-row-actual">${fmtInt(actual)}</span>
+            <span class="fund-row-target ${rawPct>=100?'met':''}">/ ${fmtInt(target)}</span>
+          </div>
+          <span class="pct-chip ${band}">${Math.round(rawPct)}%</span>
+        </div>
+      </div>`;
+    }).join('');
+    return `
+      <div class="owner-group">
+        <div class="owner-head">
+          <div class="owner-title">
+            <div class="owner-dot" style="background:${ownerColor(owner)}"></div>
+            <div>
+              <div class="owner-name">กองทุนของ ${owner}</div>
+              <div class="owner-total">${fmtInt(total)} สะสมทั้งหมด</div>
+            </div>
+          </div>
+          <button class="add-fund-link" data-owner="${owner}">+ เพิ่มกองทุน</button>
+        </div>
+        ${rows}
+      </div>`;
+  }).join('');
+
+  wrap.querySelectorAll('[data-fav]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();const f=DATA.funds.find(x=>x.id===btn.dataset.fav);if(f){f.favorite=!f.favorite;saveData(DATA);renderDashboard();showToast(f.favorite?'เพิ่มรายการโปรดแล้ว':'นำออกจากรายการโปรดแล้ว');}}));
+  wrap.querySelectorAll('.add-fund-link').forEach(btn=>{
+    btn.addEventListener('click', ()=> openAddFundModal(btn.dataset.owner));
+  });
+  wrap.querySelectorAll('.fund-row').forEach(row=>{
+    row.addEventListener('click', e=>{
+      if(e.target.closest('button,input,select,textarea,a')) return;
+      const fundId=row.dataset.fundId;
+      if(fundId) openFundDetail(fundId);
+    });
+  });
+
+}
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+document.getElementById('fundSearch').addEventListener('input',renderFundGroups);
+document.getElementById('searchClear').addEventListener('click',()=>{document.getElementById('fundSearch').value='';renderFundGroups();});
+document.getElementById('favoritesOnlyBtn').addEventListener('click',()=>{window.favoritesOnly=!window.favoritesOnly;document.getElementById('favoritesOnlyBtn').style.background=window.favoritesOnly?'var(--primary-soft)':'var(--surface)';renderFundGroups();});
+document.getElementById('detailInvestBtn').addEventListener('click',()=>{const f=DATA.funds.find(x=>x.id===window.__detailFundId);if(!f)return;document.getElementById('fundDetailOverlay').hidden=true;openInvestModal();investOwnerSel.value=f.owner;populateInvestFunds();investFundSel.value=f.id;});
+document.getElementById('detailFavoriteBtn').addEventListener('click',()=>{const f=DATA.funds.find(x=>x.id===window.__detailFundId);if(!f)return;f.favorite=!f.favorite;saveData(DATA);renderDashboard();openFundDetail(f.id);showToast(f.favorite?'เพิ่มรายการโปรดแล้ว':'นำออกจากรายการโปรดแล้ว');});
+function renderDashboard(){
+  renderHero();
+  renderAllocation();
+  renderFilters();
+  renderSmartSummary();
+  renderFundGroups();
+}
+
+/* ================= TABLE SCROLL ================= */
+// Native horizontal scrollbar remains at the bottom of the table.
+
+/* ================= RENDER: TABLE VIEW ================= */
+function renderTable(){
+  const head = document.getElementById('tableHeadRow');
+  head.innerHTML = `<th>กองทุน</th>` + MONTHS.map(m=>`<th>${m}</th>`).join('') + `<th>เงินลงทุนจริง</th><th>เป้าหมาย/${selectedYear}</th><th>สถานะ</th><th></th>`;
+
+  const body = document.getElementById('tableBody');
+  let html = '';
+  owners().forEach(owner=>{
+    const funds = DATA.funds.filter(f=>f.owner===owner);
+    html += `<tr class="group-row"><td colspan="${MONTHS.length+4}">กองทุนของ ${owner}</td></tr>`;
+    funds.forEach(f=>{
+      html += renderFundTableRow(f);
+    });
+  });
+  body.innerHTML = html || `<tr><td colspan="${MONTHS.length+4}" style="text-align:center; padding:24px; color:var(--ink-soft);">ยังไม่มีข้อมูล</td></tr>`;
+
+  body.querySelectorAll('.cell-input[data-month]').forEach(inp=>{
+    inp.addEventListener('change', ()=>{
+      const f = DATA.funds.find(x=>x.id===inp.dataset.fund);
+      const month=Number(inp.dataset.month);
+      const value=parseFloat(inp.value)||0;
+      const yd=yearData(f,selectedYear,true);
+      yd.planMonths = yd.planMonths || {};
+      yd.planMonths[month] = value;
+      saveData(DATA);
+      updateRowComputed(f.id);
+      renderHero(); renderAllocation(); renderSmartSummary(); renderFundGroups();
+    });
+  });
+  body.querySelectorAll('.target-input').forEach(inp=>{
+    inp.addEventListener('change', ()=>{
+      const f = DATA.funds.find(x=>x.id===inp.dataset.fund);
+      yearData(f).target = parseFloat(inp.value)||0; yearData(f).masterTarget = yearData(f).target;
+      saveData(DATA);
+      updateRowComputed(f.id);
+      renderHero();
+    });
+  });
+  body.querySelectorAll('[data-open-detail]').forEach(td=>{
+    td.addEventListener('click', ()=> openFundDetail(td.dataset.openDetail));
+  });
+  body.querySelectorAll('.row-del').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const f = DATA.funds.find(x=>x.id===btn.dataset.id);
+      if(f && confirm(`ลบกองทุน "${f.name}" ใช่หรือไม่?`)){
+        DATA.funds = DATA.funds.filter(x=>x.id!==f.id);
+        saveData(DATA);
+        renderAll();
+        showToast('ลบกองทุนแล้ว');
+      }
+    });
+  });
+}
+function renderFundTableRow(f){
+  const actual = fundActual(f);
+  const target = fundTarget(f);
+  const pct = target ? (actual/target)*100 : 0;
+  let badge;
+  if(actual>=target && target>0) badge = `<span class="badge badge-met">ครบเป้าหมาย</span>`;
+  else if(actual>0) badge = `<span class="badge badge-warn">${Math.round(pct)}% ของเป้า</span>`;
+  else badge = `<span class="badge badge-none">ยังไม่เริ่ม</span>`;
+  const cells = MONTHS.map((m,i)=>{
+    const monthIdx = i+1;
+    const val = yearData(f,selectedYear,true).planMonths?.[monthIdx] || 0;
+    return `<td><input class="cell-input privacy-number" type="number" step="1" data-fund="${f.id}" data-month="${monthIdx}" value="${val || ''}" placeholder="0"></td>`;
+  }).join('');
+  return `<tr data-row-fund="${f.id}">
+    <td class="fund-name-cell" data-open-detail="${f.id}">${escapeHtml(cleanFundDisplayName(f.name))}</td>
+    ${cells}
+    <td class="actual-cell privacy-number" data-actual="${f.id}">${fmtNum(actual)}</td>
+    <td><input class="cell-input target-input privacy-number" type="number" step="1" data-fund="${f.id}" value="${fundTarget(f)}"></td>
+    <td data-badge="${f.id}">${badge}</td>
+    <td><button class="row-del" data-id="${f.id}">✕</button></td>
+  </tr>`;
+}
+function updateRowComputed(fundId){
+  const f = DATA.funds.find(x=>x.id===fundId);
+  if(!f) return;
+  const actual = fundActual(f);
+  const target = fundTarget(f);
+  const pct = target ? (actual/target)*100 : 0;
+  const actualCell = document.querySelector(`[data-actual="${fundId}"]`);
+  if(actualCell) actualCell.textContent = fmtNum(actual);
+  const badgeCell = document.querySelector(`[data-badge="${fundId}"]`);
+  if(badgeCell){
+    let badge;
+    if(actual>=target && target>0) badge = `<span class="badge badge-met">ครบเป้าหมาย</span>`;
+    else if(actual>0) badge = `<span class="badge badge-warn">${Math.round(pct)}% ของเป้า</span>`;
+    else badge = `<span class="badge badge-none">ยังไม่เริ่ม</span>`;
+    badgeCell.innerHTML = badge;
+  }
+}
+
+/* ================= FUND DETAIL ================= */
+function openFundDetail(fundId){
+  const f=DATA.funds.find(x=>x.id===fundId); if(!f) return;
+  const yd=yearData(f,selectedYear,true); const vals=MONTHS.map((m,i)=>Number(yd.planMonths?.[i+1])||0);
+  const actual=vals.reduce((a,b)=>a+b,0), target=Number(yd.target)||0, pct=target?(actual/target)*100:0;
+  document.getElementById('detailOwner').textContent='พอร์ตของ '+f.owner;
+  document.getElementById('detailName').textContent=f.name;
+  document.getElementById('detailYear').textContent='ปี '+(selectedYear+543)+' • ข้อมูลลงทุนแยกจากปีอื่น';
+  document.getElementById('detailActual').textContent=fmtInt(actual);
+  document.getElementById('detailTarget').textContent=fmtInt(target);
+  document.getElementById('detailPct').textContent=Math.round(pct)+'%';
+  document.getElementById('detailRemain').textContent=pct>=100?'ถึงเป้าหมายแล้ว':'เหลือ '+fmtInt(Math.max(0,target-actual));
+  document.getElementById('detailFill').style.width=Math.min(100,pct)+'%';
+  const plan=Number(yd.target||0)/12, tm=Number(yd.planMonths?.[currentMonthIndex()]||0), diff=plan-tm;
+  const remainText=diff===0?'0':(diff>0?`ยังขาด ${fmtInt(diff)}`:`ลงเกิน ${fmtInt(Math.abs(diff))}`);
+  document.getElementById('detailMonthlyPlan').innerHTML=`<div class="qm-item"><span class="qm-label">เดือนนี้ควรลงทุน</span><b class="qm-value">${fmtInt(plan)}</b></div><div class="qm-item"><span class="qm-label">ลงทุนแล้ว</span><b class="qm-value">${fmtInt(tm)}</b></div><div class="qm-item"><span class="qm-label">เหลือ</span><b class="qm-value">${remainText}</b></div>`;
+  const fb=document.getElementById('detailFavoriteBtn'); fb.textContent=f.favorite?'★ อยู่ในรายการโปรด':'☆ เพิ่มรายการโปรด';
+  renderHistory(f);
+  window.__detailFundId=fundId;
+  renderDetailChart(vals);
+  renderCumulativeChart(vals);
+  document.getElementById('detailMonths').innerHTML=MONTHS.map((m,i)=>`<div class="detail-month ${(i+1)===currentMonthIndex()?'current':''}"><div class="m">${m}</div><input type="number" class="detail-month-input" inputmode="decimal" data-month="${i+1}" value="${vals[i]||''}" placeholder="0"></div>`).join('');
+  document.querySelectorAll('#detailMonths .detail-month-input').forEach(inp=>{
+    inp.addEventListener('change', ()=>{
+      const month=Number(inp.dataset.month);
+      const value=parseFloat(inp.value)||0;
+      const yd2=yearData(f,selectedYear,true);
+      yd2.planMonths=yd2.planMonths||{};
+      yd2.planMonths[month]=value;
+      // Detail page: keep the monthly actual value and transaction history in sync
+      // so the summary strip above updates immediately after editing the month.
+      syncMonthlyCellToTransactions(f, selectedYear, month, value);
+      saveData(DATA);
+      updateRowComputed(f.id);
+      renderHero(); renderAllocation(); renderSmartSummary(); renderFundGroups();
+      openFundDetail(fundId);
+    });
+  });
+  document.getElementById('fundDetailOverlay').hidden=false;
+}
+function niceStep(max){
+  if(max<=0) return 1000;
+  const raw=max/4, pow=Math.pow(10,Math.floor(Math.log10(raw))), n=raw/pow;
+  const nice=n<=1?1:n<=2?2:n<=5?5:10;
+  return nice*pow;
+}
+function shortMoney(n){
+  n=Number(n)||0;
+  if(n>=1000000) return '฿'+(n/1000000).toFixed(n%1000000?1:0)+'M';
+  if(n>=1000) return '฿'+(n/1000).toFixed(n%1000?1:0)+'K';
+  return '฿'+Math.round(n).toLocaleString('th-TH');
+}
+function renderDetailChart(vals){
+  const w=760,h=270,p={l:68,r:18,t:20,b:48};
+  const max=Math.max(...vals,1), step=niceStep(max), yMax=Math.ceil(max/step)*step;
+  const iw=w-p.l-p.r, ih=h-p.t-p.b;
+  const x=i=>p.l+(i/(vals.length-1))*iw;
+  const y=v=>p.t+(1-v/yMax)*ih;
+  const pts=vals.map((v,i)=>({x:x(i),y:y(v),v}));
+  const line=pts.map((q,i)=>(i?'L':'M')+q.x.toFixed(1)+' '+q.y.toFixed(1)).join(' ');
+  const area=line+' L '+pts.at(-1).x.toFixed(1)+' '+(h-p.b)+' L '+pts[0].x.toFixed(1)+' '+(h-p.b)+' Z';
+  const grid=Array.from({length:5},(_,i)=>{
+    const value=yMax-(yMax/4)*i, yy=y(value);
+    return `<line class="chart-grid" x1="${p.l}" x2="${w-p.r}" y1="${yy}" y2="${yy}"/>`+
+      `<text class="chart-axis-y" x="${p.l-10}" y="${yy+4}" text-anchor="end">${shortMoney(value)}</text>`;
+  }).join('');
+  const xlabels=MONTHS.map((m,i)=>`<text class="chart-axis-x" x="${x(i)}" y="${h-16}" text-anchor="middle">${m}</text>`).join('');
+  const points=pts.map((q,i)=>`<g><circle class="chart-point" cx="${q.x}" cy="${q.y}" r="5"><title>${MONTHS[i]}: ${fmtInt(q.v)}</title></circle>${q.v>0?`<text class="chart-value" x="${q.x}" y="${Math.max(13,q.y-10)}" text-anchor="middle">${shortMoney(q.v)}</text>`:''}</g>`).join('');
+  document.getElementById('detailChart').innerHTML=`<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><text class="chart-axis-title" x="12" y="14">บาท</text>${grid}<line class="chart-axis" x1="${p.l}" x2="${p.l}" y1="${p.t}" y2="${h-p.b}"/><line class="chart-axis" x1="${p.l}" x2="${w-p.r}" y1="${h-p.b}" y2="${h-p.b}"/><path class="chart-area" d="${area}"/><path class="chart-line" d="${line}"/>${points}${xlabels}</svg>`;
+}
+function renderCumulativeChart(vals){
+  const cumulative=[]; vals.reduce((sum,v)=>{sum+=v;cumulative.push(sum);return sum},0);
+  const target=Number((DATA.funds.find(f=>f.id===window.__detailFundId)||{}).years?.[selectedYear]?.target)||0;
+  const max=Math.max(...cumulative, target, 1);
+  const w=760,h=270,p={l:68,r:18,t:20,b:48}, step=niceStep(max), yMax=Math.ceil(max/step)*step;
+  const iw=w-p.l-p.r,ih=h-p.t-p.b,x=i=>p.l+(i/11)*iw,y=v=>p.t+(1-v/yMax)*ih;
+  const pts=cumulative.map((v,i)=>({x:x(i),y:y(v),v}));
+  const line=pts.map((q,i)=>(i?'L':'M')+q.x.toFixed(1)+' '+q.y.toFixed(1)).join(' ');
+  const grid=Array.from({length:5},(_,i)=>{const value=yMax-(yMax/4)*i,yy=y(value);return `<line class="chart-grid" x1="${p.l}" x2="${w-p.r}" y1="${yy}" y2="${yy}"/><text class="chart-axis-y" x="${p.l-10}" y="${yy+4}" text-anchor="end">${shortMoney(value)}</text>`}).join('');
+  const xlabels=MONTHS.map((m,i)=>`<text class="chart-axis-x" x="${x(i)}" y="${h-16}" text-anchor="middle">${m}</text>`).join('');
+  const points=pts.map((q,i)=>`<g><circle class="chart-point chart-point-cum" cx="${q.x}" cy="${q.y}" r="5"><title>${MONTHS[i]}: ${fmtInt(q.v)} สะสม</title></circle>${q.v>0?`<text class="chart-value" x="${q.x}" y="${Math.max(13,q.y-10)}" text-anchor="middle">${shortMoney(q.v)}</text>`:''}</g>`).join('');
+  let targetLine='';
+  if(target>0 && target<=yMax){const yy=y(target);targetLine=`<line class="target-line" x1="${p.l}" x2="${w-p.r}" y1="${yy}" y2="${yy}"/><text class="target-label" x="${w-p.r}" y="${yy-7}" text-anchor="end">เป้าหมาย ${fmtInt(target)}</text>`;}
+  document.getElementById('detailCumulativeChart').innerHTML=`<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><text class="chart-axis-title" x="12" y="14">บาท</text>${grid}<line class="chart-axis" x1="${p.l}" x2="${p.l}" y1="${p.t}" y2="${h-p.b}"/><line class="chart-axis" x1="${p.l}" x2="${w-p.r}" y1="${h-p.b}" y2="${h-p.b}"/>${targetLine}<path class="chart-line chart-cum-line" d="${line}"/>${points}${xlabels}</svg>`;
+}
+document.getElementById('fundDetailClose').addEventListener('click',()=>document.getElementById('fundDetailOverlay').hidden=true);
+document.getElementById('fundDetailOverlay').addEventListener('click',e=>{if(e.target.id==='fundDetailOverlay') e.currentTarget.hidden=true});
+
+
+/* ================= MASTER RENDER ================= */
+function renderAll(){
+  renderYearSelector();
+  renderDashboard();
+  renderTable();
+}
+
+/* ================= YEAR CONTROL ================= */
+document.getElementById('yearSelect').addEventListener('change', e=>setYear(e.target.value));
+document.getElementById('prevYear').addEventListener('click', ()=>setYear(selectedYear-1));
+document.getElementById('nextYear').addEventListener('click', ()=>setYear(selectedYear+1));
+document.getElementById('addYearBtn').addEventListener('click', ()=>{
+  const input=prompt('เพิ่มปี พ.ศ. เช่น 2570 หรือ ค.ศ. เช่น 2027', String(selectedYear+1+543));
+  if(!input) return;
+  let y=parseInt(input,10);
+  if(y>2400) y-=543;
+  if(!y || y<1900 || y>2200){showToast('ปีไม่ถูกต้อง');return;}
+  ensureYear(y); setYear(y); showToast(`สร้างปี ${y+543} แล้ว — ข้อมูลเริ่มต้นเป็น 0 ไม่ทับกับปีอื่น`);
+});
+
+/* ================= BOTTOM NAV SWITCH ================= */
+const LAST_VIEW_KEY = 'mff_last_view';
+function activateView(view, opts){
+  opts = opts || {};
+  const valid = ['dashboard','table','finance'];
+  if(!valid.includes(view)) view = 'dashboard';
+  document.querySelectorAll('.bn-item[data-view]').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
+  document.getElementById('view-dashboard').hidden = view!=='dashboard';
+  document.getElementById('view-table').hidden = view!=='table';
+  document.getElementById('view-finance').hidden = view!=='finance';
+  // แสดงหัว My Portfolio + V39 + วันเวลา เฉพาะหน้าแรกเท่านั้น
+  const topbar = document.querySelector('.topbar');
+  if(topbar) topbar.hidden = view!=='dashboard';
+  if(view==='finance'){
+    renderFinanceCards();
+    if(sheetsToken&&sheetId){
+      pullMarketWatch();
+    }else if(sheetId){
+      // เพิ่งรีเฟรชหน้าแล้วเปิดมาที่ Finance เลย สิทธิ์ Google Sheets (sheetsToken) ในหน่วยความจำ
+      // ยังไม่มา (จะมาอีกทีหลัง window load) จึงลองขอสิทธิ์แบบเงียบทันที แล้วดึงข้อมูลมาแสดง
+      // เพื่อไม่ให้ต้องย้อนกลับไปหน้าแรกแล้วกด refresh ซ้ำข้อมูลถึงจะกลับมา
+      (async()=>{
+        try{
+          // ตอนเพิ่งรีเฟรชหน้า สคริปต์ Google Identity Services อาจยังโหลดไม่เสร็จ รอสั้นๆ ก่อน
+          // เพื่อไม่ให้ขึ้นข้อความ "Google API ยังโหลดไม่เสร็จ" โดยไม่จำเป็น
+          for(let i=0;i<20 && !window.google?.accounts?.oauth2;i++) await new Promise(r=>setTimeout(r,200));
+          if(!window.google?.accounts?.oauth2) return;
+          if(await ensureSheetsAccess()){ await pullFromSheets({safeMerge:false}); await pullMarketWatch(); }
+        }catch(e){ console.warn('Finance view auto sync', e); }
+      })();
+    }
+  }
+  try{ localStorage.setItem(LAST_VIEW_KEY, view); }catch(e){}
+  if(!opts.silent) window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('.bn-item[data-view]').forEach(btn=>{
+  btn.addEventListener('click', ()=> activateView(btn.dataset.view));
+});
+/* คืนหน้าล่าสุดที่ผู้ใช้เปิดค้างไว้หลังรีเฟรช แทนที่จะเด้งกลับหน้าแรกเสมอ */
+(function restoreLastView(){
+  let saved=null;
+  try{ saved = localStorage.getItem(LAST_VIEW_KEY); }catch(e){}
+  if(saved){
+    // สำคัญ: ต้องเลื่อนออกไปทำหลังสคริปต์ทั้งไฟล์รันจบก่อน (ไม่เรียกทันทีตรงนี้)
+    // เพราะตัวแปรอย่าง financeTab / MARKET_ASSETS / GF_DATA ถูกประกาศด้วย let ไว้ท้ายไฟล์
+    // ถ้า view ที่บันทึกไว้คือ 'finance' แล้วเรียก activateView ทันที ณ จุดนี้ จะไปอ่านตัวแปร
+    // เหล่านั้นก่อนถึงบรรทัดประกาศ (temporal dead zone) เกิด ReferenceError แล้วสคริปต์ที่เหลือ
+    // ทั้งหมด (renderAll, การผูก event, การซิงก์ Google Sheets ฯลฯ) จะไม่ทำงานเลย ทำให้หน้า
+    // Finance ว่างเปล่าหลังรีเฟรช — ใช้ setTimeout เพื่อรอให้สคริปต์รันจบทั้งไฟล์ก่อนค่อยสลับหน้า
+    setTimeout(()=>activateView(saved, {silent:true}), 0);
+  }
+})();
+
+/* ================= INVEST MODAL ================= */
+const modalInvest = document.getElementById('modalInvest');
+const investOwnerSel = document.getElementById('investOwner');
+const investFundSel = document.getElementById('investFund');
+
+function openInvestModal(){
+  investOwnerSel.innerHTML = owners().map(o=>`<option value="${o}">${o}</option>`).join('');
+  const lo=localStorage.getItem('last_invest_owner'); if(lo&&owners().includes(lo)) investOwnerSel.value=lo;
+  populateInvestFunds();
+  document.getElementById('investDate').valueAsDate = new Date();
+  document.getElementById('investAmount').value = '';
+  document.getElementById('investNote').value = '';
+  modalInvest.hidden = false;
+}
+function populateInvestFunds(){
+  const owner = investOwnerSel.value;
+  const funds = DATA.funds.filter(f=>f.owner===owner);
+  investFundSel.innerHTML = funds.map(f=>`<option value="${f.id}">${escapeHtml(cleanFundDisplayName(f.name))}</option>`).join('');
+}
+investOwnerSel.addEventListener('change',()=>{localStorage.setItem('last_invest_owner',investOwnerSel.value);populateInvestFunds();});
+document.getElementById('bnInvest').addEventListener('click', openInvestModal);
+document.getElementById('investCancel').addEventListener('click', ()=> modalInvest.hidden = true);
+document.getElementById('investSave').addEventListener('click', ()=>{
+  const fundId = investFundSel.value;
+  const dateVal = document.getElementById('investDate').value;
+  const amount = parseFloat(document.getElementById('investAmount').value);
+  if(!fundId){ showToast('กรุณาเพิ่มกองทุนก่อน'); return; }
+  if(!dateVal){ showToast('กรุณาเลือกวันที่ลงทุน'); return; }
+  if(!amount || amount<=0){ showToast('กรุณาระบุจำนวนเงิน'); return; }
+  const f = DATA.funds.find(x=>x.id===fundId);
+  const date = new Date(dateVal+'T00:00:00');
+  const year = date.getFullYear();
+  const monthIdx = date.getMonth()+1;
+  selectedYear = year;
+  const note = document.getElementById('investNote').value.trim();
+  addTransaction(f,dateVal,amount,note);
+  localStorage.setItem('last_invest_owner',f.owner);
+  saveData(DATA);
+  modalInvest.hidden = true;
+  renderAll();
+  showToast(`บันทึกการลงทุน ${fmtInt(amount)} ใน ${f.name} แล้ว`);
+});
+
+/* ================= ADD FUND MODAL ================= */
+const modalAddFund = document.getElementById('modalAddFund');
+const newFundOwnerSelect = document.getElementById('newFundOwnerSelect');
+const newFundOwnerText = document.getElementById('newFundOwnerText');
+const toggleNewOwnerBtn = document.getElementById('toggleNewOwner');
+let usingNewOwner = false;
+
+function openAddFundModal(presetOwner){
+  usingNewOwner = false;
+  newFundOwnerText.style.display = 'none';
+  newFundOwnerText.value = '';
+  toggleNewOwnerBtn.textContent = '+ เจ้าของพอร์ตใหม่';
+  newFundOwnerSelect.style.display = '';
+  newFundOwnerSelect.innerHTML = owners().map(o=>`<option value="${o}">${o}</option>`).join('');
+  if(presetOwner) newFundOwnerSelect.value = presetOwner;
+  document.getElementById('newFundName').value = '';
+  document.getElementById('newFundTarget').value = 24000;
+  modalAddFund.hidden = false;
+}
+toggleNewOwnerBtn.addEventListener('click', ()=>{
+  usingNewOwner = !usingNewOwner;
+  newFundOwnerSelect.style.display = usingNewOwner ? 'none' : '';
+  newFundOwnerText.style.display = usingNewOwner ? '' : 'none';
+  toggleNewOwnerBtn.textContent = usingNewOwner ? 'ใช้เจ้าของพอร์ตที่มีอยู่' : '+ เจ้าของพอร์ตใหม่';
+});
+document.getElementById('addFundCancel').addEventListener('click', ()=> modalAddFund.hidden = true);
+document.getElementById('addFundSave').addEventListener('click', ()=>{
+  const owner = usingNewOwner ? newFundOwnerText.value.trim() : newFundOwnerSelect.value;
+  const name = document.getElementById('newFundName').value.trim();
+  const target = parseFloat(document.getElementById('newFundTarget').value) || 0;
+  if(!owner){ showToast('กรุณาระบุเจ้าของพอร์ต'); return; }
+  if(!name){ showToast('กรุณาระบุชื่อกองทุน'); return; }
+  DATA.funds.push(fund(owner, name, {}, target));
+  saveData(DATA);
+  modalAddFund.hidden = true;
+  currentOwnerFilter = owner;
+  renderAll();
+  showToast('เพิ่มกองทุนแล้ว');
+});
+
+/* ================= MASTER PLAN SYNC ================= */
+function getMasterMonthlyPlan(f, year){
+  const yd = yearData(f, year, true);
+  const src = yd.planMonths || yd.months || {};
+  return Array.from({length:12},(_,i)=>Number(src[i+1])||0);
+}
+async function importPlanFromMaster(){
+  try{
+    if(!sheetId){showToast('กรุณาเชื่อม Google Sheets ก่อน');return;}
+    if(!sheetsToken && !(await ensureSheetsAccess())){showToast('กรุณาเชื่อม Google Sheets ก่อน');return;}
+    await pullFromSheets({safeMerge:false});
+    selectedYear=selectedYear||new Date().getFullYear();
+    renderAll();
+    showToast(`ดึงแผนรายเดือนจาก Master แล้ว • ปี ${selectedYear+543}`);
+  }catch(e){console.error(e);showToast('ดึงแผนจาก Master ไม่สำเร็จ');}
+}
+document.getElementById('importMasterBtn')?.addEventListener('click', importPlanFromMaster);
+
+/* ================= EXPORT CSV ================= */
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  let rows = [['เจ้าของพอร์ต','กองทุน', ...MONTHS, 'เงินลงทุนจริง','เป้าหมาย/ปี','% ของเป้าหมาย']];
+  DATA.funds.forEach(f=>{
+    const actual = fundActual(f);
+    const target = fundTarget(f);
+    const pct = target ? Math.round((actual/target)*100) : 0;
+    rows.push([
+      f.owner, f.name,
+      ...MONTHS.map((m,i)=> yearData(f).months[i+1] || 0),
+      actual, fundTarget(f), pct+'%'
+    ]);
+  });
+  const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `portfolio_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('ส่งออกไฟล์ CSV แล้ว');
+});
+
+
+/* ================= MARKET WATCH / FINANCE ================= */
+const DEFAULT_MARKET_ASSETS=[
+ {ticker:'AAPL',exchange:'NASDAQ',name:'Apple Inc.',group:'หุ้น',active:true},
+ {ticker:'MSFT',exchange:'NASDAQ',name:'Microsoft Corporation',group:'หุ้น',active:true},
+ {ticker:'NVDA',exchange:'NASDAQ',name:'NVIDIA Corporation',group:'หุ้น',active:true},
+ {ticker:'GOOGL',exchange:'NASDAQ',name:'Alphabet Inc.',group:'หุ้น',active:true},
+ {ticker:'AMZN',exchange:'NASDAQ',name:'Amazon.com Inc.',group:'หุ้น',active:true},
+ {ticker:'META',exchange:'NASDAQ',name:'Meta Platforms Inc.',group:'หุ้น',active:true},
+ {ticker:'BRK.B',exchange:'NYSE',name:'Berkshire Hathaway Inc.',group:'หุ้น',active:true},
+ {ticker:'AVGO',exchange:'NASDAQ',name:'Broadcom Inc.',group:'หุ้น',active:true},
+ {ticker:'TSLA',exchange:'NASDAQ',name:'Tesla Inc.',group:'หุ้น',active:true},
+ {ticker:'JPM',exchange:'NYSE',name:'JPMorgan Chase & Co.',group:'หุ้น',active:true},
+ {ticker:'VOO',exchange:'NYSEARCA',name:'Vanguard S&P 500 ETF',group:'ETF',active:true},
+ {ticker:'VXUS',exchange:'NASDAQ',name:'Vanguard Total International Stock ETF',group:'ETF',active:true},
+ {ticker:'SCHD',exchange:'NYSEARCA',name:'Schwab U.S. Dividend Equity ETF',group:'ETF',active:true},
+ {ticker:'VT',exchange:'NYSEARCA',name:'Vanguard Total World Stock ETF',group:'ETF',active:true},
+ {ticker:'QQQM',exchange:'NASDAQ',name:'Invesco NASDAQ 100 ETF',group:'ETF',active:true},
+ {ticker:'VTI',exchange:'NYSEARCA',name:'Vanguard Total Stock Market ETF',group:'ETF',active:true}
+];
+let MARKET_ASSETS=JSON.parse(localStorage.getItem('market_assets_v3982')||'null')||DEFAULT_MARKET_ASSETS.slice();
+try{
+  const webFundRegistry=JSON.parse(localStorage.getItem('fund_master_web_registry_v1')||'{}');
+  Object.entries(webFundRegistry||{}).forEach(([code,m])=>{
+    if(!MARKET_ASSETS.some(a=>String(a.ticker||'').toUpperCase()===String(code).toUpperCase())){
+      MARKET_ASSETS.push({ticker:code,exchange:'FUND',name:m.displayName||code,group:m.assetClass||'กองทุน',active:true,navPending:true});
+    }
+  });
+}catch(e){}
+let GF_DATA={};
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function isETFAsset(a){
+ const g=String(a?.group||'').toLowerCase(); const n=String(a?.name||'').toLowerCase(); const t=String(a?.ticker||'').toUpperCase();
+ return g.includes('etf') || n.includes(' etf') || n.endsWith('etf') || ['VOO','VXUS','QQQM','VT','VTI','SCHD'].includes(t);
+}
+function isStockAsset(a){
+ return !isETFAsset(a);
+}
+MARKET_ASSETS=MARKET_ASSETS.map(a=>({active:true,...a}));
+localStorage.setItem('market_assets_v3982',JSON.stringify(MARKET_ASSETS));
+// A device/Sheet that was set up before Top 10 หุ้น existed only ever saved ETF tickers
+// (in localStorage and/or the Google Sheet's MarketWatch tab). Without this, that cached
+// list silently wins over the new defaults and the Top 10 row stays permanently empty.
+// This adds back any default ticker (stock or ETF) that's missing from a given list.
+function mergeDefaultAssets(list){
+ const arr=Array.isArray(list)?list:[];
+ const have=new Set(arr.map(a=>String(a.ticker||'').toUpperCase()));
+ const missing=DEFAULT_MARKET_ASSETS.filter(d=>!have.has(d.ticker.toUpperCase()));
+ if(!missing.length) return {list:arr, changed:false};
+ return {list:[...missing,...arr], changed:true};
+}
+(function seedLocalMarketAssets(){
+ if(localStorage.getItem('market_top10_seeded_v1'))return; // one-time migration only
+ const merged=mergeDefaultAssets(MARKET_ASSETS);
+ if(merged.changed){MARKET_ASSETS=merged.list;localStorage.setItem('market_assets_v3982',JSON.stringify(MARKET_ASSETS));}
+ localStorage.setItem('market_top10_seeded_v1','1');
+})();
+function marketInitial(){
+ const etfs=document.getElementById('marketEtfGrid');
+ const stocks=document.getElementById('marketStockGrid');
+ const item=(a,label)=>`<div class="market-ticker-item na privacy-number" data-market="${esc(a.ticker)}"><span class="dot"></span><span class="ticker">${esc(a.ticker)}</span><span class="group">${esc(label)}</span><span class="name">${esc(a.name)}</span><span class="price">—</span><span class="chg">รอข้อมูล</span></div>`;
+ const etfAssets=MARKET_ASSETS.filter(a=>a.active!==false && isETFAsset(a));
+ const stockAssets=MARKET_ASSETS.filter(a=>a.active!==false && !isETFAsset(a) && String(a.exchange||'').toUpperCase()!=='FUND');
+ if(etfs) etfs.innerHTML=etfAssets.map(a=>item(a,'ETF')).join('')+etfAssets.map(a=>item(a,'ETF')).join('');
+ if(stocks) stocks.innerHTML=stockAssets.map(a=>item(a,'STOCK')).join('')+stockAssets.map(a=>item(a,'STOCK')).join('');
+}
+function marketCard(a,data){const nodes=document.querySelectorAll(`[data-market="${CSS.escape(a.ticker)}"]`);nodes.forEach(c=>{if(!data||data.price==null||isNaN(Number(data.price))){c.classList.add('na');c.classList.remove('up','down');c.querySelector('.price').textContent='—';c.querySelector('.chg').textContent='ไม่พบข้อมูล';return;}const price=Number(data.price),ch=Number(data.change)||0,pct=Number(data.changepct)||0;c.classList.remove('na','up','down');c.classList.add(ch>=0?'up':'down');c.querySelector('.price').textContent='$'+price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});c.querySelector('.chg').textContent=(ch>=0?'▲ +':'▼ ')+ch.toFixed(2)+'  '+(pct>=0?'+':'')+pct.toFixed(2)+'%';});}
+function marketFormulaRows(){
+ const rows=[['Ticker','Name','Exchange','Active','Group','Price','Change','Change %','Trade Time','Data Delay','Open','High','Low','Volume','Market Cap','P/E','EPS','52W High','52W Low']];
+ MARKET_ASSETS.forEach(a=>{const isFund=String(a.exchange||'').toUpperCase()==='FUND';const sym=`${a.exchange}:${a.ticker}`;const gf=(field)=>isFund?'':`=IFERROR(GOOGLEFINANCE("${sym}","${field}"),"")`;rows.push([a.ticker,a.name,a.exchange,a.active===false?'FALSE':'TRUE',a.group,gf('price'),gf('change'),gf('changepct'),gf('tradetime'),gf('datadelay'),gf('priceopen'),gf('high'),gf('low'),gf('volume'),gf('marketcap'),gf('pe'),gf('eps'),gf('high52'),gf('low52')]);}); return rows;
+}
+async function ensureMarketSheet(){
+ if(!sheetsToken||!sheetId)return false; const meta=await getSpreadsheetMeta(),titles=(meta.sheets||[]).map(s=>s.properties.title);
+ if(!titles.includes('MarketWatch')) await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}:batchUpdate`,{method:'POST',body:JSON.stringify({requests:[{addSheet:{properties:{title:'MarketWatch'}}}]})});
+ const j=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/MarketWatch!A1:S200`);
+ const vals=j.values||[];
+ if(vals.length<1 || String(vals[0][0]||'')!=='Ticker' || String(vals[0][2]||'')!=='Exchange' || String(vals[0][5]||'')!=='Price'){await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/MarketWatch!A:S:clear`,{method:'POST',body:'{}'});await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/MarketWatch!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:'MarketWatch!A1',majorDimension:'ROWS',values:marketFormulaRows()})});}
+ return true;
+}
+async function pullMarketWatch(){
+ if(!sheetsToken||!sheetId){
+  const merged=mergeDefaultAssets(MARKET_ASSETS);
+  if(merged.changed){MARKET_ASSETS=merged.list;localStorage.setItem('market_assets_v3982',JSON.stringify(MARKET_ASSETS));}
+  MARKET_ASSETS.forEach(x=>{if(String(x.exchange).toUpperCase()==='FUND'){const n=FUND_NAV[canonicalFundCode(x.ticker)]||{};if(n.nav!=null)GF_DATA[x.ticker]={price:n.nav,date:n.date,source:n.source};}});
+  marketInitial();renderFinanceCards();return;
+ }
+ try{await ensureMarketSheet();const j=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values:batchGet?ranges=MarketWatch%21A2:S200`);const vals=j.valueRanges?.[0]?.values||[];
+  const next=[]; vals.forEach(r=>{if(!r[0])return;const ticker=String(r[0]).trim().toUpperCase();const exchange=String(r[2]||'').trim().toUpperCase();let group=String(r[4]||'').trim();if(!group) group=isETFAsset({ticker,exchange})?'ETF':(exchange==='FUND'?'กองทุน':'หุ้น');next.push({ticker,name:String(r[1]||r[0]),exchange,active:String(r[3]).toUpperCase()!=='FALSE',group,price:r[5],change:r[6],changepct:r[7],tradetime:r[8],datadelay:r[9],open:r[10],high:r[11],low:r[12],volume:r[13],marketcap:r[14],pe:r[15],eps:r[16],high52:r[17],low52:r[18]});});
+  // Allow users to add a new ticker directly in Google Sheets by entering only
+  // Ticker / Name / Exchange / Active / Group. If GOOGLEFINANCE cells are blank,
+  // populate the formulas automatically so the next pull can display the data.
+  const formulaRows=[]; vals.forEach((r,i)=>{const ticker=String(r[0]||'').trim().toUpperCase();const exchange=String(r[2]||'').trim().toUpperCase();if(!ticker||!exchange||exchange==='FUND'||r[5]!==undefined&&String(r[5]).trim()!=='')return;const sym=`${exchange}:${ticker}`;const gf=f=>`=IFERROR(GOOGLEFINANCE(\"${sym}\",\"${f}\"),\"\")`;formulaRows.push({row:i+2,values:[gf('price'),gf('change'),gf('changepct'),gf('tradetime'),gf('datadelay'),gf('priceopen'),gf('high'),gf('low'),gf('volume'),gf('marketcap'),gf('pe'),gf('eps'),gf('high52'),gf('low52')]});});
+  if(formulaRows.length){for(const fr of formulaRows){await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/MarketWatch!F${fr.row}:S${fr.row}?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`MarketWatch!F${fr.row}:S${fr.row}`,majorDimension:'ROWS',values:[fr.values]})});}}
+  const alreadySeeded=localStorage.getItem('market_sheet_top10_seeded_v1');
+  const merged=alreadySeeded?{list:next,changed:false}:mergeDefaultAssets(next);
+  if(merged.changed){
+   // The MarketWatch tab in this Google Sheet predates the Top 10 หุ้น tickers (it only has
+   // the old ETF list). Re-seed it with the full ticker set so GOOGLEFINANCE starts
+   // calculating prices for the missing ones too, instead of leaving the row empty forever.
+   MARKET_ASSETS=merged.list;
+   localStorage.setItem('market_assets_v3982',JSON.stringify(MARKET_ASSETS));
+   await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/MarketWatch!A:S:clear`,{method:'POST',body:'{}'});
+   await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/MarketWatch!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:'MarketWatch!A1',majorDimension:'ROWS',values:marketFormulaRows()})});
+   GF_DATA={}; next.forEach(x=>GF_DATA[x.ticker]=x);
+   marketInitial(); next.forEach(x=>marketCard(x,x)); renderFinanceCards();
+   localStorage.setItem('market_sheet_top10_seeded_v1','1');
+   localStorage.setItem('market_last_update',new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}));
+   return;
+  }
+  if(next.length){const filtered=next;MARKET_ASSETS=filtered.map(x=>({ticker:x.ticker,name:x.name,exchange:x.exchange,active:x.active,group:x.group}));localStorage.setItem('market_assets_v3982',JSON.stringify(MARKET_ASSETS));GF_DATA={};filtered.forEach(x=>GF_DATA[x.ticker]=x);filtered.forEach(x=>{if(String(x.exchange).toUpperCase()==='FUND'){const code=canonicalFundCode(x.ticker);const n=FUND_NAV[code]||{};if(n.nav!=null){x.price=n.nav;x.changepct='';x.change='';GF_DATA[x.ticker]=x;}}});marketInitial();filtered.forEach(x=>marketCard(x,GF_DATA[x.ticker]||x));renderFinanceCards();}
+  localStorage.setItem('market_last_update',new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}));
+ }catch(e){console.warn('MarketWatch',e);marketInitial();renderFinanceCards();}
+}
+function moneyUSD(v){if(v===''||v==null||isNaN(Number(v)))return '—';return '$'+Number(v).toLocaleString('en-US',{maximumFractionDigits:2});}
+function moneyNAV(v){if(v===''||v==null||isNaN(Number(v)))return null;return '฿'+Number(v).toLocaleString('th-TH',{minimumFractionDigits:4,maximumFractionDigits:4});}
+function financeBadgeColor(ticker){let h=0;const s=String(ticker||'');for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return PALETTE[h%PALETTE.length];}
+let financeTab=localStorage.getItem('finance_tab')||'fund';
+let managerTab=financeTab;
+// "My funds" is derived from the user's real portfolio (DATA.funds), not from manually
+// added Market Watch tickers, so it always reflects what's actually being invested in.
+function financeFundOwners(code){
+ const owners=new Set();
+ DATA.funds.forEach(f=>{if(canonicalFundCode(f.name)===code)owners.add(f.owner);});
+ return [...owners].join(' / ');
+}
+function financeMyFundsList(){
+ const map=new Map();
+ DATA.funds.forEach(f=>{
+  const code=canonicalFundCode(f.name);
+  if(!map.has(code))map.set(code,{ticker:code,name:FUND_MASTER[code]?.displayName||code,exchange:'FUND',group:FUND_MASTER[code]?.assetClass||'กองทุน'});
+ });
+ return [...map.values()].map(x=>({...x,owner:financeFundOwners(x.ticker)}));
+}
+function financeListForTab(tab){
+ if(tab==='fund')return financeMyFundsList();
+ if(tab==='etf')return MARKET_ASSETS.filter(a=>a.active!==false && isETFAsset(a));
+ return MARKET_ASSETS.filter(a=>a.active!==false && String(a.exchange).toUpperCase()!=='FUND' && !isETFAsset(a));
+}
+function financeRow(a){
+ const isFundTab=financeTab==='fund';
+ let priceText,pctText,pctClass,ok;
+ if(isFundTab){
+  const nav=FUND_NAV[a.ticker]||{};
+  const navText=moneyNAV(nav.nav);
+  ok=navText!=null;priceText=ok?navText:'รออัปเดต';pctText='—';pctClass='na';
+ }else{
+  const d=GF_DATA[a.ticker]||{};ok=d.price!==''&&d.price!=null&&!isNaN(Number(d.price));
+  const ch=Number(d.change),pct=Number(d.changepct),up=ok&&ch>=0;
+  pctClass=!ok?'na':(up?'up':'down');
+  pctText=ok?((up?'▲ ':'▼ ')+(pct>=0?'+':'')+pct.toFixed(2)+'%'):'—';
+  priceText=ok?moneyUSD(d.price):'รออัปเดต';
+ }
+ const initials=String(a.ticker||'').replace(/[^A-Z0-9]/gi,'').slice(0,2).toUpperCase();
+ return `<div class="finance-row" data-finance="${esc(a.ticker)}"><div class="finance-row-id"><div class="finance-badge" style="background:${financeBadgeColor(a.ticker)}">${esc(initials)}</div><div class="finance-row-text"><div class="finance-row-symbol">${esc(a.ticker)}</div><div class="finance-row-name">${esc(a.name||'')}</div>${isFundTab&&a.owner?`<div class="finance-row-owner">${esc(a.owner)}</div>`:''}</div></div><div class="finance-row-price ${ok?'':'finance-na'}">${priceText}</div><div class="finance-row-pct ${pctClass}">${pctText}</div></div>`;
+}
+function renderFinanceCards(){const el=document.getElementById('financeCards');if(!el)return;const list=financeListForTab(financeTab);el.innerHTML=list.length?list.map(financeRow).join(''):'<div class="finance-empty">ยังไม่มีรายการ</div>';el.querySelectorAll('.finance-row').forEach(c=>c.addEventListener('click',()=>openFinanceDetail(c.dataset.finance)));
+ const hint=document.getElementById('financeHint');
+ if(hint)hint.textContent=financeTab==='fund'?'NAV ของ My funds ใช้ NAV จาก FundMaster/ฐานข้อมูลเท่านั้น • ไม่มีข้อมูล = รออัปเดต':'ราคาจาก Google Sheets / GOOGLEFINANCE • ไม่มีข้อมูล = รออัปเดต';
+}
+function setFinanceTab(tab){
+ financeTab=tab;localStorage.setItem('finance_tab',financeTab);
+ document.querySelectorAll('#financeSeg button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+ renderFinanceCards();
+}
+document.getElementById('financeSeg')?.addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(!b)return;setFinanceTab(b.dataset.tab);});
+function openFinanceDetail(ticker){
+ if(financeTab==='fund'){
+  const code=canonicalFundCode(ticker),m=FUND_MASTER[code]||{},n=FUND_NAV[code]||{};
+  const owner=financeFundOwners(code);
+  document.getElementById('financeDetailName').textContent=m.displayName||code;
+  document.getElementById('financeDetailSymbol').textContent=`${code}${owner?' • '+owner:''}`;
+  const navText=moneyNAV(n.nav);
+  const fields=[['NAV',navText||'รออัปเดต'],['วันที่ NAV',n.date||'—'],['แหล่งข้อมูล',n.source||'รอข้อมูล'],['ประเภท',m.assetClass||'กองทุน'],['บลจ.',m.manager||'—'],['สถานะ',navText?'อัปเดตจากฐานข้อมูลแล้ว':'รออัปเดตจากฐานข้อมูล']];
+  document.getElementById('financeDetailGrid').innerHTML=fields.map(x=>`<div class="finance-detail-kpi"><div class="k">${x[0]}</div><div class="v">${esc(x[1])}</div></div>`).join('');
+  document.getElementById('financeDetailOverlay').hidden=false;
+  return;
+ }
+ const a=MARKET_ASSETS.find(x=>x.ticker===ticker)||{};const d=GF_DATA[ticker]||{};document.getElementById('financeDetailName').textContent=a.name||ticker;document.getElementById('financeDetailSymbol').textContent=`${ticker} • ${a.exchange||''}`;const fields=[['Price',moneyUSD(d.price)],['Change',d.change===''||d.change==null?'—':Number(d.change).toFixed(2)],['Change %',d.changepct===''||d.changepct==null?'—':Number(d.changepct).toFixed(2)+'%'],['Open',moneyUSD(d.open)],['High',moneyUSD(d.high)],['Low',moneyUSD(d.low)],['Volume',d.volume?Number(d.volume).toLocaleString('en-US'):'—'],['Market Cap',d.marketcap?Number(d.marketcap).toLocaleString('en-US'):'—'],['P/E',d.pe||'—'],['EPS',d.eps||'—'],['52W High',moneyUSD(d.high52)],['52W Low',moneyUSD(d.low52)],['Trade Time',d.tradetime||'—'],['Data Delay',d.datadelay!=null&&d.datadelay!==''?d.datadelay+' min':'—']];document.getElementById('financeDetailGrid').innerHTML=fields.map(x=>`<div class="finance-detail-kpi"><div class="k">${x[0]}</div><div class="v">${esc(x[1])}</div></div>`).join('');document.getElementById('financeDetailOverlay').hidden=false;}
+function isLikelyThaiFundSymbol(symbol){
+ const t=String(symbol||'').trim().toUpperCase();
+ // Common Thai mutual-fund naming patterns. This is deliberately conservative:
+ // unknown symbols that do not look like Thai funds remain US stocks by default.
+ return /(?:RMF|SSF|THAI|ESG|ESGA|ESGE|FUND|INCOME|BOND|FIXED|BALANCED|COREPATH|WORLD|GOLD|PROPERTY|REIT|ASEAN|CHINA|JAPAN|INDIA|VIET|EMERGING|GLOBAL)/i.test(t) || /[ก-๙]/.test(t);
+}
+function marketAssetFromSymbol(symbol){
+ const ticker=String(symbol||'').trim().toUpperCase(); if(!ticker)return null;
+ const known=MARKET_ASSETS.find(a=>String(a.ticker).toUpperCase()===ticker)||DEFAULT_MARKET_ASSETS.find(a=>String(a.ticker).toUpperCase()===ticker);
+ if(known)return {...known};
+ const code=canonicalFundCode(ticker), fm=FUND_MASTER[code];
+ if(fm)return {ticker:code,exchange:'FUND',name:fm.displayName||ticker,group:fm.assetClass||'กองทุน',active:true};
+ if(isLikelyThaiFundSymbol(ticker)) return {ticker:code,exchange:'FUND',name:ticker,group:'กองทุน',active:true,navPending:true};
+ return {ticker,exchange:'NASDAQ',name:ticker,group:'หุ้น',active:true};
+}
+function fundMasterRowForAsset(a){
+ const code=canonicalFundCode(a.ticker), m=FUND_MASTER[code]||{};
+ const n=FUND_NAV[code]||{};
+ return [code,a.name||m.displayName||code,m.officialName||'',m.manager||'',m.assetClass||'กองทุน',n.nav??'',n.date??'',n.source??'รอข้อมูล NAV','TRUE'];
+}
+async function saveNewFundToFundMaster(a){
+ if(!a || String(a.exchange).toUpperCase()!=='FUND') return false;
+ const code=canonicalFundCode(a.ticker);
+ if(!code)return false;
+ // Keep only web-created metadata in the browser registry. Do not serialize the entire
+ // built-in FundMaster, otherwise a future app update could accidentally pin old data.
+ const registry=(()=>{try{return JSON.parse(localStorage.getItem('fund_master_web_registry_v1')||'{}')||{};}catch(e){return {};}})();
+ const meta={...(FUND_MASTER[code]||{}),displayName:a.name||code,assetClass:a.group||'กองทุน',webAdded:true};
+ FUND_MASTER[code]=meta; registry[code]=meta;
+ localStorage.setItem('fund_master_web_registry_v1',JSON.stringify(registry));
+ if(!sheetsToken||!sheetId) return false;
+ await ensureSheetTabs();
+ const existing=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/FundMaster!A:I`);
+ const vals=existing.values||[];
+ const idx=vals.findIndex((r,i)=>i>0 && canonicalFundCode(r[0]||'')===code);
+ const row=fundMasterRowForAsset(a);
+ if(idx>0){
+   await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/FundMaster!A${idx+1}:I${idx+1}?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`FundMaster!A${idx+1}:I${idx+1}`,majorDimension:'ROWS',values:[row]})});
+ }else{
+   await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/FundMaster!A:I:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,{method:'POST',body:JSON.stringify({range:'FundMaster!A:I',majorDimension:'ROWS',values:[row]})});
+ }
+ return true;
+}
+function renderMarketManager(){
+ const el=document.getElementById('marketManagerList');if(!el)return;
+ if(managerTab==='fund'){
+  // My funds come from the real portfolio, so the manager view here is read-only:
+  // there's nothing to remove/toggle, it just mirrors what's already being invested in.
+  const list=financeMyFundsList();
+  el.innerHTML=list.length?list.map(a=>`<div class="market-manager-row" style="grid-template-columns:1fr auto"><div><b>${esc(a.ticker)}</b><div style="font-size:11px;color:var(--ink-faint)">${esc(a.name||a.ticker)}${a.owner?' • '+esc(a.owner):''}</div></div><div style="font-size:11px;color:var(--ink-faint)">${esc(a.group||'กองทุน')}</div></div>`).join(''):'<div class="finance-empty">ยังไม่มีกองทุนในพอร์ต</div>';
+  return;
+ }
+ const list=MARKET_ASSETS.filter(a=>managerTab==='etf'?isETFAsset(a):(String(a.exchange).toUpperCase()!=='FUND'&&!isETFAsset(a)));
+ el.innerHTML=list.length?list.map(a=>`<div class="market-manager-row" data-ticker="${esc(a.ticker)}"><div><b>${esc(a.ticker)}</b><div style="font-size:11px;color:var(--ink-faint)">${esc(a.name||a.ticker)}</div></div><div style="font-size:11px;color:var(--ink-faint)">${esc(a.exchange||'')}</div><div style="font-size:11px;color:var(--ink-faint)">${esc(a.group||'ETF')}${a.navPending?' · NAV รอข้อมูล':''}</div><select data-k="active"><option value="true" ${a.active!==false?'selected':''}>ใช่</option><option value="false" ${a.active===false?'selected':''}>ไม่</option></select><button class="remove" type="button" title="ลบ">×</button></div>`).join(''):'<div class="finance-empty">ยังไม่มีรายการ</div>';
+ el.querySelectorAll('.remove').forEach(b=>b.addEventListener('click',()=>{const row=b.closest('.market-manager-row');const t=row.dataset.ticker;MARKET_ASSETS=MARKET_ASSETS.filter(a=>String(a.ticker).toUpperCase()!==t.toUpperCase());renderMarketManager();}));
+ el.querySelectorAll('select[data-k=active]').forEach(sel=>sel.addEventListener('change',()=>{const t=sel.closest('.market-manager-row').dataset.ticker;const a=MARKET_ASSETS.find(x=>String(x.ticker).toUpperCase()===t.toUpperCase());if(a)a.active=sel.value==='true';}));
+}
+function setManagerTab(tab){
+ managerTab=tab;
+ document.querySelectorAll('#managerSeg button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+ renderMarketManager();
+}
+document.getElementById('managerSeg')?.addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(!b)return;setManagerTab(b.dataset.tab);});
+async function addMarketSymbol(){const input=document.getElementById('marketSymbolInput');const ticker=input?.value?.trim().toUpperCase();if(!ticker)return showToast('กรุณากรอกชื่อย่อก่อน');if(MARKET_ASSETS.some(a=>String(a.ticker).toUpperCase()===ticker)){showToast(`${ticker} มีอยู่แล้ว`);return;}const a=marketAssetFromSymbol(ticker);
+ if(String(a.exchange).toUpperCase()==='FUND'){const n=FUND_NAV[canonicalFundCode(a.ticker)];if(!n?.nav)a.navPending=true;}
+ MARKET_ASSETS.push(a);localStorage.setItem('market_assets_v3982',JSON.stringify(MARKET_ASSETS));input.value='';renderMarketManager();marketInitial();renderFinanceCards();if(String(a.exchange).toUpperCase()==='FUND'){try{const saved=await saveNewFundToFundMaster(a);showToast(saved?`เพิ่ม ${ticker} แล้ว • บันทึก FundMaster แล้ว`:`เพิ่ม ${ticker} แล้ว • NAV รอข้อมูล`);}catch(e){console.error(e);showToast(`เพิ่ม ${ticker} แล้ว • ยังบันทึก FundMaster ไม่สำเร็จ`);}}else showToast(`เพิ่ม ${ticker} แล้ว`);}
+async function saveMarketManager(){localStorage.setItem('market_assets_v3982',JSON.stringify(MARKET_ASSETS));marketInitial();renderFinanceCards();if(sheetsToken&&sheetId){await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/MarketWatch!A:S:clear`,{method:'POST',body:'{}'});await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/MarketWatch!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:'MarketWatch!A1',majorDimension:'ROWS',values:marketFormulaRows()})});await pullMarketWatch();}showToast('บันทึก Market Board แล้ว');}
+document.querySelectorAll('#financeSeg button').forEach(b=>b.classList.toggle('active',b.dataset.tab===financeTab));
+marketInitial();renderFinanceCards();
+document.getElementById('marketRefreshBtn')?.addEventListener('click',()=>pullMarketWatch().then(()=>showToast('อัปเดต Market Watch แล้ว')));
+document.getElementById('financeRefreshBtn')?.addEventListener('click',()=>pullMarketWatch().then(()=>showToast('อัปเดต Finance แล้ว')));
+document.getElementById('marketManagerBtn')?.addEventListener('click',()=>{setManagerTab(financeTab);document.getElementById('marketManagerModal').hidden=false;});
+document.getElementById('marketManagerClose')?.addEventListener('click',()=>document.getElementById('marketManagerModal').hidden=true);
+document.getElementById('marketAddBtn')?.addEventListener('click',addMarketSymbol); document.getElementById('marketSymbolInput')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addMarketSymbol();}});
+document.getElementById('marketSaveBtn')?.addEventListener('click',async()=>{try{await saveMarketManager();document.getElementById('marketManagerModal').hidden=true;}catch(e){console.error(e);showToast('บันทึก Market Board ไม่สำเร็จ');}});
+document.getElementById('financeDetailClose')?.addEventListener('click',()=>document.getElementById('financeDetailOverlay').hidden=true);
+
+/* ================= GOOGLE SHEETS ================= */
+const SHEETS_SCOPE='https://www.googleapis.com/auth/spreadsheets';
+let sheetsToken=null, sheetsTokenExpiresAt=0, sheetId=localStorage.getItem('google_sheet_id')||'', sheetsClient=null;
+function getGoogleClientId(){return GOOGLE_CLIENT_ID||localStorage.getItem('google_client_id')||'';}
+function sheetHeaders(extra){return Object.assign({'Authorization':'Bearer '+sheetsToken},extra||{});}
+function ensureSheetsClient(cid){
+  if(!window.google?.accounts?.oauth2){showToast('Google API ยังโหลดไม่เสร็จ');return null;}
+  if(!sheetsClient||sheetsClient._cid!==cid){
+    sheetsClient=google.accounts.oauth2.initTokenClient({client_id:cid,scope:SHEETS_SCOPE,callback:async r=>{
+      if(r.error){showToast('เชื่อมต่อ Google Sheets ไม่สำเร็จ');return;}
+      sheetsToken=r.access_token; sheetsTokenExpiresAt=Date.now()+Math.max(60,(Number(r.expires_in)||3600)-60)*1000; localStorage.setItem('google_sheets_connected','1');updateSheetUI('connected'); if(sheetsClient?._mffResolve){const rr=sheetsClient._mffResolve;sheetsClient._mffResolve=null;rr(true);}
+      try{if(!sheetId)await createSpreadsheet();await ensureSheetTabs();const remoteCount=await pullFromSheets({safeMerge:false});if(!remoteCount)await pushToSheets();await pullMarketWatch();showToast(remoteCount?'เชื่อมต่อ Google Sheets แล้ว • ใช้ข้อมูลจาก Sheet':'เชื่อมต่อ Google Sheets แล้ว • ส่งข้อมูลเริ่มต้นขึ้น Sheet');startSheetsAutoPull();}catch(e){console.error(e);showToast('เชื่อมต่อได้ แต่ซิงก์ไม่สำเร็จ');}
+    }});sheetsClient._cid=cid;
+  }return sheetsClient;
+}
+function updateSheetUI(state){const e=document.getElementById('sheetStatusText');if(!e)return;e.textContent=state==='syncing'?'กำลังซิงก์ Google Sheets…':state==='connected'?'เชื่อมต่อแล้ว • '+(sheetId||'-')+(localStorage.getItem('sheet_last_sync')?' • ล่าสุด '+localStorage.getItem('sheet_last_sync'):''):'ยังไม่ได้เชื่อมต่อ';}
+async function sheetsApi(url,opts={}){
+  if(!sheetsToken) throw new Error('Google Sheets ยังไม่ได้รับสิทธิ์');
+  const r=await fetch(url,Object.assign({headers:sheetHeaders({'Content-Type':'application/json'})},opts));
+  if(r.status===401||r.status===403){ localStorage.removeItem('google_sheets_connected'); sheetsToken=null; throw new Error('สิทธิ์ Google Sheets หมดอายุ กรุณากดเชื่อมต่อ / ซิงก์อีกครั้ง'); }
+  if(!r.ok)throw new Error(await r.text()); return r.json();
+}
+async function createSpreadsheet(){const j=await sheetsApi('https://sheets.googleapis.com/v4/spreadsheets',{method:'POST',body:JSON.stringify({properties:{title:'My Family Funds — Data'},sheets:[{properties:{title:'Funds'}},{properties:{title:'Investments'}}]})});sheetId=j.spreadsheetId;localStorage.setItem('google_sheet_id',sheetId);}
+async function getSpreadsheetMeta(){return sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}?fields=sheets.properties`);}
+async function ensureSheetTabs(){const meta=await getSpreadsheetMeta(),titles=(meta.sheets||[]).map(s=>s.properties.title),req=[];['Funds','FundMaster','PlanMaster','Investments','MarketWatch'].forEach(t=>{if(!titles.includes(t))req.push({addSheet:{properties:{title:t}}});});if(req.length)await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}:batchUpdate`,{method:'POST',body:JSON.stringify({requests:req})});}
+async function clearAndWriteSheet(title,values){await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${encodeURIComponent(title)}!A:Z:clear`,{method:'POST',body:'{}'});return sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${encodeURIComponent(title)}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${title}!A1`,majorDimension:'ROWS',values})});}
+function sheetRows(){
+  const funds=[['ID','Owner','Fund Code','Display Name','Official Fund Name','Manager','Asset Class','Favorite','Target/Year']],
+        master=[['Fund Code','Display Name','Official Fund Name','Manager','Asset Class','NAV','NAV Date','NAV Source','Active']],
+        plan=[['Year','Owner','Fund Code','Display Name',...MONTHS,'เงินลงทุนจริง','เป้าหมาย/ปี','% ของเป้าหมาย']],
+        inv=[['Transaction ID','Date','Year','Month','Owner','Fund ID','Fund Code','Fund Name','Amount','Note']];
+  Object.entries(FUND_MASTER).forEach(([code,m])=>{const n=FUND_NAV[code]||{};master.push([code,m.displayName,m.officialName||'',m.manager||'',m.assetClass||'',n.nav??'',n.date??'',n.source??'', 'TRUE']);});
+  DATA.funds.forEach(f=>{const code=canonicalFundCode(f.name),m=FUND_MASTER[code]||{};funds.push([f.id,f.owner,code,m.displayName||code,m.officialName||'',m.manager||'',m.assetClass||'',f.favorite?'TRUE':'FALSE',fundTarget(f)]);});
+  DATA.funds.forEach(f=>{const code=canonicalFundCode(f.name),name=(FUND_MASTER[code]?.displayName||code);const years=Object.keys(f.years||{}).map(Number).filter(Boolean).sort((a,b)=>a-b);const ys=years.length?years:[selectedYear];ys.forEach(y=>{const yd=yearData(f,y,true);const monthVals=MONTHS.map((_,i)=>Number((yd.planMonths||{})[i+1])||0);
+    // Q written here is always the sum of the same monthly values (E:P) written on this row,
+    // so the sheet can never end up with Q != sum(E:P).
+    const actual=monthVals.reduce((a,b)=>a+b,0);const target=Number(yd.target||f.target)||0;const pct=target?Math.round(actual/target*100):0;plan.push([y,f.owner,code,name,...monthVals,actual,target,pct+'%']);});});
+  allTransactions().forEach(t=>{const code=canonicalFundCode(t.fundName);inv.push([t.id,t.date,t.year,t.month,t.owner,t.fundId,code,FUND_MASTER[code]?.displayName||code,t.amount,t.note||'']);});
+  return{funds,master,plan,inv};
+}
+
+async function ensureSheetsAccess(){
+  if(sheetsToken && Date.now()<sheetsTokenExpiresAt) return true;
+  const cid=getGoogleClientId(); if(!cid) return false;
+  const c=ensureSheetsClient(cid); if(!c) return false;
+  return new Promise((resolve)=>{
+    const old=c._mffResolve; c._mffResolve=resolve;
+    try{c.requestAccessToken({prompt:'none'});}catch(e){c._mffResolve=null;resolve(false);}
+    setTimeout(()=>{if(c._mffResolve){c._mffResolve=null;resolve(!!sheetsToken);}},8000);
+  });
+}
+
+async function pushToSheets(){if(!sheetsToken||!sheetId)return;updateSheetUI('syncing');const x=sheetRows();await ensureSheetTabs();await clearAndWriteSheet('Funds',x.funds);await clearAndWriteSheet('FundMaster',x.master);await clearAndWriteSheet('PlanMaster',x.plan);await clearAndWriteSheet('Investments',x.inv);localStorage.setItem('sheet_last_sync',new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}));updateSheetUI('connected');}
+async function pullFromSheets(options={}){if(!sheetsToken||!sheetId)throw new Error('not connected');updateSheetUI('syncing');
+  try{localStorage.setItem(STORAGE_KEY+'_pre_sheet_sync',localStorage.getItem(STORAGE_KEY)||'');localStorage.setItem(STORAGE_KEY+'_pre_sheet_sync_at',new Date().toISOString());}catch(e){}
+  const j=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values:batchGet?ranges=Funds%21A:I&ranges=FundMaster%21A:I&ranges=PlanMaster%21A:V&ranges=Investments%21A:J`),v=j.valueRanges||[],fr=v[0]?.values||[],mr=v[1]?.values||[],pr=v[2]?.values||[],ir=v[3]?.values||[];
+  let map=new Map();
+  const masterByCode={};
+  (mr.slice(1)||[]).forEach(r=>{if(!r[0])return;masterByCode[r[0]]={displayName:r[1]||r[0],officialName:r[2]||'',manager:r[3]||'',assetClass:r[4]||'',nav:r[5]!==''?Number(r[5]):undefined,date:r[6]||'',source:r[7]||'',active:String(r[8]).toUpperCase()!=='FALSE'};});
+  Object.entries(masterByCode).forEach(([code,m])=>{if(m.displayName)FUND_MASTER[code]={...(FUND_MASTER[code]||{}),...m};if(m.nav!==undefined)FUND_NAV[code]={nav:m.nav,date:m.date,source:m.source};});
+  try{const reg=JSON.parse(localStorage.getItem('fund_master_web_registry_v1')||'{}');Object.entries(reg||{}).forEach(([code,m])=>{if(code&&!FUND_MASTER[code])FUND_MASTER[code]=m;else if(code&&m?.webAdded)FUND_MASTER[code]={...(FUND_MASTER[code]||{}),...m};});}catch(e){}
+  (fr.slice(1)||[]).forEach(r=>{if(!r[0])return;const code=canonicalFundCode(r[2]||r[3]||'');map.set(r[0],{id:r[0],owner:canonicalOwner(r[1]||''),name:code,favorite:String(r[7]).toUpperCase()==='TRUE',target:Number(r[8])||0,years:{},transactions:[]});});
+  if(!map.size){(fr.slice(1)||[]).forEach(r=>{if(!r[0])return;const code=canonicalFundCode(r[2]||'');map.set(r[0],{id:r[0],owner:canonicalOwner(r[1]||''),name:code,favorite:String(r[3]).toUpperCase()==='TRUE',target:Number(r[4])||0,years:{},transactions:[]});});}
+  // PlanMaster is the editable monthly-plan source of truth. Read it first, then
+  // re-apply it AFTER transaction reconstruction so transaction history cannot erase the plan.
+  const planRows=[];
+  (pr.slice(1)||[]).forEach(r=>{
+    if(!r[0]||!r[2])return; const y=Number(r[0]); if(!y)return;
+    const code=canonicalFundCode(r[2]); let f=[...map.values()].find(x=>canonicalFundCode(x.name)===code && canonicalOwner(x.owner)===canonicalOwner(r[1]||''));
+    if(!f) f=[...map.values()].find(x=>canonicalFundCode(x.name)===code);
+    if(!f)return;
+    const monthVals=Array.from({length:12},(_,i)=>Number(r[4+i])||0);
+    // Recompute Q as the sum of E:P instead of trusting the sheet's own Q cell, so a stale
+    // or out-of-sync value in the sheet can never desync the app's total from the monthly cells.
+    const actual=monthVals.reduce((a,b)=>a+b,0);
+    planRows.push({f,y,months:monthVals,actual,target:Number(r[17])||0,pct:String(r[18]??'')});
+  });
+  (ir.slice(1)||[]).forEach(r=>{const f=map.get(r[5]);if(f)f.transactions.push({id:r[0],date:r[1],year:Number(r[2]),month:Number(r[3]),amount:Number(r[8]??r[7])||0,note:String(r[9]??'')});});
+  if(options.safeMerge){
+    const localFunds=(DATA?.funds||[]).map(f=>normalizeFund(f));
+    const remoteById=new Map(map);
+    localFunds.forEach(local=>{
+      const remote=remoteById.get(local.id);
+      if(!remote){remoteById.set(local.id,local);return;}
+      const txById=new Map();
+      (local.transactions||[]).forEach(t=>{if(t?.id)txById.set(String(t.id),{...t});});
+      (remote.transactions||[]).forEach(t=>{if(t?.id)txById.set(String(t.id),{...t});});
+      remote.transactions=[...txById.values()];
+      if((!remote.target||remote.target===0)&&Number(local.target))remote.target=Number(local.target);
+      if(!remote.years||!Object.keys(remote.years).length)remote.years=local.years||{};
+    });
+    map=remoteById;
+  }
+  map.forEach(rebuildFundMonths);
+  // Apply PlanMaster after rebuilding actual transactions. The monthly table is the plan view,
+  // while Investments remains the transaction history. PlanMaster therefore wins for monthly cells.
+  planRows.forEach(({f,y,months,actual,target,pct})=>{
+    const yd=yearData(f,y,true);
+    yd.planMonths={};
+    months.forEach((v,i)=>yd.planMonths[i+1]=Number(v)||0);
+    // PlanMaster Q/R/S are the authoritative annual actual, target and percentage.
+    yd.masterActual=Number(actual)||0;
+    yd.masterTarget=Number(target)||0;
+    yd.masterPct=pct;
+    yd.target=Number(target)||0;
+  });
+  if(map.size){DATA={funds:[...map.values()]};DATA.funds.forEach(normalizeFund);localStorage.setItem(STORAGE_KEY,JSON.stringify(DATA));renderAll();}
+  localStorage.setItem('sheet_last_sync',new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}));updateSheetUI('connected');return map.size;}
+function scheduleSheetsPush(){clearTimeout(scheduleSheetsPush._tm);if(!sheetsToken||!sheetId)return;scheduleSheetsPush._tm=setTimeout(()=>pushToSheets().catch(()=>showToast('ซิงก์ Google Sheets ไม่สำเร็จ')),1800);}
+
+/* ---- ซิงก์เป็นแบบแมนนวลเท่านั้น (ไม่มี auto-pull พื้นหลังแล้ว) ----
+   เก็บฟังก์ชันไว้เป็น no-op กันโค้ดจุดอื่นที่ยังเรียกอยู่พัง แต่ไม่ทำอะไรจริง
+   เพื่อไม่ให้สลับหน้า/สลับแท็บแล้วมีการซิงก์เกิดขึ้นเองโดยไม่ได้ตั้งใจ */
+function startSheetsAutoPull(){ /* disabled by design — sync is manual-only now */ }
+function stopSheetsAutoPull(){ /* disabled by design — sync is manual-only now */ }
+
+/* ================= LEGACY DRIVE SYNC (DISABLED: Google Sheets is the only cloud database) ================= */
+// ตั้งค่า Client ID ของคุณตรงนี้ได้เลย (แนะนำ) หรือปล่อยว่างไว้แล้วกรอกผ่านหน้าตั้งค่าในแอปก็ได้
+const GOOGLE_CLIENT_ID = '';
+const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+const DRIVE_FILE_NAME = 'khlangthun-portfolio-data.json';
+
+let tokenClient = null;
+let accessToken = null;
+let driveFileId = localStorage.getItem('drive_file_id') || null;
+let cloudPushTimer = null;
+
+function getClientId(){
+  return GOOGLE_CLIENT_ID || localStorage.getItem('google_client_id') || '';
+}
+function updateCloudUI(state){
+  // Legacy Drive UI kept only for compatibility; Google Sheets is the only cloud database.
+  const dot=document.getElementById('syncDot'),label=document.getElementById('syncLabel'),statusText=document.getElementById('cloudStatusText'),connectedActions=document.getElementById('cloudConnectedActions'),disconnectBtn=document.getElementById('cloudDisconnectBtn');
+  if(!dot||!label||!statusText)return;
+  dot.className='sync-dot'+(state==='connected'?' connected':state==='syncing'?' syncing':'');
+  label.textContent=state==='connected'?'ซิงก์แล้ว':state==='syncing'?'กำลังซิงก์...':'ซิงก์ข้อมูล';
+  const last=localStorage.getItem('sheet_last_sync');
+  statusText.textContent=state==='connected'?'เชื่อมต่อ Google Sheets แล้ว'+(last?` • ซิงก์ล่าสุด ${last}`:''):'Google Sheets เป็นฐานข้อมูลกลางของระบบ';
+  if(connectedActions)connectedActions.style.display='none';
+  if(disconnectBtn)disconnectBtn.style.display='none';
+}
+function ensureTokenClient(clientId){
+  if(!window.google || !google.accounts || !google.accounts.oauth2){
+    showToast('โหลด Google API ไม่สำเร็จ ลองใหม่อีกครั้ง');
+    return null;
+  }
+  if(!tokenClient || tokenClient._cid !== clientId){
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: clientId,
+      scope: DRIVE_SCOPE,
+      callback: onTokenResponse
+    });
+    tokenClient._cid = clientId;
+  }
+  return tokenClient;
+}
+async function onTokenResponse(resp){
+  if(resp.error){
+    showToast('เชื่อมต่อ Google ไม่สำเร็จ');
+    updateCloudUI('disconnected');
+    return;
+  }
+  accessToken = resp.access_token;
+  localStorage.setItem('google_connected', '1');
+  updateCloudUI('syncing');
+  try{
+    const found = driveFileId ? { id: driveFileId } : await findRemoteFile();
+    if(found){
+      driveFileId = found.id;
+      localStorage.setItem('drive_file_id', driveFileId);
+      await pullFromCloud();
+      showToast('ดึงข้อมูลจาก Google Drive แล้ว');
+    } else {
+      await pushToCloud(true);
+      showToast('สร้างไฟล์สำรองข้อมูลบน Google Drive แล้ว');
+    }
+  }catch(e){
+    showToast('ซิงก์ไม่สำเร็จ ลองอีกครั้ง');
+  }
+  updateCloudUI('connected');
+}
+function driveHeaders(extra){
+  return Object.assign({ 'Authorization': 'Bearer ' + accessToken }, extra||{});
+}
+async function findRemoteFile(){
+  const q = encodeURIComponent(`name='${DRIVE_FILE_NAME}' and trashed=false`);
+  const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name,modifiedTime)&spaces=drive`, {
+    headers: driveHeaders()
+  });
+  const json = await res.json();
+  return (json.files && json.files[0]) || null;
+}
+async function createRemoteFile(){
+  const boundary = 'khlangthun_boundary';
+  const metadata = { name: DRIVE_FILE_NAME, mimeType: 'application/json' };
+  const body =
+    `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n` +
+    `--${boundary}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(DATA)}\r\n` +
+    `--${boundary}--`;
+  const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+    method: 'POST',
+    headers: driveHeaders({ 'Content-Type': `multipart/related; boundary=${boundary}` }),
+    body
+  });
+  const json = await res.json();
+  driveFileId = json.id;
+  localStorage.setItem('drive_file_id', driveFileId);
+  return driveFileId;
+}
+async function updateRemoteFile(){
+  await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`, {
+    method: 'PATCH',
+    headers: driveHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify(DATA)
+  });
+}
+async function pushToCloud(isFirst){
+  if(!accessToken) return;
+  updateCloudUI('syncing');
+  try{
+    if(!driveFileId){ await createRemoteFile(); }
+    else { await updateRemoteFile(); }
+    localStorage.setItem('drive_last_sync', new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}));
+  }catch(e){
+    if(!isFirst) showToast('อัปโหลดข้อมูลไม่สำเร็จ');
+  }
+  updateCloudUI('connected');
+}
+async function pullFromCloud(){
+  if(!accessToken || !driveFileId) return;
+  const res = await fetch(`https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`, {
+    headers: driveHeaders()
+  });
+  const json = await res.json();
+  if(json && Array.isArray(json.funds)){
+    DATA = json;
+    (DATA.funds||[]).forEach(normalizeFund);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
+    localStorage.setItem('drive_last_sync', new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}));
+    renderAll();
+  }
+}
+function scheduleCloudPush(){
+  if(!accessToken) return;
+  clearTimeout(cloudPushTimer);
+  cloudPushTimer = setTimeout(()=> pushToCloud(false), 1500);
+}
+function disconnectGoogle(){
+  stopSheetsAutoPull();
+  if(sheetsToken && window.google?.accounts?.oauth2){try{google.accounts.oauth2.revoke(sheetsToken,()=>{});}catch(e){}}
+  sheetsToken=null;sheetsTokenExpiresAt=0;localStorage.removeItem('google_sheets_connected');
+  updateSheetUI('disconnected');showToast('ยกเลิกการเชื่อมต่อ Google Sheets แล้ว');
+}
+
+document.getElementById('syncBtn').addEventListener('click',()=>{
+  document.getElementById('googleClientId').value=getGoogleClientId();
+  document.getElementById('googleSheetId').value=sheetId||'';
+  updateSheetUI(sheetsToken?'connected':'disconnected');
+  document.getElementById('modalCloud').hidden=false;
+});
+document.getElementById('cloudCloseBtn').addEventListener('click', ()=>{
+  document.getElementById('modalCloud').hidden = true;
+});
+/* old Drive connect button removed; Google Sheets is now primary */
+/*
+  const clientId = document.getElementById('googleClientId').value.trim();
+  if(!clientId){ showToast('กรุณาใส่ Google Client ID ก่อน (ดูวิธีใน README.md)'); return; }
+  localStorage.setItem('google_client_id', clientId);
+  const client = ensureTokenClient(clientId);
+  if(client) client.requestAccessToken({ prompt: accessToken ? '' : 'consent' });
+});*/
+document.getElementById('sheetConnectBtn').addEventListener('click',()=>{const cid=document.getElementById('googleClientId').value.trim();sheetId=document.getElementById('googleSheetId').value.trim();if(!cid){showToast('กรุณาใส่ Google Client ID');return;}localStorage.setItem('google_client_id',cid);if(sheetId)localStorage.setItem('google_sheet_id',sheetId);const c=ensureSheetsClient(cid);if(c)c.requestAccessToken({prompt:sheetsToken?'':'consent'});});
+document.getElementById('sheetCreateBtn').addEventListener('click',()=>{const cid=document.getElementById('googleClientId').value.trim();if(!cid){showToast('กรุณาใส่ Google Client ID');return;}localStorage.setItem('google_client_id',cid);sheetId='';localStorage.removeItem('google_sheet_id');const c=ensureSheetsClient(cid);if(c)c.requestAccessToken({prompt:sheetsToken?'':'consent'});});
+document.getElementById('sheetPushBtn').addEventListener('click',async()=>{try{if(!sheetsToken){const c=ensureSheetsClient(document.getElementById('googleClientId').value.trim()||getGoogleClientId());if(c){c.requestAccessToken({prompt:'consent'});return;}}await ensureSheetTabs();await pushToSheets();showToast('บันทึกลง Google Sheets แล้ว');}catch(e){showToast('บันทึก Google Sheets ไม่สำเร็จ');}});
+document.getElementById('sheetPullBtn').addEventListener('click',async()=>{try{if(!sheetId){showToast('กรุณาระบุ Spreadsheet ID ก่อน');return;}if(!sheetsToken){const c=ensureSheetsClient(document.getElementById('googleClientId').value.trim()||getGoogleClientId());if(c){c.requestAccessToken({prompt:'consent'});return;}}await pullFromSheets({safeMerge:false});showToast('ดึงข้อมูลจาก Google Sheets แล้ว • ใช้ข้อมูลล่าสุดจาก Sheet');}catch(e){showToast('ดึงข้อมูล Google Sheets ไม่สำเร็จ');}});
+document.getElementById('exportJsonBtn')?.addEventListener('click', ()=>{
+  const blob=new Blob([JSON.stringify(DATA,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`portfolio_${new Date().toISOString().slice(0,10)}.json`; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000); showToast('Export JSON สำเร็จ');
+});
+document.getElementById('importJsonBtn')?.addEventListener('click',()=>document.getElementById('importJsonFile')?.click());
+document.getElementById('importJsonFile')?.addEventListener('change',async e=>{
+  const file=e.target.files?.[0]; if(!file)return;
+  try{
+    const obj=JSON.parse(await file.text());
+    if(!obj||!Array.isArray(obj.funds)) throw new Error('invalid');
+    const incoming={funds:obj.funds}; incoming.funds.forEach(normalizeFund);
+    DATA={funds:incoming.funds}; DATA.funds.forEach(rebuildFundMonths);
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(DATA)); updateLastUpdated(); renderAll();
+    await ensureSheetsAccess();
+    if(sheetsToken&&sheetId){await pushToSheets(); showToast('Import สำเร็จ และ Sync กลับ Google Sheets แล้ว');}
+    else showToast('Import สำเร็จ • กรุณาเชื่อม Google Sheets เพื่อ Sync');
+  }catch(err){console.error(err);showToast('Import JSON ไม่สำเร็จ');}
+  e.target.value='';
+});
+document.getElementById('cloudDisconnectBtn')?.addEventListener('click', disconnectGoogle);
+
+// พยายามเชื่อมต่อใหม่แบบเงียบๆ ถ้าเคยเชื่อมต่อไว้ก่อนหน้านี้ในเบราว์เซอร์นี้
+window.addEventListener('load', ()=>{
+  const clientId = getClientId();
+  if(clientId && localStorage.getItem('google_connected')==='1'){
+    setTimeout(()=>{
+      const client = ensureTokenClient(clientId);
+      if(client){
+        try{ client.requestAccessToken({ prompt: '' }); }catch(e){}
+      }
+    }, 400);
+  }
+});
+
+window.addEventListener('load',()=>{const cid=getGoogleClientId();if(cid&&localStorage.getItem('google_sheets_connected')==='1'&&sheetId)setTimeout(()=>{try{const c=ensureSheetsClient(cid);if(c)c.requestAccessToken({prompt:'none'});}catch(e){}},700);});
+/* ================= PWA ================= */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+
+/* ================= INIT ================= */
+renderAll();
+
+/* ---- รับคำสั่งซิงก์จากหน้า Setting (มาจาก ?sync=pull หรือ ?sync=push) ---- */
+(function(){
+  const params=new URLSearchParams(location.search);
+  const syncAction=params.get('sync');
+  if(syncAction!=='pull' && syncAction!=='push') return;
+  history.replaceState(null,'',location.pathname+location.hash); // ล้าง query param กันสับสนถ้า refresh ซ้ำ
+  setTimeout(async ()=>{
+    try{
+      if(!sheetId){ showToast('กรุณาตั้งค่า Sheet ID ในหน้า Setting ก่อน'); return; }
+      if(!sheetsToken){
+        const cid=getGoogleClientId();
+        const c=cid?ensureSheetsClient(cid):null;
+        if(c){ showToast('กรุณากดยืนยันสิทธิ์ Google แล้วกดซิงก์อีกครั้งจากหน้านี้'); c.requestAccessToken({prompt:'consent'}); }
+        else showToast('กรุณาตั้งค่า Client ID ในหน้า Setting ก่อน');
+        return;
+      }
+      if(syncAction==='pull'){ await pullFromSheets({safeMerge:false}); showToast('ดึงข้อมูลจาก Google Sheets แล้ว • ใช้ข้อมูลล่าสุดจาก Sheet'); }
+      else { await ensureSheetTabs(); await pushToSheets(); showToast('บันทึกลง Google Sheets แล้ว'); }
+    }catch(e){ showToast('ซิงก์ไม่สำเร็จ: '+(e&&e.message||e)); }
+  }, 900); // รอให้ token client / renderAll() พร้อมก่อน
+})();
+</script>
+<script id="v39-manager-redesign-js">
+(function(){
+  const ownerNames=['Suksan','Wirocha','Phoom'];
+  function logoFor(t){const x=String(t||'').toUpperCase(); return x.length>7?x.slice(0,3):x.slice(0,5)||'FUND';}
+  function renderFundManager(){
+    const el=document.getElementById('marketManagerList'); if(!el)return;
+    const list=(typeof financeMyFundsList==='function'?financeMyFundsList():[]);
+    const count=document.getElementById('managerFundCount'); if(count)count.textContent=list.length;
+    document.getElementById('managerSectionTitle').textContent='กองทุน';
+    document.getElementById('managerSectionSub').textContent='รายการกองทุนที่มีอยู่ในพอร์ต';
+    document.getElementById('managerAddFundBtn').hidden=false;
+    document.getElementById('managerSymbolBox').hidden=true;
+    document.getElementById('managerListHead').style.gridTemplateColumns='minmax(190px,1.6fr) minmax(120px,1fr) 90px 34px';
+    document.getElementById('managerNote').textContent='กองทุนอ้างอิงรายการจริงในพอร์ต • ปุ่ม “เพิ่ม” ใช้สำหรับเพิ่มรายการใหม่';
+    el.innerHTML=list.length?list.map(a=>{
+      const owner=a.owner||a.portfolioOwner||'';
+      const opts=ownerNames.map(o=>`<option value="${esc(o)}" ${o===owner?'selected':''}>${esc(o)}</option>`).join('');
+      return `<div class="v39-manager-card" data-ticker="${esc(a.ticker)}">
+        <div class="v39-card-main"><div class="v39-card-logo">${esc(logoFor(a.ticker))}</div><div style="min-width:0"><div class="v39-card-symbol">${esc(a.ticker)}</div><div class="v39-card-name">${esc(a.name||a.ticker)}</div><div class="v39-card-meta">${esc(a.group||'กองทุน')}${a.nav!=null?' • NAV '+esc(a.nav):''}</div></div></div>
+        <select class="v39-owner-select" data-owner>${opts}</select>
+        <span class="v39-card-status">ใช้งาน</span>
+        <button class="v39-card-remove" type="button" title="ลบ" data-remove>×</button>
+      </div>`;
+    }).join(''):'<div class="finance-empty" style="padding:28px">ยังไม่มีกองทุนในพอร์ต</div>';
+    el.querySelectorAll('[data-owner]').forEach(sel=>sel.addEventListener('change',()=>{
+      const row=sel.closest('.v39-manager-card'), ticker=row.dataset.ticker;
+      const f=(DATA.funds||[]).find(x=>canonicalFundCode(x.name)===canonicalFundCode(ticker));
+      if(f){f.owner=sel.value; saveData(DATA); renderAll();}
+    }));
+    el.querySelectorAll('[data-remove]').forEach(btn=>btn.addEventListener('click',()=>{
+      const row=btn.closest('.v39-manager-card');
+      if(confirm('ลบกองทุนนี้ออกจากพอร์ตหรือไม่?')){
+        const ticker=row.dataset.ticker; DATA.funds=(DATA.funds||[]).filter(f=>canonicalFundCode(f.name)!==canonicalFundCode(ticker)); saveData(DATA); renderAll(); renderFundManager(); showToast('ลบกองทุนแล้ว');
+      }
+    }));
+  }
+  function renderMarketTab(){
+    const el=document.getElementById('marketManagerList'); if(!el)return;
+    const tab=window.managerTab||'etf';
+    const list=MARKET_ASSETS.filter(a=>tab==='etf'?isETFAsset(a):(String(a.exchange).toUpperCase()!=='FUND'&&!isETFAsset(a)));
+    document.getElementById('managerSectionTitle').textContent=tab==='etf'?'ETF':'Stock';
+    document.getElementById('managerSectionSub').textContent=tab==='etf'?'รายการ ETF ที่จะแสดงบน Market Watch':'รายการ Stock ที่จะแสดงบน Market Watch';
+    document.getElementById('managerAddFundBtn').hidden=true;
+    document.getElementById('managerSymbolBox').hidden=false;
+    document.getElementById('managerNote').textContent='ค้นหา Symbol ใหม่ได้จากช่องเดียว • ระบบจะกัน Symbol ซ้ำก่อนเพิ่ม';
+    el.innerHTML=list.length?list.map(a=>`<div class="v39-manager-card" data-ticker="${esc(a.ticker)}">
+      <div class="v39-card-main"><div class="v39-card-logo">${esc(logoFor(a.ticker))}</div><div style="min-width:0"><div class="v39-card-symbol">${esc(a.ticker)}</div><div class="v39-card-name">${esc(a.name||a.ticker)}</div><div class="v39-card-meta">${esc(a.exchange||'')}${a.group?' • '+esc(a.group):''}</div></div></div>
+      <div class="v39-card-meta">${a.navPending?'NAV รอข้อมูล':'GOOGLEFINANCE'}</div>
+      <select class="v39-owner-select" data-active><option value="true" ${a.active!==false?'selected':''}>ใช้งาน</option><option value="false" ${a.active===false?'selected':''}>ปิด</option></select>
+      <button class="v39-card-remove" type="button" title="ลบ" data-remove>×</button>
+    </div>`).join(''):'<div class="finance-empty" style="padding:28px">ยังไม่มีรายการ</div>';
+    el.querySelectorAll('[data-remove]').forEach(btn=>btn.addEventListener('click',()=>{const row=btn.closest('.v39-manager-card'); MARKET_ASSETS=MARKET_ASSETS.filter(a=>String(a.ticker).toUpperCase()!==String(row.dataset.ticker).toUpperCase()); renderMarketTab();}));
+    el.querySelectorAll('[data-active]').forEach(sel=>sel.addEventListener('change',()=>{const t=sel.closest('.v39-manager-card').dataset.ticker;const a=MARKET_ASSETS.find(x=>String(x.ticker).toUpperCase()===String(t).toUpperCase());if(a)a.active=sel.value==='true';}));
+  }
+  window.setManagerTab=function(tab){window.managerTab=tab;document.querySelectorAll('#managerSeg button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab)); if(tab==='fund')renderFundManager();else renderMarketTab();};
+  document.addEventListener('DOMContentLoaded',()=>{
+    document.getElementById('managerAddFundBtn')?.addEventListener('click',()=>{document.getElementById('marketManagerModal').hidden=true; document.getElementById('modalAddFund').hidden=false; if(typeof populateOwnerSelects==='function')populateOwnerSelects();});
+    document.getElementById('marketManagerCloseTop')?.addEventListener('click',()=>document.getElementById('marketManagerModal').hidden=true);
+    document.querySelectorAll('#managerSeg button').forEach(b=>b.addEventListener('click',()=>window.setManagerTab(b.dataset.tab)));
+    document.getElementById('marketManagerBtn')?.addEventListener('click',()=>window.setManagerTab(window.financeTab||'fund'));
+  });
+})();
+</script>
+</body>
+</html>

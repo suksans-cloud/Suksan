@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>คลังทุน — Dashboard V27</title>
+<meta name="theme-color" content="#6A4FE0">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F4FC;
+  --surface:#FFFFFF;
+  --surface-2:#F1EDFB;
+  --surface-3:#E6DFF9;
+  --border:#E7E1F7;
+  --text:#211D3A;
+  --text-soft:#6C6684;
+  --text-faint:#A29CBE;
+  --primary:#7B5FE5;
+  --primary-dim:#EFEAFD;
+  --primary-soft:rgba(123,95,229,.12);
+  --gold:#F2A93B;
+  --gold-soft:rgba(242,169,59,.14);
+  --danger:#F0507A;
+  --danger-soft:rgba(240,80,122,.10);
+  --positive:#1CAE5C;
+  --radius-s:10px;
+  --radius-m:16px;
+  --radius-l:22px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Noto Sans Thai','Prompt',sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.num{font-family:'Prompt','Noto Sans Thai',sans-serif;}
+button{font-family:inherit;}
+input{font-family:inherit;}
+a{color:inherit;text-decoration:none;}
+::selection{background:var(--primary-soft);}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:8px;}
+
+.shell{display:flex;min-height:100vh;}
+
+/* ---------------- Sidebar ---------------- */
+.sidebar{
+  width:216px; flex:none; background:var(--surface); border-right:1px solid var(--border);
+  display:flex; flex-direction:column; padding:18px 14px; position:sticky; top:0; height:100vh;
+  transition:transform .25s ease; z-index:40;
+}
+.brand{display:flex; align-items:center; gap:10px; padding:6px 6px 18px;}
+.brand-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(150deg,var(--primary),#1F806D);display:flex;align-items:center;justify-content:center;flex:none;}
+.brand-mark svg{width:19px;height:19px;}
+.brand-name{font-weight:700;font-size:16px;letter-spacing:.2px;}
+.brand-sub{font-size:10px;color:var(--text-faint);margin-top:1px;}
+
+.nav-group{margin-top:6px;}
+.nav-label{font-size:10.5px;color:var(--text-faint);padding:14px 10px 6px;}
+.nav-item{
+  display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:10px;
+  color:var(--text-soft); font-size:13.5px; cursor:pointer; border:none; background:none; width:100%; text-align:left;
+}
+.nav-item svg{width:17px;height:17px;flex:none;opacity:.85;}
+.nav-item:hover{background:var(--surface-2); color:var(--text);}
+.nav-item.active{background:var(--primary-soft); color:var(--primary); font-weight:600;}
+.nav-item.active svg{opacity:1;}
+.nav-sub{padding-left:29px; display:flex; flex-direction:column; gap:1px; margin:2px 0 4px;}
+.nav-sub-item{
+  display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius:8px; font-size:12.5px;
+  color:var(--text-soft); cursor:pointer; border:none; background:none; width:100%; text-align:left;
+}
+.nav-sub-item .dot{width:7px;height:7px;border-radius:50%;flex:none;}
+.nav-sub-item:hover{background:var(--surface-2); color:var(--text);}
+.nav-sub-item.active{color:var(--text); font-weight:600; background:var(--surface-2);}
+
+.sidebar-foot{margin-top:auto; display:flex; flex-direction:column; gap:8px;}
+.app-link-card{
+  background:linear-gradient(160deg,var(--surface-3),var(--surface-2)); border:1px solid var(--border);
+  border-radius:var(--radius-m); padding:13px; font-size:12px; color:var(--text-soft);
+}
+.app-link-card b{display:block; color:var(--text); font-size:13px; margin-bottom:4px;}
+.app-link-card a.btn{
+  display:block; text-align:center; margin-top:9px; background:var(--primary); color:#FFFFFF; font-weight:700;
+  padding:8px; border-radius:9px; font-size:12.5px;
+}
+
+.sidebar-close{display:none;}
+
+/* ---------------- Main / Topbar ---------------- */
+.main{flex:1; min-width:0; display:flex; flex-direction:column;}
+.topbar{
+  position:sticky; top:0; z-index:30; background:rgba(246,244,252,.85); backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border); display:flex; align-items:center; gap:14px;
+  padding:11px 22px;
+}
+.hamburger{display:none; border:none; background:var(--surface-2); color:var(--text); width:34px;height:34px;border-radius:9px; align-items:center;justify-content:center; flex:none;}
+.ticker{
+  flex:1; min-width:0; display:flex; gap:20px; overflow-x:auto; scrollbar-width:none; padding:2px 0;
+}
+.ticker::-webkit-scrollbar{display:none;}
+.ticker-item{display:flex; align-items:center; gap:7px; flex:none; font-size:12px;}
+.ticker-badge{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;color:#FFFFFF;flex:none;}
+.ticker-name{color:var(--text-soft); max-width:118px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.ticker-pct{font-weight:700;}
+.ticker-pct.up{color:var(--positive);}
+.ticker-pct.down{color:var(--danger);}
+.topbar-right{display:flex; align-items:center; gap:8px; flex:none;}
+.search-box{
+  display:flex; align-items:center; gap:7px; background:var(--surface-2); border:1px solid var(--border);
+  border-radius:10px; padding:7px 10px; width:180px;
+}
+.search-box input{background:none; border:none; outline:none; color:var(--text); font-size:12.5px; width:100%;}
+.search-box svg{width:14px;height:14px; color:var(--text-faint); flex:none;}
+.icon-btn{
+  width:34px;height:34px;border-radius:10px;background:var(--surface-2); border:1px solid var(--border);
+  color:var(--text-soft); display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative; flex:none;
+}
+.icon-btn svg{width:16px;height:16px;}
+.icon-btn .badge{position:absolute; top:-3px; right:-3px; background:var(--danger); color:#fff; font-size:9px; font-weight:700; min-width:15px; height:15px; border-radius:8px; display:flex; align-items:center; justify-content:center; padding:0 3px;}
+.avatar-chip{display:flex; align-items:center; gap:8px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:5px 10px 5px 5px;}
+.avatar-chip .av{width:24px;height:24px;border-radius:50%;background:linear-gradient(150deg,var(--gold),#B9862A);flex:none;}
+.avatar-chip span{font-size:12px;font-weight:600;}
+
+.content{padding:0 22px 22px; max-width:1240px; margin:0 auto; width:100%;}
+
+.page-head{display:flex; justify-content:space-between; align-items:flex-end; gap:16px; margin-bottom:18px; flex-wrap:wrap;}
+.page-head h1{font-size:21px; margin:0 0 4px; font-weight:700;}
+.page-head p{margin:0; font-size:12.5px; color:var(--text-soft);}
+.privacy-hint{font-size:10.5px;color:var(--text-faint);margin-top:5px}
+.privacy-hint b{color:var(--primary);font-weight:600}
+
+
+/* ---------------- Dime-style purple hero ---------------- */
+.hero-purple{
+  position:relative; overflow:hidden;
+  background:
+    radial-gradient(circle at 12% -10%, rgba(255,255,255,.16), transparent 45%),
+    linear-gradient(160deg,#8E72F4 0%, #7B5FE5 45%, #6A4FE0 100%);
+  border-radius:0 0 28px 28px;
+  padding:22px 22px 0;
+  max-width:1240px; margin:0 auto;
+}
+.hero-stars{position:absolute; inset:0; pointer-events:none;}
+.hero-stars .star{position:absolute; width:26px; height:26px;}
+.hero-stars .s1{top:14px; left:38%; width:20px; height:20px;}
+.hero-stars .s2{top:60px; right:8%; width:30px; height:30px;}
+.hero-stars .s3{top:110px; left:6%; width:16px; height:16px;}
+.hero-stars .s4{bottom:70px; right:28%; width:22px; height:22px;}
+.hero-top{position:relative; display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap;}
+.hero-top h1{font-size:21px; margin:0 0 4px; font-weight:700; color:#fff;}
+.hero-top p{margin:0; font-size:12.5px; color:rgba(255,255,255,.78);}
+.hero-select{background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); color:#fff;}
+.hero-cta{background:#fff; color:var(--primary);}
+.hero-cta svg{color:var(--primary);}
+.pill-row{position:relative; display:flex; gap:8px; overflow-x:auto; padding:18px 0 22px; scrollbar-width:none;}
+.pill-row::-webkit-scrollbar{display:none;}
+.pill-btn{
+  flex:none; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.22); color:#fff;
+  font-size:12.5px; font-weight:600; padding:8px 15px; border-radius:999px; cursor:pointer;
+}
+.pill-btn.active{background:#fff; color:var(--primary); border-color:#fff;}
+.hero-card-wrap{position:relative; padding-bottom:20px; margin-top:-6px;}
+.hero-card{box-shadow:0 20px 40px -20px rgba(43,26,110,.35);}
+.hero-card .big-num{font-size:32px;}
+
+@media (max-width: 760px){
+  .hero-purple{border-radius:0 0 22px 22px; padding:16px 16px 0;}
+  .pill-row{padding:14px 0 18px;}
+}
+.page-actions{display:flex; align-items:center; gap:9px;}
+.select-pill{
+  background:var(--surface-2); border:1px solid var(--border); color:var(--text); font-size:12.5px;
+  padding:8px 12px; border-radius:10px; cursor:pointer;
+}
+.btn-primary{
+  background:linear-gradient(150deg,var(--primary),#1F806D); color:#FFFFFF; font-weight:700; font-size:12.5px;
+  padding:9px 15px; border-radius:10px; border:none; cursor:pointer; display:flex; align-items:center; gap:6px;
+}
+.btn-primary svg{width:14px;height:14px;}
+
+.grid-row{display:grid; gap:16px; margin-bottom:16px;}
+.grid-row.r1{grid-template-columns:minmax(0,1fr);}
+.grid-row.r2{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);}
+
+.card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-l);
+  padding:18px; box-shadow:0 2px 14px -8px rgba(20,33,29,.10);
+}
+.card-head{display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:6px;}
+.card-title{font-size:12.5px; color:var(--text-soft); display:flex; align-items:center; gap:5px;}
+.card-tools{display:flex; gap:6px;}
+.tool-btn{
+  width:26px;height:26px;border-radius:8px;background:var(--surface-2); border:1px solid var(--border);
+  color:var(--text-soft); display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+.tool-btn svg{width:13px;height:13px;}
+.tool-btn.active{color:var(--primary); border-color:var(--primary); background:var(--primary-soft);}
+
+.big-num{font-size:29px; font-weight:700; margin:2px 0 3px; letter-spacing:.2px;}
+.big-num small{font-size:16px; color:var(--text-soft); font-weight:600;}
+.delta-pill{
+  display:inline-flex; align-items:center; gap:4px; font-size:11.5px; font-weight:700; padding:2px 8px;
+  border-radius:999px; margin-bottom:14px;
+}
+.delta-pill.pos{color:var(--positive); background:rgba(28,174,92,.12);}
+.delta-pill.neg{color:var(--danger); background:var(--danger-soft);}
+.delta-pill svg{width:10px;height:10px;}
+.delta-sub{font-size:11px; color:var(--text-faint); margin-left:6px;}
+
+.dist-label{font-size:11.5px; color:var(--text-soft); margin-bottom:8px; font-weight:600;}
+.dist-bar{display:flex; height:8px; border-radius:6px; overflow:hidden; background:var(--surface-2); margin-bottom:14px;}
+.dist-seg{height:100%;}
+.dist-legend{display:flex; flex-direction:column; gap:9px;}
+.dist-row{display:flex; align-items:center; gap:9px; font-size:12.5px;}
+.dist-row .dot{width:8px;height:8px;border-radius:50%;flex:none;}
+.dist-row .lbl{color:var(--text-soft); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.dist-row .pct{color:var(--text-faint); font-size:11px; width:34px; text-align:right;}
+.dist-row .amt{font-weight:600; width:88px; text-align:right;}
+
+.chart-wrap{position:relative; margin-top:6px;}
+.chart-wrap svg{width:100%; height:auto; display:block; overflow:visible;}
+.chart-tooltip{
+  position:absolute; background:var(--surface-3); border:1px solid var(--border); border-radius:10px;
+  padding:9px 11px; font-size:11px; pointer-events:none; opacity:0; transition:opacity .12s ease; white-space:nowrap;
+  box-shadow:0 10px 24px -12px rgba(0,0,0,.6); z-index:5;
+}
+.chart-tooltip .tt-year{font-weight:700; margin-bottom:5px; color:var(--text);}
+.chart-tooltip .tt-row{display:flex; align-items:center; gap:6px; color:var(--text-soft);}
+.chart-tooltip .tt-row .dot{width:6px;height:6px;border-radius:50%;}
+.chart-tooltip .tt-row b{color:var(--text); margin-left:auto; padding-left:14px;}
+
+.bar-legend{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:10px;}
+.bar-legend .lg-item{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--text-soft);}
+.bar-legend .lg-item .dot{width:8px;height:8px;border-radius:50%;}
+
+.promo-card{
+  background:linear-gradient(165deg,#EFEAFD,#FFFFFF 65%); border:1px solid var(--border); border-radius:var(--radius-l);
+  padding:22px 18px; text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:10px; position:relative; overflow:hidden; box-shadow:0 2px 14px -8px rgba(20,33,29,.10);
+}
+.promo-card::before{
+  content:''; position:absolute; inset:0; opacity:.6;
+  background-image:radial-gradient(circle at 2px 2px, rgba(15,91,77,.08) 1px, transparent 1px);
+  background-size:16px 16px; mask-image:linear-gradient(to bottom, black, transparent 70%);
+}
+.promo-icon{width:52px;height:52px;border-radius:16px;background:linear-gradient(150deg,var(--gold),#B9862A); display:flex;align-items:center;justify-content:center; position:relative;}
+.promo-icon svg{width:26px;height:26px;color:#3A2A05;}
+.promo-card h3{font-size:15.5px; margin:2px 0 0; position:relative;}
+.promo-card p{font-size:12px; color:var(--text-soft); margin:0; line-height:1.6; position:relative; max-width:230px;}
+.promo-card a.btn{
+  position:relative; margin-top:6px; background:var(--gold); color:#FFFFFF; font-weight:700; font-size:12.5px;
+  padding:9px 18px; border-radius:10px; width:100%;
+}
+
+.empty-note{font-size:12px; color:var(--text-faint); text-align:center; padding:30px 10px;}
+.live-summary{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-l);padding:16px 18px;margin-bottom:16px;box-shadow:0 8px 24px rgba(15,91,77,.05)}
+.live-summary-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+.live-sub{font-size:11.5px;color:var(--text-soft);margin-top:3px}
+.live-badge{font-size:9.5px;font-weight:700;letter-spacing:.5px;color:var(--positive);background:rgba(28,174,92,.09);padding:5px 8px;border-radius:999px;white-space:nowrap}
+.live-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.live-kpi{background:var(--surface-2);border:1px solid var(--border);border-radius:13px;padding:11px 12px;min-width:0}
+.live-kpi-label{font-size:10.5px;color:var(--text-soft);margin-bottom:4px}
+.live-kpi-value{font-family:'Prompt','Noto Sans Thai',sans-serif;font-size:18px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.live-kpi-note{font-size:9.5px;color:var(--text-faint);margin-top:2px}
+.live-progress{height:7px;background:var(--surface-3);border-radius:99px;overflow:hidden;margin-top:12px}
+.live-progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--primary),#1F806D);border-radius:inherit;transition:width .35s ease}
+@media(max-width:760px){.live-kpis{grid-template-columns:repeat(2,1fr)}.live-summary{padding:14px}.live-kpi-value{font-size:16px}}
+
+
+.overlay-bg{position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:39; display:none;}
+.overlay-bg.show{display:block;}
+
+@media (max-width: 980px){
+  .grid-row.r1, .grid-row.r2{grid-template-columns:1fr;}
+  .ticker{display:none;}
+}
+@media (max-width: 760px){
+  .sidebar{position:fixed; left:0; top:0; transform:translateX(-100%); box-shadow:0 0 40px rgba(0,0,0,.5);}
+  .sidebar.open{transform:translateX(0);}
+  .sidebar-close{display:flex; align-items:center; justify-content:center; margin-left:auto; width:28px;height:28px;border-radius:8px;background:var(--surface-2); border:1px solid var(--border); color:var(--text-soft);}
+  .hamburger{display:flex;}
+  .search-box{display:none;}
+  .content{padding:0 16px 16px;}
+  .page-head{align-items:flex-start;}
+  .card{padding:14px;}
+}
+</style>
+<script src="../config.js"></script>
+<script src="auth-open.js"></script>
+</head>
+<body>
+
+<div class="overlay-bg" id="overlayBg"></div>
+<div class="shell">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3c-2 3-2.5 5-.5 7 1.6 1.6 1.6 3.4 0 5-1.5-2-2-2-3.5-.5C6.5 16 6 18 8 20" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3c2 3 2.5 5 .5 7-1.6 1.6-1.6 3.4 0 5" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <div class="brand-name">คลังทุน</div>
+        <div class="brand-sub">Family Fund Tracker</div>
+      </div>
+      <button class="sidebar-close" id="sidebarClose">✕</button>
+    </div>
+
+    <div class="nav-group">
+      <button class="nav-item active" data-nav="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="7.5" height="7.5" rx="1.8"/><rect x="13" y="3.5" width="7.5" height="4.5" rx="1.8"/><rect x="13" y="10.5" width="7.5" height="10" rx="1.8"/><rect x="3.5" y="13.5" width="7.5" height="7" rx="1.8"/></svg>
+        ภาพรวม
+      </button>
+      <a class="nav-item" href="index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V10M10 19V5M16 19v-6M22 19H2" stroke-linecap="round"/></svg>
+        สรุปรายเดือน
+      </a>
+      <button class="nav-item" id="portfolioToggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7l9-4 9 4-9 4-9-4Z"/><path d="M3 12l9 4 9-4M3 17l9 4 9-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        กองทุนของฉัน
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px;margin-left:auto;transition:transform .15s" id="portfolioChevron"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="nav-sub" id="ownerSubnav"></div>
+      <a class="nav-item" href="index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 8h13M7 8l3-3M7 8l3 3M17 16H4M17 16l-3-3M17 16l-3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        ธุรกรรม
+      </a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">ระบบ</div>
+      <a class="nav-item" href="index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V27a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 9 19.36a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.64 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.64 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.64a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.36 9a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1Z"/></svg>
+        ตั้งค่า &amp; ซิงก์
+      </a>
+    </div>
+
+    <div class="sidebar-foot">
+      <div class="app-link-card">
+        <b>เพิ่ม/แก้ไขข้อมูล</b>
+        อยากบันทึกเงินลงทุนหรือแก้กองทุน ไปที่แอปหลัก
+        <a class="btn" href="index.html">เปิดแอปหลัก</a>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="hamburger" id="hamburgerBtn">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg>
+      </button>
+      <div class="ticker" id="ticker"></div>
+      <div class="topbar-right">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+          <input id="fundSearch" placeholder="ค้นหากองทุน...">
+        </div>
+        <button class="icon-btn" id="bellBtn" title="การแจ้งเตือน">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+          <span class="badge" id="bellBadge" style="display:none;">0</span>
+        </button>
+        <div class="avatar-chip">
+          <div class="av"></div>
+          <span id="familyLabel">ครอบครัว</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="hero-purple">
+      <div class="hero-stars">
+        <svg class="star s1" viewBox="0 0 24 24" fill="rgba(255,255,255,.55)"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z"/></svg>
+        <svg class="star s2" viewBox="0 0 24 24" fill="rgba(255,255,255,.35)"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z"/></svg>
+        <svg class="star s3" viewBox="0 0 24 24" fill="rgba(255,255,255,.4)"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z"/></svg>
+        <svg class="star s4" viewBox="0 0 24 24" fill="rgba(255,255,255,.25)"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z"/></svg>
+      </div>
+      <div class="hero-top">
+        <div>
+          <h1>ภาพรวมกองทุนครอบครัว</h1>
+          <p id="pageSub">สรุปเงินออม การลงทุน และเป้าหมายของทุกคนในบ้าน</p>
+        </div>
+        <div class="page-actions">
+          <select class="select-pill hero-select" id="yearSelect"></select>
+          <a class="btn-primary hero-cta" href="index.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            บันทึกการลงทุน
+          </a>
+        </div>
+      </div>
+      <div class="pill-row" id="ownerPills"></div>
+      <div class="hero-card-wrap">
+        <section class="card hero-card" id="assetsCard"></section>
+      </div>
+    </div>
+
+    <div class="content">
+      <section class="live-summary" id="liveSummary">
+        <div class="live-summary-head">
+          <div>
+            <div class="card-title">สุขภาพพอร์ตปีนี้</div>
+            <div class="live-sub" id="liveSummarySub">ข้อมูลจากการลงทุนจริงที่บันทึกในแอปหลัก</div>
+          </div>
+          <span class="live-badge">● LIVE DATA</span>
+        </div>
+        <div class="live-kpis" id="liveKpis"></div>
+        <div class="live-progress"><div id="liveProgressBar"></div></div>
+      </section>
+
+      <div class="grid-row r1">
+        <section class="card" id="investCard">
+          <div class="card-head">
+            <div>
+              <div class="card-title">เงินลงทุนสะสมต่อปี</div>
+              <div class="big-num privacy-number" id="investBigNum">฿0</div>
+              <div id="investDeltaWrap"></div>
+            </div>
+            <div class="card-tools">
+              <button class="tool-btn active" data-chartmode="year" title="ยอดต่อปี">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V10M10 19V5M16 19v-6"/></svg>
+              </button>
+              <button class="tool-btn" data-chartmode="cum" title="ยอดสะสม">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 15c3-6 6 3 9-3s6-7 9-1" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="chart-wrap" id="investChartWrap"></div>
+        </section>
+      </div>
+
+      <div class="grid-row r2">
+        <section class="card" id="savingsCard">
+          <div class="card-head">
+            <div class="card-title">เงินออมรวมรายปี แยกตามคน</div>
+          </div>
+          <div class="bar-legend" id="barLegend"></div>
+          <div class="chart-wrap" id="barChartWrap"></div>
+        </section>
+        <aside class="promo-card" id="promoCard"></aside>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= DATA (reads the same database as index.html) ================= */
+const STORAGE_KEY = 'khlangthun_portfolio_oldui_latest_v4';
+const CURRENT_YEAR = new Date().getFullYear();
+const PALETTE = ['#5B4AE8','#2F8F83','#D49A2A','#E05A78','#3B82C4','#8A63D2','#2E9E8E'];
+const OWNER_FIXED_COLORS = {
+  'Suksan':'#2F8F83',
+  'Wirocha':'#5B4AE8',
+  'Phoom':'#D49A2A',
+  'สุขสันต์':'#2F8F83',
+  'วิโรจา':'#5B4AE8',
+  'ภูมิ':'#D49A2A'
+};
+const DARK_PALETTE = ['#1FAE8B','#E3B341','#5B9BD5','#FF6B81','#8B7CF6','#37D6B0','#D97757'];
+const OWNER_COLORS = {};
+const MONTHS_TH = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+function seedFunds(){
+  const m = arr => { const o={}; arr.forEach((v,i)=>o[i+1]=v); return o; };
+  return [
+    fund('Suksan','SCBRMS&P500', m([0,2000,2000,2000,2000,2000,0,1000,0,0,0,0]), 24000),
+    fund('Suksan','SCBRMWORLD(A)', m([0,2000,2000,2000,2000,2000,2000,2000,1000,0,0,0]), 24000),
+    fund('Suksan','SCBGOLDHRMF', m([0,0,1000,1000,1000,3000,1000,0,1000,0,0,0]), 24000),
+    fund('Suksan','SCBTM(ThaiESGE)', m([0,0,1000,1000,1000,1000,1000,1000,1000,0,0,0]), 24000),
+    fund('Suksan','SCBRM2', m([0,0,0,0,0,0,5000,0,1000,0,0,0]), 24000),
+    fund('Suksan','SCBSTMFPLUS-I', m([3000,3000,3000,3000,3000,2000,0,0,0,0,0,0]), 24000),
+    fund('Suksan','SCBFIXEDA', m([3000,3000,3000,3000,3000,3000,3000,3000,3000,0,0,0]), 24000),
+    fund('Suksan','TLUS500RMF (WelthX)', m([0,0,0,0,0,0,0,2000,2000,0,0,0]), 24000),
+    fund('Suksan','TLWORLDXUSRMF (WelthX)', m([0,0,0,0,0,0,0,2000,2000,0,0,0]), 24000),
+    fund('Suksan','KKP CorePath Balanced RMF', m([0,0,0,0,0,1000,1000,1000,2000,0,0,0]), 24000),
+    fund('Suksan','KKP-INRMF', m([0,0,0,0,0,1000,0,0,0,0,0,0]), 24000),
+    fund('Suksan','SCBSEMIE (500)', m([0,0,0,500,500,500,500,0,500,0,0,0]), 24000),
+    fund('Suksan','SCBVIETE (500)', m([0,0,0,500,500,500,500,0,500,0,0,0]), 24000),
+    fund('Suksan','SCBGVALUE (500)', m([0,0,0,500,500,500,500,0,500,0,0,0]), 24000),
+    fund('Suksan','SCBJNK225E (500)', m([0,0,0,500,500,500,500,0,0,0,0,0]), 24000),
+    fund('Suksan','VOO (800)', m([0,0,0,5000,500,1000,1000,0,0,0,0,0]), 24000),
+    fund('Suksan','SCHD (500)', m([0,0,0,0,500,0,0,0,0,0,0,0]), 24000),
+    fund('Suksan','VXUS (400)', m([0,0,0,4500,700,1000,0,0,0,0,0,0]), 24000),
+    fund('Suksan','GOOGL (300)', m([0,0,0,0,0,3000,400,1000,0,0,0,0]), 24000),
+    fund('Wirocha','SCBS&P500E (2000)', m([0,0,0,0,0,1000,2000,0,0,0,0,0]), 24000),
+    fund('Wirocha','SCBGVALUE (1000)', m([0,0,0,0,0,0,1000,0,0,0,0,0]), 24000),
+    fund('Wirocha','SCBSTMFPLUS-E (3000)', m([0,0,0,0,0,2000,5000,3000,0,0,0,0]), 24000),
+    fund('Phoom','TLWORLD-X(WelthX)', m([0,0,0,0,0,0,2000,2000,0,0,0,0]), 24000),
+  ];
+}
+function fund(owner,name,months,target){
+  return { id:'f_'+Math.random().toString(36).slice(2,9), owner:canonicalOwner(owner), name, months, target, years:{}, favorite:false, transactions:[] };
+}
+function canonicalOwner(owner){
+  const raw=String(owner||'').trim();
+  const key=raw.replace(/\s+/g,'').toLowerCase();
+  const map={
+    'suksan':'Suksan','สุขสันต์':'Suksan',
+    'wirocha':'Wirocha','วิโรจา':'Wirocha','วิโรชา':'Wirocha','วิรุชา':'Wirocha','วิโรช':'Wirocha',
+    'phoom':'Phoom','ภูมิ':'Phoom'
+  };
+  return map[key]||raw;
+}
+function normalizeFund(f){
+  f.owner=canonicalOwner(f.owner);
+  if(!f.years || typeof f.years!=='object') f.years={};
+  if(!Array.isArray(f.transactions)) f.transactions=[];
+  if(typeof f.favorite!=='boolean') f.favorite=false;
+  if(f.months && Object.keys(f.months).length && !f.years[CURRENT_YEAR]){
+    f.years[CURRENT_YEAR]={months:{...f.months}, target:Number(f.target)||0};
+  }
+  delete f.months;
+  if(f.target===undefined) f.target=24000;
+  return f;
+}
+function yearDataOf(f, year, create=true){
+  normalizeFund(f);
+  if(!f.years[year] && create) f.years[year]={months:{}, target:Number(f.target)||0};
+  if(f.years[year] && !f.years[year].months) f.years[year].months={};
+  if(f.years[year] && f.years[year].target===undefined) f.years[year].target=Number(f.target)||0;
+  return f.years[year] || {months:{},target:Number(f.target)||0};
+}
+function loadData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){ const d=JSON.parse(raw); (d.funds||[]).forEach(normalizeFund); return d; }
+  }catch(e){}
+  const data = { funds: seedFunds() };
+  data.funds.forEach(normalizeFund);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  return data;
+}
+let DATA = loadData();
+let selectedYear = CURRENT_YEAR;
+let lastRaw = localStorage.getItem(STORAGE_KEY);
+let ownerFilter = 'ALL';
+
+function ownerColor(owner){
+  if(!OWNER_COLORS[owner]){
+    OWNER_COLORS[owner] = OWNER_FIXED_COLORS[owner] || PALETTE[Object.keys(OWNER_COLORS).length % PALETTE.length];
+  }
+  return OWNER_COLORS[owner];
+}
+function owners(){ return [...new Set(DATA.funds.map(f=>f.owner))]; }
+function fundsScoped(){ return ownerFilter==='ALL' ? DATA.funds : DATA.funds.filter(f=>f.owner===ownerFilter); }
+function allYearsPresent(){
+  const ys=new Set([CURRENT_YEAR]);
+  DATA.funds.forEach(f=>Object.keys(f.years||{}).forEach(y=>ys.add(Number(y))));
+  const min=Math.min(...ys), max=Math.max(...ys, CURRENT_YEAR);
+  const span=Math.max(max-min, 4);
+  const start=max-span;
+  const out=[]; for(let y=start;y<=max;y++) out.push(y);
+  return out;
+}
+function yearTotalForFund(f,y){ return Object.values(yearDataOf(f,y,false).months||{}).reduce((a,b)=>a+(Number(b)||0),0); }
+function fundAllTimeTotal(f){ return Object.keys(f.years||{}).reduce((s,y)=>s+yearTotalForFund(f,Number(y)),0); }
+function fundTargetOf(f,y){ return Number(yearDataOf(f,y,false).target)||Number(f.target)||0; }
+
+const fmtInt = n => '฿' + Math.round(n||0).toLocaleString('th-TH');
+const fmtShort = n => {
+  n = Number(n)||0;
+  if(Math.abs(n)>=1000000) return '฿'+(n/1000000).toFixed(2)+'M';
+  if(Math.abs(n)>=1000) return '฿'+(n/1000).toFixed(1)+'K';
+  return '฿'+Math.round(n).toLocaleString('th-TH');
+};
+function escapeHtml(s){ return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ================= TICKER ================= */
+function renderTicker(){
+  const el = document.getElementById('ticker');
+  const funds = [...DATA.funds].sort((a,b)=>fundAllTimeTotal(b)-fundAllTimeTotal(a)).slice(0,10);
+  if(!funds.length){ el.innerHTML=''; return; }
+  el.innerHTML = funds.map(f=>{
+    const target = fundTargetOf(f, selectedYear) || 1;
+    const actual = yearTotalForFund(f, selectedYear);
+    const pct = Math.round(actual/target*100);
+    const up = pct>=50;
+    const color = ownerColor(f.owner);
+    const initial = (f.owner||'?').trim().charAt(0).toUpperCase();
+    return `<div class="ticker-item" title="${escapeHtml(f.owner)} · ${escapeHtml(f.name)}">
+      <div class="ticker-badge" style="background:${color}">${initial}</div>
+      <span class="ticker-name">${escapeHtml(f.name)}</span>
+      <span class="ticker-pct ${up?'up':'down'}">${up?'▲':'▼'} ${pct}%</span>
+    </div>`;
+  }).join('');
+}
+
+/* ================= SIDEBAR OWNER SUBNAV ================= */
+function renderOwnerSubnav(){
+  const wrap = document.getElementById('ownerSubnav');
+  wrap.innerHTML = ['ALL',...owners()].map(o=>{
+    const label = o==='ALL' ? 'ทั้งหมด' : o;
+    const color = o==='ALL' ? 'var(--text-faint)' : ownerColor(o);
+    return `<button class="nav-sub-item ${ownerFilter===o?'active':''}" data-owner="${escapeHtml(o)}">
+      <span class="dot" style="background:${color}"></span>${escapeHtml(label)}
+    </button>`;
+  }).join('');
+  wrap.querySelectorAll('[data-owner]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ ownerFilter=btn.dataset.owner; renderAll(); });
+  });
+}
+
+/* ================= HERO OWNER PILLS ================= */
+function renderOwnerPills(){
+  const wrap = document.getElementById('ownerPills');
+  wrap.innerHTML = ['ALL',...owners()].map(o=>{
+    const label = o==='ALL' ? 'ทั้งหมด' : o;
+    return `<button class="pill-btn ${ownerFilter===o?'active':''}" data-owner-pill="${escapeHtml(o)}">${escapeHtml(label)}</button>`;
+  }).join('');
+  wrap.querySelectorAll('[data-owner-pill]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ ownerFilter=btn.dataset.ownerPill; renderAll(); });
+  });
+}
+
+/* ================= ASSETS CARD ================= */
+function renderLiveSummary(){
+  const funds=fundsScoped();
+  const year=selectedYear;
+  const actual=funds.reduce((s,f)=>s+yearTotalForFund(f,year),0);
+  const target=funds.reduce((s,f)=>s+fundTargetOf(f,year),0);
+  const gap=target-actual;
+  const pct=target?Math.round(actual/target*100):0;
+  const active=funds.filter(f=>yearTotalForFund(f,year)>0).length;
+  const allTime=funds.reduce((s,f)=>s+fundAllTimeTotal(f),0);
+  const months=[...Array(12)].map((_,i)=>funds.reduce((s,f)=>s+(Number(yearDataOf(f,year,false).months?.[i])||0),0));
+  let lastIdx=-1; months.forEach((v,i)=>{if(v>0) lastIdx=i;});
+  const last=lastIdx>=0?months[lastIdx]:0;
+  const monthLabel=lastIdx>=0?MONTHS_TH[lastIdx]:'ยังไม่มี';
+  const kpis=[
+    ['ลงทุนจริงปีนี้',fmtInt(actual),`ปี ${year+543}`],
+    ['เป้าหมายปีนี้',fmtInt(target),target?'เป้าหมายรวม':'ยังไม่ได้ตั้งเป้า'],
+    [gap>=0?'เหลือถึงเป้าหมาย':'เกินเป้าหมาย',fmtInt(Math.abs(gap)),gap>=0?'ต้องลงทุนเพิ่ม':'ทำได้เกินเป้า'],
+    ['กองทุนที่ลงทุน',`${active} กอง`,lastIdx>=0?`ล่าสุด ${monthLabel} · ${fmtShort(last)}`:`สะสมทั้งหมด ${fmtShort(allTime)}`]
+  ];
+  document.getElementById('liveKpis').innerHTML=kpis.map((k,i)=>`<div class="live-kpi"><div class="live-kpi-label">${k[0]}</div><div class="live-kpi-value privacy-number">${k[1]}</div><div class="live-kpi-note">${k[2]}</div></div>`).join('');
+  document.getElementById('liveProgressBar').style.width=Math.min(100,Math.max(0,pct))+'%';
+  document.getElementById('liveSummarySub').textContent=`ข้อมูลจากการลงทุนจริง · ปี ${year+543} · อัปเดตอัตโนมัติเมื่อมีการบันทึกข้อมูล`;
+}
+
+function renderAssetsCard(){
+  const funds = fundsScoped();
+  const totalAllTime = funds.reduce((s,f)=>s+fundAllTimeTotal(f),0);
+  const thisYear = funds.reduce((s,f)=>s+yearTotalForFund(f,selectedYear),0);
+  const lastYear = funds.reduce((s,f)=>s+yearTotalForFund(f,selectedYear-1),0);
+  let deltaHtml;
+  if(lastYear>0){
+    const pct = Math.round((thisYear-lastYear)/lastYear*100);
+    const pos = pct>=0;
+    deltaHtml = `<span class="delta-pill ${pos?'pos':'neg'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">${pos?'<path d="M12 19V5M5 12l7-7 7 7"/>':'<path d="M12 5v14M5 12l7 7 7-7"/>'}</svg>${pos?'+':''}${pct}%</span><span class="delta-sub">เทียบปีก่อน (${lastYear-543>0?'':''}${selectedYear-1+543})</span>`;
+  } else {
+    const target = funds.reduce((s,f)=>s+fundTargetOf(f,selectedYear),0);
+    const pct = target? Math.round(thisYear/target*100):0;
+    deltaHtml = `<span class="delta-pill pos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 19V5M5 12l7-7 7 7"/></svg>${pct}%</span><span class="delta-sub">ของเป้าหมายปี ${selectedYear+543}</span>`;
+  }
+
+  const totals = {};
+  funds.forEach(f=>{ totals[f.owner]=(totals[f.owner]||0)+fundAllTimeTotal(f); });
+  const ownerList = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
+  const grand = ownerList.reduce((s,[,v])=>s+v,0) || 1;
+
+  const segHtml = ownerList.map(([o,v])=>`<div class="dist-seg" style="width:${(v/grand*100).toFixed(2)}%;background:${ownerColor(o)}"></div>`).join('');
+  const legendHtml = ownerList.map(([o,v])=>`
+    <div class="dist-row">
+      <span class="dot" style="background:${ownerColor(o)}"></span>
+      <span class="lbl">${escapeHtml(o)}</span>
+      <span class="pct">${Math.round(v/grand*100)}%</span>
+      <span class="amt privacy-number">${fmtInt(v)}</span>
+    </div>`).join('');
+
+  document.getElementById('assetsCard').innerHTML = `
+    <div class="card-head">
+      <div class="card-title">เงินออมสะสมทั้งหมด</div>
+    </div>
+    <div class="big-num privacy-number">${fmtInt(totalAllTime)}</div>
+    <div style="margin-bottom:14px;">${deltaHtml}</div>
+    <div class="dist-label">สัดส่วนตามคน</div>
+    <div class="dist-bar">${segHtml || '<div class="dist-seg" style="width:100%;background:var(--surface-3)"></div>'}</div>
+    <div class="dist-legend">${legendHtml || '<div class="empty-note">ยังไม่มีข้อมูลกองทุน</div>'}</div>
+  `;
+}
+
+/* ================= INVEST CHART (area, per year, hover tooltip) ================= */
+let chartMode = 'year'; // 'year' | 'cum'
+function renderInvestCard(){
+  const funds = fundsScoped();
+  const years = allYearsPresent();
+  const thisYearTotal = funds.reduce((s,f)=>s+yearTotalForFund(f,selectedYear),0);
+  const lastYearTotal = funds.reduce((s,f)=>s+yearTotalForFund(f,selectedYear-1),0);
+  document.getElementById('investBigNum').textContent = fmtInt(thisYearTotal);
+  const deltaWrap = document.getElementById('investDeltaWrap');
+  if(lastYearTotal>0){
+    const pct = Math.round((thisYearTotal-lastYearTotal)/lastYearTotal*100);
+    const pos = pct>=0;
+    deltaWrap.innerHTML = `<span class="delta-pill ${pos?'pos':'neg'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">${pos?'<path d="M12 19V5M5 12l7-7 7 7"/>':'<path d="M12 5v14M5 12l7 7 7-7"/>'}</svg>${pos?'+':''}${pct}%</span><span class="delta-sub">ปี ${selectedYear+543}</span>`;
+  } else {
+    deltaWrap.innerHTML = `<span class="delta-sub">ยังไม่มีข้อมูลปีก่อนหน้าให้เทียบ</span>`;
+  }
+
+  const owns = ownerFilter==='ALL' ? owners() : [ownerFilter];
+  const perYearByOwner = years.map(y=>{
+    const row = {year:y, total:0, owners:{}};
+    owns.forEach(o=>{
+      const v = DATA.funds.filter(f=>f.owner===o).reduce((s,f)=>s+yearTotalForFund(f,y),0);
+      row.owners[o]=v; row.total+=v;
+    });
+    return row;
+  });
+
+  let series = perYearByOwner.map(r=>r.total);
+  if(chartMode==='cum'){
+    let acc=0; series = series.map(v=>{ acc+=v; return acc; });
+  }
+
+  const w=640,h=210,p={l:6,r:6,t:14,b:24};
+  const maxV = Math.max(...series, 1);
+  const stepX = (w-p.l-p.r)/Math.max(series.length-1,1);
+  const pts = series.map((v,i)=>{
+    const x = p.l + i*stepX;
+    const y = h-p.b - (v/maxV)*(h-p.t-p.b);
+    return [x,y];
+  });
+  const linePath = pts.map((pt,i)=> (i===0?'M':'L')+pt[0].toFixed(1)+' '+pt[1].toFixed(1)).join(' ');
+  const areaPath = linePath + ` L${pts[pts.length-1][0].toFixed(1)} ${h-p.b} L${pts[0][0].toFixed(1)} ${h-p.b} Z`;
+  const xlabels = years.map((y,i)=> i%Math.ceil(years.length/8||1)===0 || i===years.length-1 ? `<text x="${pts[i][0].toFixed(1)}" y="${h-4}" font-size="9" fill="var(--text-faint)" text-anchor="middle">${y}</text>` : '').join('');
+  const gridY = [0.25,0.5,0.75].map(f=>`<line x1="${p.l}" x2="${w-p.r}" y1="${(h-p.t-p.b)*f+p.t}" y2="${(h-p.t-p.b)*f+p.t}" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 4"/>`).join('');
+
+  document.getElementById('investChartWrap').innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="areaFade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#7B5FE5" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#7B5FE5" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      ${gridY}
+      <path d="${areaPath}" fill="url(#areaFade)" stroke="none"/>
+      <path d="${linePath}" fill="none" stroke="#7B5FE5" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+      ${pts.map((pt,i)=>`<circle cx="${pt[0].toFixed(1)}" cy="${pt[1].toFixed(1)}" r="2.6" fill="#FFFFFF" stroke="#7B5FE5" stroke-width="1.6" data-idx="${i}" class="hpt" style="opacity:0"/>`).join('')}
+      ${xlabels}
+      <rect x="0" y="0" width="${w}" height="${h}" fill="transparent" id="investHoverRect"/>
+    </svg>
+    <div class="chart-tooltip" id="investTooltip"></div>
+  `;
+
+  const svg = document.querySelector('#investChartWrap svg');
+  const rect = document.getElementById('investHoverRect');
+  const tooltip = document.getElementById('investTooltip');
+  const wrapEl = document.getElementById('investChartWrap');
+
+  function showAt(idx){
+    const row = perYearByOwner[idx];
+    if(!row) return;
+    const topOwners = Object.entries(row.owners).sort((a,b)=>b[1]-a[1]).filter(([,v])=>v>0).slice(0,4);
+    tooltip.innerHTML = `<div class="tt-year">${row.year+543}</div>` +
+      (topOwners.length ? topOwners.map(([o,v])=>`<div class="tt-row"><span class="dot" style="background:${ownerColor(o)}"></span>${escapeHtml(o)}<b>${fmtShort(v)}</b></div>`).join('') : `<div class="tt-row">ไม่มีการลงทุน</div>`);
+    const pt = pts[idx];
+    const scaleX = wrapEl.clientWidth / w;
+    let leftPx = pt[0]*scaleX;
+    const boxW = 150;
+    leftPx = Math.min(Math.max(leftPx-boxW/2, 0), wrapEl.clientWidth-boxW);
+    tooltip.style.left = leftPx+'px';
+    tooltip.style.top = Math.max(pt[1]*scaleX - 70, 0)+'px';
+    tooltip.style.opacity = '1';
+    svg.querySelectorAll('.hpt').forEach((c,i)=> c.style.opacity = i===idx?'1':'0');
+  }
+  function hide(){ tooltip.style.opacity='0'; svg.querySelectorAll('.hpt').forEach(c=>c.style.opacity='0'); }
+
+  rect.addEventListener('mousemove', e=>{
+    const bcr = svg.getBoundingClientRect();
+    const relX = (e.clientX-bcr.left)/bcr.width * w;
+    let idx = Math.round((relX-p.l)/stepX);
+    idx = Math.max(0, Math.min(series.length-1, idx));
+    showAt(idx);
+  });
+  rect.addEventListener('mouseleave', hide);
+  rect.addEventListener('touchstart', e=>{
+    const t=e.touches[0]; const bcr=svg.getBoundingClientRect();
+    const relX = (t.clientX-bcr.left)/bcr.width * w;
+    let idx = Math.round((relX-p.l)/stepX);
+    idx = Math.max(0, Math.min(series.length-1, idx));
+    showAt(idx);
+  }, {passive:true});
+
+  if(series.length) showAt(series.length-1);
+}
+
+/* ================= SAVINGS BAR CHART (stacked per year by owner) ================= */
+function renderSavingsCard(){
+  const owns = owners();
+  const years = allYearsPresent();
+  document.getElementById('barLegend').innerHTML = owns.map(o=>`<div class="lg-item"><span class="dot" style="background:${ownerColor(o)}"></span>${escapeHtml(o)}</div>`).join('') || '<div class="empty-note">ยังไม่มีข้อมูล</div>';
+
+  const rows = years.map(y=>{
+    const perOwner = owns.map(o=> DATA.funds.filter(f=>f.owner===o).reduce((s,f)=>s+yearTotalForFund(f,y),0));
+    return {year:y, perOwner, total:perOwner.reduce((a,b)=>a+b,0)};
+  });
+  const maxTotal = Math.max(...rows.map(r=>r.total), 1);
+
+  const w=640, h=230, p={l:8,r:8,t:26,b:22};
+  const bw = (w-p.l-p.r)/rows.length;
+  const barW = Math.min(bw*0.5, 42);
+
+  const bars = rows.map((r,i)=>{
+    const cx = p.l + bw*i + bw/2;
+    let yCursor = h-p.b;
+    const segs = r.perOwner.map((v,oi)=>{
+      if(v<=0) return '';
+      const segH = (v/maxTotal)*(h-p.t-p.b);
+      yCursor -= segH;
+      return `<rect x="${(cx-barW/2).toFixed(1)}" y="${yCursor.toFixed(1)}" width="${barW}" height="${segH.toFixed(1)}" rx="3" fill="${ownerColor(owns[oi])}"/>`;
+    }).join('');
+    const labelY = (h-p.b) - (r.total/maxTotal)*(h-p.t-p.b) - 6;
+    const label = r.total>0 ? `<text x="${cx}" y="${Math.max(labelY,10).toFixed(1)}" font-size="9.5" fill="var(--text-soft)" text-anchor="middle" font-weight="600">${fmtShort(r.total)}</text>` : '';
+    return `<g>${segs}${label}<text x="${cx}" y="${h-6}" font-size="9.5" fill="var(--text-faint)" text-anchor="middle">${r.year}</text></g>`;
+  }).join('');
+
+  document.getElementById('barChartWrap').innerHTML = `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">${bars}</svg>`;
+}
+
+/* ================= PROMO CARD ================= */
+function renderPromoCard(){
+  document.getElementById('promoCard').innerHTML = `
+    <div class="promo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12a8 8 0 1 1 8 8"/><path d="M4 12v5h5"/></svg>
+    </div>
+    <h3>ซิงก์อัตโนมัติกับ Google Sheets</h3>
+    <p>เชื่อมต่อครั้งเดียวที่แอปหลัก แล้วแก้ตัวเลขใน Sheet จากที่ไหนก็ได้ ข้อมูลจะขึ้นที่นี่ให้เองอัตโนมัติ</p>
+    <a class="btn" href="index.html">ไปตั้งค่าการซิงก์</a>
+  `;
+}
+
+/* ================= NOTIFICATIONS ================= */
+function renderNotifications(){
+  const funds = fundsScoped();
+  const mIdx = new Date().getMonth()+1;
+  const noInvest = funds.filter(f=> (Number(yearDataOf(f,CURRENT_YEAR,false).months?.[mIdx])||0)===0 && f.years?.[CURRENT_YEAR]);
+  const badge = document.getElementById('bellBadge');
+  if(noInvest.length>0){ badge.style.display='flex'; badge.textContent = noInvest.length>9?'9+':noInvest.length; }
+  else { badge.style.display='none'; }
+  document.getElementById('bellBtn').title = noInvest.length ? `${noInvest.length} กองทุนยังไม่ได้ลงทุนเดือนนี้` : 'ยอดเดือนนี้ครบตามแผนแล้ว';
+}
+
+/* ================= SEARCH ================= */
+document.getElementById('fundSearch').addEventListener('input', e=>{
+  const q = e.target.value.trim().toLowerCase();
+  document.querySelectorAll('.ticker-item').forEach(el=>{
+    el.style.display = !q || el.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
+  });
+});
+
+/* ================= YEAR SELECT ================= */
+function renderYearSelect(){
+  const years = allYearsPresent();
+  const sel = document.getElementById('yearSelect');
+  sel.innerHTML = years.map(y=>`<option value="${y}">ปี ${y+543}</option>`).join('');
+  sel.value = String(selectedYear);
+}
+document.getElementById('yearSelect').addEventListener('change', e=>{ selectedYear = Number(e.target.value); renderAll(); });
+
+/* ================= CHART MODE TOGGLES ================= */
+document.querySelectorAll('[data-chartmode]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    chartMode = btn.dataset.chartmode;
+    document.querySelectorAll('[data-chartmode]').forEach(b=>b.classList.toggle('active', b===btn));
+    renderInvestCard();
+  });
+});
+
+/* ================= SIDEBAR / PORTFOLIO TOGGLE (mobile + submenu) ================= */
+const ownerSubnav = document.getElementById('ownerSubnav');
+document.getElementById('portfolioToggle').addEventListener('click', ()=>{
+  const open = ownerSubnav.style.display!=='none';
+  ownerSubnav.style.display = open ? 'none' : 'flex';
+  ownerSubnav.style.flexDirection = 'column';
+  document.getElementById('portfolioChevron').style.transform = open ? '' : 'rotate(180deg)';
+});
+ownerSubnav.style.display='flex'; ownerSubnav.style.flexDirection='column';
+
+const sidebar = document.getElementById('sidebar');
+const overlayBg = document.getElementById('overlayBg');
+function openSidebar(){ sidebar.classList.add('open'); overlayBg.classList.add('show'); }
+function closeSidebar(){ sidebar.classList.remove('open'); overlayBg.classList.remove('show'); }
+document.getElementById('hamburgerBtn').addEventListener('click', openSidebar);
+document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
+overlayBg.addEventListener('click', closeSidebar);
+
+/* ================= MASTER RENDER ================= */
+function renderAll(){
+  renderYearSelect();
+  renderOwnerSubnav();
+  renderOwnerPills();
+  renderTicker();
+  renderLiveSummary();
+  renderAssetsCard();
+  renderInvestCard();
+  renderSavingsCard();
+  renderPromoCard();
+  renderNotifications();
+  const scope = ownerFilter==='ALL' ? 'ทุกคนในครอบครัว' : ownerFilter;
+  document.getElementById('pageSub').textContent = `สรุปเงินออม การลงทุน และเป้าหมายของ${ownerFilter==='ALL'?'ทุกคนในบ้าน':scope}`;
+  document.getElementById('familyLabel').textContent = owners()[0] ? 'ครอบครัว'+ (owners()[0]||'') : 'ครอบครัว';
+}
+renderAll();
+
+/* ================= LIVE SYNC FROM SAME DATABASE ================= */
+function checkForUpdates(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(raw !== lastRaw){
+    lastRaw = raw;
+    DATA = loadData();
+    renderAll();
+  }
+}
+setInterval(()=>{ if(!document.hidden) checkForUpdates(); }, 3000);
+window.addEventListener('storage', e=>{ if(e.key===STORAGE_KEY) checkForUpdates(); });
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) checkForUpdates(); });
+</script>
+</body>
+</html>

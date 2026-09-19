@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My Bookshelf — My Family Funds</title>
+<meta name="theme-color" content="#0F5B4D">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shell.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<div class="mff-app" style="padding-bottom:20px">
+
+  <div class="mff-hero-wrap" style="padding-bottom:20px;border-radius:0 0 28px 28px">
+    <div class="mff-topbar">
+      <a class="back" href="../index.html" id="topBack">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 5 8 12l7 7"/></svg>
+        หน้าแรก
+      </a>
+      <span></span>
+    </div>
+    <div class="mff-hero" style="padding-top:0">
+      <p class="eyebrow" style="margin-bottom:2px">My Bookshelf</p>
+      <h1 style="font-size:19px;white-space:nowrap">คลังหนังสือครอบครัว</h1>
+    </div>
+  </div>
+
+  <div id="sheetsBanner"></div>
+  <div id="viewRoot"></div>
+
+</div>
+
+<script src="../config.js"></script>
+<script src="../portfolio/auth-open.js"></script>
+<script>
+(function(){
+'use strict';
+
+const SHELVES=[
+  {key:'reading', title:'หนังสือที่กำลังอ่าน', icon:'📖'},
+  {key:'queued', title:'หนังสือที่รออ่าน', icon:'🕒'},
+  {key:'finished', title:'หนังสืออ่านจบแล้ว', icon:'✅'},
+];
+
+/* ===================== Google Sheets sync — save shelf lists to a
+   separate "BookshelfItems" tab in the same spreadsheet ===================== */
+const SHEETS_SCOPE='https://www.googleapis.com/auth/spreadsheets';
+const DRIVE_SCOPE='https://www.googleapis.com/auth/drive.readonly';
+const CACHE_KEY='mff_bookshelf_cache_v1';
+const TAB='BookshelfItems';
+const HEADERS=['ID','Title','Status','DriveFileId','DriveFileName','MimeType','Size','WebViewLink','AddedAt','UpdatedAt'];
+
+let sheetsToken=null, sheetsTokenExpiresAt=0, sheetsClient=null;
+let driveToken=null, driveTokenExpiresAt=0, driveClient=null;
+let sheetId=localStorage.getItem('google_sheet_id')||'';
+let books=[]; // {id,title,status,driveFileId,driveFileName,mimeType,size,webViewLink,addedAt,updatedAt}
+let view={mode:'home'}; // 'home' | 'search'
+let searchResults=[];
+let searchTimer=null;
+let selectedFileIds=new Set();
+
+function getGoogleClientId(){return localStorage.getItem('google_client_id')||'';}
+function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function uuid(){return 'b_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,9);}
+function fmtSize(bytes){
+  bytes=Number(bytes)||0;
+  if(!bytes) return '';
+  if(bytes<1024*1024) return Math.round(bytes/1024)+' KB';
+  return (bytes/1024/1024).toFixed(1)+' MB';
+}
+function toast(msg){
+  let t=document.getElementById('mffToast');
+  if(!t){ t=document.createElement('div'); t.id='mffToast';
+    t.style.cssText='position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#14211D;color:#fff;padding:10px 16px;border-radius:999px;font-size:12.5px;z-index:6500;opacity:0;transition:opacity .2s;max-width:85vw;text-align:center';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(toast._tm); toast._tm=setTimeout(()=>{t.style.opacity='0';},2600);
+}
+
+/* ===================== tiny modal helper ===================== */
+function modal(title, bodyHtml, buttons){
+  closeModal();
+  const d=document.createElement('div');
+  d.id='mffModal';
+  d.style.cssText='position:fixed;inset:0;z-index:5000;background:rgba(20,33,29,.45);display:flex;align-items:flex-end;justify-content:center';
+  d.innerHTML=`<div style="width:100%;max-width:460px;max-height:80vh;background:#fff;border-radius:22px 22px 0 0;display:flex;flex-direction:column;overflow:hidden">
+    <h3 style="margin:0;padding:18px 20px 10px;font-size:16px;flex:none">${esc(title)}</h3>
+    <div id="mffModalBody" style="flex:1;min-height:0;overflow-y:auto;padding:0 20px">${bodyHtml}</div>
+    <div style="display:flex;gap:10px;flex:none;padding:14px 20px calc(16px + env(safe-area-inset-bottom,0px))" id="mffModalBtns"></div>
+  </div>`;
+  document.body.appendChild(d);
+  const btnWrap=document.getElementById('mffModalBtns');
+  buttons.forEach(b=>{
+    const btn=document.createElement('button');
+    btn.className='mff-btn '+(b.ghost?'mff-btn-ghost':'mff-btn-primary');
+    btn.textContent=b.label;
+    btn.onclick=b.onClick;
+    btnWrap.appendChild(btn);
+  });
+  d.addEventListener('click',e=>{ if(e.target===d) closeModal(); });
+}
+function closeModal(){ document.getElementById('mffModal')?.remove(); }
+
+/* ===================== Google Sheets sync (same pattern as other modules) ===================== */
+function sheetHeaders(extra){return Object.assign({'Authorization':'Bearer '+sheetsToken},extra||{});}
+function ensureSheetsClient(cid){
+  if(!window.google?.accounts?.oauth2){toast('Google API ยังโหลดไม่เสร็จ ลองใหม่อีกครั้ง');return null;}
+  if(!sheetsClient||sheetsClient._cid!==cid){
+    sheetsClient=google.accounts.oauth2.initTokenClient({client_id:cid,scope:SHEETS_SCOPE,callback:async r=>{
+      if(r.error){toast('เชื่อมต่อ Google Sheets ไม่สำเร็จ');return;}
+      sheetsToken=r.access_token;
+      sheetsTokenExpiresAt=Date.now()+Math.max(60,(Number(r.expires_in)||3600)-60)*1000;
+      localStorage.setItem('google_sheets_connected','1');
+      renderSheetsBanner();
+      if(sheetsClient._mffResolve){const rr=sheetsClient._mffResolve;sheetsClient._mffResolve=null;rr(true);}
+      try{ await ensureBookshelfTab(); await pullBooks(); render(); toast('เชื่อมต่อ Google Sheets แล้ว'); }
+      catch(e){console.error(e);toast('เชื่อมต่อได้ แต่ซิงก์ไม่สำเร็จ: '+e.message);}
+    }});
+    sheetsClient._cid=cid;
+  }
+  return sheetsClient;
+}
+async function ensureSheetsAccess(){
+  if(sheetsToken && Date.now()<sheetsTokenExpiresAt) return true;
+  const cid=getGoogleClientId(); if(!cid||!sheetId) return false;
+  const c=ensureSheetsClient(cid); if(!c) return false;
+  return new Promise(resolve=>{
+    c._mffResolve=resolve;
+    try{c.requestAccessToken({prompt:'none'});}catch(e){c._mffResolve=null;resolve(false);}
+    setTimeout(()=>{if(c._mffResolve){c._mffResolve=null;resolve(!!sheetsToken);}},8000);
+  });
+}
+async function sheetsApi(url,opts={}){
+  if(!sheetsToken) throw new Error('Google Sheets ยังไม่ได้รับสิทธิ์');
+  const r=await fetch(url,Object.assign({headers:sheetHeaders({'Content-Type':'application/json'})},opts));
+  if(r.status===401||r.status===403){localStorage.removeItem('google_sheets_connected');sheetsToken=null;throw new Error('สิทธิ์หมดอายุ กรุณาเชื่อมต่อใหม่');}
+  if(!r.ok)throw new Error(await r.text());
+  return r.json();
+}
+async function ensureBookshelfTab(){
+  const meta=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}?fields=sheets.properties`);
+  const titles=(meta.sheets||[]).map(s=>s.properties.title);
+  if(!titles.includes(TAB)){
+    await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}:batchUpdate`,{method:'POST',body:JSON.stringify({requests:[{addSheet:{properties:{title:TAB}}}]})});
+    await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${TAB}!A1`,majorDimension:'ROWS',values:[HEADERS]})});
+  }
+}
+function mergeById(localList, remoteList){
+  const map=new Map();
+  remoteList.forEach(r=>map.set(r.id, r));
+  localList.forEach(l=>{
+    const r=map.get(l.id);
+    if(!r){ map.set(l.id, l); return; }
+    const lt=Date.parse(l.updatedAt)||0, rt=Date.parse(r.updatedAt)||0;
+    map.set(l.id, lt>rt ? l : r);
+  });
+  return Array.from(map.values());
+}
+async function pullBooks(force){
+  const j=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:J`);
+  const rows=(j.values||[]).slice(1);
+  const remote=rows.filter(r=>r[0]).map(r=>({id:r[0],title:r[1]||'',status:r[2]||'queued',driveFileId:r[3]||'',driveFileName:r[4]||'',mimeType:r[5]||'',size:r[6]||'',webViewLink:r[7]||'',addedAt:r[8]||'',updatedAt:r[9]||''}));
+  if(force){ books=remote; saveCache(); return; }
+  const merged=mergeById(books, remote);
+  const needsPushBack = JSON.stringify(merged.slice().sort((a,b)=>a.id<b.id?-1:1)) !== JSON.stringify(remote.slice().sort((a,b)=>a.id<b.id?-1:1));
+  books=merged;
+  saveCache();
+  if(needsPushBack) await pushBooks();
+}
+async function pushBooks(){
+  const values=[HEADERS].concat(books.map(b=>[b.id,b.title,b.status,b.driveFileId,b.driveFileName,b.mimeType,b.size,b.webViewLink,b.addedAt,b.updatedAt]));
+  await ensureBookshelfTab();
+  await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:J:clear`,{method:'POST',body:'{}'});
+  await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${TAB}!A1`,majorDimension:'ROWS',values})});
+}
+async function syncSave(){
+  saveCache();
+  if(!(await ensureSheetsAccess())){ toast('บันทึกในเครื่องนี้แล้ว • ยังไม่ได้เชื่อมต่อ Google Sheets'); renderSheetsBanner(); return; }
+  try{ await pushBooks(); localStorage.setItem('sheet_last_sync_bookshelf', new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})); toast('บันทึกและซิงก์ Google Sheets แล้ว'); }
+  catch(e){ toast('บันทึกในเครื่องแล้ว แต่ซิงก์ไม่สำเร็จ: '+e.message); }
+}
+function saveCache(){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify(books)); }catch(e){} }
+function loadCache(){ try{ const raw=localStorage.getItem(CACHE_KEY); if(raw) books=JSON.parse(raw); }catch(e){} }
+
+function renderSheetsBanner(){
+  const el=document.getElementById('sheetsBanner');
+  const connected = sheetsToken || (localStorage.getItem('google_sheets_connected')==='1' && sheetId);
+  if(!connected){
+    el.innerHTML=`
+      <div class="mff-banner">
+        <div><b>ยังไม่เชื่อมต่อ Google Sheets</b>รายชื่อหนังสือจะบันทึกในเครื่องนี้เท่านั้นจนกว่าจะเชื่อมต่อ</div>
+        <button id="connectSheetsBtn" type="button">เชื่อมต่อ</button>
+      </div>`;
+    document.getElementById('connectSheetsBtn').onclick=openConnectSheetsForm;
+    return;
+  }
+  const lastSync=localStorage.getItem('sheet_last_sync_bookshelf');
+  el.innerHTML=`
+    <div class="mff-sync-bar">
+      <div class="mff-sync-bar-status">☁️ เชื่อมต่อ Google Sheets แล้ว${lastSync?(' • ซิงก์ล่าสุด '+esc(lastSync)):''}</div>
+      <div class="mff-sync-bar-actions">
+        <a href="../settings/index.html" class="mff-sync-bar-btn" style="text-decoration:none;display:inline-block">จัดการซิงก์ที่ Setting</a>
+      </div>
+    </div>`;
+}
+function openConnectSheetsForm(){
+  const cid=localStorage.getItem('google_client_id')||'';
+  const sid=sheetId||'';
+  const html=`
+    <div class="mff-field-row"><div class="lbl">Client ID</div><input id="cfCid" value="${esc(cid)}" placeholder="วาง Google OAuth Client ID"></div>
+    <div class="mff-field-row"><div class="lbl">Sheet ID</div><input id="cfSid" value="${esc(sid)}" placeholder="ใช้ Spreadsheet ID เดียวกับโมดูลอื่น"></div>
+    <p style="font-size:11.5px;color:var(--ink-soft);padding:0 0 6px">ใช้ Client ID / Sheet ID ชุดเดียวกับโมดูลอื่นได้เลย ข้อมูลจะไปอยู่คนละแท็บ (BookshelfItems)</p>`;
+  modal('เชื่อมต่อ Google Sheets', html, [
+    {label:'ยกเลิก', ghost:true, onClick:closeModal},
+    {label:'เชื่อมต่อ', onClick:async()=>{
+      const cid=document.getElementById('cfCid').value.trim();
+      const sid=document.getElementById('cfSid').value.trim();
+      if(!cid||!sid){ toast('กรุณากรอกให้ครบ'); return; }
+      localStorage.setItem('google_client_id',cid);
+      sheetId=sid; localStorage.setItem('google_sheet_id',sid);
+      closeModal();
+      const c=ensureSheetsClient(cid);
+      if(c) c.requestAccessToken({prompt:'consent'});
+    }}
+  ]);
+}
+
+/* ===================== Google Drive (read-only search + download) ===================== */
+function ensureDriveClient(cid){
+  if(!window.google?.accounts?.oauth2){toast('Google API ยังโหลดไม่เสร็จ ลองใหม่อีกครั้ง');return null;}
+  if(!driveClient||driveClient._cid!==cid){
+    driveClient=google.accounts.oauth2.initTokenClient({client_id:cid,scope:DRIVE_SCOPE,callback:r=>{
+      if(r.error){toast('เชื่อมต่อ Google Drive ไม่สำเร็จ');return;}
+      driveToken=r.access_token;
+      driveTokenExpiresAt=Date.now()+Math.max(60,(Number(r.expires_in)||3600)-60)*1000;
+      localStorage.setItem('google_drive_connected','1');
+      if(driveClient._mffResolve){const rr=driveClient._mffResolve;driveClient._mffResolve=null;rr(true);}
+    }});
+    driveClient._cid=cid;
+  }
+  return driveClient;
+}
+async function ensureDriveAccess(promptType){
+  if(driveToken && Date.now()<driveTokenExpiresAt) return true;
+  const cid=getGoogleClientId();
+  if(!cid){ toast('กรุณาเชื่อมต่อ Google Sheets ก่อน (ใช้ Client ID เดียวกัน)'); return false; }
+  const c=ensureDriveClient(cid); if(!c) return false;
+  return new Promise(resolve=>{
+    c._mffResolve=resolve;
+    try{ c.requestAccessToken({prompt: promptType || (localStorage.getItem('google_drive_connected')==='1' ? 'none' : 'consent')}); }
+    catch(e){ c._mffResolve=null; resolve(false); }
+    setTimeout(()=>{ if(c._mffResolve){ c._mffResolve=null; resolve(!!driveToken); } },8000);
+  });
+}
+function fileIconSvg(mimeType){
+  if((mimeType||'').includes('pdf')) return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg>`;
+  if((mimeType||'').includes('image')) return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 16-5-5-9 9"/></svg>`;
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6"/></svg>`;
+}
+async function driveQuickSearch(term){
+  const q=encodeURIComponent(`name contains '${term.replace(/'/g,"\\'")}' and trashed=false`);
+  const url=`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name,mimeType,size,webViewLink)&pageSize=30&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=allDrives`;
+  const r=await fetch(url,{headers:{Authorization:'Bearer '+driveToken}});
+  if(r.status===401||r.status===403){ driveToken=null; localStorage.removeItem('google_drive_connected'); throw new Error('สิทธิ์ Drive หมดอายุ กรุณาเชื่อมต่อใหม่'); }
+  if(!r.ok) throw new Error(await r.text());
+  const j=await r.json();
+  return j.files||[];
+}
+async function doSearch(term){
+  const box=document.getElementById('searchStatus');
+  if(!term.trim()){ searchResults=[]; selectedFileIds.clear(); renderSearchView(); return; }
+  const ok=await ensureDriveAccess();
+  if(!ok){ if(box) box.textContent='ยังไม่ได้เชื่อมต่อ Google Drive'; renderDriveConnectPrompt(); return; }
+  if(box) box.textContent='กำลังค้นหา...';
+  try{
+    searchResults=await driveQuickSearch(term);
+    renderSearchView();
+  }catch(e){
+    console.error(e);
+    if(box) box.textContent='ค้นหาไม่สำเร็จ: '+e.message;
+  }
+}
+async function downloadDriveFile(file, btnEl){
+  btnEl?.classList.add('loading');
+  try{
+    const ok=await ensureDriveAccess('none');
+    if(!ok) throw new Error('ยังไม่ได้เชื่อมต่อ Google Drive');
+    const isNative=(file.mimeType||'').startsWith('application/vnd.google-apps.');
+    const url=isNative
+      ? `https://www.googleapis.com/drive/v3/files/${file.id}/export?mimeType=application/pdf`
+      : `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`;
+    const r=await fetch(url,{headers:{Authorization:'Bearer '+driveToken}});
+    if(!r.ok) throw new Error('ดาวน์โหลดไม่สำเร็จ');
+    const blob=await r.blob();
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=isNative ? (file.name+'.pdf') : file.name;
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('ดาวน์โหลดแล้ว');
+  }catch(e){ toast(e.message||'ดาวน์โหลดไม่สำเร็จ'); }
+  btnEl?.classList.remove('loading');
+}
+
+/* ===================== rendering ===================== */
+function render(){
+  const root=document.getElementById('viewRoot');
+  if(view.mode==='search'){ renderSearchView(); return; }
+  root.innerHTML=`
+    <div class="mff-search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="bookSearch" class="mff-search-input" placeholder="ค้นหาชื่อหนังสือใน Google Drive..." autocomplete="off">
+    </div>
+    ${SHELVES.map(sh=>renderShelf(sh)).join('')}
+  `;
+  document.getElementById('bookBack')?.remove();
+  const input=document.getElementById('bookSearch');
+  input.addEventListener('input',()=>{
+    clearTimeout(searchTimer);
+    const term=input.value;
+    searchTimer=setTimeout(()=>{
+      if(term.trim()){ view={mode:'search'}; doSearch(term); }
+    },450);
+  });
+  input.addEventListener('keydown',e=>{ if(e.key==='Enter'){ clearTimeout(searchTimer); view={mode:'search'}; doSearch(input.value); } });
+
+  wireShelfEvents();
+}
+
+function renderShelf(sh){
+  const list=books.filter(b=>b.status===sh.key);
+  return `
+    <div class="mff-shelf" data-shelf="${sh.key}">
+      <div class="mff-shelf-head">
+        <h4>${sh.icon} ${sh.title} <span class="count">${list.length}</span></h4>
+        <button class="mff-shelf-add" data-addmanual="${sh.key}">+ เพิ่มหนังสือ</button>
+      </div>
+      ${list.length? list.map(b=>`
+        <div class="mff-book-row" data-id="${esc(b.id)}">
+          <div class="b-icon">${fileIconSvg(b.mimeType)}</div>
+          <div class="b-title">${b.webViewLink?`<a href="${esc(b.webViewLink)}" target="_blank" rel="noopener">${esc(b.title)}</a>`:esc(b.title)}</div>
+          <button class="b-del" data-del="${esc(b.id)}" aria-label="ลบ">×</button>
+        </div>`).join('') : `<div class="mff-shelf-empty">ยังไม่มีหนังสือในหมวดนี้</div>`}
+    </div>`;
+}
+
+function wireShelfEvents(){
+  document.querySelectorAll('[data-addmanual]').forEach(btn=>{
+    btn.addEventListener('click',()=>openManualAddModal(btn.dataset.addmanual));
+  });
+  document.querySelectorAll('[data-del]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const id=btn.dataset.del;
+      const b=books.find(x=>x.id===id);
+      modal('ลบหนังสือเล่มนี้?', `<p style="font-size:13.5px;color:var(--ink-soft);margin:14px 0">ต้องการลบ "<b>${esc(b?.title||'')}</b>" ออกจากชั้นหนังสือใช่ไหม</p>`, [
+        {label:'ยกเลิก', ghost:true, onClick:closeModal},
+        {label:'ลบ', onClick:async()=>{
+          books=books.filter(x=>x.id!==id);
+          closeModal(); render();
+          await syncSave();
+        }}
+      ]);
+    });
+  });
+}
+
+function openManualAddModal(shelfKey){
+  const html=`
+    <div class="mff-search-wrap" style="margin:14px 0 0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="manualSearch" class="mff-search-input" placeholder="พิมพ์ชื่อหนังสือเพื่อค้นหาใน Drive..." autocomplete="off">
+    </div>
+    <div id="manualStatus" style="font-size:11.5px;color:var(--ink-soft);padding:8px 2px 0">พิมพ์เพื่อค้นหาไฟล์จริงจาก Google Drive</div>
+    <div id="manualResults" style="padding:6px 0 4px"></div>
+    <div style="border-top:1px solid var(--line);margin-top:6px;padding-top:10px 0 0">
+      <button type="button" id="manualFallbackBtn" style="width:100%;text-align:left;background:none;border:0;color:var(--primary);font-size:12px;font-weight:600;cursor:pointer;padding:10px 0">
+        ไม่เจอไฟล์ที่ต้องการ? เพิ่มแค่ชื่อหนังสือเอง (ไม่ผูกไฟล์) →
+      </button>
+    </div>
+  `;
+  modal('เพิ่มหนังสือ', html, [
+    {label:'ยกเลิก', ghost:true, onClick:closeModal}
+  ]);
+
+  const input=document.getElementById('manualSearch');
+  const statusEl=document.getElementById('manualStatus');
+  const resultsEl=document.getElementById('manualResults');
+  let timer=null;
+
+  async function runSearch(term){
+    if(!term.trim()){ resultsEl.innerHTML=''; statusEl.textContent='พิมพ์เพื่อค้นหาไฟล์จริงจาก Google Drive'; return; }
+    const ok=await ensureDriveAccess();
+    if(!ok){ statusEl.textContent='ยังไม่ได้เชื่อมต่อ Google Drive'; closeModal(); renderDriveConnectPrompt(); return; }
+    statusEl.textContent='กำลังค้นหา...';
+    try{
+      const files=await driveQuickSearch(term);
+      statusEl.textContent=files.length?`พบ ${files.length} รายการ — แตะเพื่อเพิ่ม`:'ไม่พบไฟล์ที่ตรงกับคำค้นหา';
+      resultsEl.innerHTML=files.map(f=>`
+        <div class="mff-file-row" data-pickfile="${esc(f.id)}" style="cursor:pointer;padding:9px 10px">
+          <div class="mff-file-icon" style="width:34px;height:34px">${fileIconSvg(f.mimeType)}</div>
+          <div class="mff-file-meta">
+            <div class="fn" style="font-size:12.5px">${esc(f.name)}</div>
+            <div class="fs">${fmtSize(f.size)}</div>
+          </div>
+        </div>`).join('');
+      resultsEl.querySelectorAll('[data-pickfile]').forEach(row=>{
+        row.addEventListener('click', async()=>{
+          const f=files.find(x=>x.id===row.dataset.pickfile);
+          if(!f) return;
+          const now=new Date().toISOString();
+          books.push({id:uuid(), title:f.name, status:shelfKey, driveFileId:f.id, driveFileName:f.name, mimeType:f.mimeType||'', size:f.size||'', webViewLink:f.webViewLink||'', addedAt:now, updatedAt:now});
+          closeModal(); render();
+          toast('เพิ่มหนังสือแล้ว');
+          await syncSave();
+        });
+      });
+    }catch(e){ statusEl.textContent='ค้นหาไม่สำเร็จ: '+e.message; }
+  }
+
+  input.addEventListener('input',()=>{ clearTimeout(timer); const term=input.value; timer=setTimeout(()=>runSearch(term),450); });
+  input.addEventListener('keydown',e=>{ if(e.key==='Enter'){ clearTimeout(timer); runSearch(input.value); } });
+
+  document.getElementById('manualFallbackBtn').addEventListener('click',()=>{
+    const title=(input.value||'').trim();
+    openManualTitleOnlyModal(shelfKey, title);
+  });
+}
+
+function openManualTitleOnlyModal(shelfKey, prefill){
+  const html=`<div class="mff-field-row" style="padding-top:14px"><div class="lbl">ชื่อหนังสือ</div><input id="manualTitle" placeholder="พิมพ์ชื่อหนังสือ" value="${esc(prefill||'')}"></div>
+  <p style="font-size:11.5px;color:var(--ink-faint);padding:0 0 6px">เพิ่มแบบนี้จะไม่มีไฟล์ผูกไว้ เปิดอ่าน/ดาวน์โหลดไม่ได้ เหมาะกับหนังสือเล่มจริงที่ไม่ได้อยู่ใน Drive</p>`;
+  modal('เพิ่มชื่อหนังสือ (ไม่ผูกไฟล์)', html, [
+    {label:'ยกเลิก', ghost:true, onClick:closeModal},
+    {label:'บันทึก', onClick:async()=>{
+      const title=document.getElementById('manualTitle').value.trim();
+      if(!title){ toast('กรุณากรอกชื่อหนังสือ'); return; }
+      const now=new Date().toISOString();
+      books.push({id:uuid(), title, status:shelfKey, driveFileId:'', driveFileName:'', mimeType:'', size:'', webViewLink:'', addedAt:now, updatedAt:now});
+      closeModal(); render();
+      await syncSave();
+    }}
+  ]);
+}
+
+/* ===================== search results view (separate page) ===================== */
+function renderDriveConnectPrompt(){
+  modal('เชื่อมต่อ Google Drive', `
+    <p style="font-size:13px;color:var(--ink-soft);padding:14px 0 0;line-height:1.7">
+      ต้องขอสิทธิ์เข้าถึง Google Drive (แบบอ่านอย่างเดียว) เพื่อค้นหาไฟล์หนังสือในไดรฟ์หลักที่รวมทุกบัญชีไว้แล้ว
+    </p>`, [
+    {label:'ยกเลิก', ghost:true, onClick:closeModal},
+    {label:'เชื่อมต่อ Drive', onClick:async()=>{ closeModal(); const ok=await ensureDriveAccess('consent'); if(ok){ const term=document.getElementById('searchInput2')?.value||''; doSearch(term); } }}
+  ]);
+}
+
+function renderSearchView(){
+  const root=document.getElementById('viewRoot');
+  const selCount=selectedFileIds.size;
+  root.innerHTML=`
+    <div class="mff-back-row">
+      <a href="#" id="bookBack">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 5 8 12l7 7"/></svg>
+        กลับหน้าหลัก
+      </a>
+    </div>
+    <div class="mff-search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="searchInput2" class="mff-search-input" placeholder="ค้นหาชื่อหนังสือใน Google Drive..." autocomplete="off">
+    </div>
+    <div class="mff-search-status" id="searchStatus">${searchResults.length?`พบ ${searchResults.length} รายการ${selCount?` • เลือกไว้ ${selCount} เล่ม`:''}`:'พิมพ์ชื่อหนังสือเพื่อค้นหา'}</div>
+    <div class="mff-file-list" style="padding-bottom:${selCount?90:30}px">
+      ${searchResults.map(f=>{
+        const picked=selectedFileIds.has(f.id);
+        return `
+        <div class="mff-file-row" data-fileid="${esc(f.id)}" style="${picked?'border-color:var(--invest);background:var(--invest-soft)':''}">
+          <div class="mff-file-icon">${fileIconSvg(f.mimeType)}</div>
+          <div class="mff-file-meta">
+            <div class="fn">${f.webViewLink?`<a href="${esc(f.webViewLink)}" target="_blank" rel="noopener">${esc(f.name)}</a>`:esc(f.name)}</div>
+            <div class="fs">${fmtSize(f.size)}</div>
+          </div>
+          <button class="mff-shelf-add" data-open="${esc(f.webViewLink||'')}" title="เปิดดู" style="border:1px solid var(--line);border-radius:9px;padding:6px 8px">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"/></svg>
+          </button>
+          <button class="mff-file-dl" data-dl="${esc(f.id)}" aria-label="ดาวน์โหลด">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+          </button>
+          <button class="mff-file-dl" style="background:${picked?'var(--invest)':'var(--surface)'};color:${picked?'#fff':'var(--invest)'};border:1.5px solid var(--invest)" data-select="${esc(f.id)}" aria-label="เลือก">
+            ${picked
+              ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M5 13l4 4L19 7"/></svg>`
+              : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>`}
+          </button>
+        </div>`;}).join('')}
+    </div>
+    ${selCount?`
+    <div style="position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:460px;background:#fff;border-top:1px solid var(--line);padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));box-shadow:0 -8px 24px rgba(15,91,77,.12);z-index:40">
+      <button class="mff-btn mff-btn-primary" id="assignSelectedBtn" style="width:100%">เพิ่ม ${selCount} เล่มที่เลือกเข้าชั้นหนังสือ</button>
+    </div>`:''}
+  `;
+  document.getElementById('bookBack').addEventListener('click',e=>{ e.preventDefault(); view={mode:'home'}; render(); });
+  const input2=document.getElementById('searchInput2');
+  input2.value=document.getElementById('bookSearch')?.value || input2.value;
+  input2.addEventListener('input',()=>{
+    clearTimeout(searchTimer);
+    const term=input2.value;
+    searchTimer=setTimeout(()=>doSearch(term),450);
+  });
+  input2.addEventListener('keydown',e=>{ if(e.key==='Enter'){ clearTimeout(searchTimer); doSearch(input2.value); } });
+
+  root.querySelectorAll('[data-open]').forEach(btn=>{
+    btn.addEventListener('click',()=>{ if(btn.dataset.open) window.open(btn.dataset.open,'_blank','noopener'); else toast('ไม่มีลิงก์เปิดดูสำหรับไฟล์นี้'); });
+  });
+  root.querySelectorAll('[data-dl]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const f=searchResults.find(x=>x.id===btn.dataset.dl);
+      if(f) downloadDriveFile(f, btn);
+    });
+  });
+  root.querySelectorAll('[data-select]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const id=btn.dataset.select;
+      if(selectedFileIds.has(id)) selectedFileIds.delete(id); else selectedFileIds.add(id);
+      renderSearchView();
+    });
+  });
+  document.getElementById('assignSelectedBtn')?.addEventListener('click',()=>{
+    const files=searchResults.filter(f=>selectedFileIds.has(f.id));
+    if(files.length) openAssignShelfModal(files);
+  });
+}
+
+function openAssignShelfModal(files){
+  const multi=files.length>1;
+  const titleTxt=multi?`เพิ่ม ${files.length} เล่มที่เลือกไปยัง...`:`เพิ่ม "${files[0].name}" ไปยัง...`;
+  const html=`
+    <div style="padding:14px 0 4px">
+      ${SHELVES.map(sh=>`
+        <button type="button" class="mff-shelf-pick-btn" data-pick="${sh.key}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          ${sh.icon} ${sh.title}
+        </button>`).join('')}
+    </div>`;
+  modal(titleTxt, html, [
+    {label:'ยกเลิก', ghost:true, onClick:closeModal}
+  ]);
+  document.querySelectorAll('[data-pick]').forEach(btn=>{
+    btn.addEventListener('click', async()=>{
+      const status=btn.dataset.pick;
+      const now=new Date().toISOString();
+      files.forEach(file=>{
+        books.push({
+          id:uuid(), title:file.name, status,
+          driveFileId:file.id, driveFileName:file.name, mimeType:file.mimeType||'',
+          size:file.size||'', webViewLink:file.webViewLink||'', addedAt:now, updatedAt:now
+        });
+      });
+      closeModal();
+      toast(`เพิ่ม ${files.length} เล่มเข้าชั้นหนังสือแล้ว`);
+      selectedFileIds.clear();
+      renderSearchView();
+      await syncSave();
+    });
+  });
+}
+
+/* ===================== boot ===================== */
+loadCache();
+renderSheetsBanner();
+render();
+
+window.addEventListener('load', async ()=>{
+  const cid=getGoogleClientId();
+  if(cid && localStorage.getItem('google_sheets_connected')==='1' && sheetId){
+    const ok=await ensureSheetsAccess();
+    if(ok){
+      try{ await ensureBookshelfTab(); await pullBooks(); render(); renderSheetsBanner(); }
+      catch(e){ console.warn('Bookshelf auto sync failed', e); }
+    }
+  }
+});
+
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,497 @@
+/* ===== My Family Funds — App Shell =====
+   Shared visual language across the 4-module home and placeholder modules.
+   Palette and type intentionally match the Portfolio module so moving
+   between the shell and that module feels like one continuous product. */
+
+:root{
+  --bg:#EAF6F1;
+  --bg-deep:#0F5B4D;
+  --surface:#FFFFFF;
+  --ink:#14211D;
+  --ink-soft:#5B6B65;
+  --ink-faint:#8AA39B;
+  --primary:#0F5B4D;
+  --primary-light:#1F806D;
+  --primary-soft:#E7F2EF;
+  --line:#DCEBE5;
+  --gold:#C89B3C;
+  --income:#1F9D6C;
+  --income-soft:#E4F5EC;
+  --expense:#E0654B;
+  --expense-soft:#FDEDE9;
+  --invest:#8B6BC9;
+  --invest-soft:#F0EBFB;
+  --shadow-card: 0 14px 32px -16px rgba(15,91,77,.28);
+  --shadow-hero: 0 24px 60px -24px rgba(15,91,77,.35);
+  --radius-l:26px;
+  --radius-m:18px;
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Noto Sans Thai','Prompt',system-ui,-apple-system,sans-serif;
+  color:var(--ink);
+  background:var(--bg);
+  min-height:100svh;
+}
+
+/* Page body is always the plain mint base — no viewport-relative color
+   tricks here, so nothing can drift or cut through content on any
+   screen size. */
+body{background:var(--bg)}
+
+.mff-app{
+  max-width:460px;
+  margin:0 auto;
+  min-height:100svh;
+  position:relative;
+  padding-bottom:calc(84px + var(--safe-b));
+  background:var(--bg);
+}
+
+/* Watery duotone header — sized to ITS OWN CONTENT (topbar + greeting),
+   never to the viewport, so the colour block always ends exactly where
+   the header ends, on every device, instead of cutting through cards. */
+.mff-hero-wrap{
+  position:relative;
+  overflow:hidden;
+  background:
+    radial-gradient(120% 140% at 15% -20%, #17705f 0%, transparent 60%),
+    radial-gradient(100% 120% at 110% 0%, #2c8a78 0%, transparent 55%),
+    linear-gradient(180deg,#0b4238 0%, #0f5b4d 100%);
+  border-radius:0 0 32px 32px;
+  padding-bottom:44px; /* room for the grid to overlap into */
+}
+.mff-hero-wrap svg.wave{position:absolute;left:0;bottom:0;width:100%;height:60px;opacity:.5;display:block}
+
+/* ---------- top bar ---------- */
+.mff-topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:calc(18px + var(--safe-t)) 20px 6px;
+  color:#fff;
+  position:relative;
+}
+.mff-topbar .back{
+  display:inline-flex;align-items:center;gap:6px;
+  color:#fff;text-decoration:none;font-size:15px;font-weight:600;
+  opacity:.92;
+}
+.mff-topbar .back svg{width:20px;height:20px}
+.mff-topbar .dots{display:flex;gap:14px;opacity:.85}
+
+/* ---------- greeting header (home) ---------- */
+.mff-hero{padding:6px 22px 6px;color:#fff;position:relative}
+.mff-hero .eyebrow{font-size:13px;color:#cfe9df;margin:0 0 4px}
+.mff-hero h1{font-size:26px;line-height:1.25;margin:0;font-weight:700}
+.mff-hero h1 b{color:#fff}
+
+/* ---------- module grid ---------- */
+.mff-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;
+  padding:0 20px;margin-top:-30px;
+  position:relative;
+}
+.mff-card{
+  background:var(--surface);
+  border-radius:var(--radius-l);
+  box-shadow:var(--shadow-card);
+  padding:22px 16px 18px;
+  text-align:center;
+  text-decoration:none;
+  color:var(--ink);
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  border:1px solid var(--line);
+  position:relative;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.mff-card:active{transform:scale(.97)}
+.mff-card .icon-wrap{
+  width:58px;height:58px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--primary-soft);color:var(--primary);
+}
+.mff-card .icon-wrap svg{width:30px;height:30px}
+.mff-card .avatar{width:58px;height:58px;border-radius:50%;overflow:hidden;background:var(--primary-soft);display:flex;align-items:center;justify-content:center}
+.mff-card .avatar svg{width:34px;height:34px;color:var(--primary)}
+.mff-card h3{margin:2px 0 0;font-size:16.5px;font-weight:700}
+.mff-card p{margin:0;font-size:12px;color:var(--ink-soft);line-height:1.5}
+.mff-card .soon{
+  position:absolute;top:12px;right:12px;font-size:10px;font-weight:700;
+  background:var(--primary-soft);color:var(--primary);border-radius:999px;padding:3px 8px;
+}
+
+/* ---------- bottom nav ---------- */
+.mff-bottomnav{
+  position:fixed;left:0;right:0;bottom:0;
+  max-width:460px;margin:0 auto;
+  background:#fff;border-top:1px solid var(--line);
+  display:flex;justify-content:space-around;align-items:center;
+  padding:10px 8px calc(10px + var(--safe-b));
+  box-shadow:0 -8px 24px rgba(15,91,77,.08);
+}
+.mff-navbtn{
+  border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:4px;
+  color:var(--ink-faint);font-size:10px;font-weight:600;cursor:pointer;padding:4px 10px;
+  text-decoration:none;position:relative;
+}
+.mff-navbtn svg{width:22px;height:22px}
+.mff-navbtn.active{color:var(--primary)}
+.mff-navbtn .mff-badge-dot{
+  position:absolute;top:0;right:10px;min-width:15px;height:15px;padding:0 3px;border-radius:999px;
+  background:var(--expense);color:#fff;font-size:9px;font-weight:800;line-height:15px;text-align:center;
+}
+
+/* ---------- bottom-sheet modal (search / notifications) ---------- */
+.mff-sheet-overlay{position:fixed;inset:0;z-index:5000;background:rgba(20,33,29,.45);display:flex;align-items:flex-end;justify-content:center}
+.mff-sheet-card{width:100%;max-width:460px;max-height:80vh;background:#fff;border-radius:22px 22px 0 0;display:flex;flex-direction:column;overflow:hidden}
+.mff-sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 20px 12px;border-bottom:1px solid var(--line);flex:none}
+.mff-sheet-head h3{margin:0;font-size:16px}
+.mff-sheet-close{border:0;background:var(--primary-soft);color:var(--primary);width:30px;height:30px;border-radius:50%;font-size:16px;cursor:pointer;flex:none}
+.mff-sheet-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 20px calc(18px + var(--safe-b))}
+.mff-search-box{display:flex;align-items:center;gap:8px;background:var(--primary-soft);border-radius:14px;padding:10px 14px;margin-bottom:4px}
+.mff-search-box svg{width:18px;height:18px;color:var(--primary);flex:none}
+.mff-search-box input{flex:1;border:0;background:none;outline:none;font-size:14.5px;font-family:inherit;color:var(--ink)}
+.mff-search-group{margin-top:14px}
+.mff-search-group h4{margin:0 0 8px;font-size:11.5px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.03em}
+.mff-search-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);text-decoration:none;color:var(--ink)}
+.mff-search-item:last-child{border-bottom:0}
+.mff-search-item .ic{width:36px;height:36px;border-radius:11px;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;flex:none;font-size:16px}
+.mff-search-item .tx b{display:block;font-size:13.5px}
+.mff-search-item .tx span{display:block;font-size:11.5px;color:var(--ink-soft);margin-top:1px}
+.mff-search-empty,.mff-notif-empty{text-align:center;color:var(--ink-faint);font-size:13px;padding:30px 10px}
+.mff-notif-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.mff-notif-item:last-child{border-bottom:0}
+.mff-notif-item .ic{width:36px;height:36px;border-radius:11px;flex:none;display:flex;align-items:center;justify-content:center;font-size:17px}
+.mff-notif-item.warn .ic{background:var(--expense-soft);}
+.mff-notif-item.info .ic{background:var(--primary-soft);}
+.mff-notif-item .tx b{display:block;font-size:13.5px;margin-bottom:2px}
+.mff-notif-item .tx span{display:block;font-size:12px;color:var(--ink-soft);line-height:1.45}
+.mff-notif-item .tx a{color:var(--primary);font-weight:700;text-decoration:none;font-size:12px}
+
+/* ---------- module placeholder page ---------- */
+.mff-module{padding:0 22px}
+.mff-module .icon-hero{
+  width:84px;height:84px;border-radius:24px;background:var(--primary-soft);
+  display:flex;align-items:center;justify-content:center;margin:26px 0 18px;color:var(--primary);
+}
+.mff-module .icon-hero svg{width:44px;height:44px}
+.mff-module h2{font-size:23px;margin:0 0 8px}
+.mff-module p{color:var(--ink-soft);font-size:14.5px;line-height:1.65;margin:0 0 22px}
+.mff-module .note{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);
+  padding:16px 18px;font-size:13px;color:var(--ink-soft);line-height:1.7;
+}
+.mff-module .note b{color:var(--primary)}
+
+@media (max-width:380px){
+  .mff-hero h1{font-size:22px}
+  .mff-card{padding:18px 12px 14px}
+}
+
+/* =====================================================================
+   Shared "records" components — used by Profile now, and reusable later
+   by Bookshelf / Lifestyle for any list → detail → edit flow.
+   ===================================================================== */
+
+/* connect banner (Google Sheets not linked yet) */
+.mff-banner{
+  margin:14px 20px 0;background:#FFF6E9;border:1px solid #F1D9A8;color:#6B4E17;
+  border-radius:14px;padding:12px 14px;font-size:12.5px;line-height:1.6;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.mff-banner b{display:block;font-size:13px;margin-bottom:1px}
+.mff-banner button{
+  flex:none;border:0;background:#0F5B4D;color:#fff;font-weight:700;font-size:12px;
+  border-radius:10px;padding:8px 12px;cursor:pointer;
+}
+
+/* sync bar (Google Sheets already linked — manual pull/push controls) */
+.mff-sync-bar{
+  margin:14px 20px 0;background:var(--primary-soft);border:1px solid var(--line);color:var(--ink-soft);
+  border-radius:14px;padding:10px 14px;font-size:12px;line-height:1.5;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+}
+.mff-sync-bar-status{flex:1;min-width:150px}
+.mff-sync-bar-actions{display:flex;gap:6px;flex:none}
+.mff-sync-bar-btn{
+  border:1px solid var(--line);background:#fff;color:var(--primary);font-weight:700;font-size:11.5px;
+  border-radius:10px;padding:7px 10px;cursor:pointer;white-space:nowrap;
+}
+
+/* people / record list */
+.mff-list-wrap{padding:16px 20px 100px}
+.mff-people-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mff-person-card{
+  background:var(--surface);border:1px solid var(--line);border-radius:20px;
+  padding:16px 12px 14px;text-align:center;cursor:pointer;text-decoration:none;color:inherit;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  box-shadow:0 10px 22px -16px rgba(15,91,77,.25);transition:transform .12s ease;
+}
+.mff-person-card:active{transform:scale(.97)}
+.mff-person-photo{
+  width:64px;height:64px;border-radius:16px;object-fit:cover;background:var(--primary-soft);
+  display:flex;align-items:center;justify-content:center;color:var(--primary);flex:none;
+}
+.mff-person-photo svg{width:30px;height:30px}
+.mff-person-card h4{margin:0;font-size:14.5px;font-weight:700;line-height:1.3}
+.mff-person-meta{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.mff-chip{font-size:10.5px;font-weight:700;background:var(--primary-soft);color:var(--primary);border-radius:999px;padding:2.5px 8px}
+
+.mff-empty{
+  text-align:center;color:var(--ink-soft);padding:50px 20px;font-size:13.5px;line-height:1.8;
+}
+.mff-empty svg{width:52px;height:52px;color:var(--ink-faint);margin-bottom:10px}
+
+/* floating add button */
+.mff-fab{
+  position:fixed;left:50%;bottom:calc(94px + var(--safe-b));transform:translateX(calc(-1 * min(460px,100vw)/2 + 20px + 27px));
+  width:54px;height:54px;border-radius:50%;background:var(--primary);color:#fff;border:0;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 14px 26px -8px rgba(15,91,77,.55);
+  cursor:pointer;z-index:20;
+}
+.mff-fab svg{width:24px;height:24px}
+
+/* ID-card style detail view */
+.mff-idcard{
+  margin:0 20px 24px;background:var(--surface);border:1px solid var(--line);border-radius:24px;
+  padding:22px 20px 20px;box-shadow:var(--shadow-card);
+}
+.mff-idcard-top{display:flex;gap:16px;align-items:center;margin-bottom:16px}
+.mff-idcard-photo-wrap{position:relative;flex:none}
+.mff-idcard-photo{
+  width:88px;height:88px;border-radius:20px;object-fit:cover;background:var(--primary-soft);
+  display:flex;align-items:center;justify-content:center;color:var(--primary);border:3px solid var(--primary-soft);
+}
+.mff-idcard-photo svg{width:40px;height:40px}
+.mff-photo-edit-btn{
+  position:absolute;bottom:-4px;right:-4px;width:28px;height:28px;border-radius:50%;
+  background:var(--primary);color:#fff;border:2px solid #fff;display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+.mff-photo-edit-btn svg{width:14px;height:14px}
+.mff-idcard-name{flex:1;min-width:0}
+.mff-idcard-name h2{margin:0 0 4px;font-size:19px;line-height:1.3;word-break:break-word}
+.mff-idcard-name .sub{font-size:12.5px;color:var(--ink-soft)}
+
+.mff-field-row{
+  display:flex;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);align-items:flex-start;
+  min-width:0;
+}
+.mff-field-row:last-child{border-bottom:0;padding-bottom:0}
+.mff-field-row .lbl{flex:none;width:104px;font-size:11.5px;color:var(--ink-faint);font-weight:600;padding-top:2px;line-height:1.4}
+.mff-field-row .val{flex:1;min-width:0;font-size:14px;color:var(--ink);line-height:1.55;word-break:break-word}
+.mff-field-row input,.mff-field-row select,.mff-field-row textarea{
+  flex:1;min-width:0;width:100%;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:16px;
+  font-family:inherit;color:var(--ink);background:#fbfefd;
+}
+.mff-field-row textarea{resize:vertical;min-height:44px}
+
+.mff-detail-actions{display:flex;gap:10px;padding:0 20px 30px}
+.mff-btn{flex:1;border:0;border-radius:14px;padding:13px;font-size:14.5px;font-weight:700;cursor:pointer;text-align:center}
+.mff-btn-primary{background:var(--primary);color:#fff}
+.mff-btn-ghost{background:var(--primary-soft);color:var(--primary)}
+.mff-btn-danger-text{
+  display:block;margin:0 20px 30px;text-align:center;background:none;border:0;color:#c0435a;font-size:13px;
+  font-weight:600;cursor:pointer;padding:8px;
+}
+.mff-back-row{padding:14px 20px 0}
+.mff-back-row a{color:var(--primary);text-decoration:none;font-size:13.5px;font-weight:700;display:inline-flex;align-items:center;gap:5px}
+.mff-back-row svg{width:16px;height:16px}
+
+/* bank accounts (repeatable rows) */
+.mff-bank-section{padding-top:14px;border-top:1px solid var(--line);margin-top:6px}
+.mff-bank-section>.lbl{width:auto;display:block;margin-bottom:10px;font-size:12px;color:var(--ink-faint);font-weight:600}
+.mff-bank-view-row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;font-size:13.5px;border-bottom:1px solid var(--line)}
+.mff-bank-view-row:last-child{border-bottom:0}
+.mff-bank-view-row .bname{color:var(--ink);font-weight:600}
+.mff-bank-view-row .bnum{color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.mff-bank-row{display:flex;gap:8px;margin-bottom:9px;align-items:center}
+.mff-bank-row select.bank-select{flex:1.35;border:1px solid var(--line);border-radius:10px;padding:8px 8px;font-size:16px;font-family:inherit;color:var(--ink);background:#fbfefd;min-width:0}
+.mff-bank-row input.bank-number{flex:1;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:16px;font-family:inherit;color:var(--ink);background:#fbfefd;min-width:0}
+.mff-bank-row .bank-remove{flex:none;width:34px;height:34px;border-radius:9px;background:#FDECEF;color:#C24D63;border:0;font-size:17px;line-height:1;cursor:pointer}
+.mff-bank-add-btn{width:100%;border:1.5px dashed var(--line);background:none;color:var(--primary);font-weight:700;font-size:13px;border-radius:12px;padding:10px;cursor:pointer;margin-top:2px}
+
+/* =====================================================================
+   Money module — month nav, summary cards, charts, editable line items
+   ===================================================================== */
+.mff-month-nav{
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  padding:14px 20px 2px;
+}
+.mff-month-nav button{
+  width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--surface);
+  color:var(--primary);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;
+}
+.mff-month-nav .label{font-size:15px;font-weight:700;min-width:150px;text-align:center}
+
+.mff-money-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px 20px 4px}
+.mff-sum-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 10px;text-align:center}
+.mff-sum-card .lbl{font-size:10.5px;color:var(--ink-faint);font-weight:700;margin-bottom:4px}
+.mff-sum-card .amt{font-size:15px;font-weight:800;word-break:break-word}
+.mff-sum-card.income .amt{color:var(--income)}
+.mff-sum-card.expense .amt{color:var(--expense)}
+.mff-sum-card.balance .amt.pos{color:var(--income)}
+.mff-sum-card.balance .amt.neg{color:var(--expense)}
+
+.mff-chart-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;margin:14px 20px 0;padding:16px 16px 14px;box-shadow:var(--shadow-card)}
+.mff-chart-card h4{margin:0 0 12px;font-size:14px;font-weight:700;color:var(--ink)}
+.mff-chart-card canvas{max-width:100%}
+.mff-chart-legend{display:flex;gap:16px;justify-content:center;margin-top:10px;font-size:11.5px;color:var(--ink-soft)}
+.mff-chart-legend span{display:inline-flex;align-items:center;gap:5px}
+.mff-chart-legend i{width:9px;height:9px;border-radius:3px;display:inline-block}
+
+.mff-cat-bar-row{margin-bottom:11px}
+.mff-cat-bar-row:last-child{margin-bottom:0}
+.mff-cat-bar-head{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px}
+.mff-cat-bar-head .nm{color:var(--ink);font-weight:600}
+.mff-cat-bar-head .amt{color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.mff-cat-bar-track{height:8px;border-radius:5px;background:var(--primary-soft);overflow:hidden}
+.mff-cat-bar-fill{height:100%;border-radius:5px;background:var(--expense)}
+
+.mff-money-section{margin:16px 20px 0;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px 16px 14px;box-shadow:var(--shadow-card)}
+.mff-money-section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.mff-money-section-head h4{margin:0;font-size:14.5px;font-weight:700}
+.mff-money-section-head .tag{font-size:10.5px;font-weight:700;border-radius:999px;padding:3px 9px}
+.mff-money-section.income .tag{background:var(--income-soft);color:var(--income)}
+.mff-money-section.fixed .tag{background:var(--expense-soft);color:var(--expense)}
+.mff-money-section.variable .tag{background:var(--invest-soft);color:var(--invest)}
+.mff-money-view-row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;font-size:13.5px;border-bottom:1px solid var(--line)}
+.mff-money-view-row:last-child{border-bottom:0}
+.mff-money-view-row .nm{color:var(--ink)}
+.mff-money-view-row .amt{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+.mff-money-empty-row{padding:10px 0;font-size:12.5px;color:var(--ink-faint)}
+.mff-money-line-row{display:flex;gap:8px;margin-bottom:9px;align-items:center}
+.mff-money-line-row select{flex:1.5;border:1px solid var(--line);border-radius:10px;padding:8px 8px;font-size:16px;font-family:inherit;color:var(--ink);background:#fbfefd;min-width:0}
+.mff-money-line-row input.money-amount{flex:1;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:16px;font-family:inherit;color:var(--ink);background:#fbfefd;min-width:0}
+.mff-money-line-row .money-remove{flex:none;width:34px;height:34px;border-radius:9px;background:#FDECEF;color:#C24D63;border:0;font-size:17px;line-height:1;cursor:pointer}
+.mff-money-add-btn{width:100%;border:1.5px dashed var(--line);background:none;color:var(--primary);font-weight:700;font-size:12.5px;border-radius:12px;padding:9px;cursor:pointer;margin-top:2px}
+.mff-money-section-total{display:flex;justify-content:space-between;padding-top:10px;margin-top:6px;border-top:1px dashed var(--line);font-size:13px;font-weight:700}
+
+.mff-money-actions{display:flex;gap:10px;padding:18px 20px 30px}
+
+/* plan vs actual line items */
+.mff-money-recap{margin:10px 20px 0;text-align:center;font-size:12px;color:var(--ink-soft)}
+.mff-money-recap b{color:var(--ink)}
+.mff-money-view-row2{padding:9px 0;border-bottom:1px solid var(--line)}
+.mff-money-view-row2:last-child{border-bottom:0}
+.mff-money-view-row2 .nm{font-size:13.5px;color:var(--ink);font-weight:600;margin-bottom:3px}
+.mff-money-view-row2 .amts{display:flex;gap:14px;font-size:12px;color:var(--ink-soft)}
+.mff-money-view-row2 .amts b{color:var(--ink);font-variant-numeric:tabular-nums}
+.mff-money-line-row2{border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:9px}
+.mff-money-line-row2 .row-top{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.mff-money-line-row2 select{flex:1;border:1px solid var(--line);border-radius:10px;padding:8px 8px;font-size:16px;font-family:inherit;color:var(--ink);background:#fbfefd;min-width:0}
+.mff-money-line-row2 .money-remove{flex:none;width:34px;height:34px;border-radius:9px;background:#FDECEF;color:#C24D63;border:0;font-size:17px;line-height:1;cursor:pointer}
+.mff-money-line-row2 .row-bottom{display:flex;gap:8px}
+.mff-money-line-row2 .amt-field{flex:1;min-width:0}
+.mff-money-line-row2 .amt-field label{display:block;font-size:10.5px;color:var(--ink-faint);font-weight:700;margin-bottom:3px}
+.mff-money-line-row2 .amt-field input{width:100%;min-width:0;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:16px;font-family:inherit;color:var(--ink);background:#fbfefd}
+
+/* =====================================================================
+   Money module v3 — spreadsheet-style table + edit-all popup
+   ===================================================================== */
+.mff-money-tabs{display:flex;gap:8px;padding:14px 20px 4px}
+.mff-money-tab{
+  flex:1;min-width:0;background:var(--surface);border-radius:14px;padding:9px 6px;text-align:center;
+  border:1.5px solid var(--line);
+}
+.mff-money-tab .t-lbl{font-size:10px;font-weight:700;color:var(--ink-faint);margin-bottom:2px}
+.mff-money-tab .t-amt{font-size:13px;font-weight:800;word-break:break-word}
+.mff-money-tab.income{border-color:var(--income)}
+.mff-money-tab.income .t-amt{color:var(--income)}
+.mff-money-tab.expense{border-color:var(--expense)}
+.mff-money-tab.expense .t-amt{color:var(--expense)}
+.mff-money-tab.balance{border-color:var(--ink)}
+.mff-money-tab.balance .t-amt.pos{color:var(--income)}
+.mff-money-tab.balance .t-amt.neg{color:var(--expense)}
+
+.mff-edit-trigger{
+  display:block;width:calc(100% - 40px);margin:12px 20px 0;background:var(--primary);color:#fff;
+  border:0;border-radius:14px;padding:13px;font-size:14.5px;font-weight:700;cursor:pointer;
+}
+
+.mff-sheet{margin:16px 20px 0;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-card)}
+.mff-sheet-head{padding:9px 14px;font-size:12.5px;font-weight:700;color:#fff}
+.mff-sheet-head.income{background:var(--income)}
+.mff-sheet-head.fixed{background:var(--expense)}
+.mff-sheet-head.variable{background:var(--invest)}
+.mff-sheet-head.summary{background:var(--ink)}
+.mff-sheet-row{display:flex;justify-content:space-between;gap:10px;padding:9px 14px;font-size:13px;border-bottom:1px solid var(--line);min-width:0}
+.mff-sheet-row:last-child{border-bottom:0}
+.mff-sheet-row .nm{color:var(--ink);min-width:0;word-break:break-word}
+.mff-sheet-row .amt{flex:none;color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+.mff-sheet-row.total .nm, .mff-sheet-row.total .amt{font-weight:800}
+.mff-sheet-row.total .amt.neg{color:var(--expense)}
+.mff-sheet-row.total .amt.pos{color:var(--income)}
+
+/* popup edit-all form */
+.mff-modal-scroll{max-height:62vh;overflow-y:auto;margin:0 -20px;padding:0 20px;-webkit-overflow-scrolling:touch}
+.mff-modal-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);min-width:0}
+.mff-modal-row .nm{flex:1;min-width:0;font-size:12.5px;color:var(--ink);line-height:1.4}
+.mff-modal-row input{
+  flex:none;width:104px;min-width:0;border:1px solid var(--line);border-radius:10px;padding:7px 8px;
+  font-size:16px;font-family:inherit;color:var(--ink);background:#fbfefd;text-align:right;
+}
+.mff-modal-section-head{padding:10px 0 6px;font-size:12px;font-weight:700;color:#fff;margin:6px -20px 0;padding-left:20px;padding-right:20px}
+.mff-modal-section-head.income{background:var(--income)}
+.mff-modal-section-head.fixed{background:var(--expense)}
+.mff-modal-section-head.variable{background:var(--invest)}
+.mff-modal-live-summary{
+  display:flex;justify-content:space-between;gap:8px;padding:12px 0 4px;font-size:12.5px;font-weight:700;
+  border-top:2px solid var(--ink);margin-top:6px;
+}
+.mff-modal-add-row{width:100%;border:1.5px dashed var(--line);background:none;color:var(--primary);font-weight:700;font-size:12px;border-radius:10px;padding:8px;cursor:pointer;margin:10px 0 2px}
+
+/* =====================================================================
+   Bookshelf module — Drive search
+   ===================================================================== */
+.mff-search-wrap{position:relative;margin:14px 20px 0}
+.mff-search-wrap svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--ink-faint);pointer-events:none}
+.mff-search-input{
+  width:100%;box-sizing:border-box;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);
+  padding:12px 14px 12px 40px;font-size:16px;font-family:inherit;color:var(--ink);
+}
+.mff-search-input:focus{outline:none;border-color:var(--primary)}
+.mff-search-status{padding:10px 20px 0;font-size:12px;color:var(--ink-soft)}
+.mff-file-list{padding:6px 20px 30px;display:flex;flex-direction:column;gap:10px}
+.mff-file-row{
+  display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);
+  border-radius:16px;padding:12px 12px;box-shadow:var(--shadow-card);
+}
+.mff-file-icon{
+  flex:none;width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  background:var(--primary-soft);color:var(--primary);
+}
+.mff-file-icon svg{width:22px;height:22px}
+.mff-file-meta{flex:1;min-width:0}
+.mff-file-meta .fn{font-size:13.5px;font-weight:600;color:var(--ink);word-break:break-word;line-height:1.4}
+.mff-file-meta .fn a{color:inherit;text-decoration:none}
+.mff-file-meta .fn a:active{opacity:.7}
+.mff-file-meta .fs{font-size:11px;color:var(--ink-faint);margin-top:2px}
+.mff-file-dl{
+  flex:none;width:38px;height:38px;border-radius:10px;background:var(--primary);color:#fff;border:0;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+.mff-file-dl svg{width:18px;height:18px}
+.mff-file-dl.loading{opacity:.6;pointer-events:none}
+
+/* shelves (reading / to-read / finished) */
+.mff-shelf{margin:14px 20px 0;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:14px 14px 12px;box-shadow:var(--shadow-card)}
+.mff-shelf-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.mff-shelf-head h4{margin:0;font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:7px}
+.mff-shelf-head .count{font-size:11px;font-weight:700;color:var(--ink-faint);background:var(--primary-soft);border-radius:999px;padding:2px 9px}
+.mff-shelf-add{border:0;background:none;color:var(--primary);font-size:12.5px;font-weight:700;cursor:pointer;padding:4px}
+.mff-book-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.mff-book-row:last-child{border-bottom:0}
+.mff-book-row .b-icon{flex:none;width:34px;height:34px;border-radius:9px;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center}
+.mff-book-row .b-icon svg{width:17px;height:17px}
+.mff-book-row .b-title{flex:1;min-width:0;font-size:13px;color:var(--ink);word-break:break-word;line-height:1.4}
+.mff-book-row .b-title a{color:inherit;text-decoration:none}
+.mff-book-row .b-del{flex:none;width:28px;height:28px;border-radius:8px;background:#FDECEF;color:#C24D63;border:0;font-size:15px;cursor:pointer}
+.mff-shelf-empty{font-size:12px;color:var(--ink-faint);padding:6px 0}
+
+/* shelf picker (used from search results) */
+.mff-shelf-pick-btn{width:100%;text-align:left;border:1px solid var(--line);border-radius:12px;padding:11px 14px;background:var(--surface);font-size:13.5px;font-weight:600;color:var(--ink);cursor:pointer;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.mff-shelf-pick-btn:last-child{margin-bottom:0}
+.mff-shelf-pick-btn svg{width:16px;height:16px;color:var(--primary);flex:none}

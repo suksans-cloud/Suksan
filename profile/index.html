@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>โปรไฟล์ครอบครัว — My Family Funds</title>
+<meta name="theme-color" content="#0F5B4D">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shell.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<div class="mff-app" style="padding-bottom:20px">
+
+  <div class="mff-hero-wrap" style="padding-bottom:20px;border-radius:0 0 28px 28px">
+    <div class="mff-topbar">
+      <a class="back" href="../index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 5 8 12l7 7"/></svg>
+        หน้าแรก
+      </a>
+      <span></span>
+    </div>
+    <div class="mff-hero" style="padding-top:0">
+      <p class="eyebrow" style="margin-bottom:2px">โปรไฟล์ครอบครัว</p>
+      <h1 style="font-size:17.5px;white-space:nowrap">ข้อมูลสมาชิกในครอบครัว</h1>
+    </div>
+  </div>
+
+  <div id="connectBanner"></div>
+
+  <div id="viewRoot"></div>
+
+</div>
+
+<!-- hidden file input for photo picking, shared by add/edit -->
+<input type="file" id="photoInput" accept="image/*" style="display:none">
+
+<script src="../config.js"></script>
+<script src="../portfolio/auth-open.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ===================== Google Sheets sync (same pattern & same
+   Client ID / Spreadsheet ID as the Portfolio module — only adds a
+   separate "Profiles" tab, never touches Funds/FundMaster/etc.) ===================== */
+const SHEETS_SCOPE='https://www.googleapis.com/auth/spreadsheets';
+const CACHE_KEY='mff_profiles_cache_v1';
+const TAB='Profiles';
+const HEADERS=['ID','Photo','FirstName','LastName','BloodGroup','Address','Email','Phone','CreatedAt','UpdatedAt','Relation','BankAccounts'];
+
+let sheetsToken=null, sheetsTokenExpiresAt=0;
+let sheetId=localStorage.getItem('google_sheet_id')||'';
+let sheetsClient=null;
+let people=[]; // in-memory list of profile records
+let view={mode:'list', id:null, editing:false}; // 'list' | 'detail'
+
+function getGoogleClientId(){return localStorage.getItem('google_client_id')||'';}
+function sheetHeaders(extra){return Object.assign({'Authorization':'Bearer '+sheetsToken},extra||{});}
+
+function ensureSheetsClient(cid){
+  if(!window.google?.accounts?.oauth2){toast('Google API ยังโหลดไม่เสร็จ ลองใหม่อีกครั้ง');return null;}
+  if(!sheetsClient||sheetsClient._cid!==cid){
+    sheetsClient=google.accounts.oauth2.initTokenClient({client_id:cid,scope:SHEETS_SCOPE,callback:async r=>{
+      if(r.error){toast('เชื่อมต่อ Google Sheets ไม่สำเร็จ');return;}
+      sheetsToken=r.access_token;
+      sheetsTokenExpiresAt=Date.now()+Math.max(60,(Number(r.expires_in)||3600)-60)*1000;
+      localStorage.setItem('google_sheets_connected','1');
+      renderConnectBanner();
+      if(sheetsClient._mffResolve){const rr=sheetsClient._mffResolve;sheetsClient._mffResolve=null;rr(true);}
+      try{
+        await ensureProfilesTab();
+        await pullProfiles();
+        render();
+        toast('เชื่อมต่อ Google Sheets แล้ว');
+      }catch(e){console.error(e);toast('เชื่อมต่อได้ แต่ซิงก์ไม่สำเร็จ: '+e.message);}
+    }});
+    sheetsClient._cid=cid;
+  }
+  return sheetsClient;
+}
+
+async function ensureSheetsAccess(){
+  if(sheetsToken && Date.now()<sheetsTokenExpiresAt) return true;
+  const cid=getGoogleClientId(); if(!cid||!sheetId) return false;
+  const c=ensureSheetsClient(cid); if(!c) return false;
+  return new Promise(resolve=>{
+    c._mffResolve=resolve;
+    try{c.requestAccessToken({prompt:'none'});}catch(e){c._mffResolve=null;resolve(false);}
+    setTimeout(()=>{if(c._mffResolve){c._mffResolve=null;resolve(!!sheetsToken);}},8000);
+  });
+}
+
+async function sheetsApi(url,opts={}){
+  if(!sheetsToken) throw new Error('Google Sheets ยังไม่ได้รับสิทธิ์');
+  const r=await fetch(url,Object.assign({headers:sheetHeaders({'Content-Type':'application/json'})},opts));
+  if(r.status===401||r.status===403){localStorage.removeItem('google_sheets_connected');sheetsToken=null;throw new Error('สิทธิ์หมดอายุ กรุณาเชื่อมต่อใหม่');}
+  if(!r.ok)throw new Error(await r.text());
+  return r.json();
+}
+
+// Only ever ADDS the "Profiles" tab if missing. Never touches the other
+// tabs (Funds/FundMaster/PlanMaster/Investments/MarketWatch) used by Portfolio.
+async function ensureProfilesTab(){
+  const meta=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}?fields=sheets.properties`);
+  const titles=(meta.sheets||[]).map(s=>s.properties.title);
+  if(!titles.includes(TAB)){
+    await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}:batchUpdate`,{method:'POST',body:JSON.stringify({requests:[{addSheet:{properties:{title:TAB}}}]})});
+    await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${TAB}!A1`,majorDimension:'ROWS',values:[HEADERS]})});
+  }
+}
+
+function mergeById(localList, remoteList){
+  const map=new Map();
+  remoteList.forEach(r=>map.set(r.id, r));
+  localList.forEach(l=>{
+    const r=map.get(l.id);
+    if(!r){ map.set(l.id, l); return; }
+    const lt=Date.parse(l.updatedAt)||0, rt=Date.parse(r.updatedAt)||0;
+    map.set(l.id, lt>rt ? l : r);
+  });
+  return Array.from(map.values());
+}
+async function pullProfiles(force){
+  const j=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:L`);
+  const rows=(j.values||[]).slice(1);
+  const remote=rows.filter(r=>r[0]).map(r=>({
+    id:r[0], photo:r[1]||'', firstName:r[2]||'', lastName:r[3]||'', bloodGroup:r[4]||'',
+    address:r[5]||'', email:r[6]||'', phone:r[7]||'', createdAt:r[8]||'', updatedAt:r[9]||'',
+    relation:r[10]||'', bankAccounts: parseBankAccounts(r[11])
+  }));
+  if(force){ people=remote; saveCache(); return; }
+  const merged=mergeById(people, remote);
+  const needsPushBack = JSON.stringify(merged.slice().sort((a,b)=>a.id<b.id?-1:1)) !== JSON.stringify(remote.slice().sort((a,b)=>a.id<b.id?-1:1));
+  people=merged;
+  saveCache();
+  if(needsPushBack) await pushProfiles();
+}
+
+function parseBankAccounts(raw){
+  if(!raw) return [];
+  try{ const arr=JSON.parse(raw); return Array.isArray(arr)?arr:[]; }catch(e){ return []; }
+}
+
+async function pushProfiles(){
+  const values=[HEADERS].concat(people.map(p=>[p.id,p.photo,p.firstName,p.lastName,p.bloodGroup,p.address,p.email,p.phone,p.createdAt,p.updatedAt,p.relation||'',JSON.stringify(p.bankAccounts||[])]));
+  await ensureProfilesTab();
+  await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:L:clear`,{method:'POST',body:'{}'});
+  await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${TAB}!A1`,majorDimension:'ROWS',values})});
+}
+
+async function syncSave(){
+  saveCache();
+  if(!(await ensureSheetsAccess())){ toast('บันทึกในเครื่องนี้แล้ว • ยังไม่ได้เชื่อมต่อ Google Sheets'); renderConnectBanner(); return; }
+  try{ await pushProfiles(); localStorage.setItem('sheet_last_sync_profile', new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})); toast('บันทึกและซิงก์ Google Sheets แล้ว'); }
+  catch(e){ toast('บันทึกในเครื่องแล้ว แต่ซิงก์ไม่สำเร็จ: '+e.message); }
+}
+
+/* ===================== local cache (works instantly + offline) ===================== */
+function saveCache(){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify(people)); }catch(e){} }
+function loadCache(){ try{ const raw=localStorage.getItem(CACHE_KEY); if(raw) people=JSON.parse(raw); }catch(e){} }
+
+/* ===================== connect banner ===================== */
+function renderConnectBanner(){
+  const el=document.getElementById('connectBanner');
+  const connected = sheetsToken || (localStorage.getItem('google_sheets_connected')==='1' && sheetId);
+  if(!connected){
+    el.innerHTML=`
+      <div class="mff-banner">
+        <div><b>ยังไม่เชื่อมต่อ Google Sheets</b>ข้อมูลจะบันทึกในเครื่องนี้เท่านั้นจนกว่าจะเชื่อมต่อ</div>
+        <button id="connectBtn" type="button">เชื่อมต่อ</button>
+      </div>`;
+    document.getElementById('connectBtn').onclick=openConnectForm;
+    return;
+  }
+  const lastSync=localStorage.getItem('sheet_last_sync_profile');
+  el.innerHTML=`
+    <div class="mff-sync-bar">
+      <div class="mff-sync-bar-status">☁️ เชื่อมต่อ Google Sheets แล้ว${lastSync?(' • ซิงก์ล่าสุด '+esc(lastSync)):''}</div>
+      <div class="mff-sync-bar-actions">
+        <a href="../settings/index.html" class="mff-sync-bar-btn" style="text-decoration:none;display:inline-block">จัดการซิงก์ที่ Setting</a>
+      </div>
+    </div>`;
+}
+function openConnectForm(){
+  const cid=localStorage.getItem('google_client_id')||'';
+  const sid=sheetId||'';
+  const html=`
+    <div class="mff-field-row"><div class="lbl">Client ID</div><input id="cfCid" value="${esc(cid)}" placeholder="วาง Google OAuth Client ID"></div>
+    <div class="mff-field-row"><div class="lbl">Sheet ID</div><input id="cfSid" value="${esc(sid)}" placeholder="ใช้ Spreadsheet ID เดียวกับ My Portfolio"></div>
+    <p style="font-size:11.5px;color:var(--ink-soft);padding:0 0 6px">ใช้ Client ID / Sheet ID ชุดเดียวกับที่ตั้งค่าไว้ในโมดูล My Portfolio ได้เลย ข้อมูลจะไปรวมในสเปรดชีตเดียวกัน คนละแท็บ (Profiles) ไม่ทับข้อมูลกองทุน</p>
+  `;
+  modal('เชื่อมต่อ Google Sheets', html, [
+    {label:'ยกเลิก', ghost:true, onClick:closeModal},
+    {label:'เชื่อมต่อ', onClick:async()=>{
+      const cid=document.getElementById('cfCid').value.trim();
+      const sid=document.getElementById('cfSid').value.trim();
+      if(!cid||!sid){ toast('กรุณากรอกให้ครบ'); return; }
+      localStorage.setItem('google_client_id',cid);
+      sheetId=sid; localStorage.setItem('google_sheet_id',sid);
+      closeModal();
+      const c=ensureSheetsClient(cid);
+      if(c) c.requestAccessToken({prompt:'consent'});
+    }}
+  ]);
+}
+
+/* ===================== tiny modal helper ===================== */
+function modal(title, bodyHtml, buttons){
+  closeModal();
+  const d=document.createElement('div');
+  d.id='mffModal';
+  d.style.cssText='position:fixed;inset:0;z-index:5000;background:rgba(20,33,29,.45);display:flex;align-items:flex-end;justify-content:center';
+  d.innerHTML=`<div style="width:100%;max-width:460px;background:#fff;border-radius:22px 22px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px))">
+    <h3 style="margin:0 0 14px;font-size:17px">${esc(title)}</h3>
+    <div>${bodyHtml}</div>
+    <div style="display:flex;gap:10px;margin-top:16px" id="mffModalBtns"></div>
+  </div>`;
+  document.body.appendChild(d);
+  const btnWrap=document.getElementById('mffModalBtns');
+  buttons.forEach(b=>{
+    const btn=document.createElement('button');
+    btn.className='mff-btn '+(b.ghost?'mff-btn-ghost':'mff-btn-primary');
+    btn.textContent=b.label;
+    btn.onclick=b.onClick;
+    btnWrap.appendChild(btn);
+  });
+  d.addEventListener('click',e=>{ if(e.target===d) closeModal(); });
+}
+function closeModal(){ document.getElementById('mffModal')?.remove(); }
+
+/* ===================== helpers ===================== */
+function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function uuid(){return 'p_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,9);}
+function toast(msg){
+  let t=document.getElementById('mffToast');
+  if(!t){ t=document.createElement('div'); t.id='mffToast';
+    t.style.cssText='position:fixed;left:50%;bottom:120px;transform:translateX(-50%);background:#14211D;color:#fff;padding:10px 16px;border-radius:999px;font-size:12.5px;z-index:6000;opacity:0;transition:opacity .2s;max-width:85vw;text-align:center';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(toast._tm); toast._tm=setTimeout(()=>{t.style.opacity='0';},2600);
+}
+function personIcon(){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-6 8-6s8 2 8 6"/></svg>`;}
+
+// Resize + compress a picked photo client-side so it fits comfortably
+// inside a single Google Sheets cell (limit ~50,000 characters).
+function readAndResizeImage(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>{
+      const img=new Image();
+      img.onload=()=>{
+        const maxDim=320;
+        let w=img.width, h=img.height;
+        if(w>h && w>maxDim){ h=Math.round(h*maxDim/w); w=maxDim; }
+        else if(h>=w && h>maxDim){ w=Math.round(w*maxDim/h); h=maxDim; }
+        const canvas=document.createElement('canvas');
+        canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(canvas.toDataURL('image/jpeg',0.72));
+      };
+      img.onerror=reject;
+      img.src=reader.result;
+    };
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ===================== rendering ===================== */
+function render(){
+  const root=document.getElementById('viewRoot');
+  if(view.mode==='detail'){
+    root.innerHTML=renderDetail(people.find(p=>p.id===view.id) || null);
+    wireDetail();
+  } else {
+    root.innerHTML=renderList();
+    wireList();
+  }
+}
+
+function renderList(){
+  if(!people.length){
+    return `
+      <div class="mff-empty">
+        ${personIcon().replace('width:24px','width:52px')}
+        <div>ยังไม่มีข้อมูลสมาชิกในครอบครัว<br>กดปุ่ม + ด้านล่างเพื่อเพิ่มคนแรก</div>
+      </div>
+      <button class="mff-fab" id="addBtn" aria-label="เพิ่มสมาชิก" title="เพิ่มสมาชิก">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+      </button>`;
+  }
+  const cards=people.map(p=>`
+    <div class="mff-person-card" data-id="${esc(p.id)}">
+      ${p.photo?`<img class="mff-person-photo" src="${p.photo}" alt="">`:`<div class="mff-person-photo">${personIcon()}</div>`}
+      <h4>${esc(p.firstName)} ${esc(p.lastName)}</h4>
+      <div class="mff-person-meta">
+        ${p.relation?`<span class="mff-chip">${esc(p.relation)}</span>`:''}
+        ${p.bloodGroup?`<span class="mff-chip">กรุ๊ป ${esc(p.bloodGroup)}</span>`:''}
+      </div>
+    </div>`).join('');
+  return `
+    <div class="mff-list-wrap">
+      <div class="mff-people-grid">${cards}</div>
+    </div>
+    <button class="mff-fab" id="addBtn" aria-label="เพิ่มสมาชิก" title="เพิ่มสมาชิก">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+    </button>`;
+}
+
+const BLOOD_OPTIONS=['','A','B','AB','O','ไม่ทราบ'];
+const RELATION_OPTIONS=['','พ่อ','แม่','สามี','ภรรยา','ปู่','ย่า','ตา','ยาย','ลุง','ป้า','น้า','อา','พี่ชาย','พี่สาว','น้องชาย','น้องสาว','ลูกชาย','ลูกสาว','หลาน','เหลน','ญาติ','อื่นๆ'];
+const BANK_OPTIONS=['','ธนาคารกรุงเทพ','ธนาคารกสิกรไทย','ธนาคารไทยพาณิชย์','ธนาคารกรุงไทย','ธนาคารกรุงศรีอยุธยา','ธนาคารทหารไทยธนชาต (ttb)','ธนาคารออมสิน','ธ.ก.ส.','ธนาคารอาคารสงเคราะห์','ธนาคารซีไอเอ็มบีไทย','ธนาคารยูโอบี','ธนาคารแลนด์ แอนด์ เฮ้าส์','ธนาคารเกียรตินาคินภัทร','ธนาคารไอซีบีซี (ไทย)','ธนาคารไทยเครดิต','กองทุนรวม/บลจ.','อื่นๆ'];
+
+function fieldRow(label, key, val, editing, type, opts){
+  if(!editing){
+    if(!val) return ''; // hide empty fields in read view
+    return `<div class="mff-field-row"><div class="lbl">${label}</div><div class="val">${esc(val)}</div></div>`;
+  }
+  if(type==='textarea'){
+    return `<div class="mff-field-row"><div class="lbl">${label}</div><textarea data-field="${key}" rows="2">${esc(val)}</textarea></div>`;
+  }
+  if(type==='select'){
+    const list=opts||[''];
+    return `<div class="mff-field-row"><div class="lbl">${label}</div><select data-field="${key}">
+      ${list.map(o=>`<option value="${o}" ${o===val?'selected':''}>${o||'— เลือก —'}</option>`).join('')}
+    </select></div>`;
+  }
+  return `<div class="mff-field-row"><div class="lbl">${label}</div><input data-field="${key}" type="${type||'text'}" value="${esc(val)}"></div>`;
+}
+
+function renderDetail(p){
+  const isNew = !p;
+  const editing = view.editing || isNew;
+  const rec = p || {id:'', photo:'', firstName:'', lastName:'', relation:'', bloodGroup:'', address:'', email:'', phone:'', bankAccounts:[]};
+
+  const photoBlock = rec.photo
+    ? `<img class="mff-idcard-photo" src="${rec.photo}" alt="">`
+    : `<div class="mff-idcard-photo">${personIcon()}</div>`;
+
+  const nameBlock = editing
+    ? `<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px">
+         <input data-field="firstName" placeholder="ชื่อ" value="${esc(rec.firstName)}" style="width:100%;min-width:0;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:16px">
+         <input data-field="lastName" placeholder="นามสกุล" value="${esc(rec.lastName)}" style="width:100%;min-width:0;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:16px">
+       </div>`
+    : `<div class="mff-idcard-name"><h2>${esc(rec.firstName)} ${esc(rec.lastName)}</h2><div class="sub">${esc(rec.relation)||'สมาชิกในครอบครัว'}</div></div>`;
+
+  const fields = [
+    fieldRow('สถานะ','relation',rec.relation,editing,'select',RELATION_OPTIONS),
+    fieldRow('กรุ๊ปเลือด','bloodGroup',rec.bloodGroup,editing,'select',BLOOD_OPTIONS),
+    fieldRow('ที่อยู่','address',rec.address,editing,'textarea'),
+    fieldRow('Email','email',rec.email,editing,'email'),
+    fieldRow('เบอร์โทร','phone',rec.phone,editing,'tel'),
+  ].join('');
+
+  const bankSection = renderBankSection(rec.bankAccounts||[], editing);
+
+  const actions = editing
+    ? `<div class="mff-detail-actions">
+         <button class="mff-btn mff-btn-ghost" id="cancelBtn">ยกเลิก</button>
+         <button class="mff-btn mff-btn-primary" id="saveBtn">บันทึก</button>
+       </div>
+       ${!isNew?`<button class="mff-btn-danger-text" id="deleteBtn">ลบสมาชิกคนนี้</button>`:''}`
+    : `<div class="mff-detail-actions">
+         <button class="mff-btn mff-btn-primary" id="editBtn">แก้ไขข้อมูล</button>
+       </div>`;
+
+  return `
+    <div class="mff-back-row">
+      <a href="#" id="backToList">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 5 8 12l7 7"/></svg>
+        รายชื่อสมาชิก
+      </a>
+    </div>
+    <div class="mff-idcard" style="margin-top:14px" data-id="${esc(rec.id)}">
+      <div class="mff-idcard-top">
+        <div class="mff-idcard-photo-wrap">
+          ${photoBlock}
+          ${editing?`<div class="mff-photo-edit-btn" id="photoEditBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h3l2-2h6l2 2h3v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg></div>`:''}
+        </div>
+        ${nameBlock}
+      </div>
+      ${fields || (editing?'':'<div style="font-size:12.5px;color:var(--ink-faint)">ยังไม่มีรายละเอียดเพิ่มเติม</div>')}
+      ${bankSection}
+    </div>
+    ${actions}
+  `;
+}
+
+function bankRowHtml(b){
+  b=b||{bank:'',number:''};
+  return `
+    <div class="mff-bank-row">
+      <select class="bank-select">
+        ${BANK_OPTIONS.map(o=>`<option value="${o}" ${o===b.bank?'selected':''}>${o||'— เลือกธนาคาร —'}</option>`).join('')}
+      </select>
+      <input class="bank-number" type="text" inputmode="numeric" placeholder="เลขบัญชี" value="${esc(b.number)}">
+      <button type="button" class="bank-remove" aria-label="ลบบัญชีนี้">×</button>
+    </div>`;
+}
+
+function renderBankSection(accounts, editing){
+  if(!editing){
+    if(!accounts.length) return '';
+    return `
+      <div class="mff-bank-section">
+        <div class="lbl">บัญชีเงินฝาก กองทุนฯ</div>
+        ${accounts.map(a=>`<div class="mff-bank-view-row"><span class="bname">${esc(a.bank)||'—'}</span><span class="bnum">${esc(a.number)||'—'}</span></div>`).join('')}
+      </div>`;
+  }
+  const rows = accounts.length ? accounts : [{bank:'',number:''}];
+  return `
+    <div class="mff-bank-section">
+      <div class="lbl">บัญชีเงินฝาก กองทุนฯ</div>
+      <div id="bankRows">${rows.map(bankRowHtml).join('')}</div>
+      <button type="button" class="mff-bank-add-btn" id="addBankBtn">+ เพิ่มบัญชี</button>
+    </div>`;
+}
+
+/* ===================== event wiring ===================== */
+function wireList(){
+  document.getElementById('addBtn')?.addEventListener('click',()=>{
+    view={mode:'detail', id:null, editing:true};
+    render();
+  });
+  document.querySelectorAll('.mff-person-card').forEach(card=>{
+    card.addEventListener('click',()=>{
+      view={mode:'detail', id:card.dataset.id, editing:false};
+      render();
+    });
+  });
+}
+
+function wireDetail(){
+  document.getElementById('backToList')?.addEventListener('click',e=>{
+    e.preventDefault();
+    view={mode:'list', id:null, editing:false};
+    render();
+  });
+  document.getElementById('editBtn')?.addEventListener('click',()=>{
+    view.editing=true; render();
+  });
+  document.getElementById('cancelBtn')?.addEventListener('click',()=>{
+    if(!view.id){ view={mode:'list', id:null, editing:false}; }
+    else { view.editing=false; }
+    render();
+  });
+  document.getElementById('deleteBtn')?.addEventListener('click',()=>{
+    const p=people.find(x=>x.id===view.id);
+    if(!p) return;
+    modal('ลบสมาชิกคนนี้?', `<p style="font-size:13.5px;color:var(--ink-soft);margin:0">ต้องการลบข้อมูลของ <b>${esc(p.firstName)} ${esc(p.lastName)}</b> ใช่หรือไม่ การลบไม่สามารถย้อนกลับได้</p>`, [
+      {label:'ยกเลิก', ghost:true, onClick:closeModal},
+      {label:'ลบ', onClick:async()=>{
+        people=people.filter(x=>x.id!==p.id);
+        closeModal();
+        view={mode:'list', id:null, editing:false};
+        render();
+        await syncSave();
+      }}
+    ]);
+  });
+  document.getElementById('photoEditBtn')?.addEventListener('click',()=>{
+    const input=document.getElementById('photoInput');
+    input.onchange=async()=>{
+      const file=input.files[0]; if(!file) return;
+      try{
+        const dataUrl=await readAndResizeImage(file);
+        const wrap=document.querySelector('.mff-idcard-photo-wrap');
+        let img=wrap.querySelector('img.mff-idcard-photo');
+        if(!img){ wrap.querySelector('.mff-idcard-photo')?.remove(); img=document.createElement('img'); img.className='mff-idcard-photo'; wrap.prepend(img); }
+        img.src=dataUrl;
+        wrap.dataset.pendingPhoto=dataUrl;
+      }catch(e){ toast('อ่านรูปไม่สำเร็จ ลองรูปอื่น'); }
+      input.value='';
+    };
+    input.click();
+  });
+  document.getElementById('addBankBtn')?.addEventListener('click',()=>{
+    const wrap=document.getElementById('bankRows');
+    wrap.insertAdjacentHTML('beforeend', bankRowHtml({bank:'',number:''}));
+  });
+  document.getElementById('bankRows')?.addEventListener('click',e=>{
+    const btn=e.target.closest('.bank-remove');
+    if(!btn) return;
+    const rows=document.querySelectorAll('#bankRows .mff-bank-row');
+    if(rows.length<=1){ btn.closest('.mff-bank-row').querySelectorAll('select,input').forEach(el=>el.value=''); return; }
+    btn.closest('.mff-bank-row').remove();
+  });
+  document.getElementById('saveBtn')?.addEventListener('click', async()=>{
+    const card=document.querySelector('.mff-idcard');
+    const get=k=>card.querySelector(`[data-field="${k}"]`)?.value?.trim()||'';
+    const firstName=get('firstName'), lastName=get('lastName');
+    if(!firstName){ toast('กรุณากรอกชื่ออย่างน้อย'); return; }
+    const now=new Date().toISOString();
+    const pendingPhoto=document.querySelector('.mff-idcard-photo-wrap')?.dataset.pendingPhoto;
+    const bankAccounts=Array.from(card.querySelectorAll('#bankRows .mff-bank-row')).map(row=>({
+      bank: row.querySelector('.bank-select').value,
+      number: row.querySelector('.bank-number').value.trim()
+    })).filter(b=>b.bank||b.number);
+
+    let p=people.find(x=>x.id===view.id);
+    if(!p){
+      p={id:uuid(), photo:'', createdAt:now};
+      people.push(p);
+      view.id=p.id;
+    }
+    p.firstName=firstName; p.lastName=lastName;
+    p.relation=get('relation');
+    p.bloodGroup=get('bloodGroup'); p.address=get('address');
+    p.email=get('email'); p.phone=get('phone');
+    p.bankAccounts=bankAccounts;
+    p.updatedAt=now;
+    if(pendingPhoto) p.photo=pendingPhoto;
+
+    view.editing=false;
+    render();
+    await syncSave();
+  });
+}
+
+/* ===================== boot ===================== */
+loadCache();
+renderConnectBanner();
+render();
+
+window.addEventListener('load', async ()=>{
+  const cid=getGoogleClientId();
+  if(cid && localStorage.getItem('google_sheets_connected')==='1' && sheetId){
+    const ok=await ensureSheetsAccess();
+    if(ok){
+      try{ await ensureProfilesTab(); await pullProfiles(); render(); renderConnectBanner(); }
+      catch(e){ console.warn('Profiles auto sync failed', e); }
+    }
+  }
+});
+
+})();
+</script>
+
+</body>
+</html>
