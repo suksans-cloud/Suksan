@@ -22,15 +22,6 @@
 .mff-module-row:last-child{border-bottom:0}
 .mff-module-row b{font-weight:700;color:var(--ink)}
 .mff-module-row span{color:var(--ink-soft)}
-.mff-admin-lock{text-align:center;padding:14px 6px;color:var(--ink-faint);font-size:12.5px}
-.mff-sync-module-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.mff-sync-module-row:last-child{border-bottom:0}
-.mff-sync-module-name{font-size:13px;font-weight:700;flex:1;min-width:110px}
-.mff-sync-module-btns{display:flex;gap:6px;flex:none}
-.mff-sync-dir-btn{
-  border:1px solid var(--line);background:#fff;color:var(--primary);font-weight:700;font-size:11px;
-  border-radius:10px;padding:7px 9px;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block;
-}
 </style>
 </head>
 <body>
@@ -65,9 +56,11 @@
     </section>
 
     <section class="mff-settings-card">
-      <h2>🔄 ซิงก์ข้อมูล — เลือกทิศทางได้</h2>
-      <p class="hint">เลือกได้ว่าจะให้ <b>Sheet เป็นหลัก</b> (ดึงมาทับข้อมูลในแอป) หรือ <b>แอปเป็นหลัก</b> (ส่งขึ้นไปทับข้อมูลใน Sheet) ต่อโมดูล — <b>ไม่มีการซิงก์อัตโนมัติเบื้องหลังแล้ว</b> ต้องกดเองทุกครั้ง สลับหน้าไปมาจะไม่มีการซิงก์เกิดขึ้นเอง</p>
-      <div id="syncModuleRows"></div>
+      <h2>🔄 ซิงก์ข้อมูลทั้งหมดตอนนี้</h2>
+      <p class="hint">ดันข้อมูลที่มีอยู่ในเครื่องนี้ของ My Money, My Bookshelf, My Profile ขึ้น Google Sheets ทีเดียวในคลิกเดียว — ไม่ต้องเปิดแต่ละหน้าเอง<br>(My Portfolio ซิงก์ให้อัตโนมัติอยู่แล้วทุกครั้งที่แก้ไขข้อมูลในหน้านั้น จึงไม่ต้องรวมไว้ที่นี่)</p>
+      <div class="mff-settings-actions">
+        <button id="btnSyncAll" class="mff-btn mff-btn-primary">ซิงก์ข้อมูลทั้งหมดตอนนี้</button>
+      </div>
       <div class="mff-sync-status" id="statusSyncAll"></div>
     </section>
 
@@ -88,22 +81,20 @@
     <section class="mff-settings-card">
       <h2>📧 สรุปรายเดือนทางอีเมล</h2>
       <p class="hint">สรุปรายรับ-รายจ่าย (My Money), เงินลงทุนสะสมเทียบเดือนก่อน (My Portfolio), จำนวนหนังสือ 3 หมวด (My Bookshelf) — ส่งเข้าอีเมลอัตโนมัติทุกวันที่ 1 ของเดือนถัดไป โดยอ่านข้อมูลจาก Google Sheet ด้านบน</p>
-      <div id="reportAdminGate">
-        <div class="mff-field-row"><div class="lbl">อีเมลผู้รับ</div><input id="cfgReportEmail" type="email" placeholder="name@email.com"></div>
-        <div class="mff-settings-actions" style="flex-direction:column;gap:8px">
-          <button id="btnSaveReport" class="mff-btn mff-btn-primary">บันทึกการตั้งค่า</button>
-          <button id="btnInstallTrigger" class="mff-btn mff-btn-ghost">เปิดใช้งานส่งอัตโนมัติทุกวันที่ 1</button>
-          <button id="btnTestReport" class="mff-btn mff-btn-ghost">ส่งอีเมลทดสอบตอนนี้ (สรุปเดือนปัจจุบัน)</button>
-        </div>
-        <div class="mff-sync-status" id="statusReport"></div>
-        <p class="hint" style="margin-top:10px;color:#c0783a">⚠️ เว็บแอปรุ่นนี้ไม่มีระบบล็อกอิน ใครก็ตามที่เปิดหน้านี้แก้อีเมลผู้รับรายงานได้ ถ้าต้องการจำกัดสิทธิ์เฉพาะ Admin ให้ใช้ไฟล์รุ่น "With-Login" แทน</p>
+      <div class="mff-field-row"><div class="lbl">อีเมลผู้รับ</div><input id="cfgReportEmail" type="email" placeholder="name@email.com"></div>
+      <div class="mff-settings-actions" style="flex-direction:column;gap:8px">
+        <button id="btnSaveReport" class="mff-btn mff-btn-primary">บันทึกการตั้งค่า</button>
+        <button id="btnInstallTrigger" class="mff-btn mff-btn-ghost">เปิดใช้งานส่งอัตโนมัติทุกวันที่ 1</button>
+        <button id="btnTestReport" class="mff-btn mff-btn-ghost">ส่งอีเมลทดสอบตอนนี้ (สรุปเดือนปัจจุบัน)</button>
       </div>
+      <div class="mff-sync-status" id="statusReport"></div>
+      <p class="hint" style="margin-top:10px;color:#c0783a">⚠️ เว็บแอปรุ่นนี้ไม่มีระบบล็อกอิน ใครก็ตามที่เปิดหน้านี้แก้อีเมลผู้รับรายงานได้ ถ้าต้องการจำกัดสิทธิ์เฉพาะ Admin ให้ใช้ไฟล์รุ่น "With-Login" แทน</p>
     </section>
 
     <section class="mff-settings-card">
       <h2>⚙️ Apps Script Backend</h2>
       <div class="mff-field-row"><div class="lbl">Endpoint</div><div class="val" id="endpointDisplay" style="word-break:break-all;font-size:11px"></div></div>
-      <p class="hint" style="margin-top:8px">แก้ URL นี้ได้ที่ไฟล์ <code>config.js</code> จุดเดียว ใช้ร่วมกันทั้งระบบล็อกอินและรายงานสรุปรายเดือน</p>
+      <p class="hint" style="margin-top:8px">แก้ URL นี้ได้ที่ไฟล์ <code>config.js</code> จุดเดียว ใช้สำหรับส่งรายงานสรุปรายเดือนเท่านั้น (รุ่นนี้ไม่มีระบบล็อกอิน)</p>
     </section>
 
   </div>
@@ -124,11 +115,8 @@ function toast(msg){
 const ENDPOINT = window.MFF_ENDPOINT || '';
 document.getElementById('endpointDisplay').textContent = ENDPOINT || '(ยังไม่ได้ตั้งค่า)';
 
-const TOKEN_KEY='mff_auth_token';
-function authToken(){ return localStorage.getItem(TOKEN_KEY)||sessionStorage.getItem(TOKEN_KEY)||''; }
 async function api(action,data){
   const payload=Object.assign({action},data||{});
-  const token=authToken(); if(token) payload.token=token;
   const r=await fetch(ENDPOINT,{method:'POST',mode:'cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
   const j=await r.json();
   if(!r.ok||j.ok===false) throw new Error(j.error||'เกิดข้อผิดพลาด');
@@ -177,24 +165,35 @@ renderSheetsStatus();
    อ่านข้อมูลตรงจาก cache ที่แต่ละโมดูลเก็บไว้ในเครื่องนี้ (localStorage) แล้วเขียน
    ขึ้น Google Sheets โดยใช้ Tab/Headers ชุดเดียวกับที่แต่ละโมดูลใช้เอง จึงเข้ากันได้
    100% — ไม่ต้องเปิดหน้า Money/Bookshelf/Profile เพื่อกดบันทึกทีละหน้าอีกต่อไป */
-const SYNC_TARGETS = [
-  { key:'money', name:'💰 My Money', cacheKey:'mff_money_cache_v3', tab:'MoneyTransactions', range:'A:G',
+const SYNC_ALL_TARGETS = [
+  { name:'My Money', cacheKey:'mff_money_cache_v3', tab:'MoneyTransactions', range:'A:G',
     headers:['ID','Month','Type','Category','Amount','CreatedAt','UpdatedAt'],
     toRow:t=>[t.id,t.month,t.type,t.category,t.amount,t.createdAt,t.updatedAt],
     fromRow:r=>({id:r[0], month:r[1]||'', type:r[2]||'', category:r[3]||'', amount:Number(r[4])||0, createdAt:r[5]||'', updatedAt:r[6]||''}),
     lastSyncKey:'sheet_last_sync_money' },
-  { key:'bookshelf', name:'📚 My Bookshelf', cacheKey:'mff_bookshelf_cache_v1', tab:'BookshelfItems', range:'A:J',
+  { name:'My Bookshelf', cacheKey:'mff_bookshelf_cache_v1', tab:'BookshelfItems', range:'A:J',
     headers:['ID','Title','Status','DriveFileId','DriveFileName','MimeType','Size','WebViewLink','AddedAt','UpdatedAt'],
     toRow:b=>[b.id,b.title,b.status,b.driveFileId,b.driveFileName,b.mimeType,b.size,b.webViewLink,b.addedAt,b.updatedAt],
     fromRow:r=>({id:r[0],title:r[1]||'',status:r[2]||'queued',driveFileId:r[3]||'',driveFileName:r[4]||'',mimeType:r[5]||'',size:r[6]||'',webViewLink:r[7]||'',addedAt:r[8]||'',updatedAt:r[9]||''}),
     lastSyncKey:'sheet_last_sync_bookshelf' },
-  { key:'profile', name:'👤 My Profile', cacheKey:'mff_profiles_cache_v1', tab:'Profiles', range:'A:L',
+  { name:'My Profile', cacheKey:'mff_profiles_cache_v1', tab:'Profiles', range:'A:L',
     headers:['ID','Photo','FirstName','LastName','BloodGroup','Address','Email','Phone','CreatedAt','UpdatedAt','Relation','BankAccounts'],
     toRow:p=>[p.id,p.photo,p.firstName,p.lastName,p.bloodGroup,p.address,p.email,p.phone,p.createdAt,p.updatedAt,p.relation||'',JSON.stringify(p.bankAccounts||[])],
     fromRow:r=>{ let bank=[]; try{ const a=JSON.parse(r[11]||'[]'); if(Array.isArray(a)) bank=a; }catch(e){}
       return {id:r[0], photo:r[1]||'', firstName:r[2]||'', lastName:r[3]||'', bloodGroup:r[4]||'', address:r[5]||'', email:r[6]||'', phone:r[7]||'', createdAt:r[8]||'', updatedAt:r[9]||'', relation:r[10]||'', bankAccounts:bank}; },
     lastSyncKey:'sheet_last_sync_profile' },
 ];
+function syncAllMergeById(localList, remoteList){
+  const map=new Map();
+  remoteList.forEach(r=>map.set(r.id, r));
+  localList.forEach(l=>{
+    const r=map.get(l.id);
+    if(!r){ map.set(l.id, l); return; } // มีแค่ในเครื่องนี้ — เก็บไว้ ไม่ทิ้ง
+    const lt=Date.parse(l.updatedAt)||0, rt=Date.parse(r.updatedAt)||0;
+    map.set(l.id, lt>rt ? l : r);
+  });
+  return Array.from(map.values());
+}
 
 async function syncAllSheetsApi(token,url,opts){
   const r=await fetch(url,Object.assign({headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'}},opts||{}));
@@ -220,75 +219,41 @@ function ensureSheetsTokenForSyncAll(cid){
     catch(e){ resolve(null); }
   });
 }
+document.getElementById('btnSyncAll').addEventListener('click', async ()=>{
+  const cid=clientIdInput.value.trim()||localStorage.getItem('google_client_id')||'';
+  const sid=sheetIdInput.value.trim()||localStorage.getItem('google_sheet_id')||'';
+  const statusEl=document.getElementById('statusSyncAll');
+  if(!cid||!sid){ toast('กรุณากรอก Client ID / Sheet ID ในหัวข้อ Google Sheets ก่อน'); return; }
+  statusEl.innerHTML='กำลังขอสิทธิ์ Google Sheets...';
+  const token=await ensureSheetsTokenForSyncAll(cid);
+  if(!token){ statusEl.innerHTML='<span class="warn">ขอสิทธิ์ Google Sheets ไม่สำเร็จ</span>'; return; }
+  localStorage.setItem('google_sheets_connected','1'); renderSheetsStatus();
 
-// ดึงจาก Sheet มาทับข้อมูลในแอปทั้งหมด (Sheet เป็นตัวหลัก)
-async function syncPullOne(token, sid, target){
-  await syncAllEnsureTab(token,sid,target.tab,target.headers);
-  const got=await syncAllSheetsApi(token,`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sid)}/values/${target.tab}!${target.range}`);
-  const remoteRows=(got.values||[]).slice(1).filter(r=>r[0]);
-  const remoteList=remoteRows.map(target.fromRow);
-  localStorage.setItem(target.cacheKey, JSON.stringify(remoteList));
-  localStorage.setItem(target.lastSyncKey,new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}));
-  return remoteList.length;
-}
-// ส่งจากแอปขึ้นไปทับข้อมูลใน Sheet ทั้งหมด (แอปเป็นตัวหลัก)
-async function syncPushOne(token, sid, target){
-  await syncAllEnsureTab(token,sid,target.tab,target.headers);
-  const raw=localStorage.getItem(target.cacheKey);
-  const localList = raw ? JSON.parse(raw) : [];
-  const values=[target.headers].concat(localList.map(target.toRow));
-  await syncAllSheetsApi(token,`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sid)}/values/${target.tab}!${target.range}:clear`,{method:'POST',body:'{}'});
-  await syncAllSheetsApi(token,`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sid)}/values/${target.tab}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${target.tab}!A1`,majorDimension:'ROWS',values})});
-  localStorage.setItem(target.lastSyncKey,new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}));
-  return localList.length;
-}
-
-function renderSyncModuleRows(){
-  const rowsHtml = SYNC_TARGETS.map(t=>`
-    <div class="mff-sync-module-row">
-      <div class="mff-sync-module-name">${t.name}</div>
-      <div class="mff-sync-module-btns">
-        <button type="button" class="mff-sync-dir-btn" data-key="${t.key}" data-dir="pull">⬇️ จาก Sheet</button>
-        <button type="button" class="mff-sync-dir-btn" data-key="${t.key}" data-dir="push">⬆️ ลง Sheet</button>
-      </div>
-    </div>`).join('') + `
-    <div class="mff-sync-module-row">
-      <div class="mff-sync-module-name">📊 My Portfolio</div>
-      <div class="mff-sync-module-btns">
-        <a class="mff-sync-dir-btn" href="../portfolio/index.html?sync=pull">⬇️ จาก Sheet</a>
-        <a class="mff-sync-dir-btn" href="../portfolio/index.html?sync=push">⬆️ ลง Sheet</a>
-      </div>
-    </div>`;
-  document.getElementById('syncModuleRows').innerHTML = rowsHtml
-    + `<p class="hint" style="margin-top:10px">My Portfolio ใช้โครงสร้างข้อมูลของตัวเอง จึงเปิดหน้า My Portfolio แล้วซิงก์ให้อัตโนมัติทันทีที่เปิดถึง (ไม่ต้องกดซ้ำในหน้านั้นอีก)</p>`;
-
-  document.querySelectorAll('.mff-sync-dir-btn[data-key]').forEach(btn=>{
-    btn.addEventListener('click', async ()=>{
-      const key=btn.dataset.key, dir=btn.dataset.dir;
-      const target=SYNC_TARGETS.find(t=>t.key===key);
-      const statusEl=document.getElementById('statusSyncAll');
-      const cid=clientIdInput.value.trim()||localStorage.getItem('google_client_id')||'';
-      const sid=sheetIdInput.value.trim()||localStorage.getItem('google_sheet_id')||'';
-      if(!cid||!sid){ toast('กรุณากรอก Client ID / Sheet ID ในหัวข้อ Google Sheets ก่อน'); return; }
-      const msg = dir==='pull'
-        ? `ดึงข้อมูลจาก Sheet มาใช้ในแอปทั้งหมดสำหรับ ${target.name} — ข้อมูลในแอปเครื่องนี้ที่ต่างจาก Sheet จะถูกแทนที่ ต้องการดำเนินการต่อหรือไม่?`
-        : `ส่งข้อมูลจากแอปเครื่องนี้ขึ้น Sheet ทั้งหมดสำหรับ ${target.name} — ข้อมูลใน Sheet ที่ต่างจากแอปเครื่องนี้จะถูกแทนที่ ต้องการดำเนินการต่อหรือไม่?`;
-      if(!confirm(msg)) return;
-      statusEl.innerHTML='กำลังซิงก์ '+esc(target.name)+'...';
-      try{
-        const token=await ensureSheetsTokenForSyncAll(cid);
-        if(!token){ statusEl.innerHTML='<span class="warn">ขอสิทธิ์ Google Sheets ไม่สำเร็จ</span>'; return; }
-        localStorage.setItem('google_sheets_connected','1'); renderSheetsStatus();
-        const count = dir==='pull' ? await syncPullOne(token,sid,target) : await syncPushOne(token,sid,target);
-        statusEl.innerHTML = '✅ '+esc(target.name)+': '+(dir==='pull'?'ดึงจาก Sheet แล้ว':'ส่งขึ้น Sheet แล้ว')+' ('+count+' รายการ)';
-        renderModuleStatus();
-      }catch(e){
-        statusEl.innerHTML = '<span class="warn">'+esc(target.name)+': ซิงก์ไม่สำเร็จ — '+esc(e.message)+'</span>';
-      }
-    });
-  });
-}
-renderSyncModuleRows();
+  const results=[];
+  for(const target of SYNC_ALL_TARGETS){
+    statusEl.innerHTML='กำลังซิงก์ '+esc(target.name)+'...';
+    try{
+      await syncAllEnsureTab(token,sid,target.tab,target.headers);
+      const raw=localStorage.getItem(target.cacheKey);
+      const localList = raw ? JSON.parse(raw) : [];
+      const got=await syncAllSheetsApi(token,`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sid)}/values/${target.tab}!${target.range}`);
+      const remoteRows=(got.values||[]).slice(1).filter(r=>r[0]);
+      const remoteList=remoteRows.map(target.fromRow);
+      const merged=syncAllMergeById(localList, remoteList);
+      const values=[target.headers].concat(merged.map(target.toRow));
+      await syncAllSheetsApi(token,`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sid)}/values/${target.tab}!${target.range}:clear`,{method:'POST',body:'{}'});
+      await syncAllSheetsApi(token,`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sid)}/values/${target.tab}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${target.tab}!A1`,majorDimension:'ROWS',values})});
+      localStorage.setItem(target.cacheKey, JSON.stringify(merged)); // อัปเดต cache ในเครื่องนี้ให้ตรงกับผลรวมด้วย
+      localStorage.setItem(target.lastSyncKey,new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}));
+      results.push(target.name+': ซิงก์แล้ว ('+merged.length+' รายการ)'+(localList.length===0?' — ยังไม่มีข้อมูลในเครื่องนี้มาก่อน ใช้ของ Sheet แทน':''));
+    }catch(e){
+      results.push(target.name+': ซิงก์ไม่สำเร็จ — '+e.message);
+    }
+  }
+  statusEl.innerHTML = results.map(r=>'• '+esc(r)).join('<br>');
+  renderModuleStatus();
+  toast('ซิงก์ข้อมูลทั้งหมดเสร็จแล้ว');
+});
 
 /* ---------- Google Drive (Bookshelf) ---------- */
 function renderDriveStatus(){

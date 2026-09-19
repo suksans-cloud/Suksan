@@ -160,11 +160,10 @@ function mergeById(localList, remoteList){
   });
   return Array.from(map.values());
 }
-async function pullBooks(force){
+async function pullBooks(){
   const j=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:J`);
   const rows=(j.values||[]).slice(1);
   const remote=rows.filter(r=>r[0]).map(r=>({id:r[0],title:r[1]||'',status:r[2]||'queued',driveFileId:r[3]||'',driveFileName:r[4]||'',mimeType:r[5]||'',size:r[6]||'',webViewLink:r[7]||'',addedAt:r[8]||'',updatedAt:r[9]||''}));
-  if(force){ books=remote; saveCache(); return; }
   const merged=mergeById(books, remote);
   const needsPushBack = JSON.stringify(merged.slice().sort((a,b)=>a.id<b.id?-1:1)) !== JSON.stringify(remote.slice().sort((a,b)=>a.id<b.id?-1:1));
   books=merged;
@@ -196,6 +195,7 @@ function renderSheetsBanner(){
         <button id="connectSheetsBtn" type="button">เชื่อมต่อ</button>
       </div>`;
     document.getElementById('connectSheetsBtn').onclick=openConnectSheetsForm;
+    stopSheetsAutoPull();
     return;
   }
   const lastSync=localStorage.getItem('sheet_last_sync_bookshelf');
@@ -203,10 +203,36 @@ function renderSheetsBanner(){
     <div class="mff-sync-bar">
       <div class="mff-sync-bar-status">☁️ เชื่อมต่อ Google Sheets แล้ว${lastSync?(' • ซิงก์ล่าสุด '+esc(lastSync)):''}</div>
       <div class="mff-sync-bar-actions">
-        <a href="../settings/index.html" class="mff-sync-bar-btn" style="text-decoration:none;display:inline-block">จัดการซิงก์ที่ Setting</a>
+        <button id="pullNowBtn" type="button" class="mff-sync-bar-btn">ดึงข้อมูลล่าสุด</button>
+        <button id="pushNowBtn" type="button" class="mff-sync-bar-btn">บันทึกตอนนี้</button>
       </div>
     </div>`;
+  document.getElementById('pullNowBtn').onclick=async()=>{
+    try{ if(!(await ensureSheetsAccess())){ toast('เชื่อมต่อ Google Sheets ไม่สำเร็จ'); return; } await pullBooks(); render(); renderSheetsBanner(); toast('ดึงข้อมูลล่าสุดจาก Google Sheets แล้ว'); }
+    catch(e){ toast('ดึงข้อมูลไม่สำเร็จ: '+e.message); }
+  };
+  document.getElementById('pushNowBtn').onclick=async()=>{
+    try{ if(!(await ensureSheetsAccess())){ toast('เชื่อมต่อ Google Sheets ไม่สำเร็จ'); return; } await pushBooks(); localStorage.setItem('sheet_last_sync_bookshelf', new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})); renderSheetsBanner(); toast('บันทึกลง Google Sheets แล้ว'); }
+    catch(e){ toast('บันทึกไม่สำเร็จ: '+e.message); }
+  };
+  startSheetsAutoPull();
 }
+
+/* ---- Auto-pull: ตรวจข้อมูลใหม่จาก Google Sheets เป็นระยะ เหมือน My Portfolio ---- */
+const SHEETS_AUTOPULL_MS = 25000;
+let sheetsAutoPullTimer=null;
+function startSheetsAutoPull(){
+  stopSheetsAutoPull();
+  sheetsAutoPullTimer=setInterval(async ()=>{
+    if(document.hidden) return;
+    try{ if(await ensureSheetsAccess()){ await pullBooks(); render(); renderSheetsBanner(); } }
+    catch(e){ console.warn('Sheets auto sync',e); }
+  }, SHEETS_AUTOPULL_MS);
+}
+function stopSheetsAutoPull(){ if(sheetsAutoPullTimer){ clearInterval(sheetsAutoPullTimer); sheetsAutoPullTimer=null; } }
+document.addEventListener('visibilitychange', ()=>{
+  if(!document.hidden && sheetId){ (async()=>{ try{ if(await ensureSheetsAccess()){ await pullBooks(); render(); renderSheetsBanner(); } }catch(e){ console.warn('Sheets visibility sync',e); } })(); }
+});
 function openConnectSheetsForm(){
   const cid=localStorage.getItem('google_client_id')||'';
   const sid=sheetId||'';

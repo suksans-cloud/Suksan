@@ -1721,18 +1721,12 @@ function activateView(view, opts){
     renderFinanceCards();
     if(sheetsToken&&sheetId){
       pullMarketWatch();
-    }else if(sheetId){
-      // เพิ่งรีเฟรชหน้าแล้วเปิดมาที่ Finance เลย สิทธิ์ Google Sheets (sheetsToken) ในหน่วยความจำ
-      // ยังไม่มา (จะมาอีกทีหลัง window load) จึงลองขอสิทธิ์แบบเงียบทันที แล้วดึงข้อมูลมาแสดง
-      // เพื่อไม่ให้ต้องย้อนกลับไปหน้าแรกแล้วกด refresh ซ้ำข้อมูลถึงจะกลับมา
+    }else if(sheetId && sheetsToken){
+      // Auto-refresh only when a Google Sheets token already exists in memory.
+      // Opening a module never starts Google OAuth.
       (async()=>{
-        try{
-          // ตอนเพิ่งรีเฟรชหน้า สคริปต์ Google Identity Services อาจยังโหลดไม่เสร็จ รอสั้นๆ ก่อน
-          // เพื่อไม่ให้ขึ้นข้อความ "Google API ยังโหลดไม่เสร็จ" โดยไม่จำเป็น
-          for(let i=0;i<20 && !window.google?.accounts?.oauth2;i++) await new Promise(r=>setTimeout(r,200));
-          if(!window.google?.accounts?.oauth2) return;
-          if(await ensureSheetsAccess()){ await pullFromSheets({safeMerge:false}); await pullMarketWatch(); }
-        }catch(e){ console.warn('Finance view auto sync', e); }
+        try{ await pullFromSheets({safeMerge:false}); await pullMarketWatch(); }
+        catch(e){ console.warn('Finance view auto sync', e); }
       })();
     }
   }
@@ -2247,11 +2241,24 @@ async function pullFromSheets(options={}){if(!sheetsToken||!sheetId)throw new Er
   localStorage.setItem('sheet_last_sync',new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}));updateSheetUI('connected');return map.size;}
 function scheduleSheetsPush(){clearTimeout(scheduleSheetsPush._tm);if(!sheetsToken||!sheetId)return;scheduleSheetsPush._tm=setTimeout(()=>pushToSheets().catch(()=>showToast('ซิงก์ Google Sheets ไม่สำเร็จ')),1800);}
 
-/* ---- ซิงก์เป็นแบบแมนนวลเท่านั้น (ไม่มี auto-pull พื้นหลังแล้ว) ----
-   เก็บฟังก์ชันไว้เป็น no-op กันโค้ดจุดอื่นที่ยังเรียกอยู่พัง แต่ไม่ทำอะไรจริง
-   เพื่อไม่ให้สลับหน้า/สลับแท็บแล้วมีการซิงก์เกิดขึ้นเองโดยไม่ได้ตั้งใจ */
-function startSheetsAutoPull(){ /* disabled by design — sync is manual-only now */ }
-function stopSheetsAutoPull(){ /* disabled by design — sync is manual-only now */ }
+/* ---- Auto-pull: ตรวจข้อมูลใหม่จาก Google Sheets เป็นระยะ เพื่อให้การแก้ไขในชีตแสดงในเว็บอัตโนมัติ ---- */
+const SHEETS_AUTOPULL_MS = 25000;
+let sheetsAutoPullTimer=null;
+function startSheetsAutoPull(){
+  stopSheetsAutoPull();
+  if(!sheetsToken||!sheetId) return;
+  sheetsAutoPullTimer=setInterval(async ()=>{
+    if(document.hidden || !sheetsToken) return;
+    try{
+      await pullFromSheets({safeMerge:false});
+      await pullMarketWatch();
+    }catch(e){console.warn('Sheets auto sync',e);}
+  }, SHEETS_AUTOPULL_MS);
+}
+function stopSheetsAutoPull(){ if(sheetsAutoPullTimer){ clearInterval(sheetsAutoPullTimer); sheetsAutoPullTimer=null; } }
+document.addEventListener('visibilitychange', ()=>{
+  if(!document.hidden && sheetId && sheetsToken){ (async()=>{try{await pullFromSheets({safeMerge:false});await pullMarketWatch();}catch(e){console.warn('Sheets visibility sync',e);}})(); }
+});
 
 /* ================= LEGACY DRIVE SYNC (DISABLED: Google Sheets is the only cloud database) ================= */
 // ตั้งค่า Client ID ของคุณตรงนี้ได้เลย (แนะนำ) หรือปล่อยว่างไว้แล้วกรอกผ่านหน้าตั้งค่าในแอปก็ได้
@@ -2447,7 +2454,6 @@ window.addEventListener('load', ()=>{
   }
 });
 
-window.addEventListener('load',()=>{const cid=getGoogleClientId();if(cid&&localStorage.getItem('google_sheets_connected')==='1'&&sheetId)setTimeout(()=>{try{const c=ensureSheetsClient(cid);if(c)c.requestAccessToken({prompt:'none'});}catch(e){}},700);});
 /* ================= PWA ================= */
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
@@ -2457,28 +2463,6 @@ if('serviceWorker' in navigator){
 
 /* ================= INIT ================= */
 renderAll();
-
-/* ---- รับคำสั่งซิงก์จากหน้า Setting (มาจาก ?sync=pull หรือ ?sync=push) ---- */
-(function(){
-  const params=new URLSearchParams(location.search);
-  const syncAction=params.get('sync');
-  if(syncAction!=='pull' && syncAction!=='push') return;
-  history.replaceState(null,'',location.pathname+location.hash); // ล้าง query param กันสับสนถ้า refresh ซ้ำ
-  setTimeout(async ()=>{
-    try{
-      if(!sheetId){ showToast('กรุณาตั้งค่า Sheet ID ในหน้า Setting ก่อน'); return; }
-      if(!sheetsToken){
-        const cid=getGoogleClientId();
-        const c=cid?ensureSheetsClient(cid):null;
-        if(c){ showToast('กรุณากดยืนยันสิทธิ์ Google แล้วกดซิงก์อีกครั้งจากหน้านี้'); c.requestAccessToken({prompt:'consent'}); }
-        else showToast('กรุณาตั้งค่า Client ID ในหน้า Setting ก่อน');
-        return;
-      }
-      if(syncAction==='pull'){ await pullFromSheets({safeMerge:false}); showToast('ดึงข้อมูลจาก Google Sheets แล้ว • ใช้ข้อมูลล่าสุดจาก Sheet'); }
-      else { await ensureSheetTabs(); await pushToSheets(); showToast('บันทึกลง Google Sheets แล้ว'); }
-    }catch(e){ showToast('ซิงก์ไม่สำเร็จ: '+(e&&e.message||e)); }
-  }, 900); // รอให้ token client / renderAll() พร้อมก่อน
-})();
 </script>
 <script id="v39-manager-redesign-js">
 (function(){

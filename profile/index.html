@@ -123,7 +123,7 @@ function mergeById(localList, remoteList){
   });
   return Array.from(map.values());
 }
-async function pullProfiles(force){
+async function pullProfiles(){
   const j=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:L`);
   const rows=(j.values||[]).slice(1);
   const remote=rows.filter(r=>r[0]).map(r=>({
@@ -131,7 +131,6 @@ async function pullProfiles(force){
     address:r[5]||'', email:r[6]||'', phone:r[7]||'', createdAt:r[8]||'', updatedAt:r[9]||'',
     relation:r[10]||'', bankAccounts: parseBankAccounts(r[11])
   }));
-  if(force){ people=remote; saveCache(); return; }
   const merged=mergeById(people, remote);
   const needsPushBack = JSON.stringify(merged.slice().sort((a,b)=>a.id<b.id?-1:1)) !== JSON.stringify(remote.slice().sort((a,b)=>a.id<b.id?-1:1));
   people=merged;
@@ -173,6 +172,7 @@ function renderConnectBanner(){
         <button id="connectBtn" type="button">เชื่อมต่อ</button>
       </div>`;
     document.getElementById('connectBtn').onclick=openConnectForm;
+    stopSheetsAutoPull();
     return;
   }
   const lastSync=localStorage.getItem('sheet_last_sync_profile');
@@ -180,10 +180,36 @@ function renderConnectBanner(){
     <div class="mff-sync-bar">
       <div class="mff-sync-bar-status">☁️ เชื่อมต่อ Google Sheets แล้ว${lastSync?(' • ซิงก์ล่าสุด '+esc(lastSync)):''}</div>
       <div class="mff-sync-bar-actions">
-        <a href="../settings/index.html" class="mff-sync-bar-btn" style="text-decoration:none;display:inline-block">จัดการซิงก์ที่ Setting</a>
+        <button id="pullNowBtn" type="button" class="mff-sync-bar-btn">ดึงข้อมูลล่าสุด</button>
+        <button id="pushNowBtn" type="button" class="mff-sync-bar-btn">บันทึกตอนนี้</button>
       </div>
     </div>`;
+  document.getElementById('pullNowBtn').onclick=async()=>{
+    try{ if(!(await ensureSheetsAccess())){ toast('เชื่อมต่อ Google Sheets ไม่สำเร็จ'); return; } await pullProfiles(); render(); renderConnectBanner(); toast('ดึงข้อมูลล่าสุดจาก Google Sheets แล้ว'); }
+    catch(e){ toast('ดึงข้อมูลไม่สำเร็จ: '+e.message); }
+  };
+  document.getElementById('pushNowBtn').onclick=async()=>{
+    try{ if(!(await ensureSheetsAccess())){ toast('เชื่อมต่อ Google Sheets ไม่สำเร็จ'); return; } await pushProfiles(); localStorage.setItem('sheet_last_sync_profile', new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})); renderConnectBanner(); toast('บันทึกลง Google Sheets แล้ว'); }
+    catch(e){ toast('บันทึกไม่สำเร็จ: '+e.message); }
+  };
+  startSheetsAutoPull();
 }
+
+/* ---- Auto-pull: ตรวจข้อมูลใหม่จาก Google Sheets เป็นระยะ เหมือน My Portfolio ---- */
+const SHEETS_AUTOPULL_MS = 25000;
+let sheetsAutoPullTimer=null;
+function startSheetsAutoPull(){
+  stopSheetsAutoPull();
+  sheetsAutoPullTimer=setInterval(async ()=>{
+    if(document.hidden) return;
+    try{ if(await ensureSheetsAccess()){ await pullProfiles(); render(); renderConnectBanner(); } }
+    catch(e){ console.warn('Sheets auto sync',e); }
+  }, SHEETS_AUTOPULL_MS);
+}
+function stopSheetsAutoPull(){ if(sheetsAutoPullTimer){ clearInterval(sheetsAutoPullTimer); sheetsAutoPullTimer=null; } }
+document.addEventListener('visibilitychange', ()=>{
+  if(!document.hidden && sheetId){ (async()=>{ try{ if(await ensureSheetsAccess()){ await pullProfiles(); render(); renderConnectBanner(); } }catch(e){ console.warn('Sheets visibility sync',e); } })(); }
+});
 function openConnectForm(){
   const cid=localStorage.getItem('google_client_id')||'';
   const sid=sheetId||'';
