@@ -49,7 +49,7 @@
 const SHEETS_SCOPE='https://www.googleapis.com/auth/spreadsheets';
 const CACHE_KEY='mff_profiles_cache_v1';
 const TAB='Profiles';
-const HEADERS=['ID','Photo','FirstName','LastName','BloodGroup','Address','Email','Phone','CreatedAt','UpdatedAt','Relation','BankAccounts'];
+const HEADERS=['ID','Photo','FirstName','LastName','BloodGroup','Address','Email','Phone','CreatedAt','UpdatedAt','Relation','BankAccounts','CitizenID'];
 
 let sheetsToken=null, sheetsTokenExpiresAt=0;
 let sheetId=localStorage.getItem('google_sheet_id')||'';
@@ -108,8 +108,9 @@ async function ensureProfilesTab(){
   const titles=(meta.sheets||[]).map(s=>s.properties.title);
   if(!titles.includes(TAB)){
     await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}:batchUpdate`,{method:'POST',body:JSON.stringify({requests:[{addSheet:{properties:{title:TAB}}}]})});
-    await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${TAB}!A1`,majorDimension:'ROWS',values:[HEADERS]})});
   }
+  // Keep the Profiles header compatible when the tab already exists, while preserving all existing data.
+  await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A1:M1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${TAB}!A1:M1`,majorDimension:'ROWS',values:[HEADERS]})});
 }
 
 function mergeById(localList, remoteList){
@@ -124,12 +125,12 @@ function mergeById(localList, remoteList){
   return Array.from(map.values());
 }
 async function pullProfiles(){
-  const j=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:L`);
+  const j=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:M`);
   const rows=(j.values||[]).slice(1);
   const remote=rows.filter(r=>r[0]).map(r=>({
     id:r[0], photo:r[1]||'', firstName:r[2]||'', lastName:r[3]||'', bloodGroup:r[4]||'',
-    address:r[5]||'', email:r[6]||'', phone:r[7]||'', createdAt:r[8]||'', updatedAt:r[9]||'',
-    relation:r[10]||'', bankAccounts: parseBankAccounts(r[11])
+    address:r[5]||'', email:r[6]||'', phone:normalizePhone(r[7]), createdAt:r[8]||'', updatedAt:r[9]||'',
+    relation:r[10]||'', bankAccounts: parseBankAccounts(r[11]), citizenId:normalizeCitizenId(r[12])
   }));
   const merged=mergeById(people, remote);
   const needsPushBack = JSON.stringify(merged.slice().sort((a,b)=>a.id<b.id?-1:1)) !== JSON.stringify(remote.slice().sort((a,b)=>a.id<b.id?-1:1));
@@ -138,15 +139,41 @@ async function pullProfiles(){
   if(needsPushBack) await pushProfiles();
 }
 
+function normalizePhone(raw){
+  let v=String(raw??'').trim();
+  if(v.startsWith("'")) v=v.slice(1);
+  // Google Sheets may coerce a Thai mobile number to a number and drop the leading 0.
+  if(/^\d{9}$/.test(v)) v='0'+v;
+  return v;
+}
+
+function sheetsPhoneValue(v){
+  const s=String(v??'').trim();
+  // USER_ENTERED + a leading apostrophe keeps the phone number as text in Sheets.
+  return s ? (s.startsWith("'") ? s : "'"+s) : '';
+}
+
+function normalizeCitizenId(raw){
+  let v=String(raw??'').trim();
+  if(v.startsWith("'")) v=v.slice(1);
+  return v;
+}
+
+function sheetsCitizenIdValue(v){
+  const s=String(v??'').trim();
+  // Keep the 13-digit citizen ID as text in Google Sheets.
+  return s ? (s.startsWith("'") ? s : "'"+s) : '';
+}
+
 function parseBankAccounts(raw){
   if(!raw) return [];
   try{ const arr=JSON.parse(raw); return Array.isArray(arr)?arr:[]; }catch(e){ return []; }
 }
 
 async function pushProfiles(){
-  const values=[HEADERS].concat(people.map(p=>[p.id,p.photo,p.firstName,p.lastName,p.bloodGroup,p.address,p.email,p.phone,p.createdAt,p.updatedAt,p.relation||'',JSON.stringify(p.bankAccounts||[])]));
+  const values=[HEADERS].concat(people.map(p=>[p.id,p.photo,p.firstName,p.lastName,p.bloodGroup,p.address,p.email,sheetsPhoneValue(p.phone),p.createdAt,p.updatedAt,p.relation||'',JSON.stringify(p.bankAccounts||[]),sheetsCitizenIdValue(p.citizenId)]));
   await ensureProfilesTab();
-  await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:L:clear`,{method:'POST',body:'{}'});
+  await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:M:clear`,{method:'POST',body:'{}'});
   await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${TAB}!A1`,majorDimension:'ROWS',values})});
 }
 
@@ -361,7 +388,7 @@ function fieldRow(label, key, val, editing, type, opts){
 function renderDetail(p){
   const isNew = !p;
   const editing = view.editing || isNew;
-  const rec = p || {id:'', photo:'', firstName:'', lastName:'', relation:'', bloodGroup:'', address:'', email:'', phone:'', bankAccounts:[]};
+  const rec = p || {id:'', citizenId:'', photo:'', firstName:'', lastName:'', relation:'', bloodGroup:'', address:'', email:'', phone:'', bankAccounts:[]};
 
   const photoBlock = rec.photo
     ? `<img class="mff-idcard-photo" src="${rec.photo}" alt="">`
@@ -375,6 +402,7 @@ function renderDetail(p){
     : `<div class="mff-idcard-name"><h2>${esc(rec.firstName)} ${esc(rec.lastName)}</h2><div class="sub">${esc(rec.relation)||'สมาชิกในครอบครัว'}</div></div>`;
 
   const fields = [
+    fieldRow('ID (หมายเลขบัตรประชาชน)','citizenId',rec.citizenId,editing,'text'),
     fieldRow('สถานะ','relation',rec.relation,editing,'select',RELATION_OPTIONS),
     fieldRow('กรุ๊ปเลือด','bloodGroup',rec.bloodGroup,editing,'select',BLOOD_OPTIONS),
     fieldRow('ที่อยู่','address',rec.address,editing,'textarea'),
@@ -534,6 +562,7 @@ function wireDetail(){
       view.id=p.id;
     }
     p.firstName=firstName; p.lastName=lastName;
+    p.citizenId=get('citizenId');
     p.relation=get('relation');
     p.bloodGroup=get('bloodGroup'); p.address=get('address');
     p.email=get('email'); p.phone=get('phone');
