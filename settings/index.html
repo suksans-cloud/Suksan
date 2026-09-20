@@ -178,7 +178,12 @@ renderSheetsStatus();
    ขึ้น Google Sheets โดยใช้ Tab/Headers ชุดเดียวกับที่แต่ละโมดูลใช้เอง จึงเข้ากันได้
    100% — ไม่ต้องเปิดหน้า Money/Bookshelf/Profile เพื่อกดบันทึกทีละหน้าอีกต่อไป */
 const SYNC_TARGETS = [
-  { key:'money', name:'💰 My Money', cacheKey:'mff_money_cache_v3', tab:'MoneyTransactions', range:'A:G',
+  { key:'daily', name:'📆 ค่าใช้จ่ายรายวัน', cacheKey:'mff_daily_cache_v1', tab:'DailyExpenses', range:'A:G',
+    headers:['ID','Date','Category','Amount','Note','CreatedAt','UpdatedAt'],
+    toRow:t=>[t.id,t.date,t.category,t.amount,t.note,t.createdAt,t.updatedAt],
+    fromRow:r=>({id:r[0], date:r[1]||'', category:r[2]||'', amount:Number(r[3])||0, note:r[4]||'', createdAt:r[5]||'', updatedAt:r[6]||''}),
+    lastSyncKey:'sheet_last_sync_daily' },
+  { key:'money', name:'💰 ค่าใช้จ่ายรายเดือน', cacheKey:'mff_money_cache_v3', tab:'MoneyTransactions', range:'A:G',
     headers:['ID','Month','Type','Category','Amount','CreatedAt','UpdatedAt'],
     toRow:t=>[t.id,t.month,t.type,t.category,t.amount,t.createdAt,t.updatedAt],
     fromRow:r=>({id:r[0], month:r[1]||'', type:r[2]||'', category:r[3]||'', amount:Number(r[4])||0, createdAt:r[5]||'', updatedAt:r[6]||''}),
@@ -319,7 +324,8 @@ renderDriveStatus();
 /* ---------- per-module sync status ---------- */
 function renderModuleStatus(){
   const rows=[
-    {name:'My Money', key:'sheet_last_sync_money'},
+    {name:'ค่าใช้จ่ายรายวัน', key:'sheet_last_sync_daily'},
+    {name:'ค่าใช้จ่ายรายเดือน', key:'sheet_last_sync_money'},
     {name:'My Portfolio', key:'sheet_last_sync'},
     {name:'My Bookshelf', key:'sheet_last_sync_bookshelf'},
     {name:'My Profile', key:'sheet_last_sync_profile'},

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ค่าใช้จ่ายรายวัน — My Money — My Family Funds</title>
+<meta name="theme-color" content="#0F5B4D">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shell.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+.mff-daily-total{padding:16px 20px 4px;text-align:center}
+.mff-daily-total .amt{font-size:32px;font-weight:700;color:var(--ink);font-family:'Prompt',sans-serif}
+.mff-daily-total .lbl{font-size:12.5px;color:var(--ink-soft);margin-top:2px}
+.mff-daily-cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 20px 4px}
+.mff-daily-cat-btn{
+  background:var(--surface);box-shadow:var(--shadow-card);border:0;border-radius:16px;
+  padding:14px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;
+}
+.mff-daily-cat-btn .ic{font-size:22px}
+.mff-daily-cat-btn .nm{font-size:11.5px;font-weight:600;color:var(--ink);text-align:center;line-height:1.3}
+.mff-daily-list{padding:6px 20px 100px}
+.mff-daily-entry{
+  display:flex;align-items:center;gap:10px;background:var(--surface);box-shadow:var(--shadow-card);
+  border-radius:14px;padding:12px 14px;margin-bottom:10px;
+}
+.mff-daily-entry .ic{font-size:20px;flex:none}
+.mff-daily-entry .info{flex:1;min-width:0}
+.mff-daily-entry .cat{font-size:13.5px;font-weight:700;color:var(--ink)}
+.mff-daily-entry .note{font-size:11.5px;color:var(--ink-soft);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mff-daily-entry .amt{font-size:14.5px;font-weight:700;color:var(--expense);flex:none}
+.mff-daily-entry .del{flex:none;border:0;background:none;color:var(--ink-faint);font-size:18px;cursor:pointer;padding:2px 4px}
+.mff-daily-empty{text-align:center;color:var(--ink-faint);font-size:13px;padding:30px 10px}
+</style>
+</head>
+<body>
+
+<div class="mff-app" style="padding-bottom:20px">
+
+  <div class="mff-hero-wrap" style="padding-bottom:20px;border-radius:0 0 28px 28px">
+    <div class="mff-topbar">
+      <a class="back" href="index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 5 8 12l7 7"/></svg>
+        My Money
+      </a>
+      <span></span>
+    </div>
+    <div class="mff-hero" style="padding-top:0">
+      <p class="eyebrow" style="margin-bottom:2px">My Money</p>
+      <h1 style="font-size:19px;white-space:nowrap">ค่าใช้จ่ายรายวัน</h1>
+    </div>
+  </div>
+
+  <div id="connectBanner"></div>
+
+  <div class="mff-month-nav" style="margin:14px 20px 0">
+    <button id="prevDay" aria-label="วันก่อนหน้า"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 5 8 12l7 7"/></svg></button>
+    <div class="label" id="dateLabel">วันนี้</div>
+    <button id="nextDay" aria-label="วันถัดไป"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m9 5 7 7-7 7"/></svg></button>
+  </div>
+
+  <div class="mff-daily-total">
+    <div class="amt" id="dayTotal">฿0</div>
+    <div class="lbl">ใช้จ่ายรวมวันนี้</div>
+  </div>
+
+  <div class="mff-daily-cat-grid" id="catGrid"></div>
+
+  <div class="mff-daily-list" id="entryList"></div>
+
+</div>
+
+<script src="../config.js"></script>
+<script src="../portfolio/auth-open.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ===================== หมวดค่าใช้จ่ายรายวันที่คนทั่วไปใช้บ่อย ===================== */
+const CATEGORIES=[
+  {key:'food', name:'อาหาร', icon:'🍚'},
+  {key:'snack', name:'ค่าขนม/เครื่องดื่ม', icon:'🥤'},
+  {key:'coffee', name:'ค่ากาแฟ', icon:'☕'},
+  {key:'transport', name:'ค่าเดินทาง/น้ำมัน', icon:'⛽'},
+  {key:'parking', name:'ที่จอดรถ/ทางด่วน', icon:'🅿️'},
+  {key:'daily', name:'ของใช้ส่วนตัว', icon:'🧴'},
+  {key:'fun', name:'บันเทิง/สังสรรค์', icon:'🎉'},
+  {key:'health', name:'สุขภาพ/ยา', icon:'💊'},
+  {key:'bills', name:'โทรศัพท์/เน็ต', icon:'📱'},
+  {key:'other', name:'อื่นๆ', icon:'🧾'},
+];
+
+/* ===================== Google Sheets sync — แท็บแยกต่างหาก "DailyExpenses" ===================== */
+const SHEETS_SCOPE='https://www.googleapis.com/auth/spreadsheets';
+const CACHE_KEY='mff_daily_cache_v1';
+const TAB='DailyExpenses';
+const HEADERS=['ID','Date','Category','Amount','Note','CreatedAt','UpdatedAt'];
+
+let sheetsToken=null, sheetsTokenExpiresAt=0;
+let sheetId=localStorage.getItem('google_sheet_id')||'';
+let sheetsClient=null;
+let entries=[]; // {id,date(YYYY-MM-DD),category,amount,note,createdAt,updatedAt}
+let currentDate=dateKey(new Date());
+
+function dateKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function shiftDate(key,delta){
+  const [y,m,dd]=key.split('-').map(Number);
+  const d=new Date(y, m-1, dd+delta);
+  return dateKey(d);
+}
+function dateLabel(key){
+  const THAI_MONTHS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const [y,m,dd]=key.split('-').map(Number);
+  const today=dateKey(new Date());
+  const yest=shiftDate(today,-1);
+  if(key===today) return 'วันนี้ • '+dd+' '+THAI_MONTHS[m-1]+' '+(y+543);
+  if(key===yest) return 'เมื่อวาน • '+dd+' '+THAI_MONTHS[m-1]+' '+(y+543);
+  return dd+' '+THAI_MONTHS[m-1]+' '+(y+543);
+}
+function fmtBaht(n){ return (Number(n)||0).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+
+function getGoogleClientId(){return localStorage.getItem('google_client_id')||'';}
+function sheetHeaders(extra){return Object.assign({'Authorization':'Bearer '+sheetsToken},extra||{});}
+
+function ensureSheetsClient(cid){
+  if(!window.google?.accounts?.oauth2){toast('Google API ยังโหลดไม่เสร็จ ลองใหม่อีกครั้ง');return null;}
+  if(!sheetsClient||sheetsClient._cid!==cid){
+    sheetsClient=google.accounts.oauth2.initTokenClient({client_id:cid,scope:SHEETS_SCOPE,callback:async r=>{
+      if(r.error){toast('เชื่อมต่อ Google Sheets ไม่สำเร็จ');return;}
+      sheetsToken=r.access_token;
+      sheetsTokenExpiresAt=Date.now()+Math.max(60,(Number(r.expires_in)||3600)-60)*1000;
+      localStorage.setItem('google_sheets_connected','1');
+      renderConnectBanner();
+      if(sheetsClient._mffResolve){const rr=sheetsClient._mffResolve;sheetsClient._mffResolve=null;rr(true);}
+      try{
+        await ensureDailyTab();
+        await pullEntries();
+        render();
+        toast('เชื่อมต่อ Google Sheets แล้ว');
+      }catch(e){console.error(e);toast('เชื่อมต่อได้ แต่ซิงก์ไม่สำเร็จ: '+e.message);}
+    }});
+    sheetsClient._cid=cid;
+  }
+  return sheetsClient;
+}
+
+async function ensureSheetsAccess(){
+  if(sheetsToken && Date.now()<sheetsTokenExpiresAt) return true;
+  const cid=getGoogleClientId(); if(!cid||!sheetId) return false;
+  const c=ensureSheetsClient(cid); if(!c) return false;
+  return new Promise(resolve=>{
+    c._mffResolve=resolve;
+    try{c.requestAccessToken({prompt:'none'});}catch(e){c._mffResolve=null;resolve(false);}
+    setTimeout(()=>{if(c._mffResolve){c._mffResolve=null;resolve(!!sheetsToken);}},8000);
+  });
+}
+
+async function sheetsApi(url,opts={}){
+  if(!sheetsToken) throw new Error('Google Sheets ยังไม่ได้รับสิทธิ์');
+  const r=await fetch(url,Object.assign({headers:sheetHeaders({'Content-Type':'application/json'})},opts));
+  if(r.status===401||r.status===403){localStorage.removeItem('google_sheets_connected');sheetsToken=null;throw new Error('สิทธิ์หมดอายุ กรุณาเชื่อมต่อใหม่');}
+  if(!r.ok)throw new Error(await r.text());
+  return r.json();
+}
+
+async function ensureDailyTab(){
+  const meta=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}?fields=sheets.properties`);
+  const titles=(meta.sheets||[]).map(s=>s.properties.title);
+  if(!titles.includes(TAB)){
+    await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}:batchUpdate`,{method:'POST',body:JSON.stringify({requests:[{addSheet:{properties:{title:TAB}}}]})});
+    await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${TAB}!A1`,majorDimension:'ROWS',values:[HEADERS]})});
+  }
+}
+
+function mergeById(localList, remoteList){
+  const map=new Map();
+  remoteList.forEach(r=>map.set(r.id, r));
+  localList.forEach(l=>{
+    const r=map.get(l.id);
+    if(!r){ map.set(l.id, l); return; }
+    const lt=Date.parse(l.updatedAt)||0, rt=Date.parse(r.updatedAt)||0;
+    map.set(l.id, lt>rt ? l : r);
+  });
+  return Array.from(map.values());
+}
+async function pullEntries(force){
+  const j=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:G`);
+  const rows=(j.values||[]).slice(1);
+  const remote=rows.filter(r=>r[0]).map(r=>({id:r[0], date:r[1]||'', category:r[2]||'', amount:Number(r[3])||0, note:r[4]||'', createdAt:r[5]||'', updatedAt:r[6]||''}));
+  if(force){ entries=remote; saveCache(); return; }
+  const merged=mergeById(entries, remote);
+  const needsPushBack = JSON.stringify(merged.slice().sort((a,b)=>a.id<b.id?-1:1)) !== JSON.stringify(remote.slice().sort((a,b)=>a.id<b.id?-1:1));
+  entries=merged;
+  saveCache();
+  if(needsPushBack) await pushEntries();
+}
+
+async function pushEntries(){
+  const values=[HEADERS].concat(entries.map(t=>[t.id,t.date,t.category,t.amount,t.note,t.createdAt,t.updatedAt]));
+  await ensureDailyTab();
+  await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:G:clear`,{method:'POST',body:'{}'});
+  await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${TAB}!A1`,majorDimension:'ROWS',values})});
+}
+
+async function syncSave(){
+  saveCache();
+  if(!(await ensureSheetsAccess())){ toast('บันทึกในเครื่องนี้แล้ว • ยังไม่ได้เชื่อมต่อ Google Sheets'); renderConnectBanner(); return; }
+  try{ await pushEntries(); localStorage.setItem('sheet_last_sync_daily', new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})); toast('บันทึกและซิงก์ Google Sheets แล้ว'); }
+  catch(e){ toast('บันทึกในเครื่องแล้ว แต่ซิงก์ไม่สำเร็จ: '+e.message); }
+}
+
+/* ===================== local cache ===================== */
+function saveCache(){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify(entries)); }catch(e){} }
+function loadCache(){ try{ const raw=localStorage.getItem(CACHE_KEY); if(raw) entries=JSON.parse(raw); }catch(e){} }
+
+/* ===================== connect banner (เหมือนโมดูลอื่น) ===================== */
+function renderConnectBanner(){
+  const el=document.getElementById('connectBanner');
+  const connected = sheetsToken || (localStorage.getItem('google_sheets_connected')==='1' && sheetId);
+  if(!connected){
+    el.innerHTML=`
+      <div class="mff-banner">
+        <div><b>ยังไม่เชื่อมต่อ Google Sheets</b>ข้อมูลจะบันทึกในเครื่องนี้เท่านั้นจนกว่าจะเชื่อมต่อ</div>
+        <button id="connectBtn" type="button">เชื่อมต่อ</button>
+      </div>`;
+    document.getElementById('connectBtn').onclick=openConnectForm;
+    return;
+  }
+  const lastSync=localStorage.getItem('sheet_last_sync_daily');
+  el.innerHTML=`
+    <div class="mff-sync-bar">
+      <div class="mff-sync-bar-status">☁️ เชื่อมต่อ Google Sheets แล้ว${lastSync?(' • ซิงก์ล่าสุด '+esc(lastSync)):''}</div>
+      <div class="mff-sync-bar-actions">
+        <a href="../settings/index.html" class="mff-sync-bar-btn" style="text-decoration:none;display:inline-block">จัดการซิงก์ที่ Setting</a>
+      </div>
+    </div>`;
+}
+function openConnectForm(){
+  const cid=localStorage.getItem('google_client_id')||'';
+  const sid=sheetId||'';
+  const html=`
+    <div class="mff-field-row"><div class="lbl">Client ID</div><input id="cfCid" value="${esc(cid)}" placeholder="วาง Google OAuth Client ID"></div>
+    <div class="mff-field-row"><div class="lbl">Sheet ID</div><input id="cfSid" value="${esc(sid)}" placeholder="ใช้ Spreadsheet ID เดียวกับโมดูลอื่น"></div>
+    <p style="font-size:11.5px;color:var(--ink-soft);padding:0 0 6px">ใช้ Client ID / Sheet ID ชุดเดียวกับที่ตั้งค่าไว้ในโมดูลอื่นได้เลย ข้อมูลจะไปอยู่คนละแท็บ (DailyExpenses) ไม่ทับข้อมูลเดิม</p>
+  `;
+  modal('เชื่อมต่อ Google Sheets', html, [
+    {label:'ยกเลิก', ghost:true, onClick:closeModal},
+    {label:'เชื่อมต่อ', onClick:async()=>{
+      const cid=document.getElementById('cfCid').value.trim();
+      const sid=document.getElementById('cfSid').value.trim();
+      if(!cid||!sid){ toast('กรุณากรอกให้ครบ'); return; }
+      localStorage.setItem('google_client_id',cid);
+      sheetId=sid; localStorage.setItem('google_sheet_id',sid);
+      closeModal();
+      const c=ensureSheetsClient(cid);
+      if(c) c.requestAccessToken({prompt:'consent'});
+    }}
+  ]);
+}
+
+/* ===================== tiny modal + toast helpers ===================== */
+function modal(title, bodyHtml, buttons, opts){
+  closeModal();
+  const d=document.createElement('div');
+  d.id='mffModal';
+  d.style.cssText='position:fixed;inset:0;z-index:5000;background:rgba(20,33,29,.45);display:flex;align-items:flex-end;justify-content:center';
+  d.innerHTML=`<div style="width:100%;max-width:460px;background:var(--bg);box-shadow:var(--shadow-hero);border-radius:22px 22px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));max-height:88vh;display:flex;flex-direction:column">
+    <h3 style="margin:0 0 12px;font-size:17px;flex:none">${esc(title)}</h3>
+    <div id="mffModalBody" style="flex:1;min-height:0">${bodyHtml}</div>
+    <div style="display:flex;gap:10px;margin-top:14px;flex:none" id="mffModalBtns"></div>
+  </div>`;
+  document.body.appendChild(d);
+  const btnWrap=document.getElementById('mffModalBtns');
+  buttons.forEach(b=>{
+    const btn=document.createElement('button');
+    btn.className='mff-btn '+(b.ghost?'mff-btn-ghost':'mff-btn-primary');
+    btn.textContent=b.label;
+    btn.onclick=b.onClick;
+    btnWrap.appendChild(btn);
+  });
+  if(!opts||!opts.persistent){
+    d.addEventListener('click',e=>{ if(e.target===d) closeModal(); });
+  }
+}
+function closeModal(){ document.getElementById('mffModal')?.remove(); }
+function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function uuid(){return 'd_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,9);}
+function toast(msg){
+  let t=document.getElementById('mffToast');
+  if(!t){ t=document.createElement('div'); t.id='mffToast';
+    t.style.cssText='position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#14211D;color:#fff;padding:10px 16px;border-radius:999px;font-size:12.5px;z-index:6500;opacity:0;transition:opacity .2s;max-width:85vw;text-align:center';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(toast._tm); toast._tm=setTimeout(()=>{t.style.opacity='0';},2600);
+}
+
+/* ===================== เพิ่มรายการ (เปิดจากปุ่มหมวดหมู่) ===================== */
+function openAddEntry(cat){
+  const html=`
+    <div style="text-align:center;font-size:32px;margin-bottom:4px">${cat.icon}</div>
+    <div style="text-align:center;font-weight:700;font-size:14px;margin-bottom:14px">${esc(cat.name)}</div>
+    <div class="mff-field-row"><div class="lbl">จำนวนเงิน (บาท)</div><input id="entryAmt" type="number" inputmode="decimal" placeholder="0" autofocus></div>
+    <div class="mff-field-row"><div class="lbl">โน้ต (ไม่บังคับ)</div><input id="entryNote" placeholder="เช่น ร้านอะไร, กับใคร"></div>
+  `;
+  modal('เพิ่มรายการ', html, [
+    {label:'ยกเลิก', ghost:true, onClick:closeModal},
+    {label:'บันทึก', onClick: async ()=>{
+      const amount=parseFloat(document.getElementById('entryAmt').value)||0;
+      const note=document.getElementById('entryNote').value.trim();
+      if(!amount){ toast('กรุณากรอกจำนวนเงิน'); return; }
+      const now=new Date().toISOString();
+      entries.push({id:uuid(), date:currentDate, category:cat.name, amount, note, createdAt:now, updatedAt:now});
+      closeModal();
+      render();
+      await syncSave();
+    }}
+  ]);
+  setTimeout(()=>document.getElementById('entryAmt')?.focus(),150);
+}
+
+async function deleteEntry(id){
+  if(!confirm('ลบรายการนี้หรือไม่?')) return;
+  entries=entries.filter(e=>e.id!==id);
+  render();
+  await syncSave();
+}
+
+/* ===================== rendering ===================== */
+function catIcon(name){ const c=CATEGORIES.find(c=>c.name===name); return c?c.icon:'🧾'; }
+
+function render(){
+  document.getElementById('dateLabel').textContent=dateLabel(currentDate);
+
+  const dayEntries=entries.filter(e=>e.date===currentDate).sort((a,b)=>Date.parse(b.createdAt)-Date.parse(a.createdAt));
+  const total=dayEntries.reduce((s,e)=>s+(Number(e.amount)||0),0);
+  document.getElementById('dayTotal').textContent='฿'+fmtBaht(total);
+
+  document.getElementById('catGrid').innerHTML=CATEGORIES.map(c=>
+    `<button type="button" class="mff-daily-cat-btn" data-key="${c.key}"><span class="ic">${c.icon}</span><span class="nm">${esc(c.name)}</span></button>`
+  ).join('');
+  document.querySelectorAll('.mff-daily-cat-btn').forEach(btn=>{
+    btn.onclick=()=>openAddEntry(CATEGORIES.find(c=>c.key===btn.dataset.key));
+  });
+
+  document.getElementById('entryList').innerHTML = dayEntries.length
+    ? dayEntries.map(e=>`
+        <div class="mff-daily-entry">
+          <span class="ic">${catIcon(e.category)}</span>
+          <span class="info"><span class="cat">${esc(e.category)}</span>${e.note?('<div class="note">'+esc(e.note)+'</div>'):''}</span>
+          <span class="amt">฿${fmtBaht(e.amount)}</span>
+          <button type="button" class="del" data-id="${e.id}" aria-label="ลบ">×</button>
+        </div>`).join('')
+    : `<div class="mff-daily-empty">ยังไม่มีรายการวันนี้ — แตะหมวดหมู่ด้านบนเพื่อเริ่มบันทึก</div>`;
+  document.querySelectorAll('.mff-daily-entry .del').forEach(btn=>{
+    btn.onclick=()=>deleteEntry(btn.dataset.id);
+  });
+
+  document.getElementById('prevDay').onclick=()=>{ currentDate=shiftDate(currentDate,-1); render(); };
+  document.getElementById('nextDay').onclick=()=>{ currentDate=shiftDate(currentDate,1); render(); };
+}
+
+/* ===================== boot ===================== */
+loadCache();
+renderConnectBanner();
+render();
+
+window.addEventListener('load', async ()=>{
+  const cid=getGoogleClientId();
+  if(cid && localStorage.getItem('google_sheets_connected')==='1' && sheetId){
+    const ok=await ensureSheetsAccess();
+    if(ok){
+      try{ await ensureDailyTab(); await pullEntries(); render(); renderConnectBanner(); }
+      catch(e){ console.warn('Daily auto sync failed', e); }
+    }
+  }
+});
+
+})();
+</script>
+
+</body>
+</html>

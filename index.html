@@ -164,7 +164,7 @@ if('serviceWorker' in navigator){
         var k=(t.category||'')+'|'+(t.type||'');
         if(t.category && !seen[k]){ seen[k]=true; uniq.push({label:t.category, sub:monthLabelTH(t.month)+' • ฿'+(Number(t.amount)||0).toLocaleString('th-TH')}); }
       });
-      groups.push({key:'money',title:'My Money',icon:'💰',href:'money/index.html',items:uniq});
+      groups.push({key:'money',title:'My Money',icon:'💰',href:'money/monthly.html',items:uniq});
     }
 
     return groups;
@@ -222,7 +222,7 @@ if('serviceWorker' in navigator){
       var hasThisMonth=money.some(function(t){ return t.month===mk; });
       if(!hasThisMonth){
         list.push({level:'warn', icon:'💰', title:'ยังไม่ได้บันทึกรายรับ-รายจ่ายเดือนนี้',
-          text:'ไปกรอกข้อมูลเดือนนี้ที่ My Money ได้เลย', href:'money/index.html', hrefLabel:'ไปที่ My Money →'});
+          text:'ไปกรอกข้อมูลเดือนนี้ที่ My Money ได้เลย', href:'money/monthly.html', hrefLabel:'ไปที่ My Money →'});
       }
     }
 
