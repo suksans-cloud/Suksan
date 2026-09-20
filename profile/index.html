@@ -49,7 +49,7 @@
 const SHEETS_SCOPE='https://www.googleapis.com/auth/spreadsheets';
 const CACHE_KEY='mff_profiles_cache_v1';
 const TAB='Profiles';
-const HEADERS=['ID','Photo','FirstName','LastName','BloodGroup','Address','Email','Phone','CreatedAt','UpdatedAt','Relation','BankAccounts','CitizenID'];
+const HEADERS=['ID','Photo','FirstName','LastName','BloodGroup','Address','Email','Phone','CreatedAt','UpdatedAt','Relation','BankAccounts','IDCard'];
 
 let sheetsToken=null, sheetsTokenExpiresAt=0;
 let sheetId=localStorage.getItem('google_sheet_id')||'';
@@ -108,9 +108,8 @@ async function ensureProfilesTab(){
   const titles=(meta.sheets||[]).map(s=>s.properties.title);
   if(!titles.includes(TAB)){
     await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}:batchUpdate`,{method:'POST',body:JSON.stringify({requests:[{addSheet:{properties:{title:TAB}}}]})});
+    await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${TAB}!A1`,majorDimension:'ROWS',values:[HEADERS]})});
   }
-  // Keep the Profiles header compatible when the tab already exists, while preserving all existing data.
-  await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A1:M1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${TAB}!A1:M1`,majorDimension:'ROWS',values:[HEADERS]})});
 }
 
 function mergeById(localList, remoteList){
@@ -124,14 +123,15 @@ function mergeById(localList, remoteList){
   });
   return Array.from(map.values());
 }
-async function pullProfiles(){
+async function pullProfiles(force){
   const j=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:M`);
   const rows=(j.values||[]).slice(1);
   const remote=rows.filter(r=>r[0]).map(r=>({
     id:r[0], photo:r[1]||'', firstName:r[2]||'', lastName:r[3]||'', bloodGroup:r[4]||'',
-    address:r[5]||'', email:r[6]||'', phone:normalizePhone(r[7]), createdAt:r[8]||'', updatedAt:r[9]||'',
-    relation:r[10]||'', bankAccounts: parseBankAccounts(r[11]), citizenId:normalizeCitizenId(r[12])
+    address:r[5]||'', email:r[6]||'', phone:r[7]||'', createdAt:r[8]||'', updatedAt:r[9]||'',
+    relation:r[10]||'', bankAccounts: parseBankAccounts(r[11]), idCard:r[12]||''
   }));
+  if(force){ people=remote; saveCache(); return; }
   const merged=mergeById(people, remote);
   const needsPushBack = JSON.stringify(merged.slice().sort((a,b)=>a.id<b.id?-1:1)) !== JSON.stringify(remote.slice().sort((a,b)=>a.id<b.id?-1:1));
   people=merged;
@@ -139,39 +139,18 @@ async function pullProfiles(){
   if(needsPushBack) await pushProfiles();
 }
 
-function normalizePhone(raw){
-  let v=String(raw??'').trim();
-  if(v.startsWith("'")) v=v.slice(1);
-  // Google Sheets may coerce a Thai mobile number to a number and drop the leading 0.
-  if(/^\d{9}$/.test(v)) v='0'+v;
-  return v;
-}
-
-function sheetsPhoneValue(v){
-  const s=String(v??'').trim();
-  // USER_ENTERED + a leading apostrophe keeps the phone number as text in Sheets.
-  return s ? (s.startsWith("'") ? s : "'"+s) : '';
-}
-
-function normalizeCitizenId(raw){
-  let v=String(raw??'').trim();
-  if(v.startsWith("'")) v=v.slice(1);
-  return v;
-}
-
-function sheetsCitizenIdValue(v){
-  const s=String(v??'').trim();
-  // Keep the 13-digit citizen ID as text in Google Sheets.
-  return s ? (s.startsWith("'") ? s : "'"+s) : '';
-}
-
 function parseBankAccounts(raw){
   if(!raw) return [];
   try{ const arr=JSON.parse(raw); return Array.isArray(arr)?arr:[]; }catch(e){ return []; }
 }
+// Google Sheets (valueInputOption=USER_ENTERED) parses plain digit strings as numbers and
+// strips leading zeros (e.g. เบอร์โทร "081234..." -> 81234...) or mangles long ID numbers.
+// Prefixing with a leading apostrophe forces the cell to stay literal text; the apostrophe
+// itself is never stored/returned by the API, it's purely an input-time formatting hint.
+function forceTextCell(v){ return v ? ("'"+v) : ''; }
 
 async function pushProfiles(){
-  const values=[HEADERS].concat(people.map(p=>[p.id,p.photo,p.firstName,p.lastName,p.bloodGroup,p.address,p.email,sheetsPhoneValue(p.phone),p.createdAt,p.updatedAt,p.relation||'',JSON.stringify(p.bankAccounts||[]),sheetsCitizenIdValue(p.citizenId)]));
+  const values=[HEADERS].concat(people.map(p=>[p.id,p.photo,p.firstName,p.lastName,p.bloodGroup,p.address,p.email,forceTextCell(p.phone),p.createdAt,p.updatedAt,p.relation||'',JSON.stringify(p.bankAccounts||[]),forceTextCell(p.idCard)]));
   await ensureProfilesTab();
   await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:M:clear`,{method:'POST',body:'{}'});
   await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${TAB}!A1`,majorDimension:'ROWS',values})});
@@ -199,7 +178,6 @@ function renderConnectBanner(){
         <button id="connectBtn" type="button">เชื่อมต่อ</button>
       </div>`;
     document.getElementById('connectBtn').onclick=openConnectForm;
-    stopSheetsAutoPull();
     return;
   }
   const lastSync=localStorage.getItem('sheet_last_sync_profile');
@@ -207,36 +185,10 @@ function renderConnectBanner(){
     <div class="mff-sync-bar">
       <div class="mff-sync-bar-status">☁️ เชื่อมต่อ Google Sheets แล้ว${lastSync?(' • ซิงก์ล่าสุด '+esc(lastSync)):''}</div>
       <div class="mff-sync-bar-actions">
-        <button id="pullNowBtn" type="button" class="mff-sync-bar-btn">ดึงข้อมูลล่าสุด</button>
-        <button id="pushNowBtn" type="button" class="mff-sync-bar-btn">บันทึกตอนนี้</button>
+        <a href="../settings/index.html" class="mff-sync-bar-btn" style="text-decoration:none;display:inline-block">จัดการซิงก์ที่ Setting</a>
       </div>
     </div>`;
-  document.getElementById('pullNowBtn').onclick=async()=>{
-    try{ if(!(await ensureSheetsAccess())){ toast('เชื่อมต่อ Google Sheets ไม่สำเร็จ'); return; } await pullProfiles(); render(); renderConnectBanner(); toast('ดึงข้อมูลล่าสุดจาก Google Sheets แล้ว'); }
-    catch(e){ toast('ดึงข้อมูลไม่สำเร็จ: '+e.message); }
-  };
-  document.getElementById('pushNowBtn').onclick=async()=>{
-    try{ if(!(await ensureSheetsAccess())){ toast('เชื่อมต่อ Google Sheets ไม่สำเร็จ'); return; } await pushProfiles(); localStorage.setItem('sheet_last_sync_profile', new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})); renderConnectBanner(); toast('บันทึกลง Google Sheets แล้ว'); }
-    catch(e){ toast('บันทึกไม่สำเร็จ: '+e.message); }
-  };
-  startSheetsAutoPull();
 }
-
-/* ---- Auto-pull: ตรวจข้อมูลใหม่จาก Google Sheets เป็นระยะ เหมือน My Portfolio ---- */
-const SHEETS_AUTOPULL_MS = 25000;
-let sheetsAutoPullTimer=null;
-function startSheetsAutoPull(){
-  stopSheetsAutoPull();
-  sheetsAutoPullTimer=setInterval(async ()=>{
-    if(document.hidden) return;
-    try{ if(await ensureSheetsAccess()){ await pullProfiles(); render(); renderConnectBanner(); } }
-    catch(e){ console.warn('Sheets auto sync',e); }
-  }, SHEETS_AUTOPULL_MS);
-}
-function stopSheetsAutoPull(){ if(sheetsAutoPullTimer){ clearInterval(sheetsAutoPullTimer); sheetsAutoPullTimer=null; } }
-document.addEventListener('visibilitychange', ()=>{
-  if(!document.hidden && sheetId){ (async()=>{ try{ if(await ensureSheetsAccess()){ await pullProfiles(); render(); renderConnectBanner(); } }catch(e){ console.warn('Sheets visibility sync',e); } })(); }
-});
 function openConnectForm(){
   const cid=localStorage.getItem('google_client_id')||'';
   const sid=sheetId||'';
@@ -266,7 +218,7 @@ function modal(title, bodyHtml, buttons){
   const d=document.createElement('div');
   d.id='mffModal';
   d.style.cssText='position:fixed;inset:0;z-index:5000;background:rgba(20,33,29,.45);display:flex;align-items:flex-end;justify-content:center';
-  d.innerHTML=`<div style="width:100%;max-width:460px;background:#fff;border-radius:22px 22px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px))">
+  d.innerHTML=`<div style="width:100%;max-width:460px;background:var(--bg);border-radius:22px 22px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px))">
     <h3 style="margin:0 0 14px;font-size:17px">${esc(title)}</h3>
     <div>${bodyHtml}</div>
     <div style="display:flex;gap:10px;margin-top:16px" id="mffModalBtns"></div>
@@ -388,7 +340,7 @@ function fieldRow(label, key, val, editing, type, opts){
 function renderDetail(p){
   const isNew = !p;
   const editing = view.editing || isNew;
-  const rec = p || {id:'', citizenId:'', photo:'', firstName:'', lastName:'', relation:'', bloodGroup:'', address:'', email:'', phone:'', bankAccounts:[]};
+  const rec = p || {id:'', photo:'', firstName:'', lastName:'', relation:'', bloodGroup:'', idCard:'', address:'', email:'', phone:'', bankAccounts:[]};
 
   const photoBlock = rec.photo
     ? `<img class="mff-idcard-photo" src="${rec.photo}" alt="">`
@@ -402,7 +354,7 @@ function renderDetail(p){
     : `<div class="mff-idcard-name"><h2>${esc(rec.firstName)} ${esc(rec.lastName)}</h2><div class="sub">${esc(rec.relation)||'สมาชิกในครอบครัว'}</div></div>`;
 
   const fields = [
-    fieldRow('ID (หมายเลขบัตรประชาชน)','citizenId',rec.citizenId,editing,'text'),
+    fieldRow('ID (หมายเลขบัตรประชาชน)','idCard',rec.idCard,editing,'text'),
     fieldRow('สถานะ','relation',rec.relation,editing,'select',RELATION_OPTIONS),
     fieldRow('กรุ๊ปเลือด','bloodGroup',rec.bloodGroup,editing,'select',BLOOD_OPTIONS),
     fieldRow('ที่อยู่','address',rec.address,editing,'textarea'),
@@ -562,10 +514,9 @@ function wireDetail(){
       view.id=p.id;
     }
     p.firstName=firstName; p.lastName=lastName;
-    p.citizenId=get('citizenId');
     p.relation=get('relation');
     p.bloodGroup=get('bloodGroup'); p.address=get('address');
-    p.email=get('email'); p.phone=get('phone');
+    p.email=get('email'); p.phone=get('phone'); p.idCard=get('idCard');
     p.bankAccounts=bankAccounts;
     p.updatedAt=now;
     if(pendingPhoto) p.photo=pendingPhoto;

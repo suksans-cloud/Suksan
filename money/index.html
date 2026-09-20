@@ -142,10 +142,11 @@ function mergeById(localList, remoteList){
   });
   return Array.from(map.values());
 }
-async function pullItems(){
+async function pullItems(force){
   const j=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:G`);
   const rows=(j.values||[]).slice(1);
   const remote=rows.filter(r=>r[0]).map(r=>({id:r[0], month:r[1]||'', type:r[2]||'', category:r[3]||'', amount:Number(r[4])||0, createdAt:r[5]||'', updatedAt:r[6]||''}));
+  if(force){ items=remote; saveCache(); return; } // ผู้ใช้เลือก "ซิงก์จาก Sheet" เอง — ใช้ของ Sheet ทั้งหมด ไม่เทียบเวลา
   const merged=mergeById(items, remote);
   const needsPushBack = JSON.stringify(merged.slice().sort((a,b)=>a.id<b.id?-1:1)) !== JSON.stringify(remote.slice().sort((a,b)=>a.id<b.id?-1:1));
   items=merged;
@@ -182,7 +183,6 @@ function renderConnectBanner(){
         <button id="connectBtn" type="button">เชื่อมต่อ</button>
       </div>`;
     document.getElementById('connectBtn').onclick=openConnectForm;
-    stopSheetsAutoPull();
     return;
   }
   const lastSync=localStorage.getItem('sheet_last_sync_money');
@@ -190,36 +190,10 @@ function renderConnectBanner(){
     <div class="mff-sync-bar">
       <div class="mff-sync-bar-status">☁️ เชื่อมต่อ Google Sheets แล้ว${lastSync?(' • ซิงก์ล่าสุด '+esc(lastSync)):''}</div>
       <div class="mff-sync-bar-actions">
-        <button id="pullNowBtn" type="button" class="mff-sync-bar-btn">ดึงข้อมูลล่าสุด</button>
-        <button id="pushNowBtn" type="button" class="mff-sync-bar-btn">บันทึกตอนนี้</button>
+        <a href="../settings/index.html" class="mff-sync-bar-btn" style="text-decoration:none;display:inline-block">จัดการซิงก์ที่ Setting</a>
       </div>
     </div>`;
-  document.getElementById('pullNowBtn').onclick=async()=>{
-    try{ if(!(await ensureSheetsAccess())){ toast('เชื่อมต่อ Google Sheets ไม่สำเร็จ'); return; } await pullItems(); render(); renderConnectBanner(); toast('ดึงข้อมูลล่าสุดจาก Google Sheets แล้ว'); }
-    catch(e){ toast('ดึงข้อมูลไม่สำเร็จ: '+e.message); }
-  };
-  document.getElementById('pushNowBtn').onclick=async()=>{
-    try{ if(!(await ensureSheetsAccess())){ toast('เชื่อมต่อ Google Sheets ไม่สำเร็จ'); return; } await pushItems(); localStorage.setItem('sheet_last_sync_money', new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})); renderConnectBanner(); toast('บันทึกลง Google Sheets แล้ว'); }
-    catch(e){ toast('บันทึกไม่สำเร็จ: '+e.message); }
-  };
-  startSheetsAutoPull();
 }
-
-/* ---- Auto-pull: ตรวจข้อมูลใหม่จาก Google Sheets เป็นระยะ เหมือน My Portfolio ---- */
-const SHEETS_AUTOPULL_MS = 25000;
-let sheetsAutoPullTimer=null;
-function startSheetsAutoPull(){
-  stopSheetsAutoPull();
-  sheetsAutoPullTimer=setInterval(async ()=>{
-    if(document.hidden) return; // ไม่ดึงตอนแอปอยู่เบื้องหลัง ประหยัดโควต้า
-    try{ if(await ensureSheetsAccess()){ await pullItems(); render(); renderConnectBanner(); } }
-    catch(e){ console.warn('Sheets auto sync',e); }
-  }, SHEETS_AUTOPULL_MS);
-}
-function stopSheetsAutoPull(){ if(sheetsAutoPullTimer){ clearInterval(sheetsAutoPullTimer); sheetsAutoPullTimer=null; } }
-document.addEventListener('visibilitychange', ()=>{
-  if(!document.hidden && sheetId){ (async()=>{ try{ if(await ensureSheetsAccess()){ await pullItems(); render(); renderConnectBanner(); } }catch(e){ console.warn('Sheets visibility sync',e); } })(); }
-});
 function openConnectForm(){
   const cid=localStorage.getItem('google_client_id')||'';
   const sid=sheetId||'';
@@ -249,7 +223,7 @@ function modal(title, bodyHtml, buttons, opts){
   const d=document.createElement('div');
   d.id='mffModal';
   d.style.cssText='position:fixed;inset:0;z-index:5000;background:rgba(20,33,29,.45);display:flex;align-items:flex-end;justify-content:center';
-  d.innerHTML=`<div style="width:100%;max-width:460px;background:#fff;border-radius:22px 22px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));max-height:88vh;display:flex;flex-direction:column">
+  d.innerHTML=`<div style="width:100%;max-width:460px;background:var(--bg);border-radius:22px 22px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));max-height:88vh;display:flex;flex-direction:column">
     <h3 style="margin:0 0 12px;font-size:17px;flex:none">${esc(title)}</h3>
     <div id="mffModalBody" style="flex:1;min-height:0">${bodyHtml}</div>
     <div style="display:flex;gap:10px;margin-top:14px;flex:none" id="mffModalBtns"></div>
@@ -356,7 +330,7 @@ function openEditPopup(){
   d.id='mffModal';
   d.style.cssText='position:fixed;inset:0;z-index:5000;background:rgba(20,33,29,.45);display:flex;align-items:flex-end;justify-content:center';
   d.innerHTML=`
-    <div style="width:100%;max-width:460px;max-height:86vh;background:#fff;border-radius:22px 22px 0 0;display:flex;flex-direction:column;overflow:hidden">
+    <div style="width:100%;max-width:460px;max-height:86vh;background:var(--bg);border-radius:22px 22px 0 0;display:flex;flex-direction:column;overflow:hidden">
       <h3 style="margin:0;padding:18px 20px 12px;font-size:16px;flex:none;border-bottom:1px solid var(--line)">แก้ไขข้อมูลเดือน ${esc(monthLabel(currentMonth))}</h3>
       <div id="mffModalBody" style="flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 20px">
         ${SECTIONS.map(sec=>editSectionHtml(sec)).join('')}
