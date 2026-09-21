@@ -1089,6 +1089,61 @@ function canonicalOwner(owner){
   };
   return map[key]||raw;
 }
+function fundIdentityKey(f){
+  const owner=canonicalOwner(f?.owner||'');
+  const code=canonicalFundCode(f?.name||'');
+  if(!owner || !code) return '';
+  return owner+'|'+code;
+}
+function mergeFundRecords(base, extra){
+  if(!base) return normalizeFund(extra);
+  normalizeFund(base); normalizeFund(extra);
+  base.favorite=!!base.favorite || !!extra.favorite;
+  if(!Number(base.target) && Number(extra.target)) base.target=Number(extra.target);
+  base.target=Math.max(Number(base.target)||0, Number(extra.target)||0);
+  base.years=base.years||{}; extra.years=extra.years||{};
+  Object.entries(extra.years).forEach(([y,ey])=>{
+    const by=base.years[y]||(base.years[y]={months:{},planMonths:{},target:0});
+    by.months=by.months||{}; by.planMonths=by.planMonths||{};
+    const em=ey?.months||{}, ep=ey?.planMonths||{};
+    Object.entries(em).forEach(([m,v])=>{ if(Number(v)>0 && !(Number(by.months[m])>0)) by.months[m]=Number(v); });
+    Object.entries(ep).forEach(([m,v])=>{ if(Number(v)>0 && !(Number(by.planMonths[m])>0)) by.planMonths[m]=Number(v); });
+    if(!Number(by.target) && Number(ey?.target)) by.target=Number(ey.target);
+    if(Number(ey?.masterTarget)>Number(by.target||0)) by.target=Number(ey.masterTarget);
+    if(ey?.masterActual!==undefined && by.masterActual===undefined) by.masterActual=Number(ey.masterActual)||0;
+    if(ey?.masterPct!==undefined && by.masterPct===undefined) by.masterPct=ey.masterPct;
+  });
+  const tx=new Map();
+  [...(base.transactions||[]),...(extra.transactions||[])].forEach(t=>{
+    if(!t) return;
+    const key=t.id?String(t.id):[t.date,t.year,t.month,t.amount,t.note||''].join('|');
+    if(!tx.has(key)) tx.set(key,{...t});
+  });
+  base.transactions=[...tx.values()];
+  syncAllMonthlyCellsToTransactions({funds:[base]});
+  return base;
+}
+function dedupeFundsByOwnerCode(funds){
+  const out=[]; const byKey=new Map();
+  (funds||[]).forEach(raw=>{
+    if(!raw) return;
+    const f=normalizeFund(raw); const key=fundIdentityKey(f);
+    if(!key || byKey.has(key)===false){
+      if(key){ byKey.set(key,f); }
+      out.push(f);
+    }else{
+      const base=byKey.get(key);
+      mergeFundRecords(base,f);
+    }
+  });
+  return out;
+}
+function normalizeDuplicateFundsInData(){
+  const before=(DATA?.funds||[]).length;
+  DATA.funds=dedupeFundsByOwnerCode(DATA.funds||[]);
+  return before!==DATA.funds.length;
+}
+
 function normalizeFund(f){
   f.owner=canonicalOwner(f.owner);
   f.name=canonicalFundCode(f.name);
@@ -1180,10 +1235,10 @@ function syncAllMonthlyCellsToTransactions(data){
 function loadData(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
-    if(raw){ const d=JSON.parse(raw); (d.funds||[]).forEach(normalizeFund); syncAllMonthlyCellsToTransactions(d); return d; }
+    if(raw){ const d=JSON.parse(raw); d.funds=dedupeFundsByOwnerCode(d.funds||[]); syncAllMonthlyCellsToTransactions(d); localStorage.setItem(STORAGE_KEY,JSON.stringify(d)); return d; }
   }catch(e){}
   const data = { funds: seedFunds() };
-  data.funds.forEach(normalizeFund);
+  data.funds=dedupeFundsByOwnerCode(data.funds);
   syncAllMonthlyCellsToTransactions(data);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   return data;
@@ -2167,6 +2222,8 @@ async function getSpreadsheetMeta(){return sheetsApi(`https://sheets.googleapis.
 async function ensureSheetTabs(){const meta=await getSpreadsheetMeta(),titles=(meta.sheets||[]).map(s=>s.properties.title),req=[];['Funds','FundMaster','PlanMaster','Investments','MarketWatch'].forEach(t=>{if(!titles.includes(t))req.push({addSheet:{properties:{title:t}}});});if(req.length)await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}:batchUpdate`,{method:'POST',body:JSON.stringify({requests:req})});}
 async function clearAndWriteSheet(title,values){await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${encodeURIComponent(title)}!A:Z:clear`,{method:'POST',body:'{}'});return sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${encodeURIComponent(title)}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${title}!A1`,majorDimension:'ROWS',values})});}
 function sheetRows(){
+  normalizeDuplicateFundsInData();
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(DATA));
   const funds=[['ID','Owner','Fund Code','Display Name','Official Fund Name','Manager','Asset Class','Favorite','Target/Year']],
         master=[['Fund Code','Display Name','Official Fund Name','Manager','Asset Class','NAV','NAV Date','NAV Source','Active']],
         plan=[['Year','Owner','Fund Code','Display Name',...MONTHS,'เงินลงทุนจริง','เป้าหมาย/ปี','% ของเป้าหมาย']],
@@ -2221,6 +2278,11 @@ async function pullFromSheets(options={}){if(!sheetsToken||!sheetId)throw new Er
     planRows.push({f,y,months:monthVals,actual,target:Number(r[17])||0,pct:String(r[18]??'')});
   });
   (ir.slice(1)||[]).forEach(r=>{const f=map.get(r[5]);if(f)f.transactions.push({id:r[0],date:r[1],year:Number(r[2]),month:Number(r[3]),amount:Number(r[8]??r[7])||0,note:String(r[9]??'')});});
+  // One Portfolio record per Owner + Fund Code. Different owners may still hold the same fund.
+  const beforeFundDedupCount=map.size;
+  const dedupedRemoteFunds=dedupeFundsByOwnerCode([...map.values()]);
+  const duplicateFundRowsRemoved=Math.max(0,beforeFundDedupCount-dedupedRemoteFunds.length);
+  map=new Map(dedupedRemoteFunds.map(f=>[f.id,f]));
   if(options.safeMerge){
     const localFunds=(DATA?.funds||[]).map(f=>normalizeFund(f));
     const remoteById=new Map(map);
@@ -2249,7 +2311,12 @@ async function pullFromSheets(options={}){if(!sheetsToken||!sheetId)throw new Er
     yd.masterPct=pct;
     yd.target=Number(target)||0;
   });
-  if(map.size){DATA={funds:[...map.values()]};DATA.funds.forEach(normalizeFund);localStorage.setItem(STORAGE_KEY,JSON.stringify(DATA));renderAll();}
+  if(map.size){DATA={funds:dedupeFundsByOwnerCode([...map.values()])};DATA.funds.forEach(normalizeFund);localStorage.setItem(STORAGE_KEY,JSON.stringify(DATA));renderAll();}
+  if(duplicateFundRowsRemoved>0){
+    // Clean the cloud database too, so the duplicate cannot come back on the next pull.
+    await pushToSheets();
+    showToast('จัดระเบียบฐานข้อมูลแล้ว • รวมกองทุนซ้ำ '+duplicateFundRowsRemoved+' รายการ');
+  }
   localStorage.setItem('sheet_last_sync',new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}));updateSheetUI('connected');return map.size;}
 function scheduleSheetsPush(){clearTimeout(scheduleSheetsPush._tm);if(!sheetsToken||!sheetId)return;scheduleSheetsPush._tm=setTimeout(()=>pushToSheets().catch(()=>showToast('ซิงก์ Google Sheets ไม่สำเร็จ')),1800);}
 
