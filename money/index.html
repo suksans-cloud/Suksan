@@ -23,15 +23,15 @@
 
 .mff-money-summary{margin:16px 20px 20px;background:var(--surface);box-shadow:var(--shadow-card);border-radius:20px;padding:18px}
 .mff-money-summary h2{margin:0 0 12px;font-size:14.5px;display:flex;align-items:center;gap:6px}
-.mff-money-summary-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,42%);column-gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);min-height:42px;box-sizing:border-box}
+.mff-money-summary-row{display:grid;grid-template-columns:minmax(0,1fr) var(--money-amt-col,132px);column-gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);min-height:42px;box-sizing:border-box}
 .mff-money-summary-row:last-child{border-bottom:0;padding-bottom:0}
 .mff-money-summary-row .nm{font-size:12.5px;color:var(--ink-soft);min-width:0;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mff-money-summary-row .amt{font-size:15px;font-weight:700;text-align:right;white-space:normal;min-width:0;max-width:100%;font-variant-numeric:tabular-nums lining-nums;line-height:1.25;overflow-wrap:anywhere;word-break:break-word}
+.mff-money-summary-row .amt{display:block;width:var(--money-amt-col,132px);box-sizing:border-box;font-size:15px;font-weight:700;text-align:right;white-space:nowrap;min-width:0;font-variant-numeric:tabular-nums lining-nums;line-height:1.25;overflow:hidden;text-overflow:clip}
 .mff-money-summary-row .amt.pos{color:var(--income)}
 .mff-money-summary-row .amt.neg{color:var(--expense)}
 .mff-money-summary-divider{font-size:11px;color:var(--ink-faint);font-weight:700;margin:14px 0 2px;text-transform:uppercase;letter-spacing:.03em}
-@media(max-width:360px){.mff-money-summary{padding:16px 14px}.mff-money-summary-row{grid-template-columns:minmax(0,1fr) minmax(0,40%);column-gap:8px}.mff-money-summary-row .amt{font-size:13.5px;letter-spacing:-.15px}}
-@media(max-width:320px){.mff-money-summary{padding-left:12px;padding-right:12px}.mff-money-summary-row{grid-template-columns:minmax(0,1fr) minmax(0,38%);column-gap:6px}.mff-money-summary-row .amt{font-size:13px}}
+@media(max-width:360px){.mff-money-summary{padding:16px 14px;--money-amt-col:118px}.mff-money-summary-row{grid-template-columns:minmax(0,1fr) var(--money-amt-col);column-gap:8px}.mff-money-summary-row .amt{width:var(--money-amt-col);font-size:13.5px;letter-spacing:-.15px}}
+@media(max-width:320px){.mff-money-summary{padding-left:12px;padding-right:12px;--money-amt-col:112px}.mff-money-summary-row{grid-template-columns:minmax(0,1fr) var(--money-amt-col);column-gap:6px}.mff-money-summary-row .amt{width:var(--money-amt-col);font-size:13px}}
 </style>
 </head>
 <body>
