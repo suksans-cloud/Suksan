@@ -21,86 +21,6 @@
 .mff-money-hub-tile h3{margin:0;font-size:14.5px;font-weight:700}
 .mff-money-hub-tile p{margin:0;font-size:11.5px;color:var(--ink-soft);line-height:1.4}
 
-/* My Money — Summary: mobile-first, fixed two-column layout */
-.mff-money-summary{
-  margin:16px 20px 20px;
-  background:var(--surface);
-  box-shadow:var(--shadow-card);
-  border-radius:20px;
-  padding:18px;
-  box-sizing:border-box;
-  width:auto;
-  max-width:100%;
-  overflow:hidden;
-}
-.mff-money-summary h2{
-  margin:0 0 14px;
-  font-size:14.5px;
-  display:flex;
-  align-items:center;
-  gap:6px;
-}
-.mff-money-summary-divider{
-  font-size:11px;
-  color:var(--ink-faint);
-  font-weight:700;
-  margin:14px 0 3px;
-  letter-spacing:.02em;
-}
-.mff-money-summary-row{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(116px,42%);
-  gap:10px;
-  align-items:center;
-  width:100%;
-  min-width:0;
-  min-height:44px;
-  padding:9px 0;
-  border-bottom:1px solid var(--line);
-  box-sizing:border-box;
-}
-.mff-money-summary-row:last-child{
-  border-bottom:0;
-  padding-bottom:0;
-}
-.mff-money-summary-row .nm{
-  min-width:0;
-  max-width:100%;
-  font-size:12.5px;
-  color:var(--ink-soft);
-  line-height:1.35;
-  white-space:normal;
-  overflow-wrap:anywhere;
-}
-.mff-money-summary-row .amt{
-  min-width:0;
-  width:100%;
-  box-sizing:border-box;
-  display:block;
-  text-align:right;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:clip;
-  font-size:15px;
-  font-weight:700;
-  line-height:1.2;
-  letter-spacing:-.2px;
-  font-variant-numeric:tabular-nums lining-nums;
-}
-.mff-money-summary-row .amt.pos{color:var(--income)}
-.mff-money-summary-row .amt.neg{color:var(--expense)}
-@media(max-width:380px){
-  .mff-money-summary{margin-left:14px;margin-right:14px;padding:15px 13px}
-  .mff-money-summary-row{grid-template-columns:minmax(0,1fr) minmax(108px,43%);gap:7px;min-height:43px;padding:8px 0}
-  .mff-money-summary-row .nm{font-size:12px}
-  .mff-money-summary-row .amt{font-size:13.5px;letter-spacing:-.3px}
-}
-@media(max-width:330px){
-  .mff-money-summary{margin-left:10px;margin-right:10px;padding:14px 11px}
-  .mff-money-summary-row{grid-template-columns:minmax(0,1fr) minmax(102px,44%);gap:6px}
-  .mff-money-summary-row .nm{font-size:11.5px}
-  .mff-money-summary-row .amt{font-size:12.5px;letter-spacing:-.35px}
-}
 </style>
 </head>
 <body>
@@ -135,93 +55,11 @@
     </a>
   </div>
 
-  <!-- 3: สรุปยอด (แสดงผลอย่างเดียว ไม่ใช่ปุ่มลิงก์) -->
-  <div class="mff-money-summary">
-    <h2>📋 สรุปยอด</h2>
-
-    <div class="mff-money-summary-divider">รายวัน</div>
-    <div class="mff-money-summary-row">
-      <span class="nm">วันนี้ใช้ไปเท่าไหร่</span>
-      <span class="amt neg" id="sumDailyToday">฿0</span>
-    </div>
-
-    <div class="mff-money-summary-divider">รายเดือน (<span id="sumMonthLabel"></span>)</div>
-    <div class="mff-money-summary-row">
-      <span class="nm">รายรับ</span>
-      <span class="amt pos" id="sumMonthIncome">฿0</span>
-    </div>
-    <div class="mff-money-summary-row">
-      <span class="nm">รายจ่าย</span>
-      <span class="amt neg" id="sumMonthExpense">฿0</span>
-    </div>
-    <div class="mff-money-summary-row">
-      <span class="nm">ยอดคงเหลือ</span>
-      <span class="amt" id="sumMonthBalance">฿0</span>
-    </div>
-  </div>
-
 </div>
 
 <script src="../config.js"></script>
 <script src="../portfolio/auth-open.js"></script>
-<script>
-(function(){
-'use strict';
-function fmtBaht(n){ return (Number(n)||0).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:0}); }
-function monthKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
-function dateKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function monthLabelTH(key){
-  const THAI_MONTHS=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
-  const [y,m]=key.split('-').map(Number);
-  return THAI_MONTHS[m-1]+' '+(y+543);
-}
-function readJSON(key,fallback){ try{ const raw=localStorage.getItem(key); return raw?JSON.parse(raw):fallback; }catch(e){ return fallback; } }
 
-/* ---- สรุปรายวัน: อ่านจาก cache ของหน้า daily.html ---- */
-const dailyEntries = readJSON('mff_daily_cache_v1', []);
-const todayKey = dateKey(new Date());
-const todayTotal = dailyEntries.filter(e=>e.date===todayKey).reduce((s,e)=>s+(Number(e.amount)||0),0);
-document.getElementById('sumDailyToday').textContent = '฿'+fmtBaht(todayTotal);
-
-/* ---- สรุปรายเดือน: อ่านจาก cache ของหน้า monthly.html ---- */
-const monthItems = readJSON('mff_money_cache_v3', []);
-const thisMonthKey = monthKey(new Date());
-document.getElementById('sumMonthLabel').textContent = monthLabelTH(thisMonthKey);
-let income=0, expense=0;
-monthItems.forEach(t=>{
-  if(t.month!==thisMonthKey) return;
-  const amt=Number(t.amount)||0;
-  if(t.type==='income') income+=amt; else expense+=amt;
-});
-const balance=income-expense;
-document.getElementById('sumMonthIncome').textContent = '฿'+fmtBaht(income);
-document.getElementById('sumMonthExpense').textContent = '฿'+fmtBaht(expense);
-const balEl=document.getElementById('sumMonthBalance');
-balEl.textContent = (balance<0?'-':'')+'฿'+fmtBaht(Math.abs(balance));
-balEl.className = 'amt '+(balance>=0?'pos':'neg');
-
-/* Prevent any long currency value from ever forcing the page wider.
-   Keep every amount in the same numeric column and shrink only when needed. */
-function fitSummaryAmounts(){
-  document.querySelectorAll('.mff-money-summary-row .amt').forEach(function(el){
-    el.style.fontSize='';
-    let size=parseFloat(getComputedStyle(el).fontSize)||15;
-    const min=10;
-    while(el.scrollWidth>el.clientWidth && size>min){
-      size=Math.max(min,size-0.35);
-      el.style.fontSize=size+'px';
-    }
-  });
-}
-fitSummaryAmounts();
-if(window.ResizeObserver){
-  const ro=new ResizeObserver(fitSummaryAmounts);
-  const box=document.querySelector('.mff-money-summary');
-  if(box) ro.observe(box);
-}
-window.addEventListener('resize',fitSummaryAmounts,{passive:true});
-})();
-</script>
 
 </body>
 </html>
