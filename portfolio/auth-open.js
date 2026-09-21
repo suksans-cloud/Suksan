@@ -1,12 +1,44 @@
 /* My Family Funds — No-login build
- * This file replaces portfolio/auth.js. It intentionally does NOT show
- * any login gate, overlay, or user bar, and does not call the Apps
- * Script auth backend at all. Every page opens straight into the app.
- * A no-op MFFAuth object is still exposed so any code that happens to
- * reference window.MFFAuth (e.g. window.MFFAuth?.getUser()) keeps working.
+ * Shared Google Sheets session helper.
+ *
+ * Login is intentionally disabled. Google Sheets OAuth is still used only when
+ * the user explicitly connects/syncs. Once a Sheets access token is obtained,
+ * it is kept in sessionStorage so navigating between modules does not trigger
+ * OAuth again. The token is never put in localStorage and disappears when the
+ * browser session is closed.
  */
 (function(){
   'use strict';
+
+  const TOKEN_KEY='mff_google_sheets_access_token_v1';
+  const EXP_KEY='mff_google_sheets_expires_at_v1';
+
+  window.MFFGoogleSession={
+    saveSheetsToken(token,expiresAt){
+      try{
+        if(!token) return;
+        sessionStorage.setItem(TOKEN_KEY,String(token));
+        sessionStorage.setItem(EXP_KEY,String(Number(expiresAt)||0));
+      }catch(e){}
+    },
+    getSheetsToken(){
+      try{
+        const token=sessionStorage.getItem(TOKEN_KEY)||'';
+        const expiresAt=Number(sessionStorage.getItem(EXP_KEY)||0);
+        // Keep a 60-second safety margin so an API call is not started with an
+        // almost-expired token.
+        if(!token || !expiresAt || Date.now() >= expiresAt-60000){
+          this.clearSheetsToken();
+          return null;
+        }
+        return {token,expiresAt};
+      }catch(e){ return null; }
+    },
+    clearSheetsToken(){
+      try{sessionStorage.removeItem(TOKEN_KEY);sessionStorage.removeItem(EXP_KEY);}catch(e){}
+    }
+  };
+
   window.MFFAuth={
     getUser:()=>({username:'Guest',role:'admin'}),
     api:async()=>({ok:false,error:'Login is disabled in this build'}),

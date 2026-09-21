@@ -1733,7 +1733,7 @@ function activateView(view, opts){
           // เพื่อไม่ให้ขึ้นข้อความ "Google API ยังโหลดไม่เสร็จ" โดยไม่จำเป็น
           for(let i=0;i<20 && !window.google?.accounts?.oauth2;i++) await new Promise(r=>setTimeout(r,200));
           if(!window.google?.accounts?.oauth2) return;
-          if(await ensureSheetsAccess()){ await pullFromSheets({safeMerge:false}); await pullMarketWatch(); }
+          if(await ensureSheetsAccess(false)){ await pullFromSheets({safeMerge:false}); await pullMarketWatch(); }
         }catch(e){ console.warn('Finance view auto sync', e); }
       })();
     }
@@ -2149,7 +2149,7 @@ function ensureSheetsClient(cid){
   if(!sheetsClient||sheetsClient._cid!==cid){
     sheetsClient=google.accounts.oauth2.initTokenClient({client_id:cid,scope:SHEETS_SCOPE,callback:async r=>{
       if(r.error){showToast('เชื่อมต่อ Google Sheets ไม่สำเร็จ');return;}
-      sheetsToken=r.access_token; sheetsTokenExpiresAt=Date.now()+Math.max(60,(Number(r.expires_in)||3600)-60)*1000; localStorage.setItem('google_sheets_connected','1');updateSheetUI('connected'); if(sheetsClient?._mffResolve){const rr=sheetsClient._mffResolve;sheetsClient._mffResolve=null;rr(true);}
+      sheetsToken=r.access_token; sheetsTokenExpiresAt=Date.now()+Math.max(60,(Number(r.expires_in)||3600)-60)*1000; window.MFFGoogleSession?.saveSheetsToken(sheetsToken,sheetsTokenExpiresAt); localStorage.setItem('google_sheets_connected','1');updateSheetUI('connected'); if(sheetsClient?._mffResolve){const rr=sheetsClient._mffResolve;sheetsClient._mffResolve=null;rr(true);}
       try{if(!sheetId)await createSpreadsheet();await ensureSheetTabs();const remoteCount=await pullFromSheets({safeMerge:false});if(!remoteCount)await pushToSheets();await pullMarketWatch();showToast(remoteCount?'เชื่อมต่อ Google Sheets แล้ว • ใช้ข้อมูลจาก Sheet':'เชื่อมต่อ Google Sheets แล้ว • ส่งข้อมูลเริ่มต้นขึ้น Sheet');startSheetsAutoPull();}catch(e){console.error(e);showToast('เชื่อมต่อได้ แต่ซิงก์ไม่สำเร็จ');}
     }});sheetsClient._cid=cid;
   }return sheetsClient;
@@ -2180,12 +2180,15 @@ function sheetRows(){
   return{funds,master,plan,inv};
 }
 
-async function ensureSheetsAccess(){
+async function ensureSheetsAccess(interactive=true){
   if(sheetsToken && Date.now()<sheetsTokenExpiresAt) return true;
-  const cid=getGoogleClientId(); if(!cid) return false;
+  const cached=window.MFFGoogleSession?.getSheetsToken();
+  if(cached?.token){ sheetsToken=cached.token; sheetsTokenExpiresAt=cached.expiresAt; return true; }
+  if(!interactive) return false;
+  const cid=getGoogleClientId(); if(!cid||!sheetId) return false;
   const c=ensureSheetsClient(cid); if(!c) return false;
-  return new Promise((resolve)=>{
-    const old=c._mffResolve; c._mffResolve=resolve;
+  return new Promise(resolve=>{
+    c._mffResolve=resolve;
     try{c.requestAccessToken({prompt:'none'});}catch(e){c._mffResolve=null;resolve(false);}
     setTimeout(()=>{if(c._mffResolve){c._mffResolve=null;resolve(!!sheetsToken);}},8000);
   });
@@ -2436,20 +2439,9 @@ document.getElementById('importJsonFile')?.addEventListener('change',async e=>{
 });
 document.getElementById('cloudDisconnectBtn')?.addEventListener('click', disconnectGoogle);
 
-// พยายามเชื่อมต่อใหม่แบบเงียบๆ ถ้าเคยเชื่อมต่อไว้ก่อนหน้านี้ในเบราว์เซอร์นี้
-window.addEventListener('load', ()=>{
-  const clientId = getClientId();
-  if(clientId && localStorage.getItem('google_connected')==='1'){
-    setTimeout(()=>{
-      const client = ensureTokenClient(clientId);
-      if(client){
-        try{ client.requestAccessToken({ prompt: '' }); }catch(e){}
-      }
-    }, 400);
-  }
-});
-
-window.addEventListener('load',()=>{const cid=getGoogleClientId();if(cid&&localStorage.getItem('google_sheets_connected')==='1'&&sheetId)setTimeout(()=>{try{const c=ensureSheetsClient(cid);if(c)c.requestAccessToken({prompt:'none'});}catch(e){}},700);});
+/* OAuth is intentionally NOT requested during page load.
+   A valid token from the current browser session is restored by ensureSheetsAccess().
+   If no session token exists, OAuth is requested only after an explicit connect/sync action. */
 /* ================= PWA ================= */
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{

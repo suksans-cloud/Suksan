@@ -154,7 +154,7 @@ function ensureSheetsClient(cid){
     sheetsClient=google.accounts.oauth2.initTokenClient({
       client_id:cid, scope:'https://www.googleapis.com/auth/spreadsheets',
       callback:r=>{
-        if(r && r.access_token){ localStorage.setItem('google_sheets_connected','1'); renderSheetsStatus(); toast('เชื่อมต่อ Google Sheets แล้ว'); }
+        if(r && r.access_token){ const exp=Date.now()+Math.max(60,(Number(r.expires_in)||3600)-60)*1000; window.MFFGoogleSession?.saveSheetsToken(r.access_token,exp); localStorage.setItem('google_sheets_connected','1'); renderSheetsStatus(); toast('เชื่อมต่อ Google Sheets แล้ว'); }
         else toast('เชื่อมต่อไม่สำเร็จ');
       }
     });
@@ -214,14 +214,22 @@ async function syncAllEnsureTab(token,sheetId,tab,headers){
     await syncAllSheetsApi(token,`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${tab}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${tab}!A1`,majorDimension:'ROWS',values:[headers]})});
   }
 }
-function ensureSheetsTokenForSyncAll(cid){
+async function ensureSheetsTokenForSyncAll(cid){
+  const cached=window.MFFGoogleSession?.getSheetsToken();
+  if(cached?.token) return cached.token;
   return new Promise(resolve=>{
     if(!window.google||!google.accounts||!google.accounts.oauth2){ resolve(null); return; }
     const c=google.accounts.oauth2.initTokenClient({
       client_id:cid, scope:'https://www.googleapis.com/auth/spreadsheets',
-      callback:r=>resolve(r&&r.access_token?r.access_token:null)
+      callback:r=>{
+        if(r&&r.access_token){
+          const exp=Date.now()+Math.max(60,(Number(r.expires_in)||3600)-60)*1000;
+          window.MFFGoogleSession?.saveSheetsToken(r.access_token,exp);
+          resolve(r.access_token);
+        }else resolve(null);
+      }
     });
-    try{ c.requestAccessToken({prompt: localStorage.getItem('google_sheets_connected')==='1' ? '' : 'consent'}); }
+    try{ c.requestAccessToken({prompt: localStorage.getItem('google_sheets_connected')==='1' ? 'none' : 'consent'}); }
     catch(e){ resolve(null); }
   });
 }
