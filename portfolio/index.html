@@ -10,6 +10,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="../data-safety.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root{
@@ -2158,7 +2159,7 @@ function updateSheetUI(state){const e=document.getElementById('sheetStatusText')
 async function sheetsApi(url,opts={}){
   if(!sheetsToken) throw new Error('Google Sheets ยังไม่ได้รับสิทธิ์');
   const r=await fetch(url,Object.assign({headers:sheetHeaders({'Content-Type':'application/json'})},opts));
-  if(r.status===401||r.status===403){ localStorage.removeItem('google_sheets_connected'); sheetsToken=null; throw new Error('สิทธิ์ Google Sheets หมดอายุ กรุณากดเชื่อมต่อ / ซิงก์อีกครั้ง'); }
+  if(r.status===401||r.status===403){ window.MFFGoogleSession?.clearSheetsToken(); sheetsToken=null; throw new Error('สิทธิ์ Google Sheets หมดอายุ กรุณากดเชื่อมต่อ / ซิงก์อีกครั้ง'); }
   if(!r.ok)throw new Error(await r.text()); return r.json();
 }
 async function createSpreadsheet(){const j=await sheetsApi('https://sheets.googleapis.com/v4/spreadsheets',{method:'POST',body:JSON.stringify({properties:{title:'My Family Funds — Data'},sheets:[{properties:{title:'Funds'}},{properties:{title:'Investments'}}]})});sheetId=j.spreadsheetId;localStorage.setItem('google_sheet_id',sheetId);}
@@ -2189,7 +2190,7 @@ async function ensureSheetsAccess(interactive=true){
   const c=ensureSheetsClient(cid); if(!c) return false;
   return new Promise(resolve=>{
     c._mffResolve=resolve;
-    try{c.requestAccessToken({prompt:'none'});}catch(e){c._mffResolve=null;resolve(false);}
+    try{c.requestAccessToken({prompt:'consent'});}catch(e){c._mffResolve=null;resolve(false);}
     setTimeout(()=>{if(c._mffResolve){c._mffResolve=null;resolve(!!sheetsToken);}},8000);
   });
 }
@@ -2456,21 +2457,29 @@ renderAll();
 (function(){
   const params=new URLSearchParams(location.search);
   const syncAction=params.get('sync');
-  if(syncAction!=='pull' && syncAction!=='push') return;
+  if(syncAction!=='pull' && syncAction!=='push' && syncAction!=='smart') return;
   history.replaceState(null,'',location.pathname+location.hash); // ล้าง query param กันสับสนถ้า refresh ซ้ำ
   setTimeout(async ()=>{
-    try{
-      if(!sheetId){ showToast('กรุณาตั้งค่า Sheet ID ในหน้า Setting ก่อน'); return; }
-      if(!sheetsToken){
-        const cid=getGoogleClientId();
-        const c=cid?ensureSheetsClient(cid):null;
-        if(c){ showToast('กรุณากดยืนยันสิทธิ์ Google แล้วกดซิงก์อีกครั้งจากหน้านี้'); c.requestAccessToken({prompt:'consent'}); }
-        else showToast('กรุณาตั้งค่า Client ID ในหน้า Setting ก่อน');
-        return;
+    const embedded=params.get('embedded')==='1';
+    const report=(ok,message,count)=>{
+      if(embedded && window.parent && window.parent!==window){
+        try{ window.parent.postMessage({type:'MFF_PORTFOLIO_SYNC_RESULT',direction:syncAction,ok:!!ok,message:String(message||''),count:Number(count)||0},window.location.origin); }catch(e){}
       }
-      if(syncAction==='pull'){ await pullFromSheets({safeMerge:false}); showToast('ดึงข้อมูลจาก Google Sheets แล้ว • ใช้ข้อมูลล่าสุดจาก Sheet'); }
-      else { await ensureSheetTabs(); await pushToSheets(); showToast('บันทึกลง Google Sheets แล้ว'); }
-    }catch(e){ showToast('ซิงก์ไม่สำเร็จ: '+(e&&e.message||e)); }
+    };
+    try{
+      if(!sheetId){ const msg='กรุณาตั้งค่า Sheet ID ในหน้า Setting ก่อน'; showToast(msg); report(false,msg); return; }
+      if(!sheetsToken){
+        // ใช้ token ที่หน้า Setting / โมดูลอื่นเพิ่งได้มาใน session ก่อน
+        // ถ้า token หมดอายุจริงจึงค่อยแจ้งให้เชื่อมต่อใหม่ โดยไม่เปิด Google OAuth เอง
+        const restored=await ensureSheetsAccess(false);
+        if(!restored){ const msg='สิทธิ์ Google Sheets หมดอายุ กรุณาเชื่อมต่อ Google Sheets ใหม่'; showToast(msg); report(false,msg); return; }
+      }
+      let count=0;
+      if(syncAction==='pull'){ count=await pullFromSheets({safeMerge:false}); showToast('ดึงข้อมูลจาก Google Sheets แล้ว • ใช้ข้อมูลล่าสุดจาก Sheet'); }
+      else if(syncAction==='push'){ await ensureSheetTabs(); await pushToSheets(); count=DATA?.funds?.length||0; showToast('บันทึกลง Google Sheets แล้ว'); }
+      else { count=await pullFromSheets({safeMerge:true}); await ensureSheetTabs(); await pushToSheets(); showToast('Smart Sync Portfolio เสร็จแล้ว'); }
+      report(true,'My Portfolio ซิงก์สำเร็จ',count);
+    }catch(e){ const msg='ซิงก์ไม่สำเร็จ: '+(e&&e.message||e); showToast(msg); report(false,msg); }
   }, 900); // รอให้ token client / renderAll() พร้อมก่อน
 })();
 </script>

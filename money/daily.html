@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../shell.css">
+<script src="../data-safety.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 .mff-daily-total{padding:16px 20px 4px;text-align:center}
@@ -134,12 +135,8 @@ function ensureSheetsClient(cid){
       localStorage.setItem('google_sheets_connected','1');
       renderConnectBanner();
       if(sheetsClient._mffResolve){const rr=sheetsClient._mffResolve;sheetsClient._mffResolve=null;rr(true);}
-      try{
-        await ensureDailyTab();
-        await pullEntries();
-        render();
-        toast('เชื่อมต่อ Google Sheets แล้ว');
-      }catch(e){console.error(e);toast('เชื่อมต่อได้ แต่ซิงก์ไม่สำเร็จ: '+e.message);}
+      render();
+      toast('เชื่อมต่อ Google Sheets แล้ว • ยังไม่ดึงข้อมูลอัตโนมัติ');
     }});
     sheetsClient._cid=cid;
   }
@@ -153,11 +150,9 @@ async function ensureSheetsAccess(interactive=true){
   if(!interactive) return false;
   const cid=getGoogleClientId(); if(!cid||!sheetId) return false;
   const c=ensureSheetsClient(cid); if(!c) return false;
-  return new Promise(resolve=>{
-    c._mffResolve=resolve;
-    try{c.requestAccessToken({prompt:'none'});}catch(e){c._mffResolve=null;resolve(false);}
-    setTimeout(()=>{if(c._mffResolve){c._mffResolve=null;resolve(!!sheetsToken);}},8000);
-  });
+  // No silent OAuth here: navigation/module load must never trigger Google authorization.
+  // If the session token is absent/expired, the user must explicitly reconnect from Settings.
+  return false;
 }
 
 async function sheetsApi(url,opts={}){
@@ -209,9 +204,8 @@ async function pushEntries(){
 
 async function syncSave(){
   saveCache();
-  if(!(await ensureSheetsAccess())){ toast('บันทึกในเครื่องนี้แล้ว • ยังไม่ได้เชื่อมต่อ Google Sheets'); renderConnectBanner(); return; }
-  try{ await pushEntries(); localStorage.setItem('sheet_last_sync_daily', new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})); toast('บันทึกและซิงก์ Google Sheets แล้ว'); }
-  catch(e){ toast('บันทึกในเครื่องแล้ว แต่ซิงก์ไม่สำเร็จ: '+e.message); }
+  try{ localStorage.setItem('mff_sync_dirty_v1_daily','1'); }catch(e){}
+  toast('บันทึกในเครื่องแล้ว • กด Smart Sync ที่ Settings เพื่อซิงก์ Google Sheets');
 }
 
 /* ===================== local cache ===================== */
@@ -371,14 +365,7 @@ renderConnectBanner();
 render();
 
 window.addEventListener('load', async ()=>{
-  const cid=getGoogleClientId();
-  if(cid && localStorage.getItem('google_sheets_connected')==='1' && sheetId){
-    const ok=await ensureSheetsAccess(false);
-    if(ok){
-      try{ await ensureDailyTab(); await pullEntries(); render(); renderConnectBanner(); }
-      catch(e){ console.warn('Daily auto sync failed', e); }
-    }
-  }
+  // Google is not contacted automatically when opening a module. Use Smart Sync in Settings.
 });
 
 })();

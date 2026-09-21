@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../shell.css">
+<script src="../data-safety.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -50,6 +51,8 @@ const SHELVES=[
 const SHEETS_SCOPE='https://www.googleapis.com/auth/spreadsheets';
 const DRIVE_SCOPE='https://www.googleapis.com/auth/drive.readonly';
 const CACHE_KEY='mff_bookshelf_cache_v1';
+const SEARCH_CACHE_KEY='mff_bookshelf_search_cache_v2';
+const BOOK_META_CACHE_KEY='mff_bookshelf_meta_cache_v1';
 const TAB='BookshelfItems';
 const HEADERS=['ID','Title','Status','DriveFileId','DriveFileName','MimeType','Size','WebViewLink','AddedAt','UpdatedAt'];
 
@@ -118,8 +121,7 @@ function ensureSheetsClient(cid){
       localStorage.setItem('google_sheets_connected','1');
       renderSheetsBanner();
       if(sheetsClient._mffResolve){const rr=sheetsClient._mffResolve;sheetsClient._mffResolve=null;rr(true);}
-      try{ await ensureBookshelfTab(); await pullBooks(); render(); toast('เชื่อมต่อ Google Sheets แล้ว'); }
-      catch(e){console.error(e);toast('เชื่อมต่อได้ แต่ซิงก์ไม่สำเร็จ: '+e.message);}
+      render(); toast('เชื่อมต่อ Google Sheets แล้ว • ยังไม่ดึงข้อมูลอัตโนมัติ');
     }});
     sheetsClient._cid=cid;
   }
@@ -132,11 +134,9 @@ async function ensureSheetsAccess(interactive=true){
   if(!interactive) return false;
   const cid=getGoogleClientId(); if(!cid||!sheetId) return false;
   const c=ensureSheetsClient(cid); if(!c) return false;
-  return new Promise(resolve=>{
-    c._mffResolve=resolve;
-    try{c.requestAccessToken({prompt:'none'});}catch(e){c._mffResolve=null;resolve(false);}
-    setTimeout(()=>{if(c._mffResolve){c._mffResolve=null;resolve(!!sheetsToken);}},8000);
-  });
+  // No silent OAuth here: navigation/module load must never trigger Google authorization.
+  // If the session token is absent/expired, the user must explicitly reconnect from Settings.
+  return false;
 }
 async function sheetsApi(url,opts={}){
   if(!sheetsToken) throw new Error('Google Sheets ยังไม่ได้รับสิทธิ์');
@@ -183,9 +183,8 @@ async function pushBooks(){
 }
 async function syncSave(){
   saveCache();
-  if(!(await ensureSheetsAccess())){ toast('บันทึกในเครื่องนี้แล้ว • ยังไม่ได้เชื่อมต่อ Google Sheets'); renderSheetsBanner(); return; }
-  try{ await pushBooks(); localStorage.setItem('sheet_last_sync_bookshelf', new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})); toast('บันทึกและซิงก์ Google Sheets แล้ว'); }
-  catch(e){ toast('บันทึกในเครื่องแล้ว แต่ซิงก์ไม่สำเร็จ: '+e.message); }
+  try{ localStorage.setItem('mff_sync_dirty_v1_bookshelf','1'); }catch(e){}
+  toast('บันทึกในเครื่องแล้ว • กด Smart Sync ที่ Settings เพื่อซิงก์ Google Sheets');
 }
 function saveCache(){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify(books)); }catch(e){} }
 function loadCache(){ try{ const raw=localStorage.getItem(CACHE_KEY); if(raw) books=JSON.parse(raw); }catch(e){} }
@@ -241,6 +240,7 @@ function ensureDriveClient(cid){
       if(r.error){toast('เชื่อมต่อ Google Drive ไม่สำเร็จ');return;}
       driveToken=r.access_token;
       driveTokenExpiresAt=Date.now()+Math.max(60,(Number(r.expires_in)||3600)-60)*1000;
+      window.MFFGoogleSession?.saveDriveToken(driveToken,driveTokenExpiresAt);
       localStorage.setItem('google_drive_connected','1');
       if(driveClient._mffResolve){const rr=driveClient._mffResolve;driveClient._mffResolve=null;rr(true);}
     }});
@@ -250,38 +250,78 @@ function ensureDriveClient(cid){
 }
 async function ensureDriveAccess(promptType){
   if(driveToken && Date.now()<driveTokenExpiresAt) return true;
+  const cached=window.MFFGoogleSession?.getDriveToken();
+  if(cached?.token){ driveToken=cached.token; driveTokenExpiresAt=cached.expiresAt; return true; }
   const cid=getGoogleClientId();
   if(!cid){ toast('กรุณาเชื่อมต่อ Google Sheets ก่อน (ใช้ Client ID เดียวกัน)'); return false; }
   const c=ensureDriveClient(cid); if(!c) return false;
-  return new Promise(resolve=>{
-    c._mffResolve=resolve;
-    try{ c.requestAccessToken({prompt: promptType || (localStorage.getItem('google_drive_connected')==='1' ? 'none' : 'consent')}); }
-    catch(e){ c._mffResolve=null; resolve(false); }
-    setTimeout(()=>{ if(c._mffResolve){ c._mffResolve=null; resolve(!!driveToken); } },8000);
-  });
+  // Only an explicit user action should request Drive OAuth.
+  if(promptType==='consent'){
+    return new Promise(resolve=>{
+      c._mffResolve=resolve;
+      try{ c.requestAccessToken({prompt:'consent'}); }catch(e){ c._mffResolve=null; resolve(false); }
+      setTimeout(()=>{ if(c._mffResolve){ c._mffResolve=null; resolve(!!driveToken); } },8000);
+    });
+  }
+  return false;
 }
 function fileIconSvg(mimeType){
   if((mimeType||'').includes('pdf')) return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg>`;
   if((mimeType||'').includes('image')) return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 16-5-5-9 9"/></svg>`;
   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6"/></svg>`;
 }
+function normalizeSearchTerm(term){return String(term||'').trim().toLowerCase().replace(/\s+/g,' ');}
+function bookCacheKey(file){
+  if(file && file.id) return 'drive:'+String(file.id);
+  return 'title:'+normalizeSearchTerm(file && (file.title||file.name||''));
+}
+function loadSearchCache(){try{return JSON.parse(localStorage.getItem(SEARCH_CACHE_KEY)||'{}')||{};}catch(e){return {};}}
+function saveSearchCache(cache){try{localStorage.setItem(SEARCH_CACHE_KEY,JSON.stringify(cache));}catch(e){}}
+function loadBookMetaCache(){try{return JSON.parse(localStorage.getItem(BOOK_META_CACHE_KEY)||'{}')||{};}catch(e){return {};}}
+function saveBookMetaCache(cache){try{localStorage.setItem(BOOK_META_CACHE_KEY,JSON.stringify(cache));}catch(e){}}
+function cacheSearchResults(term,results){
+  const cache=loadSearchCache();
+  const now=new Date().toISOString();
+  cache[normalizeSearchTerm(term)]={results:Array.isArray(results)?results:[],fetchedAt:now,version:2};
+  (Array.isArray(results)?results:[]).forEach(f=>{
+    const k=bookCacheKey(f); if(!k)return;
+    const meta=loadBookMetaCache();
+    meta[k]=Object.assign({},meta[k]||{},f,{cachedAt:now});
+    saveBookMetaCache(meta);
+  });
+  saveSearchCache(cache);
+}
+function clearBookSearchCache(){try{localStorage.removeItem(SEARCH_CACHE_KEY);localStorage.removeItem(BOOK_META_CACHE_KEY);}catch(e){} toast('ล้างแคชการค้นหาแล้ว');}
+function findSavedBook(term){
+  const k=normalizeSearchTerm(term); if(!k)return null;
+  return books.find(b=>normalizeSearchTerm(b.title)===k) || books.find(b=>normalizeSearchTerm(b.driveFileName)===k) || null;
+}
 async function driveQuickSearch(term){
   const q=encodeURIComponent(`name contains '${term.replace(/'/g,"\\'")}' and trashed=false`);
   const url=`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name,mimeType,size,webViewLink)&pageSize=30&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=allDrives`;
   const r=await fetch(url,{headers:{Authorization:'Bearer '+driveToken}});
-  if(r.status===401||r.status===403){ driveToken=null; localStorage.removeItem('google_drive_connected'); throw new Error('สิทธิ์ Drive หมดอายุ กรุณาเชื่อมต่อใหม่'); }
+  if(r.status===401||r.status===403){ driveToken=null; window.MFFGoogleSession?.clearDriveToken(); throw new Error('สิทธิ์ Drive หมดอายุ กรุณาเชื่อมต่อใหม่'); }
   if(!r.ok) throw new Error(await r.text());
   const j=await r.json();
   return j.files||[];
 }
-async function doSearch(term){
+async function doSearch(term,force=false){
   const box=document.getElementById('searchStatus');
-  if(!term.trim()){ searchResults=[]; selectedFileIds.clear(); renderSearchView(); return; }
+  const key=normalizeSearchTerm(term);
+  if(!key){ searchResults=[]; selectedFileIds.clear(); renderSearchView(); return; }
+  const cache=loadSearchCache();
+  if(!force && cache[key]?.results){
+    searchResults=cache[key].results;
+    renderSearchView();
+    return;
+  }
   const ok=await ensureDriveAccess();
   if(!ok){ if(box) box.textContent='ยังไม่ได้เชื่อมต่อ Google Drive'; renderDriveConnectPrompt(); return; }
-  if(box) box.textContent='กำลังค้นหา...';
+  if(box) box.textContent='กำลังค้นหาครั้งแรก...';
   try{
     searchResults=await driveQuickSearch(term);
+    cache[key]={results:searchResults,fetchedAt:new Date().toISOString()};
+    saveSearchCache(cache);
     renderSearchView();
   }catch(e){
     console.error(e);
@@ -415,6 +455,8 @@ function openManualAddModal(shelfKey){
           const f=files.find(x=>x.id===row.dataset.pickfile);
           if(!f) return;
           const now=new Date().toISOString();
+          const exists=books.find(b=>b.driveFileId===f.id || normalizeSearchTerm(b.title)===normalizeSearchTerm(f.name));
+          if(exists){ toast('หนังสือเล่มนี้มีอยู่ใน My Books แล้ว'); return; }
           books.push({id:uuid(), title:f.name, status:shelfKey, driveFileId:f.id, driveFileName:f.name, mimeType:f.mimeType||'', size:f.size||'', webViewLink:f.webViewLink||'', addedAt:now, updatedAt:now});
           closeModal(); render();
           toast('เพิ่มหนังสือแล้ว');
@@ -474,7 +516,7 @@ function renderSearchView(){
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <input id="searchInput2" class="mff-search-input" placeholder="ค้นหาชื่อหนังสือใน Google Drive..." autocomplete="off">
     </div>
-    <div class="mff-search-status" id="searchStatus">${searchResults.length?`พบ ${searchResults.length} รายการ${selCount?` • เลือกไว้ ${selCount} เล่ม`:''}`:'พิมพ์ชื่อหนังสือเพื่อค้นหา'}</div>
+    <div class="mff-search-status" id="searchStatus" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>${searchResults.length?`พบ ${searchResults.length} รายการ${selCount?` • เลือกไว้ ${selCount} เล่ม`:''}`:'พิมพ์ชื่อหนังสือเพื่อค้นหา'}</span><button type="button" id="refreshBookSearch" style="border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:5px 8px;font:inherit;font-size:11px;color:var(--primary)">↻ อัปเดตข้อมูล</button></div>
     <div class="mff-file-list" style="padding-bottom:${selCount?90:30}px">
       ${searchResults.map(f=>{
         const picked=selectedFileIds.has(f.id);
@@ -504,6 +546,7 @@ function renderSearchView(){
     </div>`:''}
   `;
   document.getElementById('bookBack').addEventListener('click',e=>{ e.preventDefault(); view={mode:'home'}; render(); });
+  document.getElementById('refreshBookSearch').addEventListener('click',()=>doSearch(document.getElementById('searchInput2').value,true));
   const input2=document.getElementById('searchInput2');
   input2.value=document.getElementById('bookSearch')?.value || input2.value;
   input2.addEventListener('input',()=>{
@@ -554,6 +597,8 @@ function openAssignShelfModal(files){
       const status=btn.dataset.pick;
       const now=new Date().toISOString();
       files.forEach(file=>{
+        const exists=books.find(b=>b.driveFileId===file.id || normalizeSearchTerm(b.title)===normalizeSearchTerm(file.name));
+        if(exists) return;
         books.push({
           id:uuid(), title:file.name, status,
           driveFileId:file.id, driveFileName:file.name, mimeType:file.mimeType||'',
@@ -575,14 +620,7 @@ renderSheetsBanner();
 render();
 
 window.addEventListener('load', async ()=>{
-  const cid=getGoogleClientId();
-  if(cid && localStorage.getItem('google_sheets_connected')==='1' && sheetId){
-    const ok=await ensureSheetsAccess(false);
-    if(ok){
-      try{ await ensureBookshelfTab(); await pullBooks(); render(); renderSheetsBanner(); }
-      catch(e){ console.warn('Bookshelf auto sync failed', e); }
-    }
-  }
+  // Google is not contacted automatically when opening a module. Use Smart Sync in Settings.
 });
 
 })();
