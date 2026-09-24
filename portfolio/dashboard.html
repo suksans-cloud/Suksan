@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>คลังทุน — Dashboard V27</title>
-<meta name="theme-color" content="#6A4FE0">
+<meta name="theme-color" content="#56408A">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
@@ -20,7 +20,7 @@
   --text:#211D3A;
   --text-soft:#6C6684;
   --text-faint:#A29CBE;
-  --primary:#7B5FE5;
+  --primary:#6B4FA0;
   --primary-dim:#EFEAFD;
   --primary-soft:rgba(123,95,229,.12);
   --gold:#F2A93B;
@@ -57,7 +57,7 @@ a{color:inherit;text-decoration:none;}
   transition:transform .25s ease; z-index:40;
 }
 .brand{display:flex; align-items:center; gap:10px; padding:6px 6px 18px;}
-.brand-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(150deg,var(--primary),#1F806D);display:flex;align-items:center;justify-content:center;flex:none;}
+.brand-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(150deg,var(--primary),#8567B8);display:flex;align-items:center;justify-content:center;flex:none;}
 .brand-mark svg{width:19px;height:19px;}
 .brand-name{font-weight:700;font-size:16px;letter-spacing:.2px;}
 .brand-sub{font-size:10px;color:var(--text-faint);margin-top:1px;}
@@ -143,7 +143,7 @@ a{color:inherit;text-decoration:none;}
   position:relative; overflow:hidden;
   background:
     radial-gradient(circle at 12% -10%, rgba(255,255,255,.16), transparent 45%),
-    linear-gradient(160deg,#8E72F4 0%, #7B5FE5 45%, #6A4FE0 100%);
+    linear-gradient(160deg,#8567B8 0%, #6B4FA0 45%, #56408A 100%);
   border-radius:0 0 28px 28px;
   padding:22px 22px 0;
   max-width:1240px; margin:0 auto;
@@ -181,7 +181,7 @@ a{color:inherit;text-decoration:none;}
   padding:8px 12px; border-radius:10px; cursor:pointer;
 }
 .btn-primary{
-  background:linear-gradient(150deg,var(--primary),#1F806D); color:#FFFFFF; font-weight:700; font-size:12.5px;
+  background:linear-gradient(150deg,var(--primary),#8567B8); color:#FFFFFF; font-weight:700; font-size:12.5px;
   padding:9px 15px; border-radius:10px; border:none; cursor:pointer; display:flex; align-items:center; gap:6px;
 }
 .btn-primary svg{width:14px;height:14px;}
@@ -271,7 +271,7 @@ a{color:inherit;text-decoration:none;}
 .live-kpi-value{font-family:'Prompt','Noto Sans Thai',sans-serif;font-size:18px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .live-kpi-note{font-size:9.5px;color:var(--text-faint);margin-top:2px}
 .live-progress{height:7px;background:var(--surface-3);border-radius:99px;overflow:hidden;margin-top:12px}
-.live-progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--primary),#1F806D);border-radius:inherit;transition:width .35s ease}
+.live-progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--primary),#8567B8);border-radius:inherit;transition:width .35s ease}
 @media(max-width:760px){.live-kpis{grid-template-columns:repeat(2,1fr)}.live-summary{padding:14px}.live-kpi-value{font-size:16px}}
 
 
@@ -732,14 +732,14 @@ function renderInvestCard(){
     <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
       <defs>
         <linearGradient id="areaFade" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#7B5FE5" stop-opacity="0.35"/>
-          <stop offset="100%" stop-color="#7B5FE5" stop-opacity="0"/>
+          <stop offset="0%" stop-color="#6B4FA0" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#6B4FA0" stop-opacity="0"/>
         </linearGradient>
       </defs>
       ${gridY}
       <path d="${areaPath}" fill="url(#areaFade)" stroke="none"/>
-      <path d="${linePath}" fill="none" stroke="#7B5FE5" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
-      ${pts.map((pt,i)=>`<circle cx="${pt[0].toFixed(1)}" cy="${pt[1].toFixed(1)}" r="2.6" fill="#FFFFFF" stroke="#7B5FE5" stroke-width="1.6" data-idx="${i}" class="hpt" style="opacity:0"/>`).join('')}
+      <path d="${linePath}" fill="none" stroke="#6B4FA0" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+      ${pts.map((pt,i)=>`<circle cx="${pt[0].toFixed(1)}" cy="${pt[1].toFixed(1)}" r="2.6" fill="#FFFFFF" stroke="#6B4FA0" stroke-width="1.6" data-idx="${i}" class="hpt" style="opacity:0"/>`).join('')}
       ${xlabels}
       <rect x="0" y="0" width="${w}" height="${h}" fill="transparent" id="investHoverRect"/>
     </svg>

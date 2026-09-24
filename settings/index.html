@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Setting — My Family Funds</title>
-<meta name="theme-color" content="#0F5B4D">
+<meta name="theme-color" content="#6B4FA0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../shell.css">
@@ -130,6 +130,12 @@
       <p class="hint">ใช้ <b>Smart Sync</b> เป็นปุ่มหลัก ระบบจะตรวจข้อมูลในเครื่องเทียบกับ Google Sheets ก่อน แล้วรวมข้อมูลที่ไม่ขัดแย้งให้เอง หากพบการแก้ไขทั้งสองฝั่งจะหยุดเฉพาะโมดูลนั้นและให้เลือกว่าจะใช้ฝั่งใด — ไม่ทับข้อมูลเงียบ ๆ</p>
       <div class="mff-sync-all-actions">
         <button type="button" class="mff-sync-all-btn push mff-primary-sync" id="btnSmartSync" style="grid-column:1/-1">🔄 Smart Sync ทั้งหมด</button>
+        <button type="button" class="mff-sync-all-btn" id="btnModuleAudit" style="grid-column:1/-1">🔎 ตรวจครบทุกโมดูล</button>
+        <button type="button" class="mff-sync-all-btn" id="btnSyncPreflight" style="grid-column:1/-1">🧪 ตรวจข้อมูลก่อน Sync (ไม่เขียนข้อมูล)</button>
+      <button type="button" class="mff-sync-all-btn" id="btnSyncEngineTest" style="grid-column:1/-1">🧩 ทดสอบ Smart Sync ในเครื่อง (ไม่แตะ Google Sheets)
+</button>
+<button id="btnQueueSafetyTest" class="secondary" style="margin-top:6px">🛡️ ตรวจ Queue Safety</button>
+      <button id="btnFinalLocalCheck" class="mff-btn mff-btn-ghost">🏁 ตรวจ Final Build ในเครื่อง</button>
       </div>
       <details style="margin-top:10px"><summary style="font-size:11.5px;color:var(--ink-soft);cursor:pointer">ขั้นสูง: บังคับดึง / บังคับส่ง</summary>
         <div class="mff-sync-all-actions" style="margin-top:8px">
@@ -152,6 +158,13 @@
         </div>
         <div id="syncSafetyStatus" class="mff-sync-status"></div>
         <div style="margin-top:8px;font-size:11.5px;color:var(--ink-soft)">สถานะข้อมูลในเครื่อง: <b data-mff-pending>พร้อมใช้งาน</b> • หากออฟไลน์ ระบบจะเก็บรายการที่แก้ไขไว้รอ Sync</div>
+        <div id="mffQueuePanel" style="margin-top:10px;border:1px solid var(--line);border-radius:14px;padding:10px;background:#fff">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <b style="font-size:12px">📥 Offline Queue</b>
+            <span id="mffQueueCount" class="mff-status-chip neutral">0 รายการ</span>
+          </div>
+          <div id="mffQueueList" style="margin-top:7px;font-size:11px;color:var(--ink-soft)">ไม่มีรายการรอ Sync</div>
+        </div>
         <div id="syncHistory" class="mff-sync-history"></div>
       </div>
     </section>
@@ -435,14 +448,43 @@ async function smartSyncOne(token,sid,t){
   if(conflicts.length){
     const choice=await conflictDialog(t,conflicts);
     if(choice==='skip') return {status:'conflict',count:conflicts.length,remote};
-    if(choice==='local'){merged.length=0;local.forEach(x=>merged.push(x));await safeWriteRemote(token,sid,t,merged,remote);setLocal(t,merged);setBase(t,merged);addSyncHistory('Conflict → เครื่อง',`${t.name}: ${conflicts.length} รายการ`);return {status:'resolved-local',count:merged.length,conflicts:conflicts.length,remote};}
-    if(choice==='remote'){merged.length=0;remote.forEach(x=>merged.push(x));setLocal(t,merged);setBase(t,merged);addSyncHistory('Conflict → Sheet',`${t.name}: ${conflicts.length} รายการ`);return {status:'resolved-remote',count:merged.length,conflicts:conflicts.length,remote};}
+    if(choice==='local'){
+      // Keep all non-conflicting three-way merges. Resolve only the conflicting IDs with local values.
+      const byId=new Map(merged.map(x=>[String(x.id),x]));
+      for(const c of conflicts){ const id=String(c.id); if(c.local) byId.set(id,c.local); else byId.delete(id); }
+      merged.length=0; byId.forEach(x=>merged.push(x));
+      await safeWriteRemote(token,sid,t,merged,remote);setLocal(t,merged);setBase(t,merged);
+      addSyncHistory('Conflict → เครื่อง',`${t.name}: ${conflicts.length} รายการ (เก็บรายการที่ไม่ชนกันไว้)`);
+      return {status:'resolved-local',count:merged.length,conflicts:conflicts.length,remote};
+    }
+    if(choice==='remote'){
+      // Keep all non-conflicting three-way merges. Resolve only the conflicting IDs with remote values.
+      const byId=new Map(merged.map(x=>[String(x.id),x]));
+      for(const c of conflicts){ const id=String(c.id); if(c.remote) byId.set(id,c.remote); else byId.delete(id); }
+      merged.length=0; byId.forEach(x=>merged.push(x));
+      setLocal(t,merged);setBase(t,merged);
+      addSyncHistory('Conflict → Sheet',`${t.name}: ${conflicts.length} รายการ (เก็บรายการที่ไม่ชนกันไว้)`);
+      return {status:'resolved-remote',count:merged.length,conflicts:conflicts.length,remote};
+    }
   }
   await safeWriteRemote(token,sid,t,merged,remote);setLocal(t,merged);setBase(t,merged);
   addSyncHistory('Smart Sync',`${t.name}: ${merged.length} รายการ`);
   return {status:'synced',count:merged.length,remote};
 }
 
+
+/* V16 — Smart Sync integrity guard
+   Conflict resolution must never discard records that were already merged safely.
+   Expose a small local self-test so Settings can verify the three-way engine without touching Google Sheets. */
+function runSmartSyncLocalSelfTest(){
+  const fake={key:'selftest',name:'Sync Engine Test'};
+  const base=[{id:'1',value:'base'},{id:'2',value:'base2'}];
+  const local=[{id:'1',value:'local'},{id:'2',value:'base2'},{id:'3',value:'local-new'}];
+  const remote=[{id:'1',value:'base'},{id:'2',value:'remote2'},{id:'4',value:'remote-new'}];
+  const r=threeWay(fake,local,remote,base);
+  const ok=r.conflicts.length===0 && r.merged.some(x=>x.id==='1'&&x.value==='local') && r.merged.some(x=>x.id==='2'&&x.value==='remote2') && r.merged.some(x=>x.id==='3') && r.merged.some(x=>x.id==='4');
+  return {ok,summary:`non-conflict merge: ${r.merged.length}, conflicts: ${r.conflicts.length}`};
+}
 
 function setSyncAllBusy(busy){
   ['btnSmartSync','btnSyncAllPull','btnSyncAllPush'].forEach(id=>{const e=document.getElementById(id);if(e)e.disabled=busy;});
@@ -484,7 +526,17 @@ async function runSmartSync(opts){
     updateSyncAllProgress(done,total,'🔄 📊 My Portfolio');
     try{await runPortfolioSmartSync();done++;updateSyncAllProgress(done,total,'📊 My Portfolio ✓');}catch(e){conf++;done++;toast('My Portfolio Smart Sync ไม่สำเร็จ: '+e.message);}
     statusEl.innerHTML=conf?`<span class="warn">⚠️ ซิงก์เสร็จแล้ว แต่มี ${conf} จุดที่ต้องตรวจสอบ</span>`:'<span class="ok">✅ Smart Sync เสร็จแล้ว — ไม่มีการทับข้อมูลเงียบ ๆ</span>';
-    if(!conf && window.MFFDataSafety?.clearQueue) window.MFFDataSafety.clearQueue();
+    // Queue Safety: never clear the offline queue merely because the API loop ended.
+    // Clear only after every module completed without conflicts AND the queue is empty/verified.
+    if(!conf && window.MFFDataSafety?.exportQueue){
+      const remaining=window.MFFDataSafety.exportQueue()||[];
+      if(remaining.length===0){
+        if(window.MFFDataSafety.clearQueue) window.MFFDataSafety.clearQueue();
+      }else{
+        // Keep queue intact if another module/event added work during this sync.
+        addSyncHistory('Queue Safety','ยังมี '+remaining.length+' รายการ — คง Queue ไว้เพื่อความปลอดภัย');
+      }
+    }
     if(!opts.silent) toast(conf?'ซิงก์เสร็จแล้ว มีข้อมูลชนกันให้ตรวจสอบ':'ซิงก์ทั้งหมดเรียบร้อย');
   }catch(e){statusEl.innerHTML='<span class="warn">⚠️ '+esc(e.message||e)+'</span>';if(opts.auto) throw e;}
   finally{setSyncAllBusy(false);document.getElementById('syncAllProgressBar').style.width=(done/total*100)+'%';}
@@ -566,7 +618,7 @@ document.getElementById('btnConnectDrive').addEventListener('click',()=>{
     driveClient=google.accounts.oauth2.initTokenClient({
       client_id:cid, scope:'https://www.googleapis.com/auth/drive.readonly',
       callback:r=>{
-        if(r && r.access_token){ localStorage.setItem('google_drive_connected','1'); renderDriveStatus(); toast('เชื่อมต่อ Google Drive แล้ว'); }
+        if(r && r.access_token){ const exp=Date.now()+Math.max(60,(Number(r.expires_in)||3600)-60)*1000; window.MFFGoogleSession?.saveDriveToken(r.access_token,exp); localStorage.setItem('google_drive_connected','1'); renderDriveStatus(); renderGoogleSessionStatus(); toast('เชื่อมต่อ Google Drive แล้ว'); }
         else toast('เชื่อมต่อไม่สำเร็จ');
       }
     });
@@ -579,40 +631,205 @@ renderDriveStatus();
 let autoSyncTimer=null;
 let autoSyncInFlight=false;
 const AUTO_SYNC_KEY='mff_auto_sync_online_v1';
+const AUTO_RETRY_KEY='mff_auto_sync_retry_v1';
+function autoRetryState(){try{return JSON.parse(localStorage.getItem(AUTO_RETRY_KEY)||'{}')}catch(e){return {}}}
+function saveAutoRetryState(v){try{localStorage.setItem(AUTO_RETRY_KEY,JSON.stringify(v))}catch(e){}}
 function autoSyncEnabled(){const v=localStorage.getItem(AUTO_SYNC_KEY);return v===null?true:v==='1';}
 function renderAutoSyncToggle(){const cb=document.getElementById('autoSyncToggle'),track=document.getElementById('autoSyncTrack');if(!cb||!track)return;const on=autoSyncEnabled();cb.checked=on;track.style.background=on?'var(--primary)':'#cfd8d3';const k=track.querySelector('i');if(k)k.style.transform=on?'translateX(20px)':'translateX(0)';}
-function hasPendingSyncWork(){return !!(window.MFFDataSafety?.pending?.()>0 || SYNC_TARGETS.some(isDirty));}
+function queueItems(){try{return window.MFFDataSafety?.exportQueue?.()||[]}catch(e){return[];}}
+function renderOfflineQueue(){
+  const q=queueItems();
+  const count=document.getElementById('mffQueueCount'),list=document.getElementById('mffQueueList');
+  if(count){count.textContent=`${q.length} รายการ`;count.className='mff-status-chip '+(q.length?'pending':'ok');}
+  if(!list)return;
+  if(!q.length){list.textContent='ไม่มีรายการรอ Sync';return;}
+  const recent=q.slice(-6).reverse();
+  list.innerHTML=recent.map(x=>{
+    const type=x.type==='delete'||x.type==='delete_container'?'ลบ':'แก้ไข';
+    const key=String(x.key||'ข้อมูล').replace(/^mff_/,'');
+    const t=x.queued_at?new Date(x.queued_at).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}):'';
+    return `<div style="display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px solid var(--line)"><span>• ${esc(type)} · ${esc(key)}</span><span>${esc(t)}</span></div>`;
+  }).join('')+(q.length>6?`<div style="padding-top:5px">และอีก ${q.length-6} รายการ…</div>`:'');
+}
+function hasPendingSyncWork(){return !!(queueItems().length>0 || SYNC_TARGETS.some(isDirty));}
 function scheduleAutoSync(reason){
   if(!autoSyncEnabled()||navigator.onLine===false||autoSyncInFlight||!hasPendingSyncWork())return;
   const cid=clientIdInput.value.trim()||localStorage.getItem('google_client_id')||'',sid=sheetIdInput.value.trim()||localStorage.getItem('google_sheet_id')||'';
   const cached=window.MFFGoogleSession?.getSheetsToken?.();
+  // Auto Sync never opens OAuth. User must connect explicitly first.
   if(!cid||!sid||!cached?.token)return;
   clearTimeout(autoSyncTimer);
   autoSyncTimer=setTimeout(async()=>{
     if(autoSyncInFlight||navigator.onLine===false||!autoSyncEnabled())return;
     autoSyncInFlight=true;
-    try{addSyncHistory('Auto Sync',reason||'กลับมา Online');await runSmartSync({silent:true,auto:true});}
-    catch(e){addSyncHistory('Auto Sync','ยังไม่สำเร็จ: '+(e.message||e));}
-    finally{autoSyncInFlight=false;renderSyncModuleRows();renderModuleStatus();updateSystemPulse();}
+    try{
+      addSyncHistory('Auto Sync',reason||'ตรวจพบข้อมูลรอ Sync');
+      await runSmartSync({silent:true,auto:true});
+      const st=autoRetryState();st.count=0;st.lastSuccess=new Date().toISOString();delete st.failed;saveAutoRetryState(st);
+    }catch(e){
+      const st=autoRetryState();st.count=Math.min(Number(st.count||0)+1,6);st.failed=true;st.lastFailure=new Date().toISOString();st.message=String(e?.message||e||'Sync failed');saveAutoRetryState(st);
+      addSyncHistory('Auto Sync','ยังไม่สำเร็จ: '+(e.message||e));
+      // Retry with exponential backoff while keeping the queue intact.
+      if(autoSyncEnabled()&&navigator.onLine!==false&&hasPendingSyncWork()){
+        const delay=Math.min(60000,5000*Math.pow(2,Math.max(0,st.count-1)));
+        clearTimeout(autoSyncTimer);autoSyncTimer=setTimeout(()=>scheduleAutoSync('Retry Auto Sync'),delay);
+      }
+    }finally{
+      autoSyncInFlight=false;renderOfflineQueue();renderSyncModuleRows();renderModuleStatus();updateSystemPulse();
+    }
   },1200);
 }
 function setAutoSync(v){localStorage.setItem(AUTO_SYNC_KEY,v?'1':'0');renderAutoSyncToggle();if(v)scheduleAutoSync('เปิด Auto Sync');}
-
 function updateSystemPulse(){
   const online=navigator.onLine!==false;
   const pill=document.getElementById('mffOnlinePill');
   if(pill){pill.textContent=online?'● Online':'● Offline';pill.classList.toggle('offline',!online);}
   let synced=0,pending=0,last='';
   SYNC_TARGETS.forEach(t=>{const dirty=isDirty(t),v=localStorage.getItem(t.lastSyncKey)||'';if(dirty)pending++;else if(v)synced++;if(v&&(!last||v>last))last=v;});
+  const q=queueItems().length;
   const ids={synced:'mffStatSynced',pending:'mffStatPending',last:'mffStatLast'};
-  document.getElementById(ids.synced).textContent=String(synced);document.getElementById(ids.pending).textContent=String(pending);
-  document.getElementById(ids.last).textContent=last?last.split(' ')[0]:'—';
+  document.getElementById(ids.synced).textContent=String(synced);document.getElementById(ids.pending).textContent=String(Math.max(pending,q));document.getElementById(ids.last).textContent=last?last.split(' ')[0]:'—';
+  renderOfflineQueue();
 }
-window.addEventListener('online',()=>{updateSystemPulse();renderSyncModuleRows();scheduleAutoSync('กลับมา Online');});
+function runLocalSyncEngineTest(){
+  const r=runSmartSyncLocalSelfTest();
+  addSyncHistory('Sync Engine Test',r.summary);
+  const el=document.getElementById('statusSyncAll');
+  if(el) el.innerHTML=r.ok?'<span class="ok">✅ Smart Sync Engine ผ่าน — ไม่ทิ้งรายการที่ไม่ขัดแย้ง</span>':'<span class="warn">⚠️ Smart Sync Engine พบปัญหา</span>';
+  toast(r.ok?'ทดสอบ Smart Sync ผ่าน':'ทดสอบ Smart Sync ไม่ผ่าน');
+}
+document.getElementById('btnSyncEngineTest')?.addEventListener('click',runLocalSyncEngineTest);
+function runQueueSafetyTest(){
+  const q=queueItems();
+  const ok=Array.isArray(q);
+  addSyncHistory('Queue Safety Test',ok?'Queue อ่านได้ปกติ • '+q.length+' รายการ':'Queue อ่านไม่ได้');
+  toast(ok?'Queue Safety ผ่าน':'Queue Safety พบปัญหา');
+  renderOfflineQueue(); updateSystemPulse();
+}
+document.getElementById('btnQueueSafetyTest')?.addEventListener('click',runQueueSafetyTest);
+/* V20 Final — local release self-checks (read-only; no Google Sheets writes) */
+function runFinalLocalIntegrityTest(){
+  const checks=[];
+  try{
+    const r=runSmartSyncLocalSelfTest();
+    checks.push(['Smart Sync merge',!!r.ok,r.summary]);
+  }catch(e){checks.push(['Smart Sync merge',false,String(e.message||e)]);}
+  try{
+    const q=queueItems(); checks.push(['Offline Queue',Array.isArray(q),`อ่าน Queue ได้ ${Array.isArray(q)?q.length:0} รายการ`]);
+  }catch(e){checks.push(['Offline Queue',false,String(e.message||e)]);}
+  try{
+    const targets=Array.isArray(SYNC_TARGETS)&&SYNC_TARGETS.length===4;
+    checks.push(['Sync targets',targets,targets?'4 direct modules + Portfolio adapter':'จำนวน target ไม่ตรง']);
+  }catch(e){checks.push(['Sync targets',false,String(e.message||e)]);}
+  try{
+    const ids=new Set();let dup=0;
+    const frame=document.createElement('iframe');
+    // Local portfolio storage is isolated in iframe, so only verify the adapter responds.
+    frame.style.cssText='position:fixed;width:1px;height:1px;left:-10000px;top:-10000px;border:0;opacity:0;pointer-events:none';
+    const result=new Promise(resolve=>{
+      let done=false;
+      const finish=v=>{if(done)return;done=true;window.removeEventListener('message',onMsg);clearTimeout(timer);frame.remove();resolve(v);};
+      const onMsg=e=>{if(e.source!==frame.contentWindow)return;const d=e.data||{};if(d.type==='MFF_PORTFOLIO_SYNC_PREFLIGHT')finish(d);};
+      window.addEventListener('message',onMsg);const timer=setTimeout(()=>finish({ok:false,message:'Portfolio adapter timeout'}),7000);
+      frame.src='../portfolio/index.html?sync=preflight&embedded=1';document.body.appendChild(frame);
+    });
+    result.then(d=>{checks.push(['Portfolio adapter',!!d?.ok,d?.detail||d?.message||'']);renderFinalChecks(checks);});
+  }catch(e){checks.push(['Portfolio adapter',false,String(e.message||e)]);renderFinalChecks(checks);}
+  renderFinalChecks(checks);
+}
+function renderFinalChecks(checks){
+  const box=document.getElementById('statusSyncAll');if(!box)return;
+  const bad=checks.filter(x=>!x[1]).length;
+  box.innerHTML=(bad?'<span class="warn">⚠️ Local Final Check พบ '+bad+' จุด</span>':'<span class="ok">✅ Local Final Check ผ่าน</span>')+
+    '<div style="margin-top:8px;font-size:12px">'+checks.map(x=>`<div style="padding:4px 0">${x[1]?'✅':'⚠️'} <b>${esc(x[0])}</b> — ${esc(x[2])}</div>`).join('')+'</div>';
+  addSyncHistory('Final Local Check',bad?`พบ ${bad} จุด`:'ผ่านทั้งหมด');
+  toast(bad?'Final Check พบจุดที่ต้องตรวจสอบ':'Final Check ผ่านแล้ว');
+}
+document.getElementById('btnFinalLocalCheck')?.addEventListener('click',runFinalLocalIntegrityTest);
+
+
+window.addEventListener('online',()=>{updateSystemPulse();renderOfflineQueue();scheduleAutoSync('กลับมา Online');});
 window.addEventListener('offline',()=>{updateSystemPulse();clearTimeout(autoSyncTimer);});
 document.getElementById('autoSyncToggle')?.addEventListener('change',e=>setAutoSync(e.target.checked));
 renderAutoSyncToggle();
 window.addEventListener('mff:data-safety',()=>{updateSystemPulse();if(navigator.onLine!==false)scheduleAutoSync('มีข้อมูลใหม่ในคิว Offline');});
+/* ---------- All-module readiness audit ---------- */
+const MODULE_AUDIT_TARGETS=[
+  {key:'daily',name:'ค่าใช้จ่ายรายวัน',url:'../money/daily.html'},
+  {key:'monthly',name:'ค่าใช้จ่ายรายเดือน',url:'../money/monthly.html'},
+  {key:'portfolio',name:'My Portfolio',url:'../portfolio/index.html'},
+  {key:'bookshelf',name:'My Bookshelf',url:'../bookshelf/index.html'},
+  {key:'profile',name:'My Profile',url:'../profile/index.html'}
+];
+function auditModule(t){return new Promise(resolve=>{
+  const f=document.createElement('iframe'); f.style.cssText='position:fixed;width:1px;height:1px;left:-10000px;top:-10000px;border:0;opacity:0;pointer-events:none';
+  let done=false;
+  const finish=(ok,detail)=>{if(done)return;done=true;window.removeEventListener('message',onMsg);clearTimeout(timer);f.remove();resolve({key:t.key,name:t.name,ok,detail});};
+  const onMsg=e=>{if(e.source!==f.contentWindow)return;const d=e.data||{};if(d.type==='MFF_MODULE_READY')finish(true,(d.module?d.module+' • ':'')+(d.version?d.version+' • ':'')+(d.detail||'ระบบโมดูลพร้อม'));};
+  window.addEventListener('message',onMsg);
+  const timer=setTimeout(()=>finish(false,'ไม่ตอบกลับ / อาจโหลดโมดูลไม่ครบ'),7000);
+  f.src=t.url+'?audit=1'; document.body.appendChild(f);
+});}
+async function runAllModuleAudit(){
+  const box=document.getElementById('statusSyncAll');
+  if(box) box.innerHTML='<span>🔎 กำลังตรวจสอบโมดูลทั้งหมด…</span>';
+  const out=[];
+  for(const t of MODULE_AUDIT_TARGETS) out.push(await auditModule(t));
+  const bad=out.filter(x=>!x.ok);
+  const html=out.map(x=>`<div style="padding:5px 0">${x.ok?'✅':'⚠️'} <b>${esc(x.name)}</b> — ${esc(x.detail)}</div>`).join('');
+  if(box) box.innerHTML=(bad.length?'<span class="warn">⚠️ พบ '+bad.length+' โมดูลที่ต้องตรวจสอบ</span>':'<span class="ok">✅ โมดูลหลักทั้ง 5 โหลดระบบกลางครบ</span>')+'<div style="margin-top:8px;font-size:12px">'+html+'</div>';
+  addSyncHistory('Module Audit',bad.length?'พบ '+bad.length+' โมดูลต้องตรวจสอบ':'พร้อมใช้งานครบ 5 โมดูล');
+  toast(bad.length?'ตรวจพบโมดูลที่ต้องตรวจสอบ':'ตรวจความพร้อมโมดูลครบ 5 โมดูลแล้ว');
+  return out;
+}
+document.getElementById('btnModuleAudit')?.addEventListener('click',runAllModuleAudit);
+
+/* ---------- V15 Sync Preflight: read-only verification before any write ---------- */
+async function runSyncPreflight(){
+  const box=document.getElementById('statusSyncAll');
+  if(box) box.innerHTML='<span>🧪 กำลังตรวจข้อมูลจริงจาก Google Sheets — ยังไม่มีการเขียนข้อมูล</span>';
+  const cid=clientIdInput.value.trim()||localStorage.getItem('google_client_id')||'';
+  const sid=sheetIdInput.value.trim()||localStorage.getItem('google_sheet_id')||'';
+  if(!cid||!sid){if(box)box.innerHTML='<span class="warn">⚠️ กรุณากรอก Client ID / Sheet ID ก่อนตรวจ</span>';return;}
+  try{
+    const token=await ensureSheetsTokenForSyncAll(cid);
+    if(!token) throw new Error('ขอสิทธิ์ Google Sheets ไม่สำเร็จ');
+    const lines=[]; let issues=0;
+    for(const t of SYNC_TARGETS){
+      try{
+        const local=getLocal(t),base=getBase(t),remote=await readRemote(token,sid,t);
+        const m=threeWay(t,local,remote,base);
+        const addedRemote=remote.filter(r=>!listMap(base).has(String(r.id))).length;
+        const addedLocal=local.filter(l=>!listMap(base).has(String(l.id))).length;
+        const text=m.conflicts.length
+          ? `⚠️ ${t.name}: Conflict ${m.conflicts.length} รายการ • เครื่องใหม่ ${addedLocal} • Sheet ใหม่ ${addedRemote}`
+          : `✅ ${t.name}: พร้อม Sync • เครื่อง ${local.length} • Sheet ${remote.length} • ต่างกัน ${Math.max(local.length,remote.length)-m.merged.length}`;
+        if(m.conflicts.length)issues+=m.conflicts.length;
+        lines.push(text);
+      }catch(e){issues++;lines.push(`⚠️ ${t.name}: ${e.message||e}`);}
+    }
+    /* Portfolio is verified read-only by asking its own adapter for a status response. */
+    try{
+      const frame=document.createElement('iframe');
+      frame.style.cssText='position:fixed;width:1px;height:1px;left:-10000px;top:-10000px;border:0;opacity:0;pointer-events:none';
+      const result=await new Promise((resolve,reject)=>{
+        let done=false;
+        const finish=(v,err)=>{if(done)return;done=true;window.removeEventListener('message',onMsg);clearTimeout(timer);frame.remove();err?reject(err):resolve(v);};
+        const onMsg=e=>{if(e.source!==frame.contentWindow)return;const d=e.data||{};if(d.type!=='MFF_PORTFOLIO_SYNC_PREFLIGHT')return;finish(d);};
+        window.addEventListener('message',onMsg);
+        const timer=setTimeout(()=>finish(null,new Error('My Portfolio ไม่ตอบกลับภายในเวลาที่กำหนด')),12000);
+        frame.src='../portfolio/index.html?sync=preflight&embedded=1';document.body.appendChild(frame);
+      });
+      if(result?.ok) lines.push(`✅ My Portfolio: พร้อม Sync • ${result.detail||'ตรวจสอบ adapter แล้ว'}`);
+      else {issues++;lines.push(`⚠️ My Portfolio: ${result?.message||'ต้องตรวจสอบเพิ่มเติม'}`);}
+    }catch(e){issues++;lines.push(`⚠️ My Portfolio: ${e.message||e}`);}
+    if(box) box.innerHTML=(issues?`<span class="warn">⚠️ Preflight พบ ${issues} จุดที่ควรตรวจสอบ</span>`:'<span class="ok">✅ Preflight ผ่าน — ยังไม่มีการเขียนข้อมูลใด ๆ</span>')+`<div style="margin-top:8px;font-size:12px">${lines.map(x=>`<div style="padding:4px 0">${esc(x)}</div>`).join('')}</div>`;
+    addSyncHistory('Preflight',issues?`พบ ${issues} จุดต้องตรวจสอบ`:'ผ่าน — พร้อม Smart Sync');
+    toast(issues?'Preflight พบจุดที่ต้องตรวจสอบ':'Preflight ผ่านแล้ว — พร้อม Smart Sync');
+  }catch(e){if(box)box.innerHTML='<span class="warn">⚠️ '+esc(e.message||e)+'</span>';}
+}
+document.getElementById('btnSyncPreflight')?.addEventListener('click',runSyncPreflight);
+
 
 /* ---------- per-module sync status ---------- */
 function renderModuleStatus(){

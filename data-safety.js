@@ -21,7 +21,25 @@
     return r;
   }
   function queue(op){
-    const q=read(QUEUE,[]); q.push(Object.assign({qid:uuid(),queued_at:new Date().toISOString()},op));
+    const q=read(QUEUE,[]);
+    const item=Object.assign({qid:uuid(),queued_at:new Date().toISOString()},op);
+    // Coalesce repeated writes to the same logical record/container.
+    // Keep the newest operation so rapid edits do not create an unbounded queue.
+    const key=String(item.key||'');
+    const id=item.id!=null?String(item.id):'';
+    const batch=item.type==='upsert_batch';
+    let replaced=false;
+    if(batch){
+      const idx=q.findIndex(x=>x.type==='upsert_batch' && String(x.key||'')===key);
+      if(idx>=0){q[idx]=item;replaced=true;}
+    }else if(key && id){
+      const idx=q.findIndex(x=>String(x.key||'')===key && String(x.id||'')===id);
+      if(idx>=0){q[idx]=item;replaced=true;}
+    }else if(item.type==='delete_container' && key){
+      const idx=q.findIndex(x=>x.type==='delete_container' && String(x.key||'')===key);
+      if(idx>=0){q[idx]=item;replaced=true;}
+    }
+    if(!replaced) q.push(item);
     write(QUEUE,q.slice(-500)); updateBadge();
   }
   function snapshotKey(key){return NS+'base_'+key;}

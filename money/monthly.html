@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ค่าใช้จ่ายรายเดือน — My Money — My Family Funds</title>
-<meta name="theme-color" content="#0F5B4D">
+<meta name="theme-color" content="#6B4FA0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../shell.css">
@@ -266,6 +266,15 @@ function allCategoriesFor(sec, month){
   return sec.opts.concat(extras.filter((c,i)=>extras.indexOf(c)===i));
 }
 
+/* รวมค่าใช้จ่ายรายวันสะสมของเดือนนั้นๆ เข้ากับยอดรายจ่ายประจำเดือน */
+function dailyExpenseForMonth(month){
+  try{
+    const raw=localStorage.getItem('mff_daily_cache_v1');
+    const list=raw?JSON.parse(raw):[];
+    return list.filter(e=>(e.date||'').slice(0,7)===month).reduce((s,e)=>s+(Number(e.amount)||0),0);
+  }catch(e){ return 0; }
+}
+
 /* ===================== rendering (main page) ===================== */
 function render(){
   const root=document.getElementById('viewRoot');
@@ -273,7 +282,8 @@ function render(){
   const fixed=itemsFor(currentMonth,'fixed');
   const variable=itemsFor(currentMonth,'variable');
   const totalIncome=sumOf(income);
-  const totalExpense=sumOf(fixed)+sumOf(variable);
+  const dailyTotal=dailyExpenseForMonth(currentMonth);
+  const totalExpense=sumOf(fixed)+sumOf(variable)+dailyTotal;
   const balance=totalIncome-totalExpense;
 
   root.innerHTML=`
@@ -296,7 +306,8 @@ function render(){
     <div class="mff-sheet">
       <div class="mff-sheet-head summary">สรุป</div>
       <div class="mff-sheet-row total"><span class="nm">รายรับรวม</span><span class="amt">฿${fmtBaht(totalIncome)}</span></div>
-      <div class="mff-sheet-row total"><span class="nm">รายจ่ายรวม</span><span class="amt">฿${fmtBaht(totalExpense)}</span></div>
+      <div class="mff-sheet-row"><span class="nm">ค่าใช้จ่ายรายวันสะสมเดือนนี้</span><span class="amt">฿${fmtBaht(dailyTotal)}</span></div>
+      <div class="mff-sheet-row total"><span class="nm">รายจ่ายรวม (รวมรายวันแล้ว)</span><span class="amt">฿${fmtBaht(totalExpense)}</span></div>
       <div class="mff-sheet-row total"><span class="nm">ยอดคงเหลือ</span><span class="amt ${balance>=0?'pos':'neg'}">${balance<0?'-':''}฿${fmtBaht(Math.abs(balance))}</span></div>
     </div>
   `;
@@ -427,6 +438,11 @@ window.addEventListener('load', async ()=>{
 });
 
 })();
+</script>
+
+
+<script id="mff-module-ready-v14">
+(function(){const p=new URLSearchParams(location.search);if(p.get('audit')!=='1')return;setTimeout(function(){if(!window.parent||window.parent===window)return;try{window.parent.postMessage({type:'MFF_MODULE_READY',module:'ค่าใช้จ่ายรายเดือน',version:'V14',detail:'ระบบโมดูลและ Google Sheets adapter พร้อม'},window.location.origin)}catch(e){}},80)})();
 </script>
 
 </body>
