@@ -11,28 +11,22 @@
 <script src="../data-safety.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
-.mff-daily-total{padding:16px 20px 4px;text-align:center}
-.mff-daily-total .amt{font-size:32px;font-weight:700;color:var(--ink);font-family:'Prompt',sans-serif}
-.mff-daily-total .lbl{font-size:12.5px;color:var(--ink-soft);margin-top:2px}
-.mff-daily-cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 20px 4px}
-.mff-daily-cat-btn{
-  background:var(--surface);box-shadow:var(--shadow-card);border:0;border-radius:16px;
-  padding:14px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;
+/* extra bits for the daily page's note field inside the edit popup —
+   everything else reuses shell.css classes shared with monthly.html */
+.mff-modal-row-daily{padding:8px 0;border-bottom:1px solid var(--line)}
+.mff-modal-row-daily .top{display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:0}
+.mff-modal-row-daily .nm{flex:1;min-width:0;font-size:12.5px;color:var(--ink);line-height:1.4}
+.mff-modal-row-daily input.edit-amt{
+  width:104px;text-align:right;border:1px solid var(--line);border-radius:10px;padding:7px 10px;
+  font-size:16px;font-family:inherit;background:var(--surface);color:var(--ink);flex:none;
 }
-.mff-daily-cat-btn .ic{font-size:22px}
-.mff-daily-cat-btn .nm{font-size:11.5px;font-weight:600;color:var(--ink);text-align:center;line-height:1.3}
-.mff-daily-list{padding:6px 20px 100px}
-.mff-daily-entry{
-  display:flex;align-items:center;gap:10px;background:var(--surface);box-shadow:var(--shadow-card);
-  border-radius:14px;padding:12px 14px;margin-bottom:10px;
+.mff-modal-row-daily input.edit-note{
+  width:100%;margin-top:6px;border:1px solid var(--line);border-radius:10px;padding:7px 10px;
+  font-size:16px;font-family:inherit;background:var(--surface);color:var(--ink-soft);
 }
-.mff-daily-entry .ic{font-size:20px;flex:none}
-.mff-daily-entry .info{flex:1;min-width:0}
-.mff-daily-entry .cat{font-size:13.5px;font-weight:700;color:var(--ink)}
-.mff-daily-entry .note{font-size:11.5px;color:var(--ink-soft);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mff-daily-entry .amt{font-size:14.5px;font-weight:700;color:var(--expense);flex:none}
-.mff-daily-entry .del{flex:none;border:0;background:none;color:var(--ink-faint);font-size:18px;cursor:pointer;padding:2px 4px}
-.mff-daily-empty{text-align:center;color:var(--ink-faint);font-size:13px;padding:30px 10px}
+.mff-sheet-row.has-note{flex-direction:column;align-items:flex-start;gap:2px}
+.mff-sheet-row.has-note .top{display:flex;justify-content:space-between;width:100%}
+.mff-sheet-row.has-note .note{font-size:11px;color:var(--ink-faint)}
 </style>
 </head>
 <body>
@@ -55,20 +49,7 @@
 
   <div id="connectBanner"></div>
 
-  <div class="mff-month-nav" style="margin:14px 20px 0">
-    <button id="prevDay" aria-label="วันก่อนหน้า"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 5 8 12l7 7"/></svg></button>
-    <div class="label" id="dateLabel">วันนี้</div>
-    <button id="nextDay" aria-label="วันถัดไป"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m9 5 7 7-7 7"/></svg></button>
-  </div>
-
-  <div class="mff-daily-total">
-    <div class="amt" id="dayTotal">฿0</div>
-    <div class="lbl">ใช้จ่ายรวมวันนี้</div>
-  </div>
-
-  <div class="mff-daily-cat-grid" id="catGrid"></div>
-
-  <div class="mff-daily-list" id="entryList"></div>
+  <div id="viewRoot"></div>
 
 </div>
 
@@ -78,23 +59,15 @@
 (function(){
 'use strict';
 
-/* ===================== หมวดค่าใช้จ่ายรายวันที่คนทั่วไปใช้บ่อย ===================== */
-const CATEGORIES=[
-  {key:'food', name:'อาหาร', icon:'🍚'},
-  {key:'snack', name:'ค่าขนม/เครื่องดื่ม', icon:'🥤'},
-  {key:'coffee', name:'ค่ากาแฟ', icon:'☕'},
-  {key:'transport', name:'ค่าเดินทาง/น้ำมัน', icon:'⛽'},
-  {key:'parking', name:'ที่จอดรถ/ทางด่วน', icon:'🅿️'},
-  {key:'daily', name:'ของใช้ส่วนตัว', icon:'🧴'},
-  {key:'fun', name:'บันเทิง/สังสรรค์', icon:'🎉'},
-  {key:'health', name:'สุขภาพ/ยา', icon:'💊'},
-  {key:'bills', name:'โทรศัพท์/เน็ต', icon:'📱'},
-  {key:'other', name:'อื่นๆ', icon:'🧾'},
-];
+/* ===================== หมวดรายจ่ายรายวัน (ค่าเริ่มต้น) ===================== */
+const DAILY_OPTIONS=['อาหารเช้า','อาหารเที่ยง','อาหารเย็น','อื่นๆ'];
+const SEC={key:'daily', title:'รายจ่ายรายวัน', cls:'fixed', opts:DAILY_OPTIONS};
 
-/* ===================== Google Sheets sync — แท็บแยกต่างหาก "DailyExpenses" ===================== */
+/* ===================== Google Sheets sync — แท็บแยกต่างหาก "DailyExpenses"
+   (สคีมาเดิม ไม่เปลี่ยน เพื่อไม่ให้กระทบข้อมูลที่ซิงก์ไว้แล้ว) ===================== */
 const SHEETS_SCOPE='https://www.googleapis.com/auth/spreadsheets';
 const CACHE_KEY='mff_daily_cache_v1';
+const MONEY_CACHE_KEY='mff_money_cache_v3'; // อ่านอย่างเดียว เพื่อคำนวณยอดคงเหลือร่วมกับรายเดือน
 const TAB='DailyExpenses';
 const HEADERS=['ID','Date','Category','Amount','Note','CreatedAt','UpdatedAt'];
 
@@ -105,6 +78,7 @@ let entries=[]; // {id,date(YYYY-MM-DD),category,amount,note,createdAt,updatedAt
 let currentDate=dateKey(new Date());
 
 function dateKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function monthOf(dkey){ return dkey.slice(0,7); }
 function shiftDate(key,delta){
   const [y,m,dd]=key.split('-').map(Number);
   const d=new Date(y, m-1, dd+delta);
@@ -118,6 +92,28 @@ function dateLabel(key){
   if(key===today) return 'วันนี้ • '+dd+' '+THAI_MONTHS[m-1]+' '+(y+543);
   if(key===yest) return 'เมื่อวาน • '+dd+' '+THAI_MONTHS[m-1]+' '+(y+543);
   return dd+' '+THAI_MONTHS[m-1]+' '+(y+543);
+}
+function monthLabel(key){
+  const THAI_MONTHS=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  const [y,m]=key.split('-').map(Number);
+  return THAI_MONTHS[m-1]+' '+(y+543);
+}
+/* สัปดาห์แบบ จันทร์-อาทิตย์ */
+function startOfWeek(dkey){
+  const [y,m,dd]=dkey.split('-').map(Number);
+  const d=new Date(y,m-1,dd);
+  const dow=d.getDay(); // 0=อาทิตย์
+  const diffToMon = dow===0 ? -6 : 1-dow;
+  d.setDate(d.getDate()+diffToMon);
+  return dateKey(d);
+}
+function endOfWeek(dkey){ return shiftDate(startOfWeek(dkey), 6); }
+function weekLabel(dkey){
+  const s=startOfWeek(dkey), e=endOfWeek(dkey);
+  const [,sm,sd]=s.split('-').map(Number);
+  const [,em,ed]=e.split('-').map(Number);
+  const THAI_MONTHS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  return sd+' '+THAI_MONTHS[sm-1]+' – '+ed+' '+THAI_MONTHS[em-1];
 }
 function fmtBaht(n){ return (Number(n)||0).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:0}); }
 
@@ -212,6 +208,20 @@ async function syncSave(){
 function saveCache(){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify(entries)); }catch(e){} }
 function loadCache(){ try{ const raw=localStorage.getItem(CACHE_KEY); if(raw) entries=JSON.parse(raw); }catch(e){} }
 
+/* อ่านยอดรายรับ/รายจ่ายประจำเดือน (คนละแคช คนละแท็บกับหน้านี้ — อ่านอย่างเดียว) เพื่อคำนวณยอดคงเหลือ */
+function monthlyIncomeExpense(monthKey){
+  try{
+    const raw=localStorage.getItem(MONEY_CACHE_KEY);
+    const list=raw?JSON.parse(raw):[];
+    let income=0, otherExpense=0;
+    list.filter(t=>t.month===monthKey).forEach(t=>{
+      const amt=Number(t.amount)||0;
+      if(t.type==='income') income+=amt; else otherExpense+=amt;
+    });
+    return {income, otherExpense};
+  }catch(e){ return {income:0, otherExpense:0}; }
+}
+
 /* ===================== connect banner (เหมือนโมดูลอื่น) ===================== */
 function renderConnectBanner(){
   const el=document.getElementById('connectBanner');
@@ -294,69 +304,176 @@ function toast(msg){
   clearTimeout(toast._tm); toast._tm=setTimeout(()=>{t.style.opacity='0';},2600);
 }
 
-/* ===================== เพิ่มรายการ (เปิดจากปุ่มหมวดหมู่) ===================== */
-function openAddEntry(cat){
-  const html=`
-    <div style="text-align:center;font-size:32px;margin-bottom:4px">${cat.icon}</div>
-    <div style="text-align:center;font-weight:700;font-size:14px;margin-bottom:14px">${esc(cat.name)}</div>
-    <div class="mff-field-row"><div class="lbl">จำนวนเงิน (บาท)</div><input id="entryAmt" type="number" inputmode="decimal" placeholder="0" autofocus></div>
-    <div class="mff-field-row"><div class="lbl">โน้ต (ไม่บังคับ)</div><input id="entryNote" placeholder="เช่น ร้านอะไร, กับใคร"></div>
-  `;
-  modal('เพิ่มรายการ', html, [
-    {label:'ยกเลิก', ghost:true, onClick:closeModal},
-    {label:'บันทึก', onClick: async ()=>{
-      const amount=parseFloat(document.getElementById('entryAmt').value)||0;
-      const note=document.getElementById('entryNote').value.trim();
-      if(!amount){ toast('กรุณากรอกจำนวนเงิน'); return; }
-      const now=new Date().toISOString();
-      entries.push({id:uuid(), date:currentDate, category:cat.name, amount, note, createdAt:now, updatedAt:now});
-      closeModal();
-      render();
-      await syncSave();
-    }}
-  ]);
-  setTimeout(()=>document.getElementById('entryAmt')?.focus(),150);
+/* ===================== derived data ===================== */
+function entriesFor(date){ return entries.filter(e=>e.date===date); }
+function sumOf(arr){ return arr.reduce((s,e)=>s+(Number(e.amount)||0),0); }
+function amountOf(date,category){
+  const hit=entries.find(e=>e.date===date && e.category===category);
+  return hit?Number(hit.amount)||0:0;
+}
+function noteOf(date,category){
+  const hit=entries.find(e=>e.date===date && e.category===category);
+  return hit?(hit.note||''):'';
+}
+function allCategoriesFor(date){
+  const saved=entriesFor(date).map(e=>e.category);
+  const extras=saved.filter(c=>!SEC.opts.includes(c));
+  return SEC.opts.concat(extras.filter((c,i)=>extras.indexOf(c)===i));
+}
+function dayTotal(date){ return sumOf(entriesFor(date)); }
+function weekTotal(date){
+  const s=startOfWeek(date), e=endOfWeek(date);
+  return sumOf(entries.filter(t=>t.date>=s && t.date<=e));
+}
+function monthTotal(date){
+  const mk=monthOf(date);
+  return sumOf(entries.filter(t=>monthOf(t.date)===mk));
 }
 
-async function deleteEntry(id){
-  if(!confirm('ลบรายการนี้หรือไม่?')) return;
-  entries=entries.filter(e=>e.id!==id);
-  render();
-  await syncSave();
-}
-
-/* ===================== rendering ===================== */
-function catIcon(name){ const c=CATEGORIES.find(c=>c.name===name); return c?c.icon:'🧾'; }
-
+/* ===================== rendering (main page) ===================== */
 function render(){
-  document.getElementById('dateLabel').textContent=dateLabel(currentDate);
+  const root=document.getElementById('viewRoot');
+  const dToday=dayTotal(currentDate);
+  const wTotal=weekTotal(currentDate);
+  const mTotal=monthTotal(currentDate);
+  const {income, otherExpense}=monthlyIncomeExpense(monthOf(currentDate));
+  const balance=income-(otherExpense+mTotal);
+  const cats=allCategoriesFor(currentDate);
+  const shown=cats.filter(c=>amountOf(currentDate,c)>0);
 
-  const dayEntries=entries.filter(e=>e.date===currentDate).sort((a,b)=>Date.parse(b.createdAt)-Date.parse(a.createdAt));
-  const total=dayEntries.reduce((s,e)=>s+(Number(e.amount)||0),0);
-  document.getElementById('dayTotal').textContent='฿'+fmtBaht(total);
+  root.innerHTML=`
+    <div class="mff-month-nav">
+      <button id="prevDay" aria-label="วันก่อนหน้า"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 5 8 12l7 7"/></svg></button>
+      <div class="label">${dateLabel(currentDate)}</div>
+      <button id="nextDay" aria-label="วันถัดไป"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m9 5 7 7-7 7"/></svg></button>
+    </div>
 
-  document.getElementById('catGrid').innerHTML=CATEGORIES.map(c=>
-    `<button type="button" class="mff-daily-cat-btn" data-key="${c.key}"><span class="ic">${c.icon}</span><span class="nm">${esc(c.name)}</span></button>`
-  ).join('');
-  document.querySelectorAll('.mff-daily-cat-btn').forEach(btn=>{
-    btn.onclick=()=>openAddEntry(CATEGORIES.find(c=>c.key===btn.dataset.key));
-  });
+    <div class="mff-money-tabs">
+      <div class="mff-money-tab expense"><div class="t-lbl">รายวัน</div><div class="t-amt">฿${fmtBaht(dToday)}</div></div>
+      <div class="mff-money-tab expense"><div class="t-lbl">รายสัปดาห์</div><div class="t-amt">฿${fmtBaht(wTotal)}</div></div>
+      <div class="mff-money-tab expense"><div class="t-lbl">รายเดือน</div><div class="t-amt">฿${fmtBaht(mTotal)}</div></div>
+    </div>
 
-  document.getElementById('entryList').innerHTML = dayEntries.length
-    ? dayEntries.map(e=>`
-        <div class="mff-daily-entry">
-          <span class="ic">${catIcon(e.category)}</span>
-          <span class="info"><span class="cat">${esc(e.category)}</span>${e.note?('<div class="note">'+esc(e.note)+'</div>'):''}</span>
-          <span class="amt">฿${fmtBaht(e.amount)}</span>
-          <button type="button" class="del" data-id="${e.id}" aria-label="ลบ">×</button>
-        </div>`).join('')
-    : `<div class="mff-daily-empty">ยังไม่มีรายการวันนี้ — แตะหมวดหมู่ด้านบนเพื่อเริ่มบันทึก</div>`;
-  document.querySelectorAll('.mff-daily-entry .del').forEach(btn=>{
-    btn.onclick=()=>deleteEntry(btn.dataset.id);
-  });
+    <button class="mff-edit-trigger" id="editBtn">แก้ไข</button>
+
+    <div class="mff-sheet">
+      <div class="mff-sheet-head ${SEC.cls}">${SEC.title} • ${esc(dateLabel(currentDate))}</div>
+      ${shown.length? shown.map(c=>{
+          const note=noteOf(currentDate,c);
+          return note
+            ? `<div class="mff-sheet-row has-note"><div class="top"><span class="nm">${esc(c)}</span><span class="amt">฿${fmtBaht(amountOf(currentDate,c))}</span></div><div class="note">${esc(note)}</div></div>`
+            : `<div class="mff-sheet-row"><span class="nm">${esc(c)}</span><span class="amt">฿${fmtBaht(amountOf(currentDate,c))}</span></div>`;
+        }).join('')
+        : `<div class="mff-sheet-row"><span class="nm" style="color:var(--ink-faint)">ยังไม่มีรายการวันนี้ — กด "แก้ไข" เพื่อกรอกข้อมูล</span></div>`}
+      <div class="mff-sheet-row total"><span class="nm">รวม</span><span class="amt">฿${fmtBaht(dToday)}</span></div>
+    </div>
+
+    <div class="mff-sheet">
+      <div class="mff-sheet-head summary">สรุป</div>
+      <div class="mff-sheet-row total"><span class="nm">รายจ่ายรายวัน</span><span class="amt">฿${fmtBaht(dToday)}</span></div>
+      <div class="mff-sheet-row total"><span class="nm">รายจ่ายรายสัปดาห์ (${esc(weekLabel(currentDate))})</span><span class="amt">฿${fmtBaht(wTotal)}</span></div>
+      <div class="mff-sheet-row total"><span class="nm">รายจ่ายรายเดือน (${esc(monthLabel(monthOf(currentDate)))})</span><span class="amt">฿${fmtBaht(mTotal)}</span></div>
+      <div class="mff-sheet-row total"><span class="nm">ยอดคงเหลือ</span><span class="amt ${balance>=0?'pos':'neg'}">${balance<0?'-':''}฿${fmtBaht(Math.abs(balance))}</span></div>
+    </div>
+  `;
 
   document.getElementById('prevDay').onclick=()=>{ currentDate=shiftDate(currentDate,-1); render(); };
   document.getElementById('nextDay').onclick=()=>{ currentDate=shiftDate(currentDate,1); render(); };
+  document.getElementById('editBtn').onclick=openEditPopup;
+}
+
+/* ===================== edit popup (ป้อนรายจ่ายของวันที่กำลังดู + โน้ต + เพิ่มรายการอื่นได้) ===================== */
+function openEditPopup(){
+  closeModal();
+  const d=document.createElement('div');
+  d.id='mffModal';
+  d.style.cssText='position:fixed;inset:0;z-index:5000;background:rgba(20,33,29,.45);display:flex;align-items:flex-end;justify-content:center';
+  d.innerHTML=`
+    <div style="width:100%;max-width:460px;max-height:86vh;background:var(--bg);border-radius:22px 22px 0 0;display:flex;flex-direction:column;overflow:hidden">
+      <h3 style="margin:0;padding:18px 20px 12px;font-size:16px;flex:none;border-bottom:1px solid var(--line)">แก้ไขข้อมูลวันที่ ${esc(dateLabel(currentDate))}</h3>
+      <div id="mffModalBody" style="flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 20px">
+        ${editSectionHtml()}
+        <div style="height:8px"></div>
+      </div>
+      <div class="mff-modal-live-summary" style="flex:none;padding:10px 20px 0;margin:0">
+        <span>รวมรายจ่ายวันนี้ (คำนวณสด)</span>
+        <span id="liveTotal">฿0</span>
+      </div>
+      <div style="display:flex;gap:10px;flex:none;padding:12px 20px calc(14px + env(safe-area-inset-bottom,0px))">
+        <button class="mff-btn mff-btn-ghost" id="popupCancel">ยกเลิก</button>
+        <button class="mff-btn mff-btn-primary" id="popupSave">บันทึกข้อมูล</button>
+      </div>
+    </div>`;
+  document.body.appendChild(d);
+  d.addEventListener('click',e=>{ if(e.target===d) closeModal(); });
+  document.getElementById('popupCancel').onclick=closeModal;
+  document.getElementById('popupSave').onclick=saveEditPopup;
+
+  wireLiveSummary();
+}
+
+function editSectionHtml(){
+  const cats=allCategoriesFor(currentDate);
+  return `
+    <div class="mff-modal-section-head ${SEC.cls}">${SEC.title}</div>
+    <div class="edit-rows" data-type="${SEC.key}">
+      ${cats.map(c=>`
+        <div class="mff-modal-row-daily" data-cat="${esc(c)}">
+          <div class="top">
+            <span class="nm">${esc(c)}</span>
+            <input type="number" inputmode="decimal" class="edit-amt" placeholder="0" value="${amountOf(currentDate,c)||''}">
+          </div>
+          <input type="text" class="edit-note" placeholder="โน้ต (ไม่บังคับ) เช่น ร้านอะไร กับใคร" value="${esc(noteOf(currentDate,c))}">
+        </div>`).join('')}
+    </div>
+    <button type="button" class="mff-modal-add-row" data-addcustom="${SEC.key}">+ เพิ่มรายการอื่นในหมวดนี้</button>
+  `;
+}
+
+function wireLiveSummary(){
+  const root=document.getElementById('mffModalBody');
+  function recalc(){
+    let total=0;
+    root.querySelectorAll('.edit-rows[data-type="daily"] .edit-amt').forEach(i=>total+=parseFloat(i.value)||0);
+    const el=document.getElementById('liveTotal');
+    if(el){ el.textContent='฿'+fmtBaht(total); el.style.color=getCss('--expense'); }
+  }
+  root.addEventListener('input', e=>{ if(e.target.classList.contains('edit-amt')) recalc(); });
+  root.querySelectorAll('[data-addcustom]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const name=prompt('ตั้งชื่อรายการใหม่:');
+      if(!name||!name.trim()) return;
+      const rowsWrap=root.querySelector(`.edit-rows[data-type="daily"]`);
+      const row=document.createElement('div');
+      row.className='mff-modal-row-daily';
+      row.dataset.cat=name.trim();
+      row.innerHTML=`<div class="top"><span class="nm">${esc(name.trim())}</span><input type="number" inputmode="decimal" class="edit-amt" placeholder="0"></div><input type="text" class="edit-note" placeholder="โน้ต (ไม่บังคับ) เช่น ร้านอะไร กับใคร">`;
+      rowsWrap.appendChild(row);
+    });
+  });
+  recalc();
+}
+function getCss(varName){ return getComputedStyle(document.documentElement).getPropertyValue(varName).trim(); }
+
+async function saveEditPopup(){
+  const root=document.getElementById('mffModalBody');
+  const now=new Date().toISOString();
+  const newRowsForDay=[];
+  root.querySelectorAll(`.edit-rows[data-type="daily"] .mff-modal-row-daily`).forEach(rowEl=>{
+    const category=rowEl.dataset.cat;
+    const amount=parseFloat(rowEl.querySelector('.edit-amt').value)||0;
+    const note=(rowEl.querySelector('.edit-note').value||'').trim();
+    if(!category || !amount) return;
+    const existing=entries.find(t=>t.date===currentDate && t.category===category);
+    newRowsForDay.push({
+      id: existing?existing.id:uuid(), date:currentDate, category, amount, note,
+      createdAt: existing?existing.createdAt:now, updatedAt: now
+    });
+  });
+  entries = entries.filter(t=>t.date!==currentDate).concat(newRowsForDay);
+  closeModal();
+  render();
+  await syncSave();
 }
 
 /* ===================== boot ===================== */

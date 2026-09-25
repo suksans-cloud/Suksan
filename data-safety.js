@@ -6,6 +6,15 @@
   const TOMBSTONES=NS+'tombstones';
   const META=NS+'meta';
   const watched=/cache|data|items|bookshelf|profile|portfolio|money|expense|investment/i;
+  /* Keys already owned end-to-end by the Smart Sync engine (Settings > Smart Sync).
+     That engine keeps its own id/createdAt/updatedAt per record and does its own
+     three-way diff against a base snapshot. If this generic layer also rewrites
+     those same keys (stamping a fresh updated_at on every save, queuing writes
+     that the Smart Sync engine never reads), the diff never settles: local vs.
+     base looks "changed" forever even when nothing changed, and the offline-queue
+     badge can never reach zero because syncing itself creates new queue entries.
+     So these keys are left completely untouched here — Smart Sync alone owns them. */
+  const syncEngineOwned=/^mff_(daily_cache_v1|money_cache_v3|bookshelf_cache_v1|profiles_cache_v1|sync_base_v1_|sync_dirty_v1_|sync_backup_v2|sync_history_v2)/;
   const clone=o=>{try{return JSON.parse(JSON.stringify(o));}catch(e){return o;}};
   const read=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}};
   const write=(k,v)=>{try{if(typeof rawSet==='function') rawSet(k,JSON.stringify(v)); else localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}};
@@ -64,6 +73,7 @@
   const rawRemove=localStorage.removeItem.bind(localStorage);
   // Intercept only application JSON arrays. This adds IDs and an offline queue without changing page APIs.
   localStorage.setItem=function(key,value){
+    if(syncEngineOwned.test(key)){ rawSet(key,value); updateBadge(); return; }
     try{
       if(typeof value==='string' && watched.test(key) && key.indexOf(NS)!==0){
         const parsed=JSON.parse(value);
@@ -79,6 +89,7 @@
     rawSet(key,value); updateBadge();
   };
   localStorage.removeItem=function(key){
+    if(syncEngineOwned.test(key)){ rawRemove(key); updateBadge(); return; }
     // Do not physically delete watched application data. Keep a tombstone marker.
     if(watched.test(key) && key.indexOf(NS)!==0){
       const old=read(key,null); if(old){
@@ -112,7 +123,12 @@
   }
   function exportQueue(){return clone(read(QUEUE,[]));}
   function clearQueue(){rawSet(QUEUE,'[]');updateBadge();}
-  window.MFFDataSafety={version:'2.0',pending,softDelete,restore,restoreLast,exportQueue,clearQueue,updateBadge,queue,normalizeRecord};
+  function removeFromQueue(qids){
+    const drop=new Set((qids||[]).map(String));
+    const remaining=read(QUEUE,[]).filter(x=>!drop.has(String(x.qid)));
+    write(QUEUE,remaining); updateBadge();
+  }
+  window.MFFDataSafety={version:'2.0',pending,softDelete,restore,restoreLast,exportQueue,clearQueue,removeFromQueue,updateBadge,queue,normalizeRecord};
   window.addEventListener('online',updateBadge); window.addEventListener('offline',updateBadge);
   setTimeout(updateBadge,0);
 })();

@@ -21,16 +21,7 @@
 .mff-money-hub-tile h3{margin:0;font-size:14.5px;font-weight:700}
 .mff-money-hub-tile p{margin:0;font-size:11.5px;color:var(--ink-soft);line-height:1.4}
 
-.mff-money-summary{margin:16px 20px 20px;background:var(--surface);box-shadow:var(--shadow-card);border-radius:20px;padding:18px}
-.mff-money-summary h2{margin:0 0 12px;font-size:14.5px;display:flex;align-items:center;gap:6px}
-.mff-money-summary-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
-.mff-money-summary-row:last-child{border-bottom:0;padding-bottom:0}
-.mff-money-summary-row .nm{font-size:12.5px;color:var(--ink-soft)}
-.mff-money-summary-row .amt{font-size:15px;font-weight:700}
-.mff-money-summary-row .amt.pos{color:var(--income)}
-.mff-money-summary-row .amt.neg{color:var(--expense)}
-.mff-money-summary-divider{font-size:11px;color:var(--ink-faint);font-weight:700;margin:14px 0 2px;text-transform:uppercase;letter-spacing:.03em}
-.mff-money-summary-note{font-size:11px;color:var(--ink-faint);margin-top:10px;line-height:1.5}
+.mff-money-summary-wrap{margin:16px 20px 20px}
 </style>
 </head>
 <body>
@@ -65,30 +56,15 @@
     </a>
   </div>
 
-  <!-- 3: สรุปยอด (แสดงผลอย่างเดียว) — รายจ่ายรายวันสะสมของเดือนนี้ถูกรวมเข้าไปในยอดรายจ่ายรายเดือนด้วย -->
-  <div class="mff-money-summary">
-    <h2>📋 สรุปยอด</h2>
-
-    <div class="mff-money-summary-divider">ค่าใช้จ่ายรายวัน</div>
-    <div class="mff-money-summary-row">
-      <span class="nm">สะสมเดือนนี้ (<span id="sumDailyMonthLabel"></span>)</span>
-      <span class="amt neg" id="sumDailyMonth">฿0</span>
+  <!-- 3: สรุปยอด — ดึงข้อมูลชุดเดียวกับการ์ด "สรุป" ในหน้าค่าใช้จ่ายรายวัน (รายวัน/รายสัปดาห์/รายเดือน/ยอดคงเหลือ) -->
+  <div class="mff-money-summary-wrap">
+    <div class="mff-sheet">
+      <div class="mff-sheet-head summary">สรุป</div>
+      <div class="mff-sheet-row total"><span class="nm">รายจ่ายรายวัน</span><span class="amt" id="sumDaily">฿0</span></div>
+      <div class="mff-sheet-row total"><span class="nm" id="sumWeekLabel">รายจ่ายรายสัปดาห์</span><span class="amt" id="sumWeek">฿0</span></div>
+      <div class="mff-sheet-row total"><span class="nm" id="sumMonthLabel">รายจ่ายรายเดือน</span><span class="amt" id="sumMonth">฿0</span></div>
+      <div class="mff-sheet-row total"><span class="nm">ยอดคงเหลือ</span><span class="amt" id="sumBalance">฿0</span></div>
     </div>
-
-    <div class="mff-money-summary-divider">ค่าใช้จ่ายรายเดือน</div>
-    <div class="mff-money-summary-row">
-      <span class="nm">รายรับ</span>
-      <span class="amt pos" id="sumMonthIncome">฿0</span>
-    </div>
-    <div class="mff-money-summary-row">
-      <span class="nm">รายจ่าย</span>
-      <span class="amt neg" id="sumMonthExpense">฿0</span>
-    </div>
-    <div class="mff-money-summary-row">
-      <span class="nm">ยอดคงเหลือ</span>
-      <span class="amt" id="sumMonthBalance">฿0</span>
-    </div>
-    <p class="mff-money-summary-note">* ยอด "รายจ่าย" ด้านบนรวมค่าใช้จ่ายรายวันสะสมของเดือนนี้ไว้ด้วยแล้ว</p>
   </div>
 
 </div>
@@ -107,18 +83,41 @@ function monthLabelTH(key){
   return THAI_MONTHS[m-1]+' '+(y+543);
 }
 function readJSON(key,fallback){ try{ const raw=localStorage.getItem(key); return raw?JSON.parse(raw):fallback; }catch(e){ return fallback; } }
+function dateKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function shiftDate(key,delta){
+  const [y,m,dd]=key.split('-').map(Number);
+  const d=new Date(y, m-1, dd+delta);
+  return dateKey(d);
+}
+/* สัปดาห์แบบ จันทร์-อาทิตย์ — สูตรเดียวกับหน้าค่าใช้จ่ายรายวัน */
+function startOfWeek(dkey){
+  const [y,m,dd]=dkey.split('-').map(Number);
+  const d=new Date(y,m-1,dd);
+  const dow=d.getDay();
+  const diffToMon = dow===0 ? -6 : 1-dow;
+  d.setDate(d.getDate()+diffToMon);
+  return dateKey(d);
+}
+function endOfWeek(dkey){ return shiftDate(startOfWeek(dkey), 6); }
+function weekLabel(dkey){
+  const s=startOfWeek(dkey), e=endOfWeek(dkey);
+  const [,sm,sd]=s.split('-').map(Number);
+  const [,em,ed]=e.split('-').map(Number);
+  const TH=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  return sd+' '+TH[sm-1]+' – '+ed+' '+TH[em-1];
+}
 
+const today = dateKey(new Date());
 const thisMonthKey = monthKey(new Date());
-document.getElementById('sumDailyMonthLabel').textContent = monthLabelTH(thisMonthKey);
+const weekStart = startOfWeek(today), weekEnd = endOfWeek(today);
 
-/* ---- ค่าใช้จ่ายรายวันสะสมของเดือนนี้: อ่านจาก cache ของหน้า daily.html ---- */
+/* ---- ค่าใช้จ่ายรายวัน: อ่านจาก cache ของหน้า daily.html (ชุดข้อมูลเดียวกับการ์ด "สรุป" ในหน้านั้น) ---- */
 const dailyEntries = readJSON('mff_daily_cache_v1', []);
-const dailyMonthTotal = dailyEntries
-  .filter(e => (e.date||'').slice(0,7) === thisMonthKey)
-  .reduce((s,e)=>s+(Number(e.amount)||0), 0);
-document.getElementById('sumDailyMonth').textContent = '฿'+fmtBaht(dailyMonthTotal);
+const dailyToday = dailyEntries.filter(e=>e.date===today).reduce((s,e)=>s+(Number(e.amount)||0),0);
+const dailyWeek = dailyEntries.filter(e=>e.date>=weekStart && e.date<=weekEnd).reduce((s,e)=>s+(Number(e.amount)||0),0);
+const dailyMonthTotal = dailyEntries.filter(e=>(e.date||'').slice(0,7)===thisMonthKey).reduce((s,e)=>s+(Number(e.amount)||0),0);
 
-/* ---- ค่าใช้จ่ายรายเดือน: อ่านจาก cache ของหน้า monthly.html แล้วรวมค่าใช้จ่ายรายวันสะสมเข้าไปในยอดรายจ่าย ---- */
+/* ---- ค่าใช้จ่ายรายเดือน (รายรับ/รายจ่ายประจำ) + รวมรายจ่ายรายวันสะสมของเดือนนี้เข้าไปในยอดรายจ่าย ---- */
 const monthItems = readJSON('mff_money_cache_v3', []);
 let income=0, monthlyExpense=0;
 monthItems.forEach(t=>{
@@ -126,12 +125,15 @@ monthItems.forEach(t=>{
   const amt=Number(t.amount)||0;
   if(t.type==='income') income+=amt; else monthlyExpense+=amt;
 });
-const totalExpense = monthlyExpense + dailyMonthTotal; // รวมรายวันสะสมเข้ากับรายจ่ายประจำเดือน
+const totalExpense = monthlyExpense + dailyMonthTotal;
 const balance = income - totalExpense;
 
-document.getElementById('sumMonthIncome').textContent = '฿'+fmtBaht(income);
-document.getElementById('sumMonthExpense').textContent = '฿'+fmtBaht(totalExpense);
-const balEl=document.getElementById('sumMonthBalance');
+document.getElementById('sumDaily').textContent = '฿'+fmtBaht(dailyToday);
+document.getElementById('sumWeekLabel').textContent = 'รายจ่ายรายสัปดาห์ ('+weekLabel(today)+')';
+document.getElementById('sumWeek').textContent = '฿'+fmtBaht(dailyWeek);
+document.getElementById('sumMonthLabel').textContent = 'รายจ่ายรายเดือน ('+monthLabelTH(thisMonthKey)+')';
+document.getElementById('sumMonth').textContent = '฿'+fmtBaht(totalExpense);
+const balEl=document.getElementById('sumBalance');
 balEl.textContent = (balance<0?'-':'')+'฿'+fmtBaht(Math.abs(balance));
 balEl.className = 'amt '+(balance>=0?'pos':'neg');
 })();

@@ -67,6 +67,17 @@
 @keyframes mffSyncShine{55%,100%{transform:translateX(100%)}}
 .mff-danger-note{font-size:10.5px;color:var(--ink-faint);line-height:1.45;margin-top:8px}
 @media(max-width:360px){.mff-control-grid{grid-template-columns:1fr 1fr}.mff-control-stat:last-child{grid-column:1/-1}}
+
+/* Clean Sync UI — keep diagnostics in code, out of the user's way */
+.mff-clean-note{font-size:11px;color:var(--ink-soft);line-height:1.5;margin-top:7px}
+.mff-clean-last{margin-top:9px;padding:9px 10px;border:1px solid var(--line);border-radius:12px;background:var(--bg);font-size:11.5px}
+.mff-primary-sync:after{display:none!important}
+.mff-settings-card,.mff-control-strip,.mff-sync-all-btn,.mff-sync-progress,.mff-sync-safety{box-shadow:none!important}
+#mffQueuePanel,#syncHistory{display:none!important}
+#advancedGoogleSession,#advancedCache,#advancedBackend{display:none!important}
+#btnModuleAudit,#btnSyncPreflight,#btnSyncEngineTest,#btnQueueSafetyTest,#btnFinalLocalCheck,#btnSyncAllPull,#btnSyncAllPush{display:none!important}
+#syncAllProgress{margin-top:10px}
+.mff-report-status{margin-top:9px;padding:9px 10px;border-radius:12px;background:var(--bg);border:1px solid var(--line);font-size:11.5px;line-height:1.5}
 </style>
 </head>
 <body>
@@ -105,7 +116,7 @@
 
   <div class="mff-settings-body">
 
-    <section class="mff-settings-card">
+    <section class="mff-settings-card" id="advancedGoogleSession">
       <h2>🔐 Google Session</h2>
       <p class="hint">สิทธิ์ Google จะอยู่เฉพาะใน session ของเบราว์เซอร์ ไม่เก็บ access token ไว้ใน Local Storage และจะไม่ขอสิทธิ์ใหม่เมื่อเปลี่ยนหน้า</p>
       <div class="mff-settings-actions">
@@ -127,22 +138,11 @@
 
     <section class="mff-settings-card">
       <h2>🔄 ซิงก์ข้อมูลทั้งหมด</h2>
-      <p class="hint">ใช้ <b>Smart Sync</b> เป็นปุ่มหลัก ระบบจะตรวจข้อมูลในเครื่องเทียบกับ Google Sheets ก่อน แล้วรวมข้อมูลที่ไม่ขัดแย้งให้เอง หากพบการแก้ไขทั้งสองฝั่งจะหยุดเฉพาะโมดูลนั้นและให้เลือกว่าจะใช้ฝั่งใด — ไม่ทับข้อมูลเงียบ ๆ</p>
+      <p class="hint">กดปุ่มเดียว ระบบจะอ่านข้อมูลล่าสุดจาก Google Sheets, รวมข้อมูลที่ไม่ขัดแย้ง, ป้องกันการทับข้อมูล และตรวจผลหลังซิงก์ให้เอง</p>
       <div class="mff-sync-all-actions">
-        <button type="button" class="mff-sync-all-btn push mff-primary-sync" id="btnSmartSync" style="grid-column:1/-1">🔄 Smart Sync ทั้งหมด</button>
-        <button type="button" class="mff-sync-all-btn" id="btnModuleAudit" style="grid-column:1/-1">🔎 ตรวจครบทุกโมดูล</button>
-        <button type="button" class="mff-sync-all-btn" id="btnSyncPreflight" style="grid-column:1/-1">🧪 ตรวจข้อมูลก่อน Sync (ไม่เขียนข้อมูล)</button>
-      <button type="button" class="mff-sync-all-btn" id="btnSyncEngineTest" style="grid-column:1/-1">🧩 ทดสอบ Smart Sync ในเครื่อง (ไม่แตะ Google Sheets)
-</button>
-<button id="btnQueueSafetyTest" class="secondary" style="margin-top:6px">🛡️ ตรวจ Queue Safety</button>
-      <button id="btnFinalLocalCheck" class="mff-btn mff-btn-ghost">🏁 ตรวจ Final Build ในเครื่อง</button>
+        <button type="button" class="mff-sync-all-btn push mff-primary-sync" id="btnSmartSync" style="grid-column:1/-1">🔄 ซิงก์ข้อมูลล่าสุด</button>
       </div>
-      <details style="margin-top:10px"><summary style="font-size:11.5px;color:var(--ink-soft);cursor:pointer">ขั้นสูง: บังคับดึง / บังคับส่ง</summary>
-        <div class="mff-sync-all-actions" style="margin-top:8px">
-          <button type="button" class="mff-sync-all-btn pull" id="btnSyncAllPull">⬇️ บังคับดึงจาก Sheet</button>
-          <button type="button" class="mff-sync-all-btn push" id="btnSyncAllPush">⬆️ บังคับส่งขึ้น Sheet</button>
-        </div>
-      </details>
+      <div class="mff-clean-note">ไม่ต้องเลือกว่าจะดึงหรือส่งข้อมูล ระบบจัดการให้เองเพื่อป้องกันข้อมูลหาย</div>
       <div class="mff-sync-progress" id="syncAllProgress" hidden>
         <div class="mff-sync-progress-head"><b id="syncAllProgressTitle">กำลังซิงก์…</b><span id="syncAllProgressCount">0/5</span></div>
         <div class="mff-sync-progress-bar"><span id="syncAllProgressBar"></span></div>
@@ -170,7 +170,7 @@
     </section>
 
 
-    <section class="mff-settings-card">
+    <section class="mff-settings-card" id="advancedCache">
       <h2>🧹 จัดการ Cache & ข้อมูลชั่วคราว</h2>
       <p class="hint">ล้างเฉพาะข้อมูลค้นหา/แคชในเครื่องได้ โดยไม่ลบข้อมูลจริงบน Google Sheets</p>
       <div class="mff-sync-safety-actions">
@@ -204,17 +204,17 @@
       <p class="hint">สรุปรายรับ-รายจ่าย (My Money), เงินลงทุนสะสมเทียบเดือนก่อน (My Portfolio), จำนวนหนังสือ 3 หมวด (My Bookshelf) — ส่งเข้าอีเมลอัตโนมัติทุกวันที่ 1 ของเดือนถัดไป โดยอ่านข้อมูลจาก Google Sheet ด้านบน</p>
       <div id="reportAdminGate">
         <div class="mff-field-row"><div class="lbl">อีเมลผู้รับ</div><input id="cfgReportEmail" type="email" placeholder="name@email.com"></div>
-        <div class="mff-settings-actions" style="flex-direction:column;gap:8px">
-          <button id="btnSaveReport" class="mff-btn mff-btn-primary">บันทึกการตั้งค่า</button>
-          <button id="btnInstallTrigger" class="mff-btn mff-btn-ghost">เปิดใช้งานส่งอัตโนมัติทุกวันที่ 1</button>
-          <button id="btnTestReport" class="mff-btn mff-btn-ghost">ส่งอีเมลทดสอบตอนนี้ (สรุปเดือนปัจจุบัน)</button>
+        <div class="mff-settings-actions" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button id="btnSaveReport" class="mff-btn mff-btn-primary" style="grid-column:1/-1">💾 บันทึกและเปิดส่งอัตโนมัติ</button>
+          <button id="btnTestReport" class="mff-btn mff-btn-ghost">📧 ส่งทดสอบ</button>
+          <button id="btnInstallTrigger" class="mff-btn mff-btn-ghost" style="display:none">เปิดใช้งานส่งอัตโนมัติ</button>
         </div>
-        <div class="mff-sync-status" id="statusReport"></div>
-        <p class="hint" style="margin-top:10px;color:#c0783a">⚠️ เว็บแอปรุ่นนี้ไม่มีระบบล็อกอิน ใครก็ตามที่เปิดหน้านี้แก้อีเมลผู้รับรายงานได้ ถ้าต้องการจำกัดสิทธิ์เฉพาะ Admin ให้ใช้ไฟล์รุ่น "With-Login" แทน</p>
+        <div class="mff-report-status" id="statusReport"></div>
+        <div class="mff-clean-note">ใช้ Sheet ID เดียวกับด้านบน ไม่ต้องสร้าง ID ใหม่</div>
       </div>
     </section>
 
-    <section class="mff-settings-card">
+    <section class="mff-settings-card" id="advancedBackend">
       <h2>⚙️ Apps Script Backend</h2>
       <div class="mff-field-row"><div class="lbl">Endpoint</div><div class="val" id="endpointDisplay" style="word-break:break-all;font-size:11px"></div></div>
       <p class="hint" style="margin-top:8px">แก้ URL นี้ได้ที่ไฟล์ <code>config.js</code> จุดเดียว ใช้ร่วมกันทั้งระบบล็อกอินและรายงานสรุปรายเดือน</p>
@@ -422,11 +422,21 @@ function conflictDialog(t,conflicts){
 }
 
 async function safeWriteRemote(token,sid,t,list,expectedRemote){
-  // Optimistic concurrency guard: re-read immediately before replacing a tab.
-  // If another client changed the Sheet after our first read, stop instead of overwriting it.
+  // Optimistic concurrency guard + read-back verification.
+  // Never report success until Google Sheets returns the exact merged dataset.
   const latest=await readRemote(token,sid,t);
   if(expectedRemote && !same(latest,expectedRemote)) throw new Error('Google Sheets มีการเปลี่ยนแปลงระหว่างซิงก์ — หยุดเพื่อป้องกันการทับข้อมูล');
-  await writeRemote(token,sid,t,list);
+  let lastErr=null;
+  for(let attempt=1;attempt<=2;attempt++){
+    try{
+      await writeRemote(token,sid,t,list);
+      const verify=await readRemote(token,sid,t);
+      if(same(verify,list)) return {verified:true,attempt};
+      lastErr=new Error('ตรวจสอบหลังเขียนแล้วข้อมูลใน Google Sheets ยังไม่ตรงกัน');
+    }catch(e){ lastErr=e; }
+    if(attempt<2) await new Promise(r=>setTimeout(r,700));
+  }
+  throw lastErr||new Error('ยืนยันข้อมูลหลัง Sync ไม่สำเร็จ');
 }
 
 async function smartSyncOne(token,sid,t){
@@ -516,6 +526,10 @@ async function runSmartSync(opts){
   const cid=clientIdInput.value.trim()||localStorage.getItem('google_client_id')||'',sid=sheetIdInput.value.trim()||localStorage.getItem('google_sheet_id')||'';
   if(!cid||!sid){toast('กรุณากรอก Client ID / Sheet ID ก่อน');return;}
   setSyncAllBusy(true);const statusEl=document.getElementById('statusSyncAll');statusEl.innerHTML='กำลังตรวจสอบข้อมูลก่อนซิงก์…';const total=SYNC_TARGETS.length+1;let done=0,conf=0;
+  // Snapshot which offline-queue items exist *before* this run starts. Anything already
+  // queued at this moment is what this sync is about to resolve; anything added later
+  // (by another tab/module while this sync is in flight) is new work and must stay queued.
+  const preSyncQueueIds=(window.MFFDataSafety?.exportQueue?.()||[]).map(x=>x.qid);
   try{
     const token=await ensureSheetsTokenForSyncAll(cid);if(!token)throw new Error('ขอสิทธิ์ Google Sheets ไม่สำเร็จ');localStorage.setItem('google_sheets_connected','1');
     const remoteBackup={};
@@ -525,17 +539,21 @@ async function runSmartSync(opts){
     for(const t of SYNC_TARGETS){updateSyncAllProgress(done,total,'🔄 ตรวจ '+t.name);try{const r=await smartSyncOne(token,sid,t);if(r.status==='conflict')conf+=r.conflicts||0;}catch(e){conf++;toast(t.name+' ซิงก์ไม่สำเร็จ: '+e.message);}done++;updateSyncAllProgress(done,total,t.name+' ✓');renderSyncModuleRows();renderModuleStatus();}
     updateSyncAllProgress(done,total,'🔄 📊 My Portfolio');
     try{await runPortfolioSmartSync();done++;updateSyncAllProgress(done,total,'📊 My Portfolio ✓');}catch(e){conf++;done++;toast('My Portfolio Smart Sync ไม่สำเร็จ: '+e.message);}
-    statusEl.innerHTML=conf?`<span class="warn">⚠️ ซิงก์เสร็จแล้ว แต่มี ${conf} จุดที่ต้องตรวจสอบ</span>`:'<span class="ok">✅ Smart Sync เสร็จแล้ว — ไม่มีการทับข้อมูลเงียบ ๆ</span>';
-    // Queue Safety: never clear the offline queue merely because the API loop ended.
-    // Clear only after every module completed without conflicts AND the queue is empty/verified.
-    if(!conf && window.MFFDataSafety?.exportQueue){
-      const remaining=window.MFFDataSafety.exportQueue()||[];
-      if(remaining.length===0){
-        if(window.MFFDataSafety.clearQueue) window.MFFDataSafety.clearQueue();
-      }else{
-        // Keep queue intact if another module/event added work during this sync.
-        addSyncHistory('Queue Safety','ยังมี '+remaining.length+' รายการ — คง Queue ไว้เพื่อความปลอดภัย');
+    if(!conf){
+      // One final read-only verification makes the first Sync authoritative before we show success.
+      for(const t of SYNC_TARGETS){
+        const verify=await readRemote(token,sid,t);
+        if(!same(verify,getLocal(t))) throw new Error(t.name+' ยังยืนยันข้อมูลหลัง Sync ไม่สำเร็จ');
       }
+      addSyncHistory('Verified Sync','ตรวจสอบข้อมูลหลัง Sync ครบทุกโมดูล');
+    }
+    statusEl.innerHTML=conf?`<span class="warn">⚠️ ซิงก์เสร็จแล้ว แต่มี ${conf} จุดที่ต้องตรวจสอบ</span>`:'<span class="ok">✅ ซิงก์สำเร็จและตรวจสอบข้อมูลล่าสุดแล้ว</span>';
+    // Queue Safety: clear exactly the items that were already queued when this sync began.
+    // (Requiring the queue to be "totally empty" after the loop never worked reliably —
+    // any unrelated module writing during the run would keep re-populating it and the
+    // badge would look permanently "not synced" even on a fully successful sync.)
+    if(!conf && preSyncQueueIds.length && window.MFFDataSafety?.removeFromQueue){
+      window.MFFDataSafety.removeFromQueue(preSyncQueueIds);
     }
     if(!opts.silent) toast(conf?'ซิงก์เสร็จแล้ว มีข้อมูลชนกันให้ตรวจสอบ':'ซิงก์ทั้งหมดเรียบร้อย');
   }catch(e){statusEl.innerHTML='<span class="warn">⚠️ '+esc(e.message||e)+'</span>';if(opts.auto) throw e;}
@@ -559,10 +577,11 @@ async function runSyncAll(dir){
   const actionText=dir==='pull'?'บังคับดึงจาก Google Sheets จะทับข้อมูลในเครื่อง':'บังคับส่งจากเครื่องจะทับข้อมูลใน Google Sheets';
   if(!confirm(actionText+'\n\nควรใช้เฉพาะเมื่อแน่ใจว่าต้องการทับข้อมูล ต้องการดำเนินการต่อหรือไม่?'))return;
   setSyncAllBusy(true);const statusEl=document.getElementById('statusSyncAll');let done=0;const total=SYNC_TARGETS.length+1;
+  const preSyncQueueIds=(window.MFFDataSafety?.exportQueue?.()||[]).map(x=>x.qid);
   try{const token=await ensureSheetsTokenForSyncAll(cid);if(!token)throw new Error('ขอสิทธิ์ Google Sheets ไม่สำเร็จ');
     const remoteBackup={};for(const t of SYNC_TARGETS){try{remoteBackup[t.key]=await readRemote(token,sid,t);}catch(e){remoteBackup[t.key]=null;}}
     createBackup('ก่อน Force Sync',remoteBackup);addSyncHistory('Backup','สร้าง Snapshot ก่อน Force Sync');
-    for(const t of SYNC_TARGETS){updateSyncAllProgress(done,total,(dir==='pull'?'⬇️ ':'⬆️ ')+t.name);const remote=await readRemote(token,sid,t);if(dir==='pull'){setLocal(t,remote);setBase(t,remote);}else{const local=getLocal(t);await safeWriteRemote(token,sid,t,local,remote);setBase(t,local);}done++;updateSyncAllProgress(done,total,t.name+' ✓');}updateSyncAllProgress(done,total,'📊 My Portfolio');await runPortfolioSyncInFrame(dir);done++;updateSyncAllProgress(done,total,'📊 My Portfolio ✓');statusEl.innerHTML='<span class="ok">✅ บังคับซิงก์เสร็จแล้ว</span>';renderSyncModuleRows();renderModuleStatus();}
+    for(const t of SYNC_TARGETS){updateSyncAllProgress(done,total,(dir==='pull'?'⬇️ ':'⬆️ ')+t.name);const remote=await readRemote(token,sid,t);if(dir==='pull'){setLocal(t,remote);setBase(t,remote);}else{const local=getLocal(t);await safeWriteRemote(token,sid,t,local,remote);setBase(t,local);}done++;updateSyncAllProgress(done,total,t.name+' ✓');}updateSyncAllProgress(done,total,'📊 My Portfolio');await runPortfolioSyncInFrame(dir);done++;updateSyncAllProgress(done,total,'📊 My Portfolio ✓');statusEl.innerHTML='<span class="ok">✅ บังคับซิงก์เสร็จแล้ว</span>';if(preSyncQueueIds.length&&window.MFFDataSafety?.removeFromQueue)window.MFFDataSafety.removeFromQueue(preSyncQueueIds);renderSyncModuleRows();renderModuleStatus();}
   catch(e){statusEl.innerHTML='<span class="warn">⚠️ หยุดที่ '+done+'/'+SYNC_TARGETS.length+' — '+esc(e.message||e)+'</span>';}
   finally{setSyncAllBusy(false);}
 }
@@ -903,16 +922,23 @@ document.getElementById('btnSaveReport').addEventListener('click',async()=>{
   const sheetId=sheetIdInput.value.trim();
   if(!email){ toast('กรุณากรอกอีเมลผู้รับ'); return; }
   if(!sheetId){ toast('กรุณากรอก Sheet ID ในหัวข้อ Google Sheets ก่อน'); return; }
-  try{ await api('setReportConfig',{email,sheetId}); toast('บันทึกการตั้งค่ารายงานแล้ว'); }
-  catch(e){ toast('บันทึกไม่สำเร็จ: '+e.message); }
+  try{
+    await api('setReportConfig',{email,sheetId});
+    const r=await api('installMonthlyTrigger',{});
+    document.getElementById('statusReport').innerHTML='<span class="ok">✅ บันทึกแล้ว • '+esc(r.message||'เปิดส่งอัตโนมัติแล้ว')+'</span>';
+    toast('บันทึกและเปิดส่งอัตโนมัติแล้ว');
+  }catch(e){
+    document.getElementById('statusReport').innerHTML='<span class="warn">⚠️ '+esc(e.message||e)+'</span>';
+    toast('ตั้งค่าอีเมลไม่สำเร็จ');
+  }
 });
 document.getElementById('btnInstallTrigger').addEventListener('click',async()=>{
-  try{ await api('installMonthlyTrigger',{}); toast('เปิดใช้งานส่งอัตโนมัติแล้ว'); initReportSection(); }
+  try{ const r=await api('installMonthlyTrigger',{}); toast(r.message||'เปิดใช้งานส่งอัตโนมัติแล้ว'); initReportSection(); }
   catch(e){ toast('ไม่สำเร็จ: '+e.message); }
 });
 document.getElementById('btnTestReport').addEventListener('click',async()=>{
   toast('กำลังส่งอีเมลทดสอบ...');
-  try{ await api('sendTestReport',{}); toast('ส่งอีเมลทดสอบแล้ว ลองเช็กกล่องจดหมาย'); }
+  try{ const r=await api('sendTestReport',{}); toast(r.message||'ส่งอีเมลทดสอบแล้ว ลองเช็กกล่องจดหมาย'); initReportSection(); }
   catch(e){ toast('ส่งไม่สำเร็จ: '+e.message); }
 });
 initReportSection();

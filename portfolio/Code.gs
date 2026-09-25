@@ -84,13 +84,16 @@ function hasMonthlyTrigger() {
   }
 }
 
+function safeMailQuota() { try { return MailApp.getRemainingDailyQuota(); } catch (e) { return null; } }
+
 function getReportConfig() {
-  return { ok: true, email: cfgGet('REPORT_EMAIL'), sheetId: cfgGet('REPORT_SHEET_ID'), triggerInstalled: hasMonthlyTrigger() };
+  return { ok: true, email: cfgGet('REPORT_EMAIL'), sheetId: cfgGet('REPORT_SHEET_ID'), triggerInstalled: hasMonthlyTrigger(), quota: safeMailQuota() };
 }
 
 function setReportConfig(body) {
   const email = String(body.email || '').trim();
-  const sheetId = String(body.sheetId || '').trim();
+  // Reuse the existing Sheet ID; no second spreadsheet/ID is required.
+  const sheetId = String(body.sheetId || cfgGet('REPORT_SHEET_ID') || '').trim();
   if (!email || email.indexOf('@') === -1) return { ok: false, error: 'อีเมลไม่ถูกต้อง' };
   if (!sheetId) return { ok: false, error: 'กรุณาระบุ Sheet ID' };
   cfgSet('REPORT_EMAIL', email);
@@ -108,12 +111,17 @@ function installMonthlyTriggerAction() {
   } catch (err) {
     return { ok: false, error: 'ยังไม่ได้รับสิทธิ์จัดการ Trigger — ให้เปิด Apps Script editor เลือกฟังก์ชัน installMonthlyTriggerAction แล้วกด Run 1 ครั้งเพื่อ authorize สิทธิ์ก่อน (' + (err && err.message || err) + ')' };
   }
-  return { ok: true };
+  return { ok: true, message: 'เปิดใช้งานส่งอัตโนมัติแล้ว (วันที่ 1 เวลา 07:00 ตาม Time zone ของ Apps Script)' };
 }
 
 function sendTestReportAction() {
-  generateMonthlyReport(true);
-  return { ok: true };
+  try {
+    if (!MailApp.getRemainingDailyQuota()) throw new Error('โควตาส่งอีเมลของ Google ไม่เหลือแล้ว');
+    const result = generateMonthlyReport(true);
+    return { ok: true, sent: true, message: 'ส่งอีเมลทดสอบสำเร็จ', to: result.to, subject: result.subject };
+  } catch (err) {
+    return { ok: false, error: String(err && err.message || err) };
+  }
 }
 
 // เรียกโดย trigger รายเดือนเท่านั้น (ไม่ใช่ action ที่เรียกผ่านเว็บ)
@@ -143,9 +151,15 @@ function readTab(spreadsheet, tabName) {
 function generateMonthlyReport(isTest) {
   const email = cfgGet('REPORT_EMAIL');
   const sheetId = cfgGet('REPORT_SHEET_ID');
-  if (!email || !sheetId) return;
+  if (!email) throw new Error('ยังไม่ได้ตั้งค่าอีเมลผู้รับ');
+  if (!sheetId) throw new Error('ยังไม่ได้ตั้งค่า Sheet ID');
 
-  const spreadsheet = SpreadsheetApp.openById(sheetId);
+  let spreadsheet;
+  try {
+    spreadsheet = SpreadsheetApp.openById(sheetId);
+  } catch (err) {
+    throw new Error('เปิด Google Sheet ไม่สำเร็จ: ' + String(err && err.message || err));
+  }
   const now = new Date();
   const target = isTest ? new Date(now.getFullYear(), now.getMonth(), 1)
                          : new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -189,7 +203,12 @@ function generateMonthlyReport(isTest) {
 
   const subject = 'สรุปรายเดือน ' + monthLabel + ' — My Family Funds' + (isTest ? ' (ทดสอบ)' : '');
   const body = buildReportHtml(monthLabel, isTest, { income, expense, net }, { thisCum, prevCum, diff, pct }, counts, totalBooks, shelfLabels);
-  MailApp.sendEmail({ to: email, subject, htmlBody: body });
+  try {
+    MailApp.sendEmail({ to: email, subject, htmlBody: body });
+  } catch (err) {
+    throw new Error('ส่งอีเมลไม่สำเร็จ: ' + String(err && err.message || err));
+  }
+  return { to: email, subject: subject };
 }
 
 function fmtBaht(n) {
