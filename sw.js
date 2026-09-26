@@ -1,6 +1,6 @@
-const CACHE='invx-shell-v1';
+const CACHE='mff-shell-v20-final';
 const SHELL=[
-  './index.html','./shell.css','./innovestx-theme.css','./config.js','./data-safety.js',
+  './index.html','./shell.css','./config.js','./data-safety.js',
   './money/index.html','./money/daily.html','./money/monthly.html',
   './bookshelf/index.html','./profile/index.html','./settings/index.html',
   './portfolio/index.html','./portfolio/dashboard.html','./portfolio/auth-open.js',

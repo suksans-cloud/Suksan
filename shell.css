@@ -112,7 +112,6 @@ body{background:var(--bg)}
   transition:transform .15s ease, box-shadow .15s ease;
 }
 .mff-card:active{transform:scale(.97)}
-.mff-card.featured{border:1.5px solid var(--gold)}
 .mff-card .ribbon{
   position:absolute;top:10px;right:10px;background:var(--gold);color:#3D2E0A;
   font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:999px;

@@ -1,21 +1,10 @@
 {
-  "name": "INVX Family Wealth",
-  "short_name": "INVX Wealth",
-  "start_url": "./index.html",
-  "display": "standalone",
-  "background_color": "#09090D",
-  "theme_color": "#7B4DFF",
-  "lang": "th",
-  "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
+  "name":"My Family Funds — DCA Portfolio",
+  "short_name":"Family Funds",
+  "start_url":"./index.html",
+  "display":"standalone",
+  "background_color":"#F2F4F6",
+  "theme_color":"#072340",
+  "lang":"th",
+  "icons":[{"src":"icon-192.png","sizes":"192x192","type":"image/png"},{"src":"icon-512.png","sizes":"512x512","type":"image/png"}]
 }

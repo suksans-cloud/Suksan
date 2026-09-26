@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>INVX Family Wealth — DCA Portfolio V22</title>
-<meta name="theme-color" content="#7B4DFF">
+<title>My Family Funds — DCA Portfolio V22</title>
+<meta name="theme-color" content="#072340">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
@@ -641,9 +641,8 @@
 <style id="v39-manager-final-preview">
 .v39-manager-typehint{margin:10px 16px 0;padding:10px 12px;border:1px dashed #cfe1dc;border-radius:14px;background:#f8fcfb;display:flex;align-items:center;gap:8px;color:#35685d}.v39-manager-typehint span{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:#e4f2ee;color:#072340;font-weight:950}.v39-manager-typehint b{font-size:12px}.v39-manager-typehint em{font-style:normal;font-size:10.5px;color:#7C8B99;margin-left:auto}@media(max-width:650px){.v39-manager-typehint{margin:8px 12px 0;display:block}.v39-manager-typehint span{display:inline-grid;vertical-align:middle;margin-right:5px}.v39-manager-typehint b{vertical-align:middle}.v39-manager-typehint em{display:block;margin:4px 0 0 33px}}
 </style>
-<link rel="stylesheet" href="../innovestx-theme.css">
 </head>
-<body class="portfolio-jw">
+<body>
 
 <div class="topbar">
   <div class="brand">
@@ -653,8 +652,8 @@
       </a>
       <div class="brand-mark">₿</div>
       <div>
-        <div class="brand-name">INVX Portfolio</div>
-        <div class="brand-sub">พอร์ตการลงทุนรายเดือนของครอบครัว • INVX Consolidated</div>
+        <div class="brand-name">My Portfolio</div>
+        <div class="brand-sub">พอร์ตการลงทุนรายเดือนของครอบครัว • V39 Consolidated</div>
         <div class="last-updated" id="lastUpdated">อัปเดตล่าสุด: -</div>
       </div>
     </div>
@@ -948,7 +947,7 @@ const MONTHS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','�
 const CURRENT_YEAR = new Date().getFullYear();
 let selectedYear = CURRENT_YEAR;
 const OWNER_COLORS = {}; // filled dynamically
-const PALETTE = ['#55D5C3','#0F9F8C','#2F8FDB','#F5C844','#7467E8','#F47B72','#68C9E6'];
+const PALETTE = ['#5B4AE8','#2F8F83','#D49A2A','#E05A78','#3B82C4','#8A63D2','#2E9E8E'];
 const OWNER_FIXED_COLORS = {
   'Suksan':'#2F8F83',
   'Wirocha':'#5B4AE8',
@@ -1777,7 +1776,7 @@ function activateView(view, opts){
   document.getElementById('view-dashboard').hidden = view!=='dashboard';
   document.getElementById('view-table').hidden = view!=='table';
   document.getElementById('view-finance').hidden = view!=='finance';
-  // แสดงหัว INVX Portfolio + V39 + วันเวลา เฉพาะหน้าแรกเท่านั้น
+  // แสดงหัว My Portfolio + V39 + วันเวลา เฉพาะหน้าแรกเท่านั้น
   const topbar = document.querySelector('.topbar');
   if(topbar) topbar.hidden = view!=='dashboard';
   if(view==='finance'){
@@ -2233,7 +2232,7 @@ async function sheetsApi(url,opts={}){
   if(r.status===401||r.status===403){ window.MFFGoogleSession?.clearSheetsToken(); sheetsToken=null; throw new Error('สิทธิ์ Google Sheets หมดอายุ กรุณากดเชื่อมต่อ / ซิงก์อีกครั้ง'); }
   if(!r.ok)throw new Error(await r.text()); return r.json();
 }
-async function createSpreadsheet(){const j=await sheetsApi('https://sheets.googleapis.com/v4/spreadsheets',{method:'POST',body:JSON.stringify({properties:{title:'INVX Family Wealth — Data'},sheets:[{properties:{title:'Funds'}},{properties:{title:'Investments'}}]})});sheetId=j.spreadsheetId;localStorage.setItem('google_sheet_id',sheetId);}
+async function createSpreadsheet(){const j=await sheetsApi('https://sheets.googleapis.com/v4/spreadsheets',{method:'POST',body:JSON.stringify({properties:{title:'My Family Funds — Data'},sheets:[{properties:{title:'Funds'}},{properties:{title:'Investments'}}]})});sheetId=j.spreadsheetId;localStorage.setItem('google_sheet_id',sheetId);}
 async function getSpreadsheetMeta(){return sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}?fields=sheets.properties`);}
 async function ensureSheetTabs(){const meta=await getSpreadsheetMeta(),titles=(meta.sheets||[]).map(s=>s.properties.title),req=[];['Funds','FundMaster','PlanMaster','Investments','MarketWatch'].forEach(t=>{if(!titles.includes(t))req.push({addSheet:{properties:{title:t}}});});if(req.length)await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}:batchUpdate`,{method:'POST',body:JSON.stringify({requests:req})});}
 async function clearAndWriteSheet(title,values){await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${encodeURIComponent(title)}!A:Z:clear`,{method:'POST',body:'{}'});return sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${encodeURIComponent(title)}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${title}!A1`,majorDimension:'ROWS',values})});}
@@ -2595,7 +2594,7 @@ renderAll();
       if(syncAction==='pull'){ count=await pullFromSheets({safeMerge:false}); showToast('ดึงข้อมูลจาก Google Sheets แล้ว • ใช้ข้อมูลล่าสุดจาก Sheet'); }
       else if(syncAction==='push'){ await ensureSheetTabs(); await pushToSheets(); count=DATA?.funds?.length||0; showToast('บันทึกลง Google Sheets แล้ว'); }
       else { count=await pullFromSheets({safeMerge:true}); await ensureSheetTabs(); await pushToSheets(); showToast('Smart Sync Portfolio เสร็จแล้ว'); }
-      report(true,'INVX Portfolio ซิงก์สำเร็จ',count);
+      report(true,'My Portfolio ซิงก์สำเร็จ',count);
     }catch(e){ const msg='ซิงก์ไม่สำเร็จ: '+(e&&e.message||e); showToast(msg); report(false,msg); }
   }, 900); // รอให้ token client / renderAll() พร้อมก่อน
 })();
@@ -2665,7 +2664,7 @@ renderAll();
 </script>
 
 <script id="mff-module-ready-v14">
-(function(){const p=new URLSearchParams(location.search);if(p.get('audit')!=='1')return;setTimeout(function(){if(!window.parent||window.parent===window)return;try{window.parent.postMessage({type:'MFF_MODULE_READY',module:'INVX Portfolio',version:'V20 Final',detail:'ระบบโมดูลและ Google Sheets adapter พร้อม'},window.location.origin)}catch(e){}},80)})();
+(function(){const p=new URLSearchParams(location.search);if(p.get('audit')!=='1')return;setTimeout(function(){if(!window.parent||window.parent===window)return;try{window.parent.postMessage({type:'MFF_MODULE_READY',module:'My Portfolio',version:'V20 Final',detail:'ระบบโมดูลและ Google Sheets adapter พร้อม'},window.location.origin)}catch(e){}},80)})();
 </script>
 
 </body>

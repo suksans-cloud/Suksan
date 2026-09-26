@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>INVX — Dashboard V27</title>
-<meta name="theme-color" content="#7B4DFF">
+<title>คลังทุน — Dashboard V27</title>
+<meta name="theme-color" content="#061C34">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
@@ -295,9 +295,8 @@ a{color:inherit;text-decoration:none;}
 </style>
 <script src="../config.js"></script>
 <script src="auth-open.js"></script>
-<link rel="stylesheet" href="../innovestx-theme.css">
 </head>
-<body class="dashboard-jw">
+<body>
 
 <div class="overlay-bg" id="overlayBg"></div>
 <div class="shell">
@@ -308,8 +307,8 @@ a{color:inherit;text-decoration:none;}
         <svg viewBox="0 0 24 24" fill="none"><path d="M12 3c-2 3-2.5 5-.5 7 1.6 1.6 1.6 3.4 0 5-1.5-2-2-2-3.5-.5C6.5 16 6 18 8 20" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3c2 3 2.5 5 .5 7-1.6 1.6-1.6 3.4 0 5" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
       <div>
-        <div class="brand-name">INVX</div>
-        <div class="brand-sub">INVX Family Wealth</div>
+        <div class="brand-name">คลังทุน</div>
+        <div class="brand-sub">Family Fund Tracker</div>
       </div>
       <button class="sidebar-close" id="sidebarClose">✕</button>
     </div>
@@ -452,7 +451,7 @@ a{color:inherit;text-decoration:none;}
 /* ================= DATA (reads the same database as index.html) ================= */
 const STORAGE_KEY = 'khlangthun_portfolio_oldui_latest_v4';
 const CURRENT_YEAR = new Date().getFullYear();
-const PALETTE = ['#55D5C3','#0F9F8C','#2F8FDB','#F5C844','#7467E8','#F47B72','#68C9E6'];
+const PALETTE = ['#5B4AE8','#2F8F83','#D49A2A','#E05A78','#3B82C4','#8A63D2','#2E9E8E'];
 const OWNER_FIXED_COLORS = {
   'Suksan':'#2F8F83',
   'Wirocha':'#5B4AE8',
@@ -461,7 +460,7 @@ const OWNER_FIXED_COLORS = {
   'วิโรจา':'#5B4AE8',
   'ภูมิ':'#D49A2A'
 };
-const DARK_PALETTE = ['#0F9F8C','#D7A92F','#2779C9','#E86568','#6759D8','#19B99F','#D05E49'];
+const DARK_PALETTE = ['#1FAE8B','#E3B341','#5B9BD5','#FF6B81','#8B7CF6','#37D6B0','#D97757'];
 const OWNER_COLORS = {};
 const MONTHS_TH = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 
