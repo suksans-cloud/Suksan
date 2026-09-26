@@ -4,17 +4,18 @@
    between the shell and that module feels like one continuous product. */
 
 :root{
-  --bg:#F4F2F8;
-  --bg-deep:#F4F2F8;
+  --bg:#F2F4F6;
+  --bg-deep:#F2F4F6;
   --surface:#FFFFFF;
   --ink:#2E3A42;
   --ink-soft:#5C6B74;
   --ink-faint:#8B9AA3;
-  --primary:#6B4FA0;
-  --primary-light:#8567B8;
-  --primary-soft:#ECE5F7;
-  --line:#E7E1F0;
+  --primary:#072340;
+  --primary-light:#3A6C93;
+  --primary-soft:#E3EBF1;
+  --line:#E1E6EA;
   --gold:#C89B3C;
+  --gold-text:#8C6A20;
   --income:#1F9D6C;
   --income-soft:#DCEFE4;
   --expense:#E0654B;
@@ -83,7 +84,11 @@ body{background:var(--bg)}
 
 /* ---------- greeting header (home) ---------- */
 .mff-hero{padding:6px 22px 6px;color:var(--ink);position:relative}
-.mff-hero .eyebrow{font-size:13px;color:var(--primary);font-weight:700;margin:0 0 4px}
+.mff-hero .eyebrow{
+  font-size:13px;font-weight:700;margin:0 0 4px;
+  background:linear-gradient(90deg,var(--primary),var(--gold-text));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
 .mff-hero h1{font-size:26px;line-height:1.25;margin:0;font-weight:700;color:var(--ink)}
 .mff-hero h1 b{color:var(--primary)}
 
@@ -107,6 +112,11 @@ body{background:var(--bg)}
   transition:transform .15s ease, box-shadow .15s ease;
 }
 .mff-card:active{transform:scale(.97)}
+.mff-card.featured{border:1.5px solid var(--gold)}
+.mff-card .ribbon{
+  position:absolute;top:10px;right:10px;background:var(--gold);color:#3D2E0A;
+  font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:999px;
+}
 .mff-card .icon-wrap{
   width:58px;height:58px;border-radius:18px;
   display:flex;align-items:center;justify-content:center;
@@ -137,7 +147,7 @@ body{background:var(--bg)}
   text-decoration:none;position:relative;
 }
 .mff-navbtn svg{width:22px;height:22px}
-.mff-navbtn.active{color:var(--primary)}
+.mff-navbtn.active{color:var(--gold-text)}
 .mff-navbtn .mff-badge-dot{
   position:absolute;top:0;right:10px;min-width:15px;height:15px;padding:0 3px;border-radius:999px;
   background:var(--expense);color:#fff;font-size:9px;font-weight:800;line-height:15px;text-align:center;
