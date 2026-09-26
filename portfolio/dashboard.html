@@ -12,17 +12,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#F6F4FC;
+  --bg:#F2F4F6;
   --surface:#FFFFFF;
-  --surface-2:#F1EDFB;
-  --surface-3:#E6DFF9;
-  --border:#E7E1F7;
+  --surface-2:#EAF0F4;
+  --surface-3:#E2E9F0;
+  --border:#E1E6EA;
   --text:#211D3A;
-  --text-soft:#6C6684;
-  --text-faint:#A29CBE;
-  --primary:#6B4FA0;
-  --primary-dim:#EFEAFD;
-  --primary-soft:rgba(123,95,229,.12);
+  --text-soft:#5C6672;
+  --text-faint:#8B96A3;
+  --primary:#072340;
+  --primary-dim:#E9EFF4;
+  --primary-soft:rgba(7,35,64,.12);
   --gold:#F2A93B;
   --gold-soft:rgba(242,169,59,.14);
   --danger:#F0507A;
@@ -57,7 +57,7 @@ a{color:inherit;text-decoration:none;}
   transition:transform .25s ease; z-index:40;
 }
 .brand{display:flex; align-items:center; gap:10px; padding:6px 6px 18px;}
-.brand-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(150deg,var(--primary),#8567B8);display:flex;align-items:center;justify-content:center;flex:none;}
+.brand-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(150deg,var(--primary),#3A6C93);display:flex;align-items:center;justify-content:center;flex:none;}
 .brand-mark svg{width:19px;height:19px;}
 .brand-name{font-weight:700;font-size:16px;letter-spacing:.2px;}
 .brand-sub{font-size:10px;color:var(--text-faint);margin-top:1px;}
@@ -143,7 +143,7 @@ a{color:inherit;text-decoration:none;}
   position:relative; overflow:hidden;
   background:
     radial-gradient(circle at 12% -10%, rgba(255,255,255,.16), transparent 45%),
-    linear-gradient(160deg,#8567B8 0%, #6B4FA0 45%, #56408A 100%);
+    linear-gradient(160deg,#3A6C93 0%, #072340 45%, #061C34 100%);
   border-radius:0 0 28px 28px;
   padding:22px 22px 0;
   max-width:1240px; margin:0 auto;
@@ -181,7 +181,7 @@ a{color:inherit;text-decoration:none;}
   padding:8px 12px; border-radius:10px; cursor:pointer;
 }
 .btn-primary{
-  background:linear-gradient(150deg,var(--primary),#8567B8); color:#FFFFFF; font-weight:700; font-size:12.5px;
+  background:linear-gradient(150deg,var(--primary),#3A6C93); color:#FFFFFF; font-weight:700; font-size:12.5px;
   padding:9px 15px; border-radius:10px; border:none; cursor:pointer; display:flex; align-items:center; gap:6px;
 }
 .btn-primary svg{width:14px;height:14px;}
@@ -242,7 +242,7 @@ a{color:inherit;text-decoration:none;}
 .bar-legend .lg-item .dot{width:8px;height:8px;border-radius:50%;}
 
 .promo-card{
-  background:linear-gradient(165deg,#EFEAFD,#FFFFFF 65%); border:1px solid var(--border); border-radius:var(--radius-l);
+  background:linear-gradient(165deg,#E9EFF4,#FFFFFF 65%); border:1px solid var(--border); border-radius:var(--radius-l);
   padding:22px 18px; text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:10px; position:relative; overflow:hidden; box-shadow:0 2px 14px -8px rgba(20,33,29,.10);
 }
@@ -271,7 +271,7 @@ a{color:inherit;text-decoration:none;}
 .live-kpi-value{font-family:'Prompt','Noto Sans Thai',sans-serif;font-size:18px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .live-kpi-note{font-size:9.5px;color:var(--text-faint);margin-top:2px}
 .live-progress{height:7px;background:var(--surface-3);border-radius:99px;overflow:hidden;margin-top:12px}
-.live-progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--primary),#8567B8);border-radius:inherit;transition:width .35s ease}
+.live-progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--primary),#3A6C93);border-radius:inherit;transition:width .35s ease}
 @media(max-width:760px){.live-kpis{grid-template-columns:repeat(2,1fr)}.live-summary{padding:14px}.live-kpi-value{font-size:16px}}
 
 
@@ -732,14 +732,14 @@ function renderInvestCard(){
     <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
       <defs>
         <linearGradient id="areaFade" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#6B4FA0" stop-opacity="0.35"/>
-          <stop offset="100%" stop-color="#6B4FA0" stop-opacity="0"/>
+          <stop offset="0%" stop-color="#072340" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#072340" stop-opacity="0"/>
         </linearGradient>
       </defs>
       ${gridY}
       <path d="${areaPath}" fill="url(#areaFade)" stroke="none"/>
-      <path d="${linePath}" fill="none" stroke="#6B4FA0" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
-      ${pts.map((pt,i)=>`<circle cx="${pt[0].toFixed(1)}" cy="${pt[1].toFixed(1)}" r="2.6" fill="#FFFFFF" stroke="#6B4FA0" stroke-width="1.6" data-idx="${i}" class="hpt" style="opacity:0"/>`).join('')}
+      <path d="${linePath}" fill="none" stroke="#072340" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+      ${pts.map((pt,i)=>`<circle cx="${pt[0].toFixed(1)}" cy="${pt[1].toFixed(1)}" r="2.6" fill="#FFFFFF" stroke="#072340" stroke-width="1.6" data-idx="${i}" class="hpt" style="opacity:0"/>`).join('')}
       ${xlabels}
       <rect x="0" y="0" width="${w}" height="${h}" fill="transparent" id="investHoverRect"/>
     </svg>
