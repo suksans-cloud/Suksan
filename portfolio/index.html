@@ -2230,6 +2230,28 @@ function marketInitial(){
  const stockAssets=MARKET_ASSETS.filter(a=>a.active!==false && !isETFAsset(a) && String(a.exchange||'').toUpperCase()!=='FUND');
  if(etfs) etfs.innerHTML=etfAssets.map(a=>item(a,'ETF')).join('')+etfAssets.map(a=>item(a,'ETF')).join('');
  if(stocks) stocks.innerHTML=stockAssets.map(a=>item(a,'STOCK')).join('')+stockAssets.map(a=>item(a,'STOCK')).join('');
+ syncMarketTickerSpeed();
+}
+
+/* Keep ETF Watch and Stock Watch at the same physical scrolling speed.
+   The tracks contain different amounts of content, so a shared 46s duration
+   makes one row visibly faster. Duration is calculated from each track's
+   actual loop distance instead. */
+function syncMarketTickerSpeed(){
+ const pxPerSecond=50;
+ ['marketEtfGrid','marketStockGrid'].forEach(id=>{
+   const track=document.getElementById(id);
+   if(!track || !track.scrollWidth) return;
+   const loopDistance=track.scrollWidth/2;
+   track.style.animationDuration=Math.max(1,loopDistance/pxPerSecond)+'s';
+ });
+}
+window.addEventListener('resize',()=>{
+ if(window.requestAnimationFrame) window.requestAnimationFrame(syncMarketTickerSpeed);
+ else syncMarketTickerSpeed();
+});
+if(document.fonts && document.fonts.ready){
+ document.fonts.ready.then(()=>syncMarketTickerSpeed()).catch(()=>{});
 }
 function marketCard(a,data){const nodes=document.querySelectorAll(`[data-market="${CSS.escape(a.ticker)}"]`);nodes.forEach(c=>{if(!data||data.price==null||isNaN(Number(data.price))){c.classList.add('na');c.classList.remove('up','down');c.querySelector('.price').textContent='—';c.querySelector('.chg').textContent='ไม่พบข้อมูล';return;}const price=Number(data.price),ch=Number(data.change)||0,pct=Number(data.changepct)||0;c.classList.remove('na','up','down');c.classList.add(ch>=0?'up':'down');c.querySelector('.price').textContent='$'+price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});c.querySelector('.chg').textContent=(ch>=0?'▲ +':'▼ ')+ch.toFixed(2)+'  '+(pct>=0?'+':'')+pct.toFixed(2)+'%';});}
 function marketFormulaRows(){
