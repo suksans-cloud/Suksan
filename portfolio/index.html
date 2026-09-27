@@ -576,7 +576,17 @@
 .market-panel{overflow:hidden;padding:0}.market-ticker-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#fff,#F6F8F7)}.market-ticker-title{font-size:12.5px;font-weight:800;color:var(--primary);white-space:nowrap}.market-subtitle{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.market-ticker-wrap{position:relative;overflow:hidden;width:100%;background:#fff}.market-ticker-row{position:relative;overflow:hidden;width:100%;border-bottom:1px solid #DDE7E3}.market-ticker-row:last-child{border-bottom:0}.market-ticker-row:before,.market-ticker-row:after{content:'';position:absolute;top:0;bottom:0;width:34px;z-index:2;pointer-events:none}.market-ticker-row:before{left:0;background:linear-gradient(90deg,#fff,transparent)}.market-ticker-row:after{right:0;background:linear-gradient(270deg,#fff,transparent)}.market-ticker-track{display:flex;width:max-content;will-change:transform}.market-ticker-track.stocks{animation:marketTickerStock 46s linear infinite}.market-ticker-track.etfs{animation:marketTickerStock 46s linear infinite}.market-ticker-wrap:hover .market-ticker-track,.market-ticker-wrap:active .market-ticker-track{animation-play-state:paused}.market-ticker-item{display:inline-flex;align-items:center;gap:7px;padding:8px 18px;border-right:1px solid #DDE7E3;white-space:nowrap;font-size:13px}.market-ticker-item .ticker{font-weight:900;color:var(--primary);font-size:13.5px}.market-ticker-item .group{font-size:11px;font-weight:800;color:#66736E;background:#E3EBF1;border-radius:999px;padding:2px 5px}.market-ticker-item .name{color:var(--muted);font-size:12px;max-width:125px;overflow:hidden;text-overflow:ellipsis}.market-ticker-item .price{font-weight:800;font-variant-numeric:tabular-nums}.market-ticker-item .chg{font-weight:800;font-variant-numeric:tabular-nums}.market-ticker-item.up .chg{color:#1B8A62}.market-ticker-item.down .chg{color:#D95C70}.market-ticker-item.na .price,.market-ticker-item.na .chg{color:var(--muted)}.market-ticker-item .dot{width:5px;height:5px;border-radius:50%;background:#9AA6A1;flex:0 0 auto}.market-ticker-item.up .dot{background:#1B8A62}.market-ticker-item.down .dot{background:#D95C70}.market-row-label{display:inline-flex;align-items:center;justify-content:center;min-width:72px;padding:3px 7px;margin:0 5px 0 8px;border-radius:999px;font-size:11px;font-weight:900;background:#E3EBF1;color:var(--primary);position:relative;z-index:3}.market-row-label.etf{background:#F7F3E9;color:#9A8050}.market-row-label.stock{background:#EAF1FB;color:#3A5A8C}@keyframes marketTickerStock{from{transform:translateX(0)}to{transform:translateX(-50%)}}@media(prefers-reduced-motion:reduce){.market-ticker-track{animation:none}}@media(max-width:560px){.market-ticker-head{padding:8px 10px}.market-ticker-item{padding:8px 12px;font-size:12.5px}.market-ticker-item .name{display:none}.market-ticker-item .group{font-size:10.5px}.market-ticker-item .ticker{font-size:13px}.market-row-label{min-width:58px;font-size:10.5px;margin-left:5px}}
 .finance-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}.finance-toolbar .sub{font-size:12.5px;color:var(--ink-faint)}
 .finance-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#E9EFED;border-radius:13px;padding:4px;margin-bottom:10px}.finance-seg button{border:0;background:transparent;padding:8px 5px;border-radius:10px;font-weight:900;color:#61716D;font-size:12px;cursor:pointer;font-family:inherit}.finance-seg button.active{background:var(--bg);color:var(--primary);box-shadow:0 2px 8px rgba(35,73,65,.12)}
-.finance-list-head{display:grid;grid-template-columns:1fr 76px 100px;gap:6px;padding:2px 12px 8px;font-size:12px;color:var(--ink-faint);font-weight:800}.finance-list-head span:nth-child(2),.finance-list-head span:nth-child(3){text-align:right}.finance-list{background:var(--surface);border:1px solid var(--line);border-radius:15px;overflow:hidden;box-shadow:0 2px 12px -8px rgba(15,91,77,.18)}.finance-row{display:grid;grid-template-columns:1fr 76px 100px;align-items:center;gap:6px;padding:11px 12px;border-bottom:1px solid var(--line);cursor:pointer}.finance-row:last-child{border-bottom:0}.finance-row:active{background:var(--primary-soft)}.finance-row-id{display:flex;align-items:center;gap:9px;min-width:0}.finance-badge{width:32px;height:32px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff}.finance-row-text{min-width:0}.finance-row-symbol{font-weight:900;font-size:13.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.finance-row-name{font-size:12px;color:var(--ink-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.finance-row-owner{font-size:10px;color:#84938F;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.finance-row-price{text-align:right;font-weight:800;font-size:13px;font-variant-numeric:tabular-nums}.finance-row-price.finance-na{color:var(--ink-faint);font-weight:600}.finance-row-pct{justify-self:end;font-size:12.5px;font-weight:800;padding:4px 8px;border-radius:8px;text-align:center;min-width:66px;font-variant-numeric:tabular-nums}.finance-row-pct.up{background:#E4F6EE;color:#1B8A62}.finance-row-pct.down{background:#FDECEF;color:#D95C70}.finance-row-pct.na{background:#F2F4F3;color:var(--ink-faint)}.finance-section-title{font-size:13.5px;font-weight:900;color:var(--primary);margin:16px 0 8px}.market-manager-list{display:flex;flex-direction:column;gap:7px}.market-manager-row{display:grid;grid-template-columns:70px 1fr 105px 85px 80px 34px;gap:7px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:11px;background:var(--surface)}.market-manager-row input,.market-manager-row select{width:100%;border:1px solid var(--line);border-radius:8px;padding:7px;font:inherit;font-size:12px;background:var(--surface);color:var(--ink)}.market-manager-row .remove{border:none;background:#FDECEF;color:#C24D63;border-radius:8px;height:30px;cursor:pointer}.market-manager-head{display:grid;grid-template-columns:70px 1fr 105px 85px 80px 34px;gap:7px;font-size:11px;color:var(--ink-faint);padding:0 8px}.finance-empty{padding:20px;text-align:center;color:var(--ink-faint);font-size:12.5px}.finance-modal .fund-detail-sheet{max-width:560px}.finance-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.finance-detail-kpi{padding:10px;border:1px solid var(--line);border-radius:11px;background:var(--surface)}.finance-detail-kpi .k{font-size:11px;color:var(--ink-faint)}.finance-detail-kpi .v{font-size:13.5px;font-weight:800;margin-top:3px}.finance-manager-actions{display:flex;gap:8px;margin-top:10px}.finance-manager-actions .btn{flex:1}.finance-note{font-size:12px;color:var(--ink-faint);line-height:1.5;margin-top:8px}
+.finance-list-head{display:grid;grid-template-columns:1fr 76px 100px;gap:6px;padding:2px 12px 8px;font-size:12px;color:var(--ink-faint);font-weight:800}.finance-list-head span:nth-child(2),.finance-list-head span:nth-child(3){text-align:right}
+.finance-sort-bar{position:relative;display:flex;justify-content:flex-end;padding:0 2px 8px}
+.finance-sort-trigger{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);font:inherit;font-size:12px;font-weight:700;padding:7px 11px;border-radius:999px;cursor:pointer}
+.finance-sort-trigger svg{width:14px;height:14px;flex:none}
+.finance-sort-trigger .chev{width:12px;height:12px;opacity:.7;transition:transform .15s ease}
+.finance-sort-trigger.open .chev{transform:rotate(180deg)}
+.finance-sort-menu{position:absolute;top:calc(100% + 6px);right:0;z-index:20;min-width:210px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px -12px rgba(15,41,35,.25);padding:6px;display:flex;flex-direction:column;gap:2px}
+.finance-sort-menu[hidden]{display:none}
+.finance-sort-menu button{border:0;background:transparent;text-align:left;padding:9px 10px;border-radius:9px;font:inherit;font-size:12.5px;color:var(--ink);cursor:pointer}
+.finance-sort-menu button:active{background:var(--primary-soft)}
+.finance-sort-menu button.active{color:var(--primary);font-weight:800;background:var(--primary-soft)}.finance-list{background:var(--surface);border:1px solid var(--line);border-radius:15px;overflow:hidden;box-shadow:0 2px 12px -8px rgba(15,91,77,.18)}.finance-row{display:grid;grid-template-columns:1fr 76px 100px;align-items:center;gap:6px;padding:11px 12px;border-bottom:1px solid var(--line);cursor:pointer}.finance-row:last-child{border-bottom:0}.finance-row:active{background:var(--primary-soft)}.finance-row-id{display:flex;align-items:center;gap:9px;min-width:0}.finance-badge{width:32px;height:32px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff}.finance-row-text{min-width:0}.finance-row-symbol{font-weight:900;font-size:13.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.finance-row-name{font-size:12px;color:var(--ink-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.finance-row-owner{font-size:10px;color:#84938F;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.finance-row-price{text-align:right;font-weight:800;font-size:13px;font-variant-numeric:tabular-nums}.finance-row-price.finance-na{color:var(--ink-faint);font-weight:600}.finance-row-pct{justify-self:end;font-size:12.5px;font-weight:800;padding:4px 8px;border-radius:8px;text-align:center;min-width:66px;font-variant-numeric:tabular-nums}.finance-row-pct.up{background:#E4F6EE;color:#1B8A62}.finance-row-pct.down{background:#FDECEF;color:#D95C70}.finance-row-pct.na{background:#F2F4F3;color:var(--ink-faint)}.finance-section-title{font-size:13.5px;font-weight:900;color:var(--primary);margin:16px 0 8px}.market-manager-list{display:flex;flex-direction:column;gap:7px}.market-manager-row{display:grid;grid-template-columns:70px 1fr 105px 85px 80px 34px;gap:7px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:11px;background:var(--surface)}.market-manager-row input,.market-manager-row select{width:100%;border:1px solid var(--line);border-radius:8px;padding:7px;font:inherit;font-size:12px;background:var(--surface);color:var(--ink)}.market-manager-row .remove{border:none;background:#FDECEF;color:#C24D63;border-radius:8px;height:30px;cursor:pointer}.market-manager-head{display:grid;grid-template-columns:70px 1fr 105px 85px 80px 34px;gap:7px;font-size:11px;color:var(--ink-faint);padding:0 8px}.finance-empty{padding:20px;text-align:center;color:var(--ink-faint);font-size:12.5px}.finance-modal .fund-detail-sheet{max-width:560px}.finance-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.finance-detail-kpi{padding:10px;border:1px solid var(--line);border-radius:11px;background:var(--surface)}.finance-detail-kpi .k{font-size:11px;color:var(--ink-faint)}.finance-detail-kpi .v{font-size:13.5px;font-weight:800;margin-top:3px}.finance-manager-actions{display:flex;gap:8px;margin-top:10px}.finance-manager-actions .btn{flex:1}.finance-note{font-size:12px;color:var(--ink-faint);line-height:1.5;margin-top:8px}
 @media(max-width:650px){.market-manager-row,.market-manager-head{grid-template-columns:62px 1fr 88px 70px 60px 32px}.market-manager-row{padding:6px;gap:5px}.market-manager-head{gap:5px}.finance-detail-grid{grid-template-columns:1fr 1fr}.finance-list-head,.finance-row{grid-template-columns:1fr 64px 84px}.finance-row-name{display:none}}
 
 
@@ -814,6 +824,22 @@
         <button type="button" class="active" data-tab="fund">My funds</button>
         <button type="button" data-tab="etf">ETF</button>
         <button type="button" data-tab="stock">Stock</button>
+      </div>
+      <div class="finance-sort-bar">
+        <button type="button" class="finance-sort-trigger" id="financeSortBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
+          <span id="financeSortLabel">เรียงตาม: ค่าเริ่มต้น</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="finance-sort-menu" id="financeSortMenu" hidden>
+          <button type="button" data-sort="default" data-dir="asc">ค่าเริ่มต้น</button>
+          <button type="button" data-sort="name" data-dir="asc">ชื่อ (ก → ฮ)</button>
+          <button type="button" data-sort="name" data-dir="desc">ชื่อ (ฮ → ก)</button>
+          <button type="button" data-sort="price" data-dir="desc">ราคา/NAV (สูง → ต่ำ)</button>
+          <button type="button" data-sort="price" data-dir="asc">ราคา/NAV (ต่ำ → สูง)</button>
+          <button type="button" data-sort="change" data-dir="desc">เปลี่ยนแปลง (บวกมากสุด)</button>
+          <button type="button" data-sort="change" data-dir="asc">เปลี่ยนแปลง (ลบมากสุด)</button>
+        </div>
       </div>
       <div class="finance-list-head"><span>ชื่อ</span><span>ราคา/NAV</span><span>เปลี่ยนแปลง</span></div>
       <div class="finance-list" id="financeCards"></div>
@@ -2294,9 +2320,66 @@ function financeRow(a){
  const initials=String(a.ticker||'').replace(/[^A-Z0-9]/gi,'').slice(0,2).toUpperCase();
  return `<div class="finance-row" data-finance="${esc(a.ticker)}"><div class="finance-row-id"><div class="finance-badge" style="background:${financeBadgeColor(a.ticker)}">${esc(initials)}</div><div class="finance-row-text"><div class="finance-row-symbol">${esc(a.ticker)}</div><div class="finance-row-name">${esc(a.name||'')}</div>${isFundTab&&a.owner?`<div class="finance-row-owner">${esc(a.owner)}</div>`:''}</div></div><div class="finance-row-price ${ok?'':'finance-na'}">${priceText}</div><div class="finance-row-pct ${pctClass}">${pctText}</div></div>`;
 }
-function renderFinanceCards(){const el=document.getElementById('financeCards');if(!el)return;const list=financeListForTab(financeTab);el.innerHTML=list.length?list.map(financeRow).join(''):'<div class="finance-empty">ยังไม่มีรายการ</div>';el.querySelectorAll('.finance-row').forEach(c=>c.addEventListener('click',()=>openFinanceDetail(c.dataset.finance)));
+let financeSort=JSON.parse(localStorage.getItem('finance_sort_v1')||'null')||{key:'default',dir:'asc'};
+const FINANCE_SORT_LABELS={
+ 'default|asc':'ค่าเริ่มต้น',
+ 'name|asc':'ชื่อ (ก → ฮ)','name|desc':'ชื่อ (ฮ → ก)',
+ 'price|desc':'ราคา/NAV (สูง → ต่ำ)','price|asc':'ราคา/NAV (ต่ำ → สูง)',
+ 'change|desc':'เปลี่ยนแปลง (บวกมากสุด)','change|asc':'เปลี่ยนแปลง (ลบมากสุด)'
+};
+function financeSortValue(a,key){
+ if(key==='name')return String(a.name||a.ticker||'').toLowerCase();
+ if(key==='price'){
+  if(financeTab==='fund'){const n=FUND_NAV[a.ticker]||{};return (n.nav==null||n.nav==='')?-Infinity:Number(n.nav);}
+  const d=GF_DATA[a.ticker]||{};return (d.price===''||d.price==null||isNaN(Number(d.price)))?-Infinity:Number(d.price);
+ }
+ if(key==='change'){
+  if(financeTab==='fund')return -Infinity;
+  const d=GF_DATA[a.ticker]||{};return (d.changepct===''||d.changepct==null||isNaN(Number(d.changepct)))?-Infinity:Number(d.changepct);
+ }
+ return 0;
+}
+function sortFinanceList(list){
+ if(!financeSort||financeSort.key==='default')return list;
+ const dir=financeSort.dir==='asc'?1:-1;
+ return [...list].sort((a,b)=>{
+  const va=financeSortValue(a,financeSort.key),vb=financeSortValue(b,financeSort.key);
+  if(typeof va==='string')return va.localeCompare(vb,'th')*dir;
+  return (va-vb)*dir;
+ });
+}
+function updateFinanceSortUI(){
+ const label=document.getElementById('financeSortLabel');
+ if(label)label.textContent='เรียงตาม: '+(FINANCE_SORT_LABELS[financeSort.key+'|'+financeSort.dir]||'ค่าเริ่มต้น');
+ document.querySelectorAll('.finance-sort-menu button').forEach(b=>{
+  b.classList.toggle('active', b.dataset.sort===financeSort.key && b.dataset.dir===financeSort.dir);
+ });
+}
+function closeFinanceSortMenu(){
+ document.getElementById('financeSortMenu')?.setAttribute('hidden','');
+ document.getElementById('financeSortBtn')?.classList.remove('open');
+}
+document.getElementById('financeSortBtn')?.addEventListener('click',e=>{
+ e.stopPropagation();
+ const menu=document.getElementById('financeSortMenu'),btn=document.getElementById('financeSortBtn');
+ const willOpen=menu.hidden;
+ if(willOpen){menu.hidden=false;btn.classList.add('open');}else{closeFinanceSortMenu();}
+});
+document.getElementById('financeSortMenu')?.addEventListener('click',e=>{
+ const b=e.target.closest('button[data-sort]');if(!b)return;
+ financeSort={key:b.dataset.sort,dir:b.dataset.dir};
+ localStorage.setItem('finance_sort_v1',JSON.stringify(financeSort));
+ closeFinanceSortMenu();
+ renderFinanceCards();
+});
+document.addEventListener('click',e=>{
+ const bar=document.querySelector('.finance-sort-bar');
+ if(bar && !bar.contains(e.target))closeFinanceSortMenu();
+});
+function renderFinanceCards(){const el=document.getElementById('financeCards');if(!el)return;const list=sortFinanceList(financeListForTab(financeTab));el.innerHTML=list.length?list.map(financeRow).join(''):'<div class="finance-empty">ยังไม่มีรายการ</div>';el.querySelectorAll('.finance-row').forEach(c=>c.addEventListener('click',()=>openFinanceDetail(c.dataset.finance)));
  const hint=document.getElementById('financeHint');
  if(hint)hint.textContent=financeTab==='fund'?'NAV ของ My funds ใช้ NAV จาก FundMaster/ฐานข้อมูลเท่านั้น • ไม่มีข้อมูล = รออัปเดต':'ราคาจาก Google Sheets / GOOGLEFINANCE • ไม่มีข้อมูล = รออัปเดต';
+ updateFinanceSortUI();
 }
 function setFinanceTab(tab){
  financeTab=tab;localStorage.setItem('finance_tab',financeTab);

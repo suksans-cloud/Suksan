@@ -213,7 +213,7 @@ body{background:var(--bg)}
 }
 .mff-banner b{display:block;font-size:13px;margin-bottom:1px}
 .mff-banner button{
-  flex:none;border:0;background:#6B4FA0;color:#fff;font-weight:700;font-size:12px;
+  flex:none;border:0;background:var(--primary);color:#fff;font-weight:700;font-size:12px;
   border-radius:10px;padding:8px 12px;cursor:pointer;
 }
 
