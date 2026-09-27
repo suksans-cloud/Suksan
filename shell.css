@@ -86,7 +86,7 @@ body{background:var(--bg)}
 .mff-hero{padding:6px 22px 6px;color:var(--ink);position:relative}
 .mff-hero .eyebrow{
   font-size:13px;font-weight:700;margin:0 0 4px;
-  background:linear-gradient(90deg,var(--primary),var(--gold-text));
+  background:linear-gradient(90deg,var(--primary),var(--primary));
   -webkit-background-clip:text;background-clip:text;color:transparent;
 }
 .mff-hero h1{font-size:26px;line-height:1.25;margin:0;font-weight:700;color:var(--ink)}
@@ -146,7 +146,8 @@ body{background:var(--bg)}
   text-decoration:none;position:relative;
 }
 .mff-navbtn svg{width:22px;height:22px}
-.mff-navbtn.active{color:var(--gold-text)}
+.mff-navbtn.active{color:var(--primary);border:0;outline:0;box-shadow:none}
+.mff-navbtn:focus,.mff-navbtn:focus-visible{border:0;outline:0;box-shadow:none}
 .mff-navbtn .mff-badge-dot{
   position:absolute;top:0;right:10px;min-width:15px;height:15px;padding:0 3px;border-radius:999px;
   background:var(--expense);color:#fff;font-size:9px;font-weight:800;line-height:15px;text-align:center;
