@@ -93,6 +93,7 @@
   </a>
 </nav>
 
+<script src="config.js"></script>
 <script src="data-safety.js"></script>
 <script>
 (function(){
@@ -245,6 +246,34 @@ if('serviceWorker' in navigator){
         text:'เพิ่มหนังสือเล่มแรกได้ที่ My Bookshelf', href:'bookshelf/index.html', hrefLabel:'ไปที่ My Bookshelf →'});
     }
 
+    // Sync queue: แจ้งเตือนสิ่งที่แก้ไว้ตอน Offline และยังรอขึ้น Google Sheets
+    try{
+      var q=window.MFFDataSafety?.exportQueue?.()||[];
+      if(Array.isArray(q) && q.length){
+        list.push({level:'warn',icon:'☁️',title:'มีข้อมูลรอ Sync '+q.length+' รายการ',
+          text:'ข้อมูลบางรายการยังไม่ได้ขึ้น Google Sheets — เปิด Setting เพื่อตรวจและ Sync',href:'settings/index.html',hrefLabel:'ไปที่ Setting →'});
+      }
+    }catch(e){}
+
+    if(localStorage.getItem('mff_auto_sync_online_v1')==='0'){
+      list.push({level:'info',icon:'⚡',title:'Auto Sync ถูกปิดอยู่',
+        text:'เมื่อกลับมา Online ระบบจะไม่ Sync ให้อัตโนมัติ',href:'settings/index.html',hrefLabel:'เปิด Auto Sync →'});
+    }
+
+    if(localStorage.getItem('mff_report_email_configured')!=='1'){
+      list.push({level:'info',icon:'📧',title:'ยังไม่ได้ตั้งสรุปรายเดือนทางอีเมล',
+        text:'ตั้งค่าอีเมลและทดสอบรายงานได้จาก Setting',href:'settings/index.html',hrefLabel:'ตั้งค่ารายงาน →'});
+    }
+
+    if(localStorage.getItem('mff_retirement_latest_experiment_v1')){
+      try{
+        var rr=JSON.parse(localStorage.getItem('mff_retirement_latest_experiment_v1'));
+        var rd=rr&&rr.savedAt?new Date(rr.savedAt):null;
+        list.push({level:'info',icon:'🎯',title:'มีการทดลองแผนเกษียณที่บันทึกล่าสุด',
+          text:rd?'บันทึกล่าสุด '+rd.toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'}):'มีข้อมูลการทดลองเกษียณที่บันทึกไว้',href:'portfolio/index.html',hrefLabel:'เปิด Retirement →'});
+      }catch(e){}
+    }
+
     return list;
   }
   function renderNotifBadge(){
@@ -271,5 +300,6 @@ if('serviceWorker' in navigator){
 })();
 </script>
 
+<script src="admin-login.js"></script>
 </body>
 </html>

@@ -79,6 +79,13 @@
 #syncAllProgress{margin-top:10px}
 .mff-report-status{margin-top:9px;padding:9px 10px;border-radius:12px;background:var(--bg);border:1px solid var(--line);font-size:11.5px;line-height:1.5}
 </style>
+<style>
+.mff-toggle{position:relative;width:48px;height:28px;flex:0 0 48px;display:block;cursor:pointer;}
+.mff-toggle input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;z-index:3;}
+.mff-toggle span{position:absolute;inset:0;border-radius:999px;background:#cfd8d3;transition:.2s;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04);pointer-events:none;}
+.mff-toggle span i{position:absolute;width:20px;height:20px;left:4px;top:4px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.18);transition:.2s;}
+.mff-toggle.on span{background:var(--primary);}.mff-toggle.on span i{transform:translateX(20px);}
+</style>
 </head>
 <body>
 
@@ -110,7 +117,7 @@
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,.06)">
       <div><b style="font-size:11.5px">⚡ Auto Sync เมื่อกลับมา Online</b><div style="font-size:10.5px;color:var(--ink-soft);margin-top:2px">ใช้เฉพาะ Google Session ที่ยังใช้งานได้ — ไม่เปิดหน้าขอสิทธิ์เอง</div></div>
-      <label style="position:relative;width:44px;height:24px;flex:0 0 auto"><input id="autoSyncToggle" type="checkbox" style="opacity:0;width:0;height:0"><span id="autoSyncTrack" style="position:absolute;inset:0;border-radius:999px;background:#cfd8d3;transition:.2s;cursor:pointer"><i style="position:absolute;width:18px;height:18px;left:3px;top:3px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.18);transition:.2s"></i></span></label>
+      <label class="mff-toggle" title="เปิด/ปิด Auto Sync"><input id="autoSyncToggle" type="checkbox"><span id="autoSyncTrack" aria-hidden="true"><i></i></span></label>
     </div>
   </section>
 
@@ -185,10 +192,10 @@
     </section>
 
     <section class="mff-settings-card">
-      <h2>💾 ซิงก์กับ Google Drive</h2>
-      <p class="hint">ใช้สำหรับค้นหา/แนบไฟล์หนังสือใน My Bookshelf</p>
+      <h2>💾 Google Drive — My Bookshelf</h2>
+      <p class="hint">ใช้สำหรับค้นหา/แนบไฟล์หนังสือใน My Bookshelf เท่านั้น • Google Sheets ยังคงเป็นฐานข้อมูลกลางของระบบ</p>
       <div class="mff-settings-actions">
-        <button id="btnConnectDrive" class="mff-btn mff-btn-ghost">เชื่อมต่อ Google Drive</button>
+        <button id="btnConnectDrive" class="mff-btn mff-btn-ghost">เชื่อมต่อ Google Drive</button><button id="btnTestDrive" class="mff-btn mff-btn-ghost" style="display:none">ทดสอบ Drive</button>
       </div>
       <div class="mff-sync-status" id="statusDrive"></div>
     </section>
@@ -206,7 +213,7 @@
         <div class="mff-field-row"><div class="lbl">อีเมลผู้รับ</div><input id="cfgReportEmail" type="email" placeholder="name@email.com"></div>
         <div class="mff-settings-actions" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
           <button id="btnSaveReport" class="mff-btn mff-btn-primary" style="grid-column:1/-1">💾 บันทึกและเปิดส่งอัตโนมัติ</button>
-          <button id="btnTestReport" class="mff-btn mff-btn-ghost">📧 ส่งทดสอบ</button>
+          <button id="btnTestReport" class="mff-btn mff-btn-ghost">📧 ส่งทดสอบ</button><button id="btnCheckReport" class="mff-btn mff-btn-ghost">🔎 ตรวจระบบ</button>
           <button id="btnInstallTrigger" class="mff-btn mff-btn-ghost" style="display:none">เปิดใช้งานส่งอัตโนมัติ</button>
         </div>
         <div class="mff-report-status" id="statusReport"></div>
@@ -624,8 +631,9 @@ scheduleAutoSync('ตรวจคิว Offline ตอนเปิด Settings')
 /* ---------- Google Drive (Bookshelf) ---------- */
 function renderDriveStatus(){
   const connected = !!window.MFFGoogleSession?.getDriveToken();
+  const testBtn=document.getElementById('btnTestDrive'); if(testBtn) testBtn.style.display=connected?'inline-flex':'none';
   document.getElementById('statusDrive').innerHTML = connected
-    ? '<span class="ok">✅ เชื่อมต่อแล้ว</span>'
+    ? '<span class="ok">✅ เชื่อมต่อแล้ว • สำหรับ My Bookshelf</span>'
     : '<span class="warn">⚠️ ยังไม่ได้เชื่อมต่อ</span>';
 }
 let driveClient=null;
@@ -646,6 +654,20 @@ document.getElementById('btnConnectDrive').addEventListener('click',()=>{
   driveClient.requestAccessToken({prompt:'consent'});
 });
 renderDriveStatus();
+async function testDriveConnection(){
+  const cached=window.MFFGoogleSession?.getDriveToken?.();
+  if(!cached?.token){toast('กรุณาเชื่อมต่อ Google Drive ก่อน');return;}
+  try{
+    const r=await fetch('https://www.googleapis.com/drive/v3/files?pageSize=1&fields=files(id,name)',{headers:{Authorization:'Bearer '+cached.token}});
+    if(r.status===401||r.status===403) throw new Error('สิทธิ์ Google Drive หมดอายุ กรุณาเชื่อมต่อใหม่');
+    if(!r.ok) throw new Error(await r.text());
+    const j=await r.json();
+    document.getElementById('statusDrive').innerHTML='<span class="ok">✅ Google Drive ใช้งานได้ • ทดสอบ API สำเร็จ</span>';
+    toast('Google Drive เชื่อมต่อและเรียกใช้งานได้');
+    return j;
+  }catch(e){document.getElementById('statusDrive').innerHTML='<span class="warn">⚠️ Drive ทดสอบไม่ผ่าน: '+esc(e.message||e)+'</span>';toast('Google Drive ทดสอบไม่ผ่าน');}
+}
+document.getElementById('btnTestDrive')?.addEventListener('click',testDriveConnection);
 
 let autoSyncTimer=null;
 let autoSyncInFlight=false;
@@ -654,7 +676,7 @@ const AUTO_RETRY_KEY='mff_auto_sync_retry_v1';
 function autoRetryState(){try{return JSON.parse(localStorage.getItem(AUTO_RETRY_KEY)||'{}')}catch(e){return {}}}
 function saveAutoRetryState(v){try{localStorage.setItem(AUTO_RETRY_KEY,JSON.stringify(v))}catch(e){}}
 function autoSyncEnabled(){const v=localStorage.getItem(AUTO_SYNC_KEY);return v===null?true:v==='1';}
-function renderAutoSyncToggle(){const cb=document.getElementById('autoSyncToggle'),track=document.getElementById('autoSyncTrack');if(!cb||!track)return;const on=autoSyncEnabled();cb.checked=on;track.style.background=on?'var(--primary)':'#cfd8d3';const k=track.querySelector('i');if(k)k.style.transform=on?'translateX(20px)':'translateX(0)';}
+function renderAutoSyncToggle(){const cb=document.getElementById('autoSyncToggle'),track=document.getElementById('autoSyncTrack');if(!cb||!track)return;const on=autoSyncEnabled();cb.checked=on;cb.closest('.mff-toggle')?.classList.toggle('on',on);track.setAttribute('aria-checked',String(on));}
 function queueItems(){try{return window.MFFDataSafety?.exportQueue?.()||[]}catch(e){return[];}}
 function renderOfflineQueue(){
   const q=queueItems();
@@ -770,6 +792,7 @@ document.getElementById('btnFinalLocalCheck')?.addEventListener('click',runFinal
 window.addEventListener('online',()=>{updateSystemPulse();renderOfflineQueue();scheduleAutoSync('กลับมา Online');});
 window.addEventListener('offline',()=>{updateSystemPulse();clearTimeout(autoSyncTimer);});
 document.getElementById('autoSyncToggle')?.addEventListener('change',e=>setAutoSync(e.target.checked));
+document.getElementById('autoSyncTrack')?.addEventListener('click',e=>{e.preventDefault();const cb=document.getElementById('autoSyncToggle');if(cb){cb.checked=!cb.checked;cb.dispatchEvent(new Event('change',{bubbles:true}));}});
 renderAutoSyncToggle();
 window.addEventListener('mff:data-safety',()=>{updateSystemPulse();if(navigator.onLine!==false)scheduleAutoSync('มีข้อมูลใหม่ในคิว Offline');});
 /* ---------- All-module readiness audit ---------- */
@@ -910,6 +933,7 @@ async function initReportSection(){
   try{
     const r=await api('getReportConfig',{});
     emailInput.value = r.email || '';
+    localStorage.setItem('mff_report_email_configured',r.email?'1':'0');
     document.getElementById('statusReport').innerHTML = r.triggerInstalled
       ? '<span class="ok">✅ เปิดใช้งานส่งอัตโนมัติแล้ว</span>'
       : '<span class="warn">⚠️ ยังไม่ได้เปิดใช้งานส่งอัตโนมัติ</span>';
@@ -924,7 +948,9 @@ document.getElementById('btnSaveReport').addEventListener('click',async()=>{
   if(!sheetId){ toast('กรุณากรอก Sheet ID ในหัวข้อ Google Sheets ก่อน'); return; }
   try{
     await api('setReportConfig',{email,sheetId});
+    localStorage.setItem('mff_report_email_configured','1');
     const r=await api('installMonthlyTrigger',{});
+    if(!r || r.ok===false) throw new Error(r?.error||'เปิด Trigger ไม่สำเร็จ');
     document.getElementById('statusReport').innerHTML='<span class="ok">✅ บันทึกแล้ว • '+esc(r.message||'เปิดส่งอัตโนมัติแล้ว')+'</span>';
     toast('บันทึกและเปิดส่งอัตโนมัติแล้ว');
   }catch(e){
@@ -938,8 +964,13 @@ document.getElementById('btnInstallTrigger').addEventListener('click',async()=>{
 });
 document.getElementById('btnTestReport').addEventListener('click',async()=>{
   toast('กำลังส่งอีเมลทดสอบ...');
-  try{ const r=await api('sendTestReport',{}); toast(r.message||'ส่งอีเมลทดสอบแล้ว ลองเช็กกล่องจดหมาย'); initReportSection(); }
-  catch(e){ toast('ส่งไม่สำเร็จ: '+e.message); }
+  try{ const r=await api('sendTestReport',{}); if(!r.ok) throw new Error(r.error||'ส่งไม่สำเร็จ'); toast(r.message||'ส่งอีเมลทดสอบแล้ว ลองเช็กกล่องจดหมาย'); initReportSection(); }
+  catch(e){ document.getElementById('statusReport').innerHTML='<span class="warn">⚠️ '+esc(e.message||e)+'</span>'; toast('ส่งไม่สำเร็จ'); }
+});
+document.getElementById('btnCheckReport')?.addEventListener('click',async()=>{
+  toast('กำลังตรวจระบบรายงาน...');
+  try{ const r=await api('checkMonthlyReportSetup',{}); document.getElementById('statusReport').innerHTML=r.ok?'<span class="ok">✅ '+esc(r.message||'ระบบพร้อมใช้งาน')+'</span>':'<span class="warn">⚠️ '+esc(r.error||'ระบบยังไม่พร้อม')+'</span>'; toast(r.ok?'ระบบรายงานพร้อมใช้งาน':'พบจุดที่ต้องแก้'); }
+  catch(e){ document.getElementById('statusReport').innerHTML='<span class="warn">⚠️ '+esc(e.message||e)+'</span>'; toast('ตรวจระบบไม่สำเร็จ'); }
 });
 initReportSection();
 
@@ -953,5 +984,6 @@ window.addEventListener('mff:data-safety',function(e){
 })();
 </script>
 
+<script src="../admin-login.js"></script>
 </body>
 </html>

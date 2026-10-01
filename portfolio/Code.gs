@@ -1,9 +1,7 @@
 /**
  * My Family Funds — Monthly Report Backend (Google Apps Script)
  * -----------------------------------------------------
- * นี่คือ "No-login build" — เว็บแอปฝั่งหน้าบ้านไม่มีระบบล็อกอิน ดังนั้นสคริปต์นี้
- * มีหน้าที่เดียวคือส่ง "สรุปรายเดือนทางอีเมล" ให้อัตโนมัติ ไม่มีระบบ Users/Sessions
- * เพราะไม่จำเป็นต้องใช้ (ทุก action ที่นี่เปิดกว้าง ไม่ต้องมี token)
+ * ไฟล์นี้รองรับ Admin PIN login และ Monthly Report API
  *
  * วิธีติดตั้ง:
  * 1) เปิด Google Sheet ที่ My Money / My Portfolio / My Bookshelf ซิงก์ข้อมูลอยู่แล้ว
@@ -23,9 +21,8 @@
  * ⚠️ ทุกครั้งที่แก้โค้ดในไฟล์นี้ ต้องไป Deploy > Manage deployments > (ไอคอนดินสอ) > Version:
  *    "New version" > Deploy ใหม่ด้วยเสมอ — แค่กด Save ในตัวแก้โค้ดไม่ทำให้ URL /exec เดิมใช้โค้ดใหม่
  *
- * ⚠️ ข้อควรระวัง: เพราะเว็บแอปนี้ไม่มีระบบล็อกอิน ใครก็ตามที่มี URL ของเว็บแอป (ไม่ใช่ของ
- * Apps Script นี้) จะแก้อีเมลผู้รับรายงานได้เช่นกัน ถ้าต้องการจำกัดสิทธิ์ ให้ใช้ไฟล์
- * "With-Login" แทน
+ * หมายเหตุ: token protection ในไฟล์นี้ครอบคลุมเฉพาะ Monthly Report API actions;
+ * API อื่นที่แอปใช้ต้องตรวจสิทธิ์แยกต่างหาก
  */
 
 function doGet(e) {
@@ -54,10 +51,24 @@ function doPost(e) {
 
 function route(action, body) {
   switch (action) {
-    case 'getReportConfig':       return getReportConfig();
-    case 'setReportConfig':       return setReportConfig(body);
-    case 'installMonthlyTrigger': return installMonthlyTriggerAction();
-    case 'sendTestReport':        return sendTestReportAction();
+    // Authentication endpoints remain public for sign-in, validation and sign-out.
+    case 'adminLogin':            return adminLogin(body);
+    case 'validateAdminSession':  return validateAdminSession(body);
+    case 'adminLogout':           return adminLogout(body);
+    // Monthly Report API actions require a valid admin session.
+    case 'getReportConfig':
+    case 'setReportConfig':
+    case 'installMonthlyTrigger':
+    case 'sendTestReport':
+    case 'checkMonthlyReportSetup':
+      if (!isValidAdminSession_(body.token)) {
+        return { ok: false, error: 'กรุณาเข้าสู่ระบบผู้ดูแลใหม่อีกครั้ง', code: 'AUTH_REQUIRED' };
+      }
+      if (action === 'getReportConfig') return getReportConfig();
+      if (action === 'setReportConfig') return setReportConfig(body);
+      if (action === 'installMonthlyTrigger') return installMonthlyTriggerAction();
+      if (action === 'sendTestReport') return sendTestReportAction();
+      if (action === 'checkMonthlyReportSetup') return checkMonthlyReportSetup();
     default: return { ok: false, error: 'Unknown action: ' + action };
   }
 }
@@ -69,6 +80,88 @@ function route(action, body) {
  * ซิงก์ไว้อยู่แล้ว (แท็บ MoneyTransactions, Investments, BookshelfItems)
  * แล้วส่งสรุปเข้าอีเมลที่ตั้งไว้ ทุกวันที่ 1 ของเดือนถัดไป (เวลา ~07:00)
  * ===================================================================== */
+
+
+
+/* =====================================================================
+ * Admin login — 6-digit PIN keypad
+ * Configure ADMIN_INITIAL_PIN below, run setupAdminLogin() once, then
+ * replace the placeholder with a different PIN and run setup again if needed.
+ * The PIN hash and salt are stored in Script Properties, not in the frontend.
+ * ===================================================================== */
+const ADMIN_INITIAL_USERNAME = 'admin';
+const ADMIN_INITIAL_PIN = '252319'; // Set to your private 6-digit PIN, run setupAdminLogin(), then remove it from source.
+const ADMIN_SESSION_HOURS = 12;
+function adminDigest_(text) {
+  const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, text, Utilities.Charset.UTF_8);
+  return bytes.map(b => ('0' + ((b + 256) % 256).toString(16)).slice(-2)).join('');
+}
+function setupAdminLogin() {
+  if (!/^\d{6}$/.test(ADMIN_INITIAL_PIN)) throw new Error('ตั้ง ADMIN_INITIAL_PIN เป็นรหัส 6 หลักก่อน แล้วจึง Run setupAdminLogin()');
+  const salt = Utilities.getUuid() + Utilities.getUuid();
+  const props = PropertiesService.getScriptProperties();
+  props.setProperties({ MFF_ADMIN_USERNAME: ADMIN_INITIAL_USERNAME, MFF_ADMIN_SALT: salt, MFF_ADMIN_PIN_HASH: adminDigest_(salt + ':' + ADMIN_INITIAL_PIN) }, true);
+  // Remove any old sessions after changing credentials.
+  props.deleteProperty('MFF_ADMIN_SESSIONS');
+  return {ok:true, message:'ตั้งค่าบัญชีแอดมินแล้ว กรุณาลบรหัส PIN ออกจาก source code และ Deploy เวอร์ชันใหม่'};
+}
+function adminLogin(body) {
+  const props = PropertiesService.getScriptProperties();
+  const username = String(body.username || '').trim();
+  const pin = String(body.pin || '');
+  const expectedUser = props.getProperty('MFF_ADMIN_USERNAME');
+  const salt = props.getProperty('MFF_ADMIN_SALT');
+  const hash = props.getProperty('MFF_ADMIN_PIN_HASH');
+  if (!expectedUser || !salt || !hash) return {ok:false, error:'ยังไม่ได้ตั้งค่าบัญชีแอดมินใน Apps Script'};
+  if (username !== expectedUser || !/^\d{6}$/.test(pin) || adminDigest_(salt + ':' + pin) !== hash) {
+    Utilities.sleep(450);
+    return {ok:false, error:'ชื่อผู้ใช้หรือรหัส PIN ไม่ถูกต้อง'};
+  }
+  const token = Utilities.getUuid().replace(/-/g,'') + Utilities.getUuid().replace(/-/g,'');
+  const expiresAt = Date.now() + ADMIN_SESSION_HOURS * 60 * 60 * 1000;
+  const sessions = getAdminSessions_();
+  sessions[token] = {username: expectedUser, expiresAt: expiresAt};
+  const keys = Object.keys(sessions);
+  while (keys.length > 8) delete sessions[keys.shift()];
+  props.setProperty('MFF_ADMIN_SESSIONS', JSON.stringify(sessions));
+  return {ok:true, token:token, username:expectedUser, expiresAt:expiresAt};
+}
+function getAdminSessions_() {
+  try { return JSON.parse(PropertiesService.getScriptProperties().getProperty('MFF_ADMIN_SESSIONS') || '{}') || {}; }
+  catch(e) { return {}; }
+}
+function isValidAdminSession_(token) {
+  token = String(token || '');
+  if (!token) return false;
+  const sessions = getAdminSessions_();
+  const session = sessions[token];
+  if (!session || Number(session.expiresAt) <= Date.now()) {
+    if (session) {
+      delete sessions[token];
+      PropertiesService.getScriptProperties().setProperty('MFF_ADMIN_SESSIONS', JSON.stringify(sessions));
+    }
+    return false;
+  }
+  return true;
+}
+
+function validateAdminSession(body) {
+  const token = String(body.token || '');
+  const sessions = getAdminSessions_();
+  const s = sessions[token];
+  if (!s || s.expiresAt < Date.now()) {
+    if (s) { delete sessions[token]; PropertiesService.getScriptProperties().setProperty('MFF_ADMIN_SESSIONS', JSON.stringify(sessions)); }
+    return {ok:false, authenticated:false};
+  }
+  return {ok:true, authenticated:true, username:s.username, expiresAt:s.expiresAt};
+}
+function adminLogout(body) {
+  const token = String(body.token || '');
+  const sessions = getAdminSessions_();
+  delete sessions[token];
+  PropertiesService.getScriptProperties().setProperty('MFF_ADMIN_SESSIONS', JSON.stringify(sessions));
+  return {ok:true};
+}
 
 const REPORT_TRIGGER_FN = 'monthlyReportJob';
 const THAI_MONTHS = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
@@ -106,12 +199,31 @@ function installMonthlyTriggerAction() {
     return { ok: false, error: 'กรุณาบันทึกอีเมลและ Sheet ID ก่อน' };
   }
   try {
+    SpreadsheetApp.openById(cfgGet('REPORT_SHEET_ID')).getName();
+    if (MailApp.getRemainingDailyQuota() <= 0) throw new Error('โควตาส่งอีเมลของ Google ไม่เหลือแล้ว');
     ScriptApp.getProjectTriggers().forEach(t => { if (t.getHandlerFunction() === REPORT_TRIGGER_FN) ScriptApp.deleteTrigger(t); });
     ScriptApp.newTrigger(REPORT_TRIGGER_FN).timeBased().onMonthDay(1).atHour(7).create();
   } catch (err) {
-    return { ok: false, error: 'ยังไม่ได้รับสิทธิ์จัดการ Trigger — ให้เปิด Apps Script editor เลือกฟังก์ชัน installMonthlyTriggerAction แล้วกด Run 1 ครั้งเพื่อ authorize สิทธิ์ก่อน (' + (err && err.message || err) + ')' };
+    return { ok: false, error: 'เปิดส่งอัตโนมัติไม่สำเร็จ: ' + (err && err.message || err) + ' — หากเป็นครั้งแรก ให้รัน authorizeReportPermissions() ใน Apps Script 1 ครั้ง แล้ว Deploy เวอร์ชันใหม่' };
   }
   return { ok: true, message: 'เปิดใช้งานส่งอัตโนมัติแล้ว (วันที่ 1 เวลา 07:00 ตาม Time zone ของ Apps Script)' };
+}
+
+function checkMonthlyReportSetup() {
+  const email = cfgGet('REPORT_EMAIL');
+  const sheetId = cfgGet('REPORT_SHEET_ID');
+  if (!email) return { ok:false, error:'ยังไม่ได้ตั้งค่าอีเมลผู้รับ' };
+  if (!sheetId) return { ok:false, error:'ยังไม่ได้ตั้งค่า Sheet ID' };
+  try {
+    const name = SpreadsheetApp.openById(sheetId).getName();
+    const quota = MailApp.getRemainingDailyQuota();
+    const trigger = hasMonthlyTrigger();
+    if (!trigger) return { ok:false, error:'Google Sheet ใช้งานได้ ('+name+') แต่ยังไม่มี Monthly Trigger' };
+    if (quota <= 0) return { ok:false, error:'Google Sheet ใช้งานได้ แต่โควตาส่งอีเมลวันนี้หมดแล้ว' };
+    return { ok:true, message:'ระบบพร้อม • Sheet: '+name+' • Trigger ทำงานอยู่ • โควตาอีเมลคงเหลือ '+quota+' ฉบับ' };
+  } catch (err) {
+    return { ok:false, error:'ตรวจระบบไม่ผ่าน: '+(err && err.message || err) };
+  }
 }
 
 function sendTestReportAction() {
@@ -134,6 +246,9 @@ function monthlyReportJob() {
 function authorizeReportPermissions() {
   ScriptApp.getProjectTriggers();
   MailApp.getRemainingDailyQuota();
+  const sid = cfgGet('REPORT_SHEET_ID');
+  if (sid) SpreadsheetApp.openById(sid).getName();
+  return { ok:true, message:'สิทธิ์สำหรับ Trigger, Email และ Google Sheet พร้อมใช้งาน' };
 }
 
 function readTab(spreadsheet, tabName) {
