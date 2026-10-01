@@ -90,7 +90,7 @@ function route(action, body) {
  * The PIN hash and salt are stored in Script Properties, not in the frontend.
  * ===================================================================== */
 const ADMIN_INITIAL_USERNAME = 'admin';
-const ADMIN_INITIAL_PIN = '252319'; // Set to your private 6-digit PIN, run setupAdminLogin(), then remove it from source.
+const ADMIN_INITIAL_PIN = 'CHANGE_ME'; // Set to your private 6-digit PIN, run setupAdminLogin(), then remove it from source.
 const ADMIN_SESSION_HOURS = 12;
 function adminDigest_(text) {
   const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, text, Utilities.Charset.UTF_8);

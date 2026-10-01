@@ -1,4 +1,4 @@
-const CACHE='mff-portfolio-v17-v83-admin-pin';
+const CACHE='mff-portfolio-v17-v83-admin-pin-errfix';
 const SHELL=['./index.html','./dashboard.html','./auth-open.js','../admin-login.js','../config.js','./manifest.json','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>e.waitUntil((async()=>{const c=await caches.open(CACHE);for(const u of SHELL){try{await c.add(u);}catch(_){}}await self.skipWaiting();})()));
 self.addEventListener('activate',e=>e.waitUntil((async()=>{const keep=new Set([CACHE]);const keys=await caches.keys();await Promise.all(keys.filter(k=>!keep.has(k)).map(k=>caches.delete(k)));await self.clients.claim();})()));
