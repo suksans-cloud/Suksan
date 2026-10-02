@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>My Calendar</title>
+<meta name="theme-color" content="#0d1f45">
+<link rel="icon" href="../portfolio/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600&family=Noto+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0d1f45;--navy2:#142a5a;--blue:#5b9cff;--green:#1fb581;--orange:#d95d1a;--ink:#0d1f45;--mut:#7d8aa5;--soft:#f1f5fd}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{display:flex;flex-direction:column;background:var(--navy);color:#fff;font-family:"Noto Sans Thai",system-ui,sans-serif}
+.top{padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 6px}
+.bar{display:flex;align-items:center;justify-content:space-between;height:44px}
+.bar h1{margin:0;font:600 17px Prompt,sans-serif;letter-spacing:.3px}
+.ib{width:40px;height:40px;border:0;border-radius:12px;background:transparent;color:#fff;display:grid;place-items:center;text-decoration:none;cursor:pointer}
+.ib svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ib.spin svg{animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.nav{display:flex;align-items:center;justify-content:space-between;background:var(--navy2);border-radius:14px;height:46px;padding:0 4px;margin:8px 0 12px}
+.nav b{font:500 15px Prompt,sans-serif}
+.nav .today{border:0;background:#ffffff1f;color:#fff;border-radius:10px;padding:6px 10px;font:500 12px "Noto Sans Thai";margin-right:4px}
+.dow,.grid{display:grid;grid-template-columns:repeat(7,1fr);text-align:center}
+.dow span{font-size:11px;color:#6f84b3;padding:6px 0 10px;letter-spacing:.5px}
+.grid{row-gap:4px;padding-bottom:18px}
+.d{position:relative;height:42px;display:grid;place-items:center;font-size:14px;cursor:pointer;border:0;background:none;color:#fff;font-family:inherit}
+.d i{position:absolute;inset:3px 0;margin:auto;width:36px;height:36px;border-radius:50%;z-index:0}
+.d span{position:relative;z-index:1}
+.d.out{color:#4f6392}
+.d.today i{background:var(--green)}
+.d.sel i{background:var(--blue)}
+.d.sel.today i{background:var(--blue);box-shadow:0 0 0 2px var(--green)}
+.d u{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);display:flex;gap:3px;z-index:1}
+.d u b{width:4px;height:4px;border-radius:50%;background:#fff;opacity:.9}
+.sheet{flex:1;min-height:0;overflow:auto;background:#fff;color:var(--ink);border-radius:28px 28px 0 0;padding:10px 16px calc(env(safe-area-inset-bottom,0px) + 24px)}
+.sheet:before{content:"";display:block;width:36px;height:4px;border-radius:4px;background:#d8e0ef;margin:0 auto 12px}
+.sh{display:flex;justify-content:space-between;align-items:baseline;margin:2px 2px 12px}
+.sh b{font:600 16px Prompt,sans-serif}.sh span{font-size:12px;color:var(--mut)}
+.ev{display:flex;gap:12px;border-radius:18px;padding:12px;margin-bottom:10px;color:#fff;cursor:pointer}
+.ev .av{flex:none;width:38px;height:38px;border-radius:50%;background:#ffffff40;display:grid;place-items:center;font:600 15px Prompt,sans-serif}
+.ev h3{margin:0;font:600 14.5px Prompt,sans-serif;line-height:1.3}
+.ev p{margin:3px 0 0;font-size:12px;opacity:.9}
+.ev .desc{display:none;white-space:pre-wrap;margin-top:8px;font-size:12.5px;opacity:.95}
+.ev.open .desc{display:block}
+.empty,.conn{text-align:center;color:var(--mut);font-size:13.5px;padding:22px 8px;line-height:1.7}
+.conn{background:var(--soft);border-radius:18px;margin-bottom:12px;color:var(--ink)}
+.btn{display:inline-block;margin-top:8px;border:0;border-radius:14px;background:var(--navy);color:#fff;padding:12px 20px;font:500 14px "Noto Sans Thai";cursor:pointer;text-decoration:none}
+.msg{font-size:11.5px;color:#9fb0d6;text-align:center;padding:0 0 8px;min-height:16px}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="bar">
+    <a class="ib" href="../index.html" aria-label="กลับ"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a>
+    <h1>Calendar</h1>
+    <button class="ib" id="sync" aria-label="Sync Google Calendar"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.5-4M4 4v4h4M4 13a8 8 0 0 0 14.5 4M20 20v-4h-4"/></svg></button>
+  </div>
+  <div class="nav">
+    <button class="ib" id="prev" aria-label="เดือนก่อนหน้า"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <b id="title"></b>
+    <span><button class="today" id="todayBtn">วันนี้</button><button class="ib" id="next" aria-label="เดือนถัดไป" style="display:inline-grid"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></span>
+  </div>
+  <div class="dow" id="dow"></div>
+  <div class="grid" id="grid"></div>
+  <div class="msg" id="msg"></div>
+</div>
+<div class="sheet" id="sheet"></div>
+
+<script src="../config.js"></script>
+<script src="../admin-login.js"></script>
+<script>
+(function(){
+'use strict';
+var $=function(i){return document.getElementById(i)};
+var MTH=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+var DOW=['จ','อ','พ','พฤ','ศ','ส','อา'], PAL=['#5b9cff','#1fb581','#d95d1a','#7c5cf0','#2a4a8f'];
+var CK='mff_calendar_cache_v1', TK='mff_cal_token', SCOPE='https://www.googleapis.com/auth/calendar.readonly';
+var today=new Date(), view=new Date(today.getFullYear(),today.getMonth(),1), sel=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+var cache=load();
+function load(){try{return JSON.parse(localStorage.getItem(CK))||{months:{},updated:0}}catch(e){return {months:{},updated:0}}}
+function save(){try{localStorage.setItem(CK,JSON.stringify(cache))}catch(e){}}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function key(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function mkey(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)}
+function hm(ms){var d=new Date(ms);return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)}
+function msg(t){$('msg').textContent=t||''}
+function gridStart(d){var s=new Date(d.getFullYear(),d.getMonth(),1);s.setDate(1-((s.getDay()+6)%7));return s}
+
+// ---- events by day ----
+function dayMap(){
+  var map={};
+  Object.keys(cache.months).forEach(function(m){cache.months[m].forEach(function(e){
+    var s=new Date(e.s), en=new Date(e.e), last=e.ad?new Date(en.getTime()-1):en;
+    for(var d=new Date(s.getFullYear(),s.getMonth(),s.getDate()),n=0;d<=last&&n<62;d.setDate(d.getDate()+1),n++){
+      var k=key(d);(map[k]=map[k]||[]);
+      if(!map[k].some(function(x){return x.id===e.id&&x.s===e.s}))map[k].push(e);
+    }});});
+  Object.keys(map).forEach(function(k){map[k].sort(function(a,b){return (b.ad-a.ad)||(a.s-b.s)})});
+  return map;
+}
+
+// ---- render ----
+function render(){
+  $('title').textContent=MTH[view.getMonth()]+' '+(view.getFullYear()+543);
+  var map=dayMap(), g=$('grid'), h='', d=gridStart(view), tk=key(today), sk=key(sel);
+  for(var i=0;i<42;i++,d.setDate(d.getDate()+1)){
+    var k=key(d), ev=map[k]||[], cls='d'+(d.getMonth()!==view.getMonth()?' out':'')+(k===tk?' today':'')+(k===sk?' sel':'');
+    h+='<button class="'+cls+'" data-k="'+k+'"><i></i><span>'+d.getDate()+'</span>'+(ev.length?'<u>'+ev.slice(0,3).map(function(){return '<b></b>'}).join('')+'</u>':'')+'</button>';
+  }
+  g.innerHTML=h;
+  var list=map[sk]||[], hs='';
+  var tok=token();
+  if(!tok&&!cache.updated) hs+='<div class="conn">ยังไม่ได้เชื่อมต่อ Google Calendar<br>ระบบขอสิทธิ์อ่านอย่างเดียว (readonly) เมื่อกดปุ่มเท่านั้น<br><button class="btn" id="connect">เชื่อมต่อ Google Calendar</button></div>';
+  hs+='<div class="sh"><b>'+sel.getDate()+' '+MTH[sel.getMonth()]+'</b><span>'+list.length+' รายการ'+(cache.updated?' · อัปเดต '+hm(cache.updated):'')+'</span></div>';
+  if(!list.length) hs+='<div class="empty">ไม่มีนัดหมายในวันนี้</div>';
+  list.forEach(function(e,i){
+    var t=e.ad?'ทั้งวัน':hm(e.s)+' - '+hm(e.e);
+    hs+='<div class="ev" data-i="'+i+'" style="background:'+esc(e.c)+'"><div class="av">'+esc((e.t||'?').trim().charAt(0).toUpperCase())+'</div><div style="min-width:0"><h3>'+esc(e.t)+'</h3><p>'+t+(e.l?' · '+esc(e.l):'')+'</p>'+(e.d?'<div class="desc">'+esc(e.d.replace(/<[^>]*>/g,' '))+'</div>':'')+'</div></div>';
+  });
+  $('sheet').innerHTML=hs;
+}
+
+// ---- Google auth (only when the user taps connect / sync) ----
+function token(){try{var t=JSON.parse(sessionStorage.getItem(TK)||'null');return t&&t.exp>Date.now()+30000?t.v:null}catch(e){return null}}
+function loadGIS(){return new Promise(function(res,rej){
+  if(window.google&&google.accounts&&google.accounts.oauth2)return res();
+  var s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.onload=function(){res()};s.onerror=function(){rej(new Error('gis'))};document.head.appendChild(s);});}
+function connect(){
+  var cid=localStorage.getItem('google_client_id');
+  if(!cid){msg('ยังไม่มี Client ID — ตั้งค่าที่ Settings ก่อน');$('sheet').insertAdjacentHTML('afterbegin','<div class="conn">ยังไม่ได้ตั้งค่า Google OAuth Client ID<br><a class="btn" href="../settings/index.html">ไปที่ Settings</a></div>');return}
+  msg('กำลังเชื่อมต่อ...');
+  loadGIS().then(function(){
+    google.accounts.oauth2.initTokenClient({client_id:cid,scope:SCOPE,callback:function(r){
+      if(r.error){msg('เชื่อมต่อไม่สำเร็จ: '+r.error);return}
+      sessionStorage.setItem(TK,JSON.stringify({v:r.access_token,exp:Date.now()+(r.expires_in||3600)*1000}));
+      localStorage.setItem('mff_calendar_connected','1');sync();
+    }}).requestAccessToken({prompt:localStorage.getItem('mff_calendar_connected')?'':'consent'});
+  }).catch(function(){msg('โหลด Google ไม่ได้ ตรวจสอบอินเทอร์เน็ต')});
+}
+function api(url,tok){return fetch(url,{headers:{Authorization:'Bearer '+tok}}).then(function(r){
+  if(r.status===401){sessionStorage.removeItem(TK);throw new Error('expired')}
+  if(!r.ok)return r.json().then(function(j){throw new Error((j.error&&j.error.message)||r.status)});return r.json()})}
+
+function sync(){
+  var tok=token(); if(!tok){connect();return}
+  var btn=$('sync');btn.classList.add('spin');msg('กำลังดึงข้อมูล...');
+  var s=gridStart(view), e=new Date(s.getTime());e.setDate(e.getDate()+42);
+  var q='timeMin='+encodeURIComponent(s.toISOString())+'&timeMax='+encodeURIComponent(e.toISOString())+'&singleEvents=true&orderBy=startTime&maxResults=250';
+  api('https://www.googleapis.com/calendar/v3/users/me/calendarList?minAccessRole=reader',tok).then(function(cl){
+    var cals=(cl.items||[]).filter(function(c){return c.selected!==false}).slice(0,12);
+    return Promise.all(cals.map(function(c,ci){
+      return api('https://www.googleapis.com/calendar/v3/calendars/'+encodeURIComponent(c.id)+'/events?'+q,tok).then(function(r){
+        return (r.items||[]).filter(function(x){return x.status!=='cancelled'}).map(function(x){
+          var ad=!!(x.start&&x.start.date);
+          var st=new Date(ad?x.start.date+'T00:00:00':x.start.dateTime).getTime(), en=new Date(ad?x.end.date+'T00:00:00':x.end.dateTime).getTime();
+          return {id:x.id,t:x.summary||'(ไม่มีชื่อ)',s:st,e:en,ad:ad,l:x.location||'',d:x.description||'',c:PAL[ci%PAL.length]};
+        });});
+    }));
+  }).then(function(parts){
+    cache.months[mkey(view)]=[].concat.apply([],parts);cache.updated=Date.now();save();msg('ซิงค์สำเร็จ');render();
+  }).catch(function(err){msg(err.message==='expired'?'หมดอายุ กดซิงค์เพื่อเชื่อมต่อใหม่':'ซิงค์ไม่สำเร็จ: '+err.message);render();})
+  .then(function(){btn.classList.remove('spin')});
+}
+
+// ---- events ----
+$('dow').innerHTML=DOW.map(function(x){return '<span>'+x+'</span>'}).join('');
+$('grid').addEventListener('click',function(e){var b=e.target.closest('.d');if(!b)return;var p=b.dataset.k.split('-');sel=new Date(+p[0],+p[1]-1,+p[2]);
+  if(sel.getMonth()!==view.getMonth()){view=new Date(sel.getFullYear(),sel.getMonth(),1);autoFetch()}render()});
+$('sheet').addEventListener('click',function(e){if(e.target.id==='connect'){connect();return}var ev=e.target.closest('.ev');if(ev)ev.classList.toggle('open')});
+function autoFetch(){if(token()&&!cache.months[mkey(view)])sync()} // never opens OAuth by itself
+function go(n){view=new Date(view.getFullYear(),view.getMonth()+n,1);sel=new Date(view.getFullYear(),view.getMonth(),1);render();autoFetch()}
+$('prev').onclick=function(){go(-1)};$('next').onclick=function(){go(1)};
+$('todayBtn').onclick=function(){view=new Date(today.getFullYear(),today.getMonth(),1);sel=new Date(today.getFullYear(),today.getMonth(),today.getDate());render();autoFetch()};
+$('sync').onclick=sync;
+render();autoFetch();
+})();
+</script>
+</body>
+</html>
