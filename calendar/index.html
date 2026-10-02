@@ -49,6 +49,25 @@ body{display:flex;flex-direction:column;background:var(--navy);color:#fff;font-f
 .conn{background:var(--soft);border-radius:18px;margin-bottom:12px;color:var(--ink)}
 .btn{display:inline-block;margin-top:8px;border:0;border-radius:14px;background:var(--navy);color:#fff;padding:12px 20px;font:500 14px "Noto Sans Thai";cursor:pointer;text-decoration:none}
 .msg{font-size:11.5px;color:#9fb0d6;text-align:center;padding:0 0 8px;min-height:16px}
+
+.sheet{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 96px)}
+#fab{position:fixed;right:18px;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);width:58px;height:58px;border-radius:50%;border:0;background:var(--blue);color:#fff;font:300 34px/1 Prompt,sans-serif;box-shadow:0 8px 22px #0d1f4559;cursor:pointer;z-index:50;display:grid;place-items:center;padding:0 0 3px}
+#fab:active{transform:scale(.95)}
+.ev .del{display:none;margin-top:10px;border:0;border-radius:10px;background:#ffffff33;color:#fff;padding:7px 12px;font:500 12px "Noto Sans Thai",sans-serif}
+.ev.open .del{display:inline-block}
+#frm{position:fixed;inset:0;background:#08122d8c;z-index:100;display:none;align-items:flex-end}
+#frm.on{display:flex}
+.fsheet{width:100%;max-height:92dvh;overflow:auto;background:#fff;color:var(--ink);border-radius:26px 26px 0 0;padding:18px 16px calc(env(safe-area-inset-bottom,0px) + 18px)}
+.fsheet h2{margin:0 0 12px;font:600 17px Prompt,sans-serif}
+.fsheet input[type=text],.fsheet input[type=date],.fsheet input[type=time],.fsheet textarea,.fsheet select{width:100%;border:1.5px solid #dbe3f1;border-radius:12px;padding:11px 12px;font:16px "Noto Sans Thai",sans-serif;background:#f7f9fd;color:var(--ink);margin-bottom:10px}
+.fsheet small{display:block;font-size:11.5px;color:var(--mut);margin:0 0 4px 2px}
+.fsheet .two{display:flex;gap:10px}.fsheet .two>div{flex:1}
+.fsheet .row{display:flex;align-items:center;gap:8px;font-size:14px;margin:2px 0 12px}
+.fsheet .row input{width:20px;height:20px}
+.ferr{min-height:18px;color:#d12f3f;font-size:13px;font-weight:600;text-align:center}
+.fbtn{display:flex;gap:10px;margin-top:6px}.fbtn .btn{flex:1;margin:0}
+.btn.light{background:#e8eefb;color:var(--navy)}
+.ev .mt{display:none;margin:10px 10px 0 0;color:#fff;font-size:12px;text-decoration:underline}.ev.open .mt{display:inline-block}.ev .ed{margin-right:8px}
 </style>
 </head>
 <body>
@@ -69,6 +88,24 @@ body{display:flex;flex-direction:column;background:var(--navy);color:#fff;font-f
 </div>
 <div class="sheet" id="sheet"></div>
 
+<button id="fab" aria-label="เพิ่มนัดหมาย">+</button>
+<div id="frm" role="dialog" aria-modal="true"><div class="fsheet">
+  <h2 id="fH">เพิ่มนัดหมาย</h2>
+  <input type="text" id="fTitle" placeholder="ชื่อนัดหมาย" maxlength="200" autocomplete="off">
+  <label class="row"><input type="checkbox" id="fAll"> ทั้งวัน</label>
+  <small>วันที่เริ่ม</small><input type="date" id="fDate"><small>ถึงวันที่ (เว้นว่างถ้าวันเดียว)</small><input type="date" id="fDate2">
+  <div id="fTimes" class="two"><div><small>เริ่ม</small><input type="time" id="fS"></div><div><small>สิ้นสุด</small><input type="time" id="fE"></div></div>
+  <input type="text" id="fLoc" placeholder="สถานที่ (ไม่บังคับ)" autocomplete="off">
+  <textarea id="fDesc" rows="2" placeholder="รายละเอียด (ไม่บังคับ)"></textarea>
+  <small>ทำซ้ำ</small><select id="fRep"><option value="">ไม่ทำซ้ำ</option><option value="DAILY">ทุกวัน</option><option value="WEEKLY">ทุกสัปดาห์</option><option value="MONTHLY">ทุกเดือน</option><option value="YEARLY">ทุกปี</option></select>
+  <small>แจ้งเตือนก่อนเริ่ม</small><select id="fRem"><option value="">ตามค่าเริ่มต้นของปฏิทิน</option><option value="0">ตอนเริ่ม</option><option value="10">10 นาที</option><option value="30">30 นาที</option><option value="60">1 ชั่วโมง</option><option value="1440">1 วัน</option><option value="none">ไม่แจ้งเตือน</option></select>
+  <small>เชิญผู้ร่วมนัด (อีเมล คั่นด้วย ,)</small><input type="text" id="fGuests" placeholder="name@gmail.com" autocomplete="off" autocapitalize="none">
+  <label class="row"><input type="checkbox" id="fMeet"> เพิ่มลิงก์ Google Meet</label>
+  <small>สีของนัด</small><select id="fColor"><option value="">สีของปฏิทิน</option><option value="1">ลาเวนเดอร์</option><option value="2">เสจ</option><option value="3">องุ่น</option><option value="4">ฟลามิงโก</option><option value="5">กล้วย</option><option value="6">ส้ม</option><option value="7">นกยูง</option><option value="8">กราไฟต์</option><option value="9">บลูเบอร์รี่</option><option value="10">ใบโหระพา</option><option value="11">มะเขือเทศ</option></select>
+  <small>บันทึกลงปฏิทิน</small><select id="fCal"></select>
+  <div class="ferr" id="fErr" role="alert"></div>
+  <div class="fbtn"><button type="button" class="btn light" id="fCancel">ยกเลิก</button><button type="button" class="btn" id="fSave">บันทึก</button></div>
+</div></div>
 <script src="../config.js"></script>
 <script src="../admin-login.js"></script>
 <script>
@@ -77,8 +114,9 @@ body{display:flex;flex-direction:column;background:var(--navy);color:#fff;font-f
 var $=function(i){return document.getElementById(i)};
 var MTH=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 var DOW=['จ','อ','พ','พฤ','ศ','ส','อา'], PAL=['#5b9cff','#1fb581','#d95d1a','#7c5cf0','#2a4a8f'];
-var CK='mff_calendar_cache_v1', TK='mff_cal_token', SCOPE='https://www.googleapis.com/auth/calendar.readonly';
-var today=new Date(), view=new Date(today.getFullYear(),today.getMonth(),1), sel=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+var CK='mff_calendar_cache_v1', TK='mff_cal_token', SCOPE='https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events';
+var EC={1:'#7986cb',2:'#33b679',3:'#8e24aa',4:'#e67c73',5:'#f6bf26',6:'#f4511e',7:'#039be5',8:'#616161',9:'#3f51b5',10:'#0b8043',11:'#d50000'};
+var editing=null, today=new Date(), view=new Date(today.getFullYear(),today.getMonth(),1), sel=new Date(today.getFullYear(),today.getMonth(),today.getDate());
 var cache=load(), apiHelp='';
 function load(){try{return JSON.parse(localStorage.getItem(CK))||{months:{},updated:0}}catch(e){return {months:{},updated:0}}}
 function save(){try{localStorage.setItem(CK,JSON.stringify(cache))}catch(e){}}
@@ -115,30 +153,32 @@ function render(){
   var tok=token();
   if(!tok&&!cache.updated) hs+='<div class="conn">ยังไม่ได้เชื่อมต่อ Google Calendar<br>ระบบขอสิทธิ์อ่านอย่างเดียว (readonly) เมื่อกดปุ่มเท่านั้น<br><button class="btn" id="connect">เชื่อมต่อ Google Calendar</button></div>';
   if(apiHelp) hs+='<div class="conn">ต้องเปิดใช้ Google Calendar API ในโปรเจกต์ Google Cloud ก่อน<br><a class="btn" target="_blank" rel="noopener" href="'+esc(apiHelp)+'">เปิดหน้าเปิดใช้ API</a><br><small>เปิดแล้วรอ 1-2 นาที แล้วกด Sync อีกครั้ง</small></div>';
+  hs+='<button type="button" class="btn light" id="dcaBtn" style="width:100%;margin:0 0 12px">💰 ตั้งเตือน DCA รายเดือน</button>';
   hs+='<div class="sh"><b>'+sel.getDate()+' '+MTH[sel.getMonth()]+'</b><span>'+list.length+' รายการ'+(cache.updated?' · อัปเดต '+hm(cache.updated):'')+'</span></div>';
   if(!list.length) hs+='<div class="empty">ไม่มีนัดหมายในวันนี้</div>';
   list.forEach(function(e,i){
     var t=e.ad?'ทั้งวัน':hm(e.s)+' - '+hm(e.e);
-    hs+='<div class="ev" data-i="'+i+'" style="background:'+esc(e.c)+'"><div class="av">'+esc((e.t||'?').trim().charAt(0).toUpperCase())+'</div><div style="min-width:0"><h3>'+esc(e.t)+'</h3><p>'+t+(e.l?' · '+esc(e.l):'')+'</p>'+(e.d?'<div class="desc">'+esc(e.d.replace(/<[^>]*>/g,' '))+'</div>':'')+'</div></div>';
+    hs+='<div class="ev" data-i="'+i+'" style="background:'+esc(e.c)+'"><div class="av">'+esc((e.t||'?').trim().charAt(0).toUpperCase())+'</div><div style="min-width:0"><h3>'+esc(e.t)+'</h3><p>'+t+(e.l?' · '+esc(e.l):'')+'</p>'+(e.d?'<div class="desc">'+esc(e.d.replace(/<[^>]*>/g,' '))+'</div>':'')+(e.mt?'<a class="mt" href="'+esc(e.mt)+'" target="_blank" rel="noopener">เข้าร่วม Google Meet</a>':'')+(e.w?'<button class="del ed" data-i="'+i+'">แก้ไข</button><button class="del" data-i="'+i+'">ลบนัดนี้</button>':'')+'</div></div>';
   });
   $('sheet').innerHTML=hs;
 }
 
 // ---- Google auth (only when the user taps connect / sync) ----
 function token(){try{var t=JSON.parse(sessionStorage.getItem(TK)||'null');return t&&t.exp>Date.now()+30000?t.v:null}catch(e){return null}}
+function canWrite(){try{var t=JSON.parse(sessionStorage.getItem(TK)||'null');return !!(t&&t.w&&t.exp>Date.now()+30000)}catch(e){return false}}
 function loadGIS(){return new Promise(function(res,rej){
   if(window.google&&google.accounts&&google.accounts.oauth2)return res();
   var s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.onload=function(){res()};s.onerror=function(){rej(new Error('gis'))};document.head.appendChild(s);});}
-function connect(){
+function connect(after){
   var cid=localStorage.getItem('google_client_id');
   if(!cid){msg('ยังไม่มี Client ID — ตั้งค่าที่ Settings ก่อน');$('sheet').insertAdjacentHTML('afterbegin','<div class="conn">ยังไม่ได้ตั้งค่า Google OAuth Client ID<br><a class="btn" href="../settings/index.html">ไปที่ Settings</a></div>');return}
   msg('กำลังเชื่อมต่อ...');
   loadGIS().then(function(){
     google.accounts.oauth2.initTokenClient({client_id:cid,scope:SCOPE,callback:function(r){
       if(r.error){msg('เชื่อมต่อไม่สำเร็จ: '+r.error);return}
-      sessionStorage.setItem(TK,JSON.stringify({v:r.access_token,exp:Date.now()+(r.expires_in||3600)*1000}));
-      localStorage.setItem('mff_calendar_connected','1');sync();
-    }}).requestAccessToken({prompt:localStorage.getItem('mff_calendar_connected')?'':'consent'});
+      sessionStorage.setItem(TK,JSON.stringify({v:r.access_token,exp:Date.now()+(r.expires_in||3600)*1000,w:1}));
+      localStorage.setItem('mff_calendar_connected_v2','1');if(after)after();else sync();
+    }}).requestAccessToken({prompt:localStorage.getItem('mff_calendar_connected_v2')?'':'consent'});
   }).catch(function(){msg('โหลด Google ไม่ได้ ตรวจสอบอินเทอร์เน็ต')});
 }
 function api(url,tok){return fetch(url,{headers:{Authorization:'Bearer '+tok}}).then(function(r){
@@ -152,13 +192,16 @@ function sync(){
   var q='timeMin='+encodeURIComponent(s.toISOString())+'&timeMax='+encodeURIComponent(e.toISOString())+'&singleEvents=true&orderBy=startTime&maxResults=250';
   api('https://www.googleapis.com/calendar/v3/users/me/calendarList?minAccessRole=reader',tok).then(function(cl){
     var cals=(cl.items||[]).filter(function(c){return c.selected!==false}).slice(0,12);
+    cache.cals=cals.map(function(c){return {id:c.id,n:c.summaryOverride||c.summary||c.id,w:c.accessRole==='owner'||c.accessRole==='writer',p:!!c.primary}});
+    var HOL='th.th#holiday@group.v.calendar.google.com';
+    if(!cals.some(function(c){return /#holiday@group\.v\.calendar\.google\.com$/.test(c.id)}))cals.push({id:HOL,hol:true,accessRole:'reader'});
     return Promise.all(cals.map(function(c,ci){
       return api('https://www.googleapis.com/calendar/v3/calendars/'+encodeURIComponent(c.id)+'/events?'+q,tok).then(function(r){
         return (r.items||[]).filter(function(x){return x.status!=='cancelled'}).map(function(x){
           var ad=!!(x.start&&x.start.date);
           var st=new Date(ad?x.start.date+'T00:00:00':x.start.dateTime).getTime(), en=new Date(ad?x.end.date+'T00:00:00':x.end.dateTime).getTime();
-          return {id:x.id,t:x.summary||'(ไม่มีชื่อ)',s:st,e:en,ad:ad,l:x.location||'',d:x.description||'',c:PAL[ci%PAL.length]};
-        });});
+          return {id:x.id,t:x.summary||'(ไม่มีชื่อ)',s:st,e:en,ad:ad,l:x.location||'',d:x.description||'',c:(/#holiday@group\.v\.calendar\.google\.com$/.test(c.id)?'#d95d1a':((x.colorId&&EC[x.colorId])||PAL[ci%PAL.length])),cid:c.id,w:c.accessRole==='owner'||c.accessRole==='writer',ci:x.colorId||'',at:(x.attendees||[]).map(function(a){return a.email}),mt:x.hangoutLink||''};
+        });}).catch(function(er){if(c.hol)return [];throw er});
     }));
   }).then(function(parts){
     cache.months[mkey(view)]=[].concat.apply([],parts);cache.updated=Date.now();apiHelp='';save();msg('ซิงค์สำเร็จ');render();
@@ -176,12 +219,72 @@ function sync(){
 $('dow').innerHTML=DOW.map(function(x){return '<span>'+x+'</span>'}).join('');
 $('grid').addEventListener('click',function(e){var b=e.target.closest('.d');if(!b)return;var p=b.dataset.k.split('-');sel=new Date(+p[0],+p[1]-1,+p[2]);
   if(sel.getMonth()!==view.getMonth()){view=new Date(sel.getFullYear(),sel.getMonth(),1);autoFetch()}render()});
-$('sheet').addEventListener('click',function(e){if(e.target.id==='connect'){connect();return}var ev=e.target.closest('.ev');if(ev)ev.classList.toggle('open')});
+$('sheet').addEventListener('click',function(e){if(e.target.id==='connect'){connect();return}if(e.target.id==='dcaBtn'){dcaForm();return}if(e.target.closest('a'))return;var ed=e.target.closest('.ed');if(ed){openForm((dayMap()[key(sel)]||[])[+ed.dataset.i]);return}var dl=e.target.closest('.del');if(dl){delEv(+dl.dataset.i);return}var ev=e.target.closest('.ev');if(ev)ev.classList.toggle('open')});
 function autoFetch(){if(token()&&!cache.months[mkey(view)])sync()} // never opens OAuth by itself
 function go(n){view=new Date(view.getFullYear(),view.getMonth()+n,1);sel=new Date(view.getFullYear(),view.getMonth(),1);render();autoFetch()}
 $('prev').onclick=function(){go(-1)};$('next').onclick=function(){go(1)};
 $('todayBtn').onclick=function(){view=new Date(today.getFullYear(),today.getMonth(),1);sel=new Date(today.getFullYear(),today.getMonth(),today.getDate());render();autoFetch()};
 $('sync').onclick=sync;
+var TZ=(Intl.DateTimeFormat().resolvedOptions().timeZone)||'Asia/Bangkok';
+function timeRow(){$('fTimes').style.display=$('fAll').checked?'none':'flex'}
+function openForm(ev,tpl){
+  if(!canWrite()){connect(function(){openForm(ev,tpl)});return}
+  var E=editing=(ev&&ev.id)?ev:null, l=(cache.cals||[]).filter(function(c){return c.w});
+  $('fCal').innerHTML=l.length?l.map(function(c){return '<option value="'+esc(c.id)+'"'+(c.p?' selected':'')+'>'+esc(c.n)+'</option>'}).join(''):'<option value="primary">ปฏิทินหลัก</option>';
+  $('fH').textContent=E?'แก้ไขนัดหมาย':'เพิ่มนัดหมาย';
+  $('fTitle').value=E?E.t:'';$('fLoc').value=E?E.l:'';$('fDesc').value=E?E.d:'';$('fAll').checked=E?!!E.ad:false;
+  $('fDate').value=E?key(new Date(E.s)):key(sel);$('fDate2').value=E?key(new Date(E.ad?E.e-1:E.e)):'';
+  $('fS').value=E&&!E.ad?hm(E.s):'09:00';$('fE').value=E&&!E.ad?hm(E.e):'10:00';
+  $('fRep').value='';$('fRep').disabled=!!E;$('fRem').value='';$('fColor').value=E?E.ci:'';
+  $('fGuests').value=E?(E.at||[]).join(', '):'';$('fMeet').checked=!!(E&&E.mt);$('fMeet').disabled=!!(E&&E.mt);
+  if(E)$('fCal').value=E.cid;$('fCal').disabled=!!E;
+  $('fErr').textContent='';if(tpl)tpl();timeRow();$('frm').classList.add('on');
+}
+
+function dcaForm(){openForm(null,function(){
+  var n=new Date(today.getFullYear(),today.getMonth()+1,1);
+  $('fH').textContent='ตั้งเตือน DCA รายเดือน';$('fTitle').value='💰 DCA ลงทุนประจำเดือน';
+  $('fDate').value=key(n);$('fDate2').value='';$('fAll').checked=false;$('fS').value='09:00';$('fE').value='09:30';
+  $('fRep').value='MONTHLY';$('fRem').value='1440';$('fMeet').checked=false;
+  $('fDesc').value='ถึงเวลา DCA ตามแผน เปิดแอป My Portfolio เพื่อดูกองทุนและยอดที่ต้องลงทุน\n'+new URL('../portfolio/index.html',location.href).href;
+})}
+function closeForm(){$('frm').classList.remove('on')}
+function saveEv(){
+  var E=editing,t=$('fTitle').value.trim(),d=$('fDate').value,d2=$('fDate2').value||d,all=$('fAll').checked,err=$('fErr'),b={summary:t};
+  if(!t){err.textContent='กรุณาใส่ชื่อนัดหมาย';return}
+  if(!d){err.textContent='กรุณาเลือกวันที่';return}
+  if(d2<d){err.textContent='วันที่สิ้นสุดต้องไม่ก่อนวันเริ่ม';return}
+  b.location=$('fLoc').value.trim();b.description=$('fDesc').value.trim();
+  if(all){var nx=new Date(d2+'T00:00:00');nx.setDate(nx.getDate()+1);b.start={date:d};b.end={date:key(nx)};if(E){b.start.dateTime=null;b.start.timeZone=null;b.end.dateTime=null;b.end.timeZone=null}}
+  else{if(d2+'T'+$('fE').value<=d+'T'+$('fS').value){err.textContent='เวลาสิ้นสุดต้องหลังเวลาเริ่ม';return}
+    b.start={dateTime:d+'T'+$('fS').value+':00',timeZone:TZ};b.end={dateTime:d2+'T'+$('fE').value+':00',timeZone:TZ};if(E){b.start.date=null;b.end.date=null}}
+  var em=$('fGuests').value.split(/[,;\s]+/).filter(Boolean);
+  if(em.some(function(x){return !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x)})){err.textContent='รูปแบบอีเมลผู้ร่วมนัดไม่ถูกต้อง';return}
+  if(em.length||E)b.attendees=em.map(function(x){return {email:x}});
+  if(!E&&$('fRep').value)b.recurrence=['RRULE:FREQ='+$('fRep').value];
+  var rv=$('fRem').value;if(rv==='none')b.reminders={useDefault:false,overrides:[]};else if(rv!=='')b.reminders={useDefault:false,overrides:[{method:'popup',minutes:+rv}]};
+  if(E)b.colorId=$('fColor').value||null;else if($('fColor').value)b.colorId=$('fColor').value;
+  if($('fMeet').checked&&!(E&&E.mt))b.conferenceData={createRequest:{requestId:'mff'+Date.now(),conferenceSolutionKey:{type:'hangoutsMeet'}}};
+  var tok=token();if(!tok||!canWrite()){connect(saveEv);return}
+  var url='https://www.googleapis.com/calendar/v3/calendars/'+encodeURIComponent(E?E.cid:$('fCal').value)+'/events'+(E?'/'+encodeURIComponent(E.id):'')+'?conferenceDataVersion=1&sendUpdates='+(em.length?'all':'none');
+  var btn=$('fSave');btn.disabled=true;err.textContent='';
+  fetch(url,{method:E?'PATCH':'POST',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},body:JSON.stringify(b)})
+  .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error((j.error&&j.error.message)||r.status);return j})})
+  .then(function(){var p=d.split('-');sel=new Date(+p[0],+p[1]-1,+p[2]);view=new Date(sel.getFullYear(),sel.getMonth(),1);closeForm();msg(E?'บันทึกการแก้ไขแล้ว':'เพิ่มนัดหมายแล้ว');sync()})
+  .catch(function(e){err.textContent='บันทึกไม่สำเร็จ: '+e.message})
+  .then(function(){btn.disabled=false});
+}
+function delEv(i){
+  var e=(dayMap()[key(sel)]||[])[i];if(!e||!e.cid)return;
+  if(!confirm('ลบนัด "'+e.t+'" ใช่ไหม?'))return;
+  var tok=token();if(!tok||!canWrite()){connect(function(){delEv(i)});return}
+  fetch('https://www.googleapis.com/calendar/v3/calendars/'+encodeURIComponent(e.cid)+'/events/'+encodeURIComponent(e.id),{method:'DELETE',headers:{Authorization:'Bearer '+tok}})
+  .then(function(r){if(r.ok||r.status===410){msg('ลบนัดแล้ว');sync();return}return r.json().then(function(j){throw new Error((j.error&&j.error.message)||r.status)})})
+  .catch(function(er){msg('ลบไม่สำเร็จ: '+er.message)});
+}
+$('fab').onclick=function(){openForm()};$('fCancel').onclick=closeForm;$('fSave').onclick=saveEv;$('fAll').onchange=timeRow;
+$('frm').addEventListener('click',function(e){if(e.target.id==='frm')closeForm()});
+
 render();autoFetch();
 })();
 </script>

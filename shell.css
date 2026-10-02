@@ -528,3 +528,16 @@ body{background:var(--bg)}
 .mff-money-section,.mff-sheet,.mff-money-tab,.mff-settings-card,.mff-sync-bar,.mff-banner{
   box-shadow:var(--shadow-card) !important;border:1px solid var(--line);
 }
+
+/* ---- home: 6 menu cards fit one phone screen, no scrolling ---- */
+.mff-home .mff-app{display:flex;flex-direction:column;height:100svh;min-height:0;padding-bottom:calc(68px + var(--safe-b))}
+.mff-home .mff-hero-wrap{flex:none;padding-bottom:36px}
+.mff-home .mff-grid{flex:1;min-height:0;grid-template-rows:repeat(3,minmax(0,1fr));gap:12px;margin-top:-26px;padding-bottom:14px}
+.mff-home .mff-card{padding:8px 10px;gap:6px;justify-content:center;min-height:0;overflow:hidden}
+.mff-home .mff-card .icon-wrap,.mff-home .mff-card .avatar{width:44px;height:44px}
+.mff-home .mff-card .icon-wrap{border-radius:14px}
+.mff-home .mff-card .icon-wrap svg{width:24px;height:24px}
+.mff-home .mff-card .avatar svg{width:26px;height:26px}
+.mff-home .mff-card h3{font-size:15px;margin:0}
+.mff-home .mff-card p{font-size:11px;line-height:1.35}
+@media (max-height:620px){.mff-home .mff-card p{display:none}}
