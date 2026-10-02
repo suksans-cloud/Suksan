@@ -1,4 +1,4 @@
-const CACHE='mff-shell-v27-v83-admin-pin-errfix-cal';
+const CACHE='mff-shell-v27-v83-admin-pin-errfix-cal2';
 const SHELL=[
   './index.html','./shell.css','./config.js','./data-safety.js','./admin-login.js',
   './money/index.html','./money/daily.html','./money/monthly.html',
