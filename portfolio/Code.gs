@@ -151,9 +151,9 @@ function isValidAdminSession_(token) {
  * 1) ใส่อีเมลที่อนุญาตใน GOOGLE_ALLOWED_EMAILS และ OAuth Client ID ใน GOOGLE_CLIENT_ID
  * 2) Run setupGoogleLogin() หนึ่งครั้ง  3) Deploy เป็น New version
  */
-const GOOGLE_ALLOWED_EMAILS = 'you@gmail.com'; // คั่นหลายอีเมลด้วย comma
-const GOOGLE_CLIENT_ID = '';                    // xxxx.apps.googleusercontent.com
-const GOOGLE_SHEET_ID = '';                     // ID ของ Google Sheet หลัก (ส่วนระหว่าง /d/ และ /edit ใน URL)
+const GOOGLE_ALLOWED_EMAILS = 'suksans@gmail.com'; // คั่นหลายอีเมลด้วย comma
+const GOOGLE_CLIENT_ID = '1093878036972-rnj32m00k5aduc6lmj6mcb5140gi2sjc.apps.googleusercontent.com';                    // xxxx.apps.googleusercontent.com
+const GOOGLE_SHEET_ID = '1T4cu1gKhFid4rmGimnEz4Hea_Hv71Nz3mpawRBSEdDY';                     // ID ของ Google Sheet หลัก (ส่วนระหว่าง /d/ และ /edit ใน URL)
 const GOOGLE_SESSION_DAYS = 30;
 
 function setupGoogleLogin() {
