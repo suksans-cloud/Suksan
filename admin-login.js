@@ -6,6 +6,7 @@
 (function(){
 'use strict';
 document.documentElement.classList.add('mff-auth-pending');
+(function(){var st=document.createElement('style');st.id='mff-crit';st.textContent='html.mff-auth-pending body>*:not(#mff-root){visibility:hidden!important}html.mff-auth-pending{background:#F2F4F6}';(document.head||document.documentElement).appendChild(st)})();
 const SK='mff_admin_session_v2',PK='mff_pin_v2',UK='mff_unlocked_v2',AK='mff_active_v2';
 const HIDDEN_MS=60e3,IDLE_MS=5*60e3,MAX_TRIES=5;
 const ls=localStorage,ss=sessionStorage;
@@ -24,13 +25,32 @@ function adoptConfig(r){try{if(r&&r.sheetId&&!ls.getItem('google_sheet_id'))ls.s
 function sheetsErr(st,bd){try{let m=bd;try{const j=JSON.parse(bd);m=(j.error&&(j.error.message||j.error))||bd}catch(e){}
   let d=document.getElementById('mff-sheets-err');if(!d){d=document.createElement('div');d.id='mff-sheets-err';d.style.cssText='position:fixed;left:10px;right:10px;bottom:76px;z-index:2147483100;background:#7a1f2b;color:#fff;border-radius:12px;padding:10px 12px;font:12px/1.5 system-ui;word-break:break-word;max-height:30vh;overflow:auto';d.onclick=()=>d.remove();document.body.appendChild(d)}
   d.textContent='Sheets '+st+': '+String(m).slice(0,400)+' (แตะเพื่อปิด)';clearTimeout(d._t);d._t=setTimeout(()=>d.remove(),15000)}catch(e){}}
+let active=0;const waiting=[];
+function slot(){return new Promise(function(res){const go=function(){active++;res()};active<2?go():waiting.push(go)})}
+function release(){active--;const n=waiting.shift();if(n)n()}
+async function proxyCall(s,url,method,body){
+  await slot();
+  try{
+    let last=null;
+    for(let a=0;a<3;a++){
+      try{
+        const r=await request('sheetsProxy',{token:s.token,url,method,body});
+        if(r&&(r.auth===false||(r.status&&r.status!==429&&r.status<500)||(r.ok===false&&!r.status)))return r;
+        last=r;
+        if(method!=='GET'&&!(r&&r.status===429))return r;
+      }catch(e){last=null;if(method!=='GET')break}
+      await new Promise(function(x){setTimeout(x,900*(a+1)*(a+1))});
+    }
+    return last||{ok:false,status:503,body:'{"error":"เชื่อมต่อ Apps Script ไม่ได้ ลองใหม่อีกครั้ง"}'};
+  }finally{release()}
+}
 const _fetch=window.fetch.bind(window);
 window.fetch=function(u,o){
   const url=typeof u==='string'?u:(u&&u.url)||'';
   if(!/^https:\/\/(sheets\.googleapis\.com\/v4\/spreadsheets\/|www\.googleapis\.com\/calendar\/v3\/)/.test(url))return _fetch(u,o);
   const s=session();o=o||{};
   if(!s||!s.token)return Promise.resolve(new Response('{"error":"no session"}',{status:401}));
-  return request('sheetsProxy',{token:s.token,url,method:(o.method||'GET').toUpperCase(),body:typeof o.body==='string'?o.body:null})
+  return proxyCall(s,url,(o.method||'GET').toUpperCase(),typeof o.body==='string'?o.body:null)
     .then(r=>{if(r.auth===false){ls.removeItem(SK);setTimeout(()=>location.reload(),300);return new Response('{"error":"session หมดอายุ"}',{status:401})}let st=r.status||(r.ok?200:500);if(st===401||st===403)st=502;/* แสดงสาเหตุจริงแทนข้อความ 'สิทธิ์หมดอายุ' */const bd=r.body||JSON.stringify({error:r.error||'proxy error'});if(st>=400)sheetsErr(st,bd);return new Response(st===204||st===205?null:bd,{status:st,headers:{'Content-Type':'application/json'}})})
     .catch(()=>new Response('{"error":"network"}',{status:503}));
 };
@@ -170,15 +190,17 @@ function ready(){
   setInterval(()=>{if(!root&&isLocked())lockNow()},15000);
 }
 
-async function boot(){
-  const s=session();
-  if(!s||!s.token||s.expiresAt<=Date.now()){clearAll();return loginScreen()}
-  ss.setItem('mff_auth_token',s.token);prime();
-  if(navigator.onLine){try{const r=await request('validateAdminSession',{token:s.token});if(!(r.ok&&r.authenticated)){clearAll();return loginScreen()}adoptConfig(r)}catch(e){/* ออฟไลน์/เชื่อมต่อไม่ได้ → ใช้ session ในเครื่อง */}}
-  const rec=J(ls.getItem(PK));
-  if(!rec||rec.email!==s.email)return setupPin();
-  if(isLocked())return unlockScreen();
-  done();
+function recheck(s){if(!navigator.onLine)return;request('validateAdminSession',{token:s.token}).then(function(r){if(r&&r.ok&&r.authenticated){adoptConfig(r);return}if(r&&r.authenticated===false){clearAll();location.reload()}}).catch(function(){})}
+function boot(){
+  try{
+    const s=session();
+    if(!s||!s.token||s.expiresAt<=Date.now()){clearAll();return loginScreen()}
+    ss.setItem('mff_auth_token',s.token);prime();recheck(s);
+    const rec=J(ls.getItem(PK));
+    if(!rec||rec.email!==s.email)return setupPin();
+    if(isLocked())return unlockScreen();
+    done();
+  }catch(e){loginScreen()}
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();

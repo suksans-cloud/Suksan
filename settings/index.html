@@ -533,7 +533,7 @@ async function runSmartSync(opts){
   opts=opts||{};
   const cid=clientIdInput.value.trim()||localStorage.getItem('google_client_id')||'',sid=sheetIdInput.value.trim()||localStorage.getItem('google_sheet_id')||'';
   if(!cid||!sid){toast('กรุณากรอก Client ID / Sheet ID ก่อน');return;}
-  setSyncAllBusy(true);const statusEl=document.getElementById('statusSyncAll');statusEl.innerHTML='กำลังตรวจสอบข้อมูลก่อนซิงก์…';const total=SYNC_TARGETS.length+1;let done=0,conf=0;
+  setSyncAllBusy(true);const statusEl=document.getElementById('statusSyncAll');statusEl.innerHTML='กำลังตรวจสอบข้อมูลก่อนซิงก์…';const total=SYNC_TARGETS.length+1;let done=0,conf=0,fail=0;
   // Snapshot which offline-queue items exist *before* this run starts. Anything already
   // queued at this moment is what this sync is about to resolve; anything added later
   // (by another tab/module while this sync is in flight) is new work and must stay queued.
@@ -544,9 +544,9 @@ async function runSmartSync(opts){
     for(const t of SYNC_TARGETS){try{remoteBackup[t.key]=await readRemote(token,sid,t);}catch(e){remoteBackup[t.key]=null;}}
     createBackup('ก่อน Smart Sync',remoteBackup);
     addSyncHistory('Backup','สร้าง Snapshot ก่อน Smart Sync');
-    for(const t of SYNC_TARGETS){updateSyncAllProgress(done,total,'🔄 ตรวจ '+t.name);try{const r=await smartSyncOne(token,sid,t);if(r.status==='conflict')conf+=r.conflicts||0;}catch(e){conf++;toast(t.name+' ซิงก์ไม่สำเร็จ: '+e.message);}done++;updateSyncAllProgress(done,total,t.name+' ✓');renderSyncModuleRows();renderModuleStatus();}
+    for(const t of SYNC_TARGETS){updateSyncAllProgress(done,total,'🔄 ตรวจ '+t.name);try{const r=await smartSyncOne(token,sid,t);if(r.status==='conflict')conf+=r.conflicts||0;}catch(e){conf++;fail++;toast(t.name+' ซิงก์ไม่สำเร็จ: '+e.message);}done++;updateSyncAllProgress(done,total,t.name+' ✓');renderSyncModuleRows();renderModuleStatus();}
     updateSyncAllProgress(done,total,'🔄 📊 My Portfolio');
-    try{await runPortfolioSmartSync();done++;updateSyncAllProgress(done,total,'📊 My Portfolio ✓');}catch(e){conf++;done++;toast('My Portfolio Smart Sync ไม่สำเร็จ: '+e.message);}
+    try{await runPortfolioSmartSync();done++;updateSyncAllProgress(done,total,'📊 My Portfolio ✓');}catch(e){conf++;fail++;done++;toast('My Portfolio Smart Sync ไม่สำเร็จ: '+e.message);}
     if(!conf){
       // One final read-only verification makes the first Sync authoritative before we show success.
       for(const t of SYNC_TARGETS){
@@ -560,7 +560,7 @@ async function runSmartSync(opts){
     // (Requiring the queue to be "totally empty" after the loop never worked reliably —
     // any unrelated module writing during the run would keep re-populating it and the
     // badge would look permanently "not synced" even on a fully successful sync.)
-    if(!conf && preSyncQueueIds.length && window.MFFDataSafety?.removeFromQueue){
+    if(!fail && preSyncQueueIds.length && window.MFFDataSafety?.removeFromQueue){
       window.MFFDataSafety.removeFromQueue(preSyncQueueIds);
     }
     if(!opts.silent) toast(conf?'ซิงก์เสร็จแล้ว มีข้อมูลชนกันให้ตรวจสอบ':'ซิงก์ทั้งหมดเรียบร้อย');

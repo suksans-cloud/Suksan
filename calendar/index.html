@@ -87,6 +87,10 @@ body{background:#EEF3F8;color:#072340}
 .mstrip button.on{background:#CFE0EE;font-weight:600}.mstrip .yr{flex:none;align-self:center;padding:0 6px;font:600 14px Prompt,sans-serif;color:#5C7A93}
 .grid.sl{animation:gsl .2s ease}.grid.sr{animation:gsr .2s ease}
 @keyframes gsl{from{transform:translateX(26px);opacity:.3}}@keyframes gsr{from{transform:translateX(-26px);opacity:.3}}
+
+.tpk{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
+.tpk select{flex:1;min-width:0;height:46px;border:1.5px solid #D5DEE6;border-radius:12px;background:#fff;color:#072340;font:600 16px Prompt,"Noto Sans Thai",sans-serif;text-align:center;text-align-last:center;padding:0 6px;appearance:none;-webkit-appearance:none}
+.tpk b{color:#5C7A93;font-size:18px}
 </style>
 </head>
 <body>
@@ -318,6 +322,21 @@ $('fab').onclick=function(){openForm()};$('fCancel').onclick=closeForm;$('fSave'
 $('frm').addEventListener('click',function(e){if(e.target.id==='frm')closeForm()});
 
 render();autoFetch();
+
+(function(){
+  var d=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
+  function opts(n,step,cur){var h='';for(var i=0;i<n;i+=step)h+='<option value="'+(i<10?'0':'')+i+'">'+(i<10?'0':'')+i+'</option>';return h}
+  ['fS','fE'].forEach(function(id){var inp=document.getElementById(id);if(!inp)return;
+    var w=document.createElement('div');w.className='tpk';w.innerHTML='<select aria-label="ชั่วโมง">'+opts(24,1)+'</select><b>:</b><select aria-label="นาที">'+opts(60,1)+'</select>';
+    inp.parentNode.insertBefore(w,inp);inp.type='hidden';
+    var hh=w.children[0],mm=w.children[2];
+    function sync(){var v=d.get.call(inp)||'09:00';var p=v.split(':');hh.value=p[0]||'09';mm.value=p[1]||'00'}
+    function push(){d.set.call(inp,hh.value+':'+mm.value);inp.dispatchEvent(new Event('change',{bubbles:true}))}
+    hh.onchange=push;mm.onchange=push;
+    Object.defineProperty(inp,'value',{get:function(){return d.get.call(inp)},set:function(v){d.set.call(inp,v);sync()}});
+    sync();
+  });
+})();
 })();
 </script>
 </body>

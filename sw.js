@@ -1,4 +1,4 @@
-const CACHE='mff-shell-v37-v90-plan-balance-charts';
+const CACHE='mff-shell-v38-v91-sync-lock-time';
 const SHELL=[
   './index.html','./shell.css','./config.js','./data-safety.js','./admin-login.js',
   './money/index.html','./money/daily.html','./money/monthly.html',
