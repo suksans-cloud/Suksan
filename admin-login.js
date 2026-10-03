@@ -21,6 +21,9 @@ function clearAll(){ls.removeItem(SK);ls.removeItem(PK);ss.removeItem(UK);ss.rem
 const TK='mff_google_sheets_access_token_v1',TE='mff_google_sheets_expires_at_v1';
 function prime(){const s=session();if(!s||!s.token||s.expiresAt<=Date.now())return;try{ss.setItem(TK,'mff-proxy');ss.setItem(TE,String(s.expiresAt));ls.setItem('google_sheets_connected','1')}catch(e){}}
 function adoptConfig(r){try{if(r&&r.sheetId&&!ls.getItem('google_sheet_id'))ls.setItem('google_sheet_id',r.sheetId)}catch(e){}}
+function sheetsErr(st,bd){try{let m=bd;try{const j=JSON.parse(bd);m=(j.error&&(j.error.message||j.error))||bd}catch(e){}
+  let d=document.getElementById('mff-sheets-err');if(!d){d=document.createElement('div');d.id='mff-sheets-err';d.style.cssText='position:fixed;left:10px;right:10px;bottom:76px;z-index:2147483100;background:#7a1f2b;color:#fff;border-radius:12px;padding:10px 12px;font:12px/1.5 system-ui;word-break:break-word;max-height:30vh;overflow:auto';d.onclick=()=>d.remove();document.body.appendChild(d)}
+  d.textContent='Sheets '+st+': '+String(m).slice(0,400)+' (แตะเพื่อปิด)';clearTimeout(d._t);d._t=setTimeout(()=>d.remove(),15000)}catch(e){}}
 const _fetch=window.fetch.bind(window);
 window.fetch=function(u,o){
   const url=typeof u==='string'?u:(u&&u.url)||'';
@@ -28,7 +31,7 @@ window.fetch=function(u,o){
   const s=session();o=o||{};
   if(!s||!s.token)return Promise.resolve(new Response('{"error":"no session"}',{status:401}));
   return request('sheetsProxy',{token:s.token,url,method:(o.method||'GET').toUpperCase(),body:typeof o.body==='string'?o.body:null})
-    .then(r=>{if(r.auth===false){ls.removeItem(SK);setTimeout(()=>location.reload(),300);return new Response('{"error":"session หมดอายุ"}',{status:401})}let st=r.status||(r.ok?200:500);if(st===401||st===403)st=502;/* แสดงสาเหตุจริงแทนข้อความ 'สิทธิ์หมดอายุ' */return new Response(r.body||JSON.stringify({error:r.error||'proxy error'}),{status:st,headers:{'Content-Type':'application/json'}})})
+    .then(r=>{if(r.auth===false){ls.removeItem(SK);setTimeout(()=>location.reload(),300);return new Response('{"error":"session หมดอายุ"}',{status:401})}let st=r.status||(r.ok?200:500);if(st===401||st===403)st=502;/* แสดงสาเหตุจริงแทนข้อความ 'สิทธิ์หมดอายุ' */const bd=r.body||JSON.stringify({error:r.error||'proxy error'});if(st>=400)sheetsErr(st,bd);return new Response(bd,{status:st,headers:{'Content-Type':'application/json'}})})
     .catch(()=>new Response('{"error":"network"}',{status:503}));
 };
 prime();
