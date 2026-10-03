@@ -41,6 +41,8 @@ const css=`
 html.mff-auth-pending body>*:not(#mff-root){visibility:hidden!important}
 #mff-root{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:16px;background:#F2F4F6;font-family:'Noto Sans Thai',system-ui,-apple-system,sans-serif;color:#2E3A42;overflow:auto}
 #mff-root *{box-sizing:border-box}
+html.mff-locked,html.mff-locked body{overflow:hidden!important;overscroll-behavior:none}
+#mff-root{overscroll-behavior:contain}
 .mff-card{width:min(100%,400px);background:#fff;border-radius:26px;overflow:hidden;display:grid;box-shadow:0 20px 60px rgba(7,35,64,.14)}
 .mff-main{padding:44px 30px 34px;text-align:center;display:flex;flex-direction:column;align-items:center;min-height:520px;justify-content:center}
 .mff-side{display:none}
@@ -73,16 +75,19 @@ html.mff-auth-pending body>*:not(#mff-root){visibility:hidden!important}
 #mff-chips button{border:1px solid #E1E6EA;background:#fff;color:#072340;border-radius:12px;padding:7px 10px;font:600 11px 'Noto Sans Thai',system-ui;opacity:.85}
 `;
 let root;
+function ensureStyle(){
+  if(document.getElementById('mff-style'))return;
+  const l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Prompt:wght@600;700&family=Noto+Sans+Thai:wght@400;500;600&display=swap';document.head.appendChild(l);
+  const s=document.createElement('style');s.id='mff-style';s.textContent=css;document.head.appendChild(s)}
 function shell(inner){
-  if(!document.getElementById('mff-style')){
-    const l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Prompt:wght@600;700&family=Noto+Sans+Thai:wght@400;500;600&display=swap';document.head.appendChild(l);
-    const s=document.createElement('style');s.id='mff-style';s.textContent=css;document.head.appendChild(s)}
+  ensureStyle();
+  document.documentElement.classList.add('mff-locked');
   if(!root){root=document.createElement('div');root.id='mff-root';document.body.appendChild(root)}
   root.innerHTML=`<section class="mff-card" role="dialog" aria-modal="true"><div class="mff-main">${inner}</div><aside class="mff-side"><h2>Hello</h2><p>พร้อมดูแลแผนการเงินของครอบครัวคุณ ทุกที่ ทุกเวลา</p></aside></section>`;
   document.documentElement.classList.remove('mff-auth-pending');
   return root.querySelector('.mff-main');
 }
-function done(){if(root){root.remove();root=null}document.documentElement.classList.remove('mff-auth-pending');ready()}
+function done(){if(root){root.remove();root=null}document.documentElement.classList.remove('mff-locked');document.documentElement.classList.remove('mff-auth-pending');ready()}
 
 /* ---------- PIN ---------- */
 const b2h=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
@@ -146,7 +151,7 @@ function unlocked(){const n=String(Date.now());ss.setItem(UK,n);ss.setItem(AK,n)
 function isLocked(){const u=+ss.getItem(UK),a=+ss.getItem(AK);return !u||Date.now()-a>IDLE_MS}
 function lockNow(){ss.removeItem(UK);if(!root&&session()&&ls.getItem(PK))unlockScreen()}
 function ready(){
-  const s=session();if(!s||document.getElementById('mff-chips'))return;
+  const s=session();if(!s||document.getElementById('mff-chips'))return;ensureStyle();
   const c=document.createElement('div');c.id='mff-chips';
   c.innerHTML='<button type="button" data-a="lock">🔒 ล็อก</button><button type="button" data-a="out">ออกจากระบบ</button>';
   c.onclick=async e=>{const a=e.target.dataset.a;if(a==='lock')lockNow();if(a==='out'){try{await request('adminLogout',{token:s.token})}catch(x){}clearAll();location.reload()}};
