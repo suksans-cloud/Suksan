@@ -70,27 +70,24 @@ body{display:flex;flex-direction:column;background:var(--navy);color:#fff;font-f
 .ev .mt{display:none;margin:10px 10px 0 0;color:#fff;font-size:12px;text-decoration:underline}.ev.open .mt{display:inline-block}.ev .ed{margin-right:8px}
 
 /* ---- soft theme (V87): โทนอ่อนใกล้เคียงสีหลักของแอป ---- */
-:root{--navy:#072340;--navy2:#fff;--blue:#3A6C93;--soft:#EAF0F6;--mut:#6B7B8C}
-body{background:#EEF3F8;color:#072340}
+:root{--navy:#072340;--navy2:#fff;--blue:#0E8AA6;--soft:#E3F5F9;--mut:#6B7B8C}
+body{background:#D9F0F5;color:#072340}
 .bar{padding-right:48px}.bar h1,.ib{color:#072340}
-.nav{background:#fff;box-shadow:0 1px 6px rgba(7,35,64,.07)}.nav .today{background:#E1EAF2;color:#072340}
+.nav{background:#fff;box-shadow:0 1px 6px rgba(7,35,64,.07)}.nav .today{background:#C4E9F1;color:#064A5C}
 .dow,.grid{grid-template-columns:30px repeat(7,1fr)}
-.dow span{color:#7C8DA0}.d{color:#072340}.d.out{color:#A9B6C3}
-.d.today i{background:#DCE8F2;box-shadow:inset 0 0 0 1.5px #3A6C93}
-.d.sel i,.d.sel.today i{background:#3A6C93;box-shadow:none}.d.sel{color:#fff}
-.d u b{background:#3A6C93}.d.sel u b{background:#fff}
-.wk{display:grid;place-items:center;height:42px;font-size:11px;color:#8FA0B2;background:#E3EBF2;border-radius:10px;margin-right:4px}
-.msg{color:#7C8DA0}.sheet{box-shadow:0 -6px 24px rgba(7,35,64,.08)}
-#fab{background:#3A6C93;box-shadow:0 8px 22px rgba(58,108,147,.35)}
+.dow span{color:#5E8E9C}.d{color:#072340}.d.out{color:#9DBFC9}
+.d.today i{background:#BFE6EF;box-shadow:inset 0 0 0 1.5px #0E8AA6}
+.d.sel i,.d.sel.today i{background:#0E8AA6;box-shadow:0 4px 10px rgba(14,138,166,.35)}.d.sel{color:#fff}
+.d u b{background:#0E8AA6}.d.sel u b{background:#fff}
+.wk{display:grid;place-items:center;height:42px;font-size:11px;color:#5E8E9C;background:#C9E8EF;border-radius:10px;margin-right:4px}
+.msg{color:#5E8E9C}.sheet{box-shadow:0 -6px 24px rgba(7,35,64,.08)}
+#fab{background:#0E8AA6;box-shadow:0 8px 22px rgba(14,138,166,.4)}
 .mstrip{position:relative;display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}.mstrip::-webkit-scrollbar{display:none}
 .mstrip button{flex:none;border:0;border-radius:14px;padding:9px 16px;background:#fff;color:#072340;font:500 13px "Noto Sans Thai",sans-serif}
-.mstrip button.on{background:#CFE0EE;font-weight:600}.mstrip .yr{flex:none;align-self:center;padding:0 6px;font:600 14px Prompt,sans-serif;color:#5C7A93}
+.mstrip button.on{background:#9ED8E6;color:#064A5C;font-weight:600}.mstrip .yr{flex:none;align-self:center;padding:0 6px;font:600 14px Prompt,sans-serif;color:#2E7F93}
 .grid.sl{animation:gsl .2s ease}.grid.sr{animation:gsr .2s ease}
 @keyframes gsl{from{transform:translateX(26px);opacity:.3}}@keyframes gsr{from{transform:translateX(-26px);opacity:.3}}
 
-.tpk{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
-.tpk select{flex:1;min-width:0;height:46px;border:1.5px solid #D5DEE6;border-radius:12px;background:#fff;color:#072340;font:600 16px Prompt,"Noto Sans Thai",sans-serif;text-align:center;text-align-last:center;padding:0 6px;appearance:none;-webkit-appearance:none}
-.tpk b{color:#5C7A93;font-size:18px}
 </style>
 </head>
 <body>
@@ -323,20 +320,6 @@ $('frm').addEventListener('click',function(e){if(e.target.id==='frm')closeForm()
 
 render();autoFetch();
 
-(function(){
-  var d=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
-  function opts(n,step,cur){var h='';for(var i=0;i<n;i+=step)h+='<option value="'+(i<10?'0':'')+i+'">'+(i<10?'0':'')+i+'</option>';return h}
-  ['fS','fE'].forEach(function(id){var inp=document.getElementById(id);if(!inp)return;
-    var w=document.createElement('div');w.className='tpk';w.innerHTML='<select aria-label="ชั่วโมง">'+opts(24,1)+'</select><b>:</b><select aria-label="นาที">'+opts(60,1)+'</select>';
-    inp.parentNode.insertBefore(w,inp);inp.type='hidden';
-    var hh=w.children[0],mm=w.children[2];
-    function sync(){var v=d.get.call(inp)||'09:00';var p=v.split(':');hh.value=p[0]||'09';mm.value=p[1]||'00'}
-    function push(){d.set.call(inp,hh.value+':'+mm.value);inp.dispatchEvent(new Event('change',{bubbles:true}))}
-    hh.onchange=push;mm.onchange=push;
-    Object.defineProperty(inp,'value',{get:function(){return d.get.call(inp)},set:function(v){d.set.call(inp,v);sync()}});
-    sync();
-  });
-})();
 })();
 </script>
 </body>
