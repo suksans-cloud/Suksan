@@ -1,4 +1,4 @@
-const CACHE='mff-shell-v32-v86d-chips-lockfix';
+const CACHE='mff-shell-v33-v86e-class-collision';
 const SHELL=[
   './index.html','./shell.css','./config.js','./data-safety.js','./admin-login.js',
   './money/index.html','./money/daily.html','./money/monthly.html',
