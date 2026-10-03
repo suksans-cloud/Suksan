@@ -28,7 +28,7 @@ window.fetch=function(u,o){
   const s=session();o=o||{};
   if(!s||!s.token)return Promise.resolve(new Response('{"error":"no session"}',{status:401}));
   return request('sheetsProxy',{token:s.token,url,method:(o.method||'GET').toUpperCase(),body:typeof o.body==='string'?o.body:null})
-    .then(r=>{if(r.auth===false){ls.removeItem(SK);setTimeout(()=>location.reload(),300)}return new Response(r.body||'{}',{status:r.status||(r.ok?200:500),headers:{'Content-Type':'application/json'}})})
+    .then(r=>{if(r.auth===false){ls.removeItem(SK);setTimeout(()=>location.reload(),300);return new Response('{"error":"session หมดอายุ"}',{status:401})}let st=r.status||(r.ok?200:500);if(st===401||st===403)st=502;/* แสดงสาเหตุจริงแทนข้อความ 'สิทธิ์หมดอายุ' */return new Response(r.body||JSON.stringify({error:r.error||'proxy error'}),{status:st,headers:{'Content-Type':'application/json'}})})
     .catch(()=>new Response('{"error":"network"}',{status:503}));
 };
 prime();

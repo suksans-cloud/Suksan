@@ -1,4 +1,4 @@
-const CACHE='mff-shell-v29-v86-sheets-proxy';
+const CACHE='mff-shell-v30-v86b-proxy-errors';
 const SHELL=[
   './index.html','./shell.css','./config.js','./data-safety.js','./admin-login.js',
   './money/index.html','./money/daily.html','./money/monthly.html',
