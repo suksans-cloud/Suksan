@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F2F4F6"><title>My Plan — Financial Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#072340;--blue:#3A6C93;--cyan:#E3EBF1;--ink:#2E3A42;--muted:#5C6B74;--line:#E1E6EA;--bg:#F2F4F6;--green:#1F9D6C;--red:#E0654B;--white:#fff}*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:'Noto Sans Thai',sans-serif;color:var(--ink)}button,input,select{font:inherit}button{cursor:pointer}.hero{background:linear-gradient(130deg,#072340,#3A6C93);color:white;padding:22px max(18px,calc((100vw - 1100px)/2)) 28px}.top{display:flex;align-items:center;gap:12px}.back{width:40px;height:40px;border:1px solid #ffffff55;border-radius:13px;background:#ffffff12;color:#fff;font-size:22px}.eyebrow{font-size:12px;opacity:.75;letter-spacing:.08em;margin:0 0 4px}.hero h1{font:700 27px Prompt,sans-serif;margin:0}.hero p:last-child{font-size:13px;opacity:.82;margin:6px 0 0}.wrap{max-width:1100px;margin:-12px auto 40px;padding:0 16px}.menu{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:18px}.menu button{background:white;border:1px solid var(--line);border-radius:18px;padding:16px 12px;text-align:left;color:var(--ink);box-shadow:0 5px 18px #163f5a08;transition:.15s}.menu button.active{border-color:#7FA3BE;box-shadow:0 0 0 2px #E3EBF1;background:#F7F9FA}.ico{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:var(--cyan);font-size:21px;margin-bottom:10px}.menu strong{display:block;font:600 14px Prompt,sans-serif}.menu small{display:block;color:var(--muted);font-size:11px;margin-top:4px}.panel{background:white;border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 10px 28px #19384d08}.panelhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:20px}.panel h2{font:600 21px Prompt,sans-serif;margin:0}.panelhead p{margin:4px 0 0;color:var(--muted);font-size:13px}.pill{border-radius:99px;background:#E3EBF1;color:#3A6C93;padding:6px 10px;font-size:11px;white-space:nowrap}.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.78fr);gap:22px}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{min-width:0}.field.full{grid-column:1/-1}label{display:block;font-size:12px;font-weight:600;color:#5C6B74;margin:0 0 6px}.inputwrap{position:relative}input,select{width:100%;border:1px solid #E1E6EA;border-radius:12px;padding:12px 13px;background:#F7F9FA;color:var(--ink);outline:none;min-width:0}input:focus,select:focus{border-color:#3A6C93;box-shadow:0 0 0 3px #E3EBF1}input[type=range]{padding:0;accent-color:var(--blue);box-shadow:none;border:0;background:transparent}.hint{font-size:11px;color:var(--muted);margin-top:5px}.results{border-radius:18px;padding:20px;background:linear-gradient(145deg,#072340,#3A6C93);color:white;align-self:start}.result-label{font-size:12px;opacity:.75}.big{font:700 clamp(25px,4vw,34px) Prompt,sans-serif;margin:5px 0 16px;overflow-wrap:anywhere}.resultrow{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #ffffff28;padding:11px 0;font-size:12px}.resultrow b{font-size:13px;text-align:right}.resultrow:last-child{padding-bottom:0}.note{font-size:11px;color:var(--muted);line-height:1.7;margin:16px 0 0}.positive{color:#7FD1AE}.negative{color:#F3B5A8}.hidden{display:none!important}.fund-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}.fund-table th{text-align:left;color:var(--muted);font-weight:600;padding:9px 5px;border-bottom:1px solid var(--line)}.fund-table td{padding:7px 4px;border-bottom:1px solid #E1E6EA}.fund-table input{padding:9px 8px;border-radius:9px}.fund-table .pct{width:78px}.fund-table .fundname{min-width:95px}.fund-table button{border:0;background:#F3DFDA;color:#E0654B;border-radius:8px;padding:8px}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.secondary,.primary{border-radius:11px;padding:10px 14px;font-size:12px;font-weight:600}.secondary{background:#fff;border:1px solid var(--line);color:#5C6B74}.primary{background:var(--blue);border:0;color:white}.bar{height:8px;background:#E1E6EA;border-radius:99px;overflow:hidden;margin:10px 0}.bar span{display:block;height:100%;background:linear-gradient(90deg,#3A6C93,#3A6C93);border-radius:99px}.chartgrid{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-top:16px}.chartcard{border:1px solid var(--line);border-radius:16px;padding:14px;min-width:0}.chartcard h3{font:600 14px Prompt,sans-serif;margin:0 0 10px}.chartcard canvas{width:100%;height:220px;display:block}.sso-subnav{display:flex;gap:8px;flex-wrap:wrap;margin:-4px 0 18px}.sso-subnav button{border:1px solid var(--line);border-radius:10px;background:#fff;padding:9px 12px;color:var(--ink);font-size:12px}.sso-subnav button.active{background:#E3EBF1;border-color:#7FA3BE;color:#3A6C93}.tablewrap{overflow:auto;max-height:320px;border:1px solid var(--line);border-radius:12px;margin-top:12px}.amort{border-collapse:collapse;width:100%;font-size:11px;white-space:nowrap}.amort th,.amort td{padding:8px;border-bottom:1px solid var(--line);text-align:right}.amort th:first-child,.amort td:first-child{text-align:left}.footer{text-align:center;font-size:11px;color:#8B9AA3;padding:18px 0 0}.error{color:var(--red);font-size:12px;margin-top:8px}.subhead{font:600 14px Prompt,sans-serif;margin:20px 0 8px}@media(max-width:760px){.chartgrid{grid-template-columns:1fr}.menu{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.menu button{padding:13px}.layout{grid-template-columns:1fr}.panel{padding:17px}.hero h1{font-size:24px}.results{order:-1}.fields{gap:12px}}@media(max-width:390px){.fields{grid-template-columns:1fr}.field.full{grid-column:auto}.panelhead{display:block}.pill{display:inline-block;margin-top:10px}}
+
+/* Mobile-first finance dashboard polish */
+:root{--navy:#072340;--blue:#3A6C93;--cyan:#E3EBF1;--bg:#F2F4F6;--line:#E1E6EA;--green:#1F9D6C}
+body{background:linear-gradient(180deg,#F2F4F6 0%,#F2F4F6 100%);-webkit-text-size-adjust:100%}
+.hero{background:linear-gradient(135deg,#072340,#3A6C93);padding-top:max(18px,env(safe-area-inset-top));border-radius:0 0 26px 26px}
+.wrap{margin-top:-14px}
+.menu button{border-radius:17px;min-height:112px;position:relative;overflow:hidden}
+.menu button.active{background:linear-gradient(150deg,#fff,#F7F9FA);border-color:#3A6C93;box-shadow:0 6px 18px #3A6C9318}
+.ico{border-radius:14px;background:linear-gradient(145deg,#E3EBF1,#E3EBF1);color:#3A6C93}
+.panel{border-radius:22px;border-color:#E1E6EA;box-shadow:0 8px 24px #0723400b}
+.panelhead{margin-bottom:16px}
+.results{background:linear-gradient(145deg,#E3EBF1,#E3EBF1);color:#072340;border:1px solid #d3dde5;box-shadow:inset 0 1px #fff}
+.result-label{color:#5C6B74;opacity:1}.resultrow{border-top-color:#d3dde5}.big{color:#3A6C93}.positive{color:#1F9D6C}.negative{color:#E0654B}
+input,select{border-radius:10px;background:#F7F9FA;min-height:44px;font-size:16px}
+input[type=number],input[inputmode=decimal]{font-variant-numeric:tabular-nums}
+button,.secondary,.primary{touch-action:manipulation;min-height:42px}
+.primary{background:linear-gradient(90deg,#3A6C93,#3A6C93)}
+.chartcard{border-radius:17px;background:#fff}
+.tablewrap{-webkit-overflow-scrolling:touch}
+.fund-table-wrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:12px}.fund-table{width:100%;min-width:0;table-layout:fixed}.fund-table th,.fund-table td{overflow-wrap:anywhere}.fund-table th:nth-child(1){width:31%}.fund-table th:nth-child(2){width:32%}.fund-table th:nth-child(3){width:22%}.fund-table th:nth-child(4){width:15%}.fund-table input{width:100%;min-width:0;font-size:14px;min-height:40px;padding:8px 7px}.fund-table .pct{width:100%;background:#E1E6EA;color:#5C6B74;text-align:right}.fund-table .fundname{width:100%;min-width:0}.fund-table .fundamount{width:100%;min-width:0}
+/* Avoid page overflow on phones; keep wide data tables swipeable */
+html,body{max-width:100%;overflow-x:hidden}
+@media(max-width:760px){
+ .hero{padding-left:16px;padding-right:16px;padding-bottom:26px}.hero h1{font-size:23px;line-height:1.35}.hero p:last-child{line-height:1.6}
+ .wrap{padding:0 12px;margin-bottom:24px}.menu{gap:8px}.menu button{padding:12px 11px;min-height:108px}.menu strong{font-size:13px;line-height:1.45}.menu small{font-size:10px}
+ .panel{padding:14px;border-radius:19px}.panelhead{display:flex;gap:8px;align-items:flex-start}.panel h2{font-size:18px;line-height:1.4}.panelhead p{font-size:12px;line-height:1.5}.pill{font-size:10px;padding:5px 8px}
+ .layout{gap:14px}.results{order:-1;padding:16px;border-radius:18px}.big{font-size:29px;margin-bottom:10px}.resultrow{padding:9px 0;font-size:12px}.fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.field.full{grid-column:1/-1}
+ .chartgrid{gap:10px}.chartcard{padding:12px}.chartcard canvas{height:190px}.sso-subnav{display:grid;grid-template-columns:1fr 1fr;gap:7px}.sso-subnav button{font-size:12px;padding:10px 8px}
+ .actions>*{flex:1 1 auto}.fund-table{font-size:11px}.fund-table th{white-space:nowrap}.note{line-height:1.75}
+}
+@media(max-width:390px){.panelhead{display:flex}.panelhead .pill{max-width:104px;white-space:normal;text-align:center}.fields{grid-template-columns:1fr}.field.full{grid-column:auto}.menu button{min-height:100px}.big{font-size:26px}.results{padding:14px}.chartcard canvas{height:175px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+  /* ---------- RETIREMENT PLANNER — uses the same Portfolio/Jitta visual system ---------- */
+  .ret-wrap{padding:0 0 18px;}
+  .ret-hero{
+    background:radial-gradient(120% 140% at 15% 0%, #3A6C93 0%, var(--primary) 46%, #072340 100%);
+    border-radius:var(--radius-l); padding:24px 20px 22px; color:#fff;
+    box-shadow:var(--shadow-hero); position:relative; overflow:hidden; margin-top:6px;
+  }
+  .ret-hero:after{
+    content:""; position:absolute; right:-40px; top:-60px; width:220px; height:220px;
+    border-radius:50%; background:radial-gradient(circle,rgba(255,255,255,.14),rgba(255,255,255,0) 70%);
+  }
+  .ret-kicker{font-size:11px;letter-spacing:.12em;font-weight:700;color:rgba(255,255,255,.72);margin:0 0 5px;}
+  .ret-title{font-family:'Prompt','Noto Sans Thai',sans-serif;font-size:24px;line-height:1.15;margin:0;font-weight:700;}
+  .ret-sub{font-size:12.5px;line-height:1.55;color:rgba(255,255,255,.82);margin:7px 0 0;max-width:330px;}
+  .ret-hero-stat{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;}
+  .ret-stat{flex:1;min-width:96px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:9px 12px;position:relative;overflow:hidden;}
+  .ret-stat .k{font-size:11px;line-height:1.45;color:rgba(255,255,255,.7);min-height:32px;display:flex;align-items:flex-start;}
+  .ret-stat .v{font-size:16px;line-height:1.2;font-weight:700;margin-top:2px;}
+  .ret-stat:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;}
+  .ret-stat:nth-child(1):before{background:var(--gold);}.ret-stat:nth-child(2):before{background:var(--mint);}.ret-stat:nth-child(3):before{background:var(--coral);}
+  .ret-tabs{
+    display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;
+    margin:12px 0;
+    background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:5px;
+    box-shadow:var(--shadow-card);
+  }
+  .ret-tab{
+    border:0;background:transparent;color:var(--ink-soft);border-radius:11px;
+    padding:8px 3px;font:700 10px/1.15 'Noto Sans Thai','Prompt',sans-serif;cursor:pointer;
+  }
+  .ret-tab.active{background:var(--primary-soft);color:var(--primary);}
+  .ret-panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);box-shadow:var(--shadow-card);padding:15px;margin-bottom:12px;}
+  .ret-panel h3{margin:0;font-size:16px;}
+  .ret-panel .sub{margin:3px 0 13px;color:var(--ink-soft);font-size:12px;line-height:1.5;}
+  .ret-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .ret-field label{display:block;font-size:11.5px;font-weight:700;color:var(--ink-soft);margin:0 0 5px;}
+  .ret-field input,.ret-field select{
+    width:100%;border:1px solid var(--line);background:#fff;color:var(--ink);
+    border-radius:11px;padding:10px 11px;font:600 13px 'Noto Sans Thai','Prompt',sans-serif;outline:none;
+  }
+  .ret-field input:focus,.ret-field select:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft);}
+  .ret-field.full{grid-column:1/-1;}
+  .ret-help{font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:10px;}
+  .ret-actions{display:flex;gap:8px;margin-top:12px;}
+  .ret-btn{border:0;border-radius:11px;padding:10px 14px;font:700 12px 'Noto Sans Thai','Prompt',sans-serif;cursor:pointer;}
+  .ret-btn.primary{background:var(--primary);color:#fff;}
+  .ret-btn.ghost{background:var(--primary-soft);color:var(--primary);}
+  .ret-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px;}
+  .ret-result{background:var(--bg);border:1px solid var(--line);border-radius:13px;padding:11px;}
+  .ret-result .k{font-size:10.5px;color:var(--ink-soft);}
+  .ret-result .v{font-size:17px;font-weight:700;margin-top:2px;}
+  .ret-result.emph{background:var(--primary-soft);border-color:#DCEFE4;}
+  .ret-result.emph .v{color:var(--primary-light);}
+  .ret-progress{height:9px;border-radius:999px;background:var(--line);overflow:hidden;margin-top:8px;}
+  .ret-progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--primary-light),var(--primary));border-radius:inherit;transition:width .25s ease;}
+  .ret-note{font-size:10px;color:var(--ink-faint);line-height:1.5;margin-top:11px;}
+  .ret-sim-list{display:grid;gap:9px;margin-top:12px;}
+  .ret-sim-row{display:grid;grid-template-columns:66px 1fr auto;align-items:center;gap:9px;}
+  .ret-sim-label{font-size:11px;font-weight:700;color:var(--ink-soft);}
+  .ret-sim-bar{height:10px;border-radius:999px;background:var(--line);overflow:hidden;}
+  .ret-sim-bar i{display:block;height:100%;border-radius:inherit;background:var(--primary);}
+  .ret-sim-value{font-size:11px;font-weight:700;min-width:68px;text-align:right;}
+  .ret-plan-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:999px;background:var(--primary-soft);color:var(--primary);font-size:10.5px;font-weight:700;}
+  .ret-warning{background:var(--warning-soft);color:#8C6A20;border:1px solid #EBDDBA;border-radius:12px;padding:10px;font-size:11px;line-height:1.5;margin-top:10px;}
+  @media(max-width:380px){
+    .ret-grid,.ret-result-grid{grid-template-columns:1fr;}
+    .ret-field.full{grid-column:auto;}
+    .ret-tabs{gap:2px;padding:4px;}
+    .ret-tab{font-size:9px;padding-left:1px;padding-right:1px;}
+    .ret-hero{padding:20px 15px;}
+  }
+
+
+/* My Plan integration: use the latest Suksan mobile visual system */
+#retirement .ret-wrap{--primary:#072340;--radius-l:20px;--shadow-hero:0 8px 24px #07234012;--ink-soft:#5C6B74;color:#2E3A42;font-family:'Noto Sans Thai',sans-serif}
+#retirement .ret-hero{background:linear-gradient(135deg,#072340,#3A6C93);border-radius:20px;padding:20px 16px;color:#fff}
+#retirement .ret-panel{background:#fff;border:1px solid #E1E6EA;border-radius:17px;padding:16px;box-shadow:0 5px 18px #07234008}
+#retirement .ret-field input{width:100%;min-width:0;min-height:44px;font-size:16px;border:1px solid #E1E6EA;border-radius:10px;padding:10px 12px;background:#F7F9FA}
+#retirement .ret-tabs{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:12px 0;padding:4px}
+#retirement .ret-tab{flex:1 0 auto;min-height:42px;border-radius:11px;padding:9px 12px;border:1px solid #E1E6EA;background:#fff;color:#5C6B74}
+#retirement .ret-tab.active{background:#E3EBF1;border-color:#7FA3BE;color:#3A6C93}
+#retirement .ret-btn{min-height:42px;border-radius:11px;padding:10px 13px}
+#retirement .ret-result-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#retirement .ret-result{min-width:0;overflow-wrap:anywhere;border-radius:13px;padding:12px;background:#F7F9FA}
+#retirement .ret-hero-stat{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#retirement .ret-stat{min-width:0;overflow-wrap:anywhere}
+#retirement .ret-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media(max-width:600px){#retirement .ret-hero-stat{grid-template-columns:1fr}#retirement .ret-grid,#retirement .ret-result-grid{grid-template-columns:1fr}#retirement .ret-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible}#retirement .ret-tab{min-width:0}#retirement .ret-panel{padding:13px}#retirement .ret-title{font-size:22px;line-height:1.4}}
+
+</style><style id="mff-theme">
+/* match the main app (shell.css): grey page, white header, navy primary, slate text */
+:root{--navy:#072340;--blue:#3A6C93;--cyan:#E3EBF1;--bg:#F2F4F6;--line:#E1E6EA;--ink:#2E3A42;--muted:#5C6B74;--green:#1F9D6C;--red:#E0654B}
+body{background:#F2F4F6;color:#2E3A42}
+.hero{background:#F2F4F6;color:#2E3A42;box-shadow:0 8px 24px #07234012;border-radius:0 0 28px 28px;padding:calc(18px + env(safe-area-inset-top,0px)) 20px 22px}
+.hero .top{display:block}
+.hero .back{all:unset;display:inline-flex;align-items:center;gap:6px;color:#2E3A42;font:600 15px 'Noto Sans Thai',sans-serif;opacity:.85;cursor:pointer;margin-bottom:6px;padding:4px 0}
+.hero .back::after{content:"หน้าแรก"}
+.hero .eyebrow{color:#072340;font:700 13px 'Noto Sans Thai',sans-serif;letter-spacing:0;text-transform:none;margin:0 0 4px;opacity:1}
+.hero h1{color:#2E3A42;font:700 26px/1.25 'Prompt','Noto Sans Thai',sans-serif;margin:0}
+.hero p:last-child{color:#5C6B74;font-size:13px;line-height:1.55;margin:6px 0 0}
+.wrap{margin-top:16px;padding:0 20px !important}
+.menu{gap:14px !important}
+.menu button{background:#fff;border:1px solid #E1E6EA;border-radius:24px;box-shadow:0 4px 14px #0723400d;padding:16px !important;min-height:128px !important;text-align:left}
+.menu button{display:flex !important;flex-direction:column;align-items:flex-start;justify-content:flex-start !important;gap:6px}
+.menu button:last-child:nth-child(odd){grid-column:1/-1;min-height:104px !important}
+.menu button.active{background:#fff;border-color:#3A6C93;box-shadow:0 6px 18px #3A6C9322}
+.menu strong{color:#2E3A42;font-size:15px !important}.menu small{color:#5C6B74;font-size:11.5px !important}
+.ico{background:#E3EBF1;color:#072340;border-radius:16px}
+.panel,.chartcard{border-color:#E1E6EA;border-radius:22px;box-shadow:0 4px 14px #0723400b;background:#fff}
+.results{background:#E3EBF1;color:#072340;border:1px solid #d3dde5}
+.result-label{color:#5C6B74}.resultrow{border-top-color:#d3dde5}.big{color:#072340}.positive{color:#1F9D6C}.negative{color:#E0654B}
+input,select{background:#F7F9FA;border-color:#E1E6EA}
+.primary{background:#072340;color:#fff}
+.footer{color:#8B9AA3}
+#retirement .ret-wrap{--primary:#072340}
+#retirement.panel{background:none;border:0;box-shadow:none;padding:0}
+#retirement .ret-tabs>*:last-child:nth-child(odd){grid-column:1/-1}
+body{display:flex;flex-direction:column;min-height:100vh}.footer{order:99;margin-top:auto}
+</style></head><body>
+<header class="hero"><div class="top"><button class="back" onclick="location.href='../index.html'" aria-label="กลับหน้าหลัก">‹</button><div><p class="eyebrow">My Plan</p><h1>วางแผนการเงินครอบครัว</h1><p>วางแผนภาษี ประกันสังคม บ้าน การลงทุน และเกษียณในที่เดียว</p></div></div></header>
+<main class="wrap"><button type="button" id="myPlanBack" class="secondary hidden" style="margin:0 0 14px;min-height:44px" aria-label="กลับไปหน้า My Plan">‹ กลับไปหน้า My Plan</button><nav class="menu" aria-label="เลือกโปรแกรม">
+<button data-tab="tax"><span class="ico">🧾</span><strong>ภาษีบุคคลธรรมดา</strong><small>Tax Calculator</small></button>
+<button data-tab="sso"><span class="ico">🛡️</span><strong>ประกันสังคม</strong><small>SSO Calculator</small></button>
+<button data-tab="mortgage"><span class="ico">🏡</span><strong>ดอกเบี้ยบ้าน</strong><small>Mortgage Calculator</small></button>
+<button data-tab="dca"><span class="ico">📈</span><strong>วางแผนลงทุน DCA</strong><small>DCA Investment Planner</small></button>
+
+<button data-tab="retirement"><span class="ico">🌅</span><strong>วางแผนเกษียณ</strong><small>Retirement Planner</small></button>
+</nav>
+<section class="panel hidden" id="tax"><div class="panelhead"><div><h2>คำนวณภาษีบุคคลธรรมดา</h2><p>ประมาณการภาษีเงินได้บุคคลธรรมดาประจำปี</p></div><span class="pill">Tax Calculator</span></div><div class="layout"><div class="fields">
+<div class="field"><label for="taxIncome">รายได้จากเงินเดือนต่อปี (บาท)</label><input id="taxIncome" type="number" min="0" step="1000" value="900000"></div>
+<div class="field"><label for="taxOther">รายได้อื่นต่อปี (บาท)</label><input id="taxOther" type="number" min="0" step="1000" value="0"></div>
+<div class="field"><label for="taxDeduct">ค่าลดหย่อนอื่น ๆ รวม (บาท)</label><input id="taxDeduct" type="number" min="0" step="1000" value="60000"><div class="hint">ไม่รวมค่าใช้จ่ายเงินเดือนและค่าลดหย่อนส่วนตัว 60,000 บาท</div></div>
+<div class="field"><label for="taxWithheld">ภาษีหัก ณ ที่จ่ายแล้ว (บาท)</label><input id="taxWithheld" type="number" min="0" step="100" value="0"></div>
+<div class="field full"><label for="taxExpense">หักค่าใช้จ่ายเงินเดือน</label><select id="taxExpense"><option value="standard">50% ของเงินเดือน สูงสุด 100,000 บาท</option><option value="none">ไม่หักค่าใช้จ่ายเงินเดือน</option></select></div>
+</div><aside class="results"><div class="result-label">ภาษีทั้งปีโดยประมาณ</div><div class="big" id="taxDue">฿—</div><div class="resultrow"><span>เงินได้สุทธิ</span><b id="taxNet">—</b></div><div class="resultrow"><span>อัตราภาษีเฉลี่ย</span><b id="taxRate">—</b></div><div class="resultrow"><span>หลังหักภาษี ณ ที่จ่าย</span><b id="taxBalance">—</b></div></aside></div><p class="note">คำนวณตามขั้นอัตราภาษีเงินได้บุคคลธรรมดาไทย และใช้ค่าลดหย่อนส่วนตัว 60,000 บาทกับค่าใช้จ่ายเงินเดือนตามตัวเลือก ตัวเลขเป็นการประมาณการ ไม่ครอบคลุมสิทธิยกเว้นหรือเงื่อนไขเฉพาะบุคคลทุกกรณี</p></section>
+<section class="panel hidden" id="sso"><div class="panelhead"><div><h2>คำนวณเงินประกันสังคม</h2><p>ประมาณการเงินสมทบจากค่าจ้างรายเดือน</p></div><span class="pill">SSO Calculator</span></div><div class="sso-subnav"><button type="button" class="active" data-ssosub="ssoBasic">เงินสมทบประกันสังคม</button><button type="button" data-ssosub="pension">บำเหน็จ / บำนาญชราภาพ</button></div><div id="ssoBasic"><div class="layout"><div class="fields"><div class="field"><label for="ssoWage">ค่าจ้างต่อเดือน (บาท)</label><input id="ssoWage" type="number" min="0" step="100" value="20000"></div><div class="field"><label for="ssoRate">อัตราเงินสมทบลูกจ้าง (%)</label><input id="ssoRate" type="number" min="0" max="100" step="0.1" value="5"></div><div class="field full"><label for="ssoCap">เพดานค่าจ้างที่นำมาคำนวณ (บาท/เดือน)</label><input id="ssoCap" type="number" min="0" step="500" value="17500"><div class="hint">ปรับเพดานตามประกาศที่มีผลกับช่วงเวลาของคุณ</div></div></div><aside class="results"><div class="result-label">เงินสมทบต่อเดือน</div><div class="big" id="ssoMonthly">฿—</div><div class="resultrow"><span>ค่าจ้างที่ใช้คำนวณ</span><b id="ssoBase">—</b></div><div class="resultrow"><span>เงินสมทบต่อปี (12 เดือน)</span><b id="ssoYear">—</b></div><div class="resultrow"><span>อัตราที่ใช้</span><b id="ssoUsedRate">—</b></div></aside></div><p class="note">เครื่องมือนี้เป็นตัวคำนวณทั่วไปสำหรับเงินสมทบฝั่งลูกจ้าง โดยให้ผู้ใช้กำหนดอัตราและเพดานค่าจ้างเองเพื่อตรงกับประกาศที่ใช้อยู่ สิทธิประโยชน์และเงินสมทบประเภทอื่นอาจแตกต่างกัน</p></div>
+<div id="pension" class="hidden"><div class="panelhead"><div><h2>คำนวณบำนาญชราภาพประกันสังคม</h2><p>จำลองสิทธิและเงินบำนาญรายเดือนตามจำนวนเดือนที่ส่งสมทบ</p></div><span class="pill">SSO Pension Calculator</span></div><div class="layout"><div><div class="fields"><div class="field"><label for="penAge">อายุปัจจุบัน (ปี)</label><input id="penAge" type="number" min="15" max="100" step="1" value="40"></div><div class="field"><label for="penMonths">ส่งเงินสมทบแล้ว (เดือน)</label><input id="penMonths" type="number" min="0" max="600" step="1" value="240"></div><div class="field"><label for="penWage">ฐานค่าจ้างเฉลี่ย 60 เดือนสุดท้าย (บาท/เดือน)</label><input id="penWage" type="number" min="0" step="100" value="15000"><div class="hint">กรอกค่าเฉลี่ยฐานค่าจ้างที่คาดว่าจะใช้จริงเมื่อสิ้นสุดความเป็นผู้ประกันตน ไม่ใช่เงินเดือนปัจจุบันเสมอไป</div></div><div class="field"><label for="penClaimAge">อายุที่วางแผนรับสิทธิ (ปี)</label><input id="penClaimAge" type="number" min="55" max="100" step="1" value="55"></div><div class="field full"><label for="penPlan">แผนการส่งเงินสมทบ</label><select id="penPlan"><option value="continue">ส่งต่อจนถึงอายุที่วางแผนรับสิทธิ</option><option value="stop">ไม่ส่งเพิ่มจากนี้</option><option value="extra">ระบุจำนวนเดือนที่จะส่งเพิ่มเอง</option></select></div><div class="field hidden" id="penExtraWrap"><label for="penExtra">จำนวนเดือนที่จะส่งเพิ่ม</label><input id="penExtra" type="number" min="0" max="600" step="1" value="180"></div></div><div class="actions"><button class="secondary" id="penReset">คืนค่าตัวอย่าง</button></div><h3 class="subhead">เงื่อนไขการรับสิทธิ</h3><p class="note">โดยหลักเกณฑ์ที่ใช้อ้างอิง: บำนาญต้องส่งเงินสมทบกรณีชราภาพอย่างน้อย 180 เดือน, อายุครบ 55 ปีบริบูรณ์ และสิ้นสุดความเป็นผู้ประกันตน ส่วนผู้ที่ส่งไม่ครบ 180 เดือนอาจเข้าเงื่อนไขบำเหน็จชราภาพเมื่อสิ้นสุดความเป็นผู้ประกันตนและเข้าเงื่อนไขอายุ/เหตุที่กฎหมายกำหนด</p></div><aside class="results"><div class="result-label">บำนาญชราภาพต่อเดือนโดยประมาณ</div><div class="big" id="penBenefit">฿—</div><div class="resultrow"><span>เดือนที่ส่งรวม ณ วันรับสิทธิ</span><b id="penTotalMonths">—</b></div><div class="resultrow"><span>อัตราบำนาญที่คำนวณได้</span><b id="penRate">—</b></div><div class="resultrow"><span>เงินบำนาญต่อปี</span><b id="penYearly">—</b></div><div class="resultrow"><span>สิทธิจำลอง</span><b id="penEligibility">—</b></div><div class="resultrow"><span>เดือนที่เกิน 180 เดือน</span><b id="penExcess">—</b></div><p class="note" style="color:#ffffffb8">เป็นประมาณการตามสูตรพื้นฐาน ไม่ใช่การยืนยันสิทธิหรือยอดจ่ายจากสำนักงานประกันสังคม</p></aside></div><div class="subhead">บำนาญ กับ บำเหน็จ ต่างกันอย่างไร?</div><div class="fields"><div class="field"><div style="border:1px solid var(--line);border-radius:14px;padding:14px;height:100%"><strong>บำนาญชราภาพ</strong><p class="note">เงินรายเดือนเมื่อส่งสมทบครบเกณฑ์ 180 เดือนขึ้นไป และเข้าเงื่อนไขอายุ 55 ปีและสิ้นสุดความเป็นผู้ประกันตน</p></div></div><div class="field"><div style="border:1px solid var(--line);border-radius:14px;padding:14px;height:100%"><strong>บำเหน็จชราภาพ</strong><p class="note">เงินก้อนในกรณีส่งสมทบไม่ครบ 180 เดือนตามเงื่อนไข โดยจำนวนจริงขึ้นกับเงินสมทบที่เกี่ยวข้องและผลประโยชน์ตอบแทนตามประกาศ จึงไม่ควรประมาณจากเงินเดือนอย่างเดียว</p></div></div></div><p class="note">สูตรพื้นฐานที่ใช้ในตัวจำลอง: อัตราบำนาญ = 20% เมื่อครบ 180 เดือน + 1.5% ต่อทุก 12 เดือนที่ส่งเกิน 180 เดือน โดยคิดเฉพาะจำนวนปีเต็มที่เกินเกณฑ์; บำนาญต่อเดือน = ฐานค่าจ้างเฉลี่ย 60 เดือนสุดท้าย × อัตราบำนาญ ข้อสมมติ: ใช้สูตรฐาน 60 เดือนและสมมติว่าฐานเฉลี่ยในอนาคตเท่ากับค่าที่กรอก กฎหมาย ฐานค่าจ้าง และสูตรอาจเปลี่ยนก่อนถึงอายุรับสิทธิ ควรตรวจสอบกับสำนักงานประกันสังคมอีกครั้ง</p></div></div></section>
+<section class="panel hidden" id="mortgage"><div class="panelhead"><div><h2>คำนวณสินเชื่อบ้าน</h2><p>ค่างวดรายเดือน ดอกเบี้ยรวม และยอดชำระรวม</p></div><span class="pill">Mortgage Calculator</span></div><div class="layout"><div class="fields"><div class="field"><label for="homePrice">วงเงินกู้ (บาท)</label><input id="homePrice" type="number" min="0" step="100000" value="3000000"></div><div class="field"><label for="homeRate">อัตราดอกเบี้ยต่อปี (%)</label><input id="homeRate" type="number" min="0" max="100" step="0.1" value="3.5"></div><div class="field"><label for="homeYears">ระยะเวลากู้ (ปี)</label><input id="homeYears" type="number" min="1" max="50" step="1" value="30"></div><div class="field"><label for="homeExtra">จ่ายเพิ่มต่อเดือน (บาท)</label><input id="homeExtra" type="number" min="0" step="500" value="0"></div></div><aside class="results"><div class="result-label">ค่างวดต่อเดือนโดยประมาณ</div><div class="big" id="homeMonthly">฿—</div><div class="resultrow"><span>ยอดชำระรวม</span><b id="homeTotal">—</b></div><div class="resultrow"><span>ดอกเบี้ยรวม</span><b id="homeInterest">—</b></div><div class="resultrow"><span>รวมจ่ายต่อเดือนเมื่อจ่ายเพิ่ม</span><b id="homeWithExtra">—</b></div></aside></div><div class="chartgrid"><div class="chartcard"><h3>ตารางผ่อนชำระ (ตัวอย่างรายปี)</h3><div class="tablewrap"><table class="amort"><thead><tr><th>ปี</th><th>เงินต้นคงเหลือ</th><th>เงินต้นที่จ่าย</th><th>ดอกเบี้ย</th></tr></thead><tbody id="homeSchedule"></tbody></table></div></div><div class="chartcard"><h3>สัดส่วนเงินต้นและดอกเบี้ย</h3><canvas id="homeChart" aria-label="กราฟสัดส่วนเงินต้นและดอกเบี้ย"></canvas></div></div><p class="note">ประมาณการแบบอัตราดอกเบี้ยคงที่ตลอดอายุสัญญา และชำระรายเดือน ไม่รวมค่าธรรมเนียม ประกัน ภาษี หรือการเปลี่ยนอัตราดอกเบี้ยจริงของธนาคาร</p></section>
+<section class="panel hidden" id="dca"><div class="panelhead"><div><h2>วางแผนลงทุนแบบ DCA</h2><p>จำลองเงินลงทุนสม่ำเสมอและกระจายสัดส่วนกองทุน</p></div><span class="pill">DCA Planner</span></div><div class="layout"><div><div class="fields"><div class="field"><label for="dcaMonthly">เงินลงทุนรวมต่อเดือน (บาท)</label><input id="dcaMonthly" type="text" inputmode="decimal" autocomplete="off" value="10000" readonly aria-describedby="dcaMonthlyHint"><div class="hint" id="dcaMonthlyHint">ระบบรวมจากยอดลงทุนรายกองทุนด้านล่างโดยอัตโนมัติ</div></div><div class="field"><label for="dcaMonths">จำนวนเดือน</label><input id="dcaMonths" type="number" min="1" max="1200" step="1" value="120"></div><div class="field"><label for="dcaReturn">ผลตอบแทนคาดหวังต่อปี (%)</label><input id="dcaReturn" type="number" min="-99" max="100" step="0.5" value="6"></div></div><h3 class="subhead">เงินลงทุนและสัดส่วนรายกองทุน</h3><p class="hint">กรอกยอดเงินบาทที่ต้องการลงทุนต่อเดือนในแต่ละกองทุน สัดส่วนเปอร์เซ็นต์จะคำนวณให้อัตโนมัติและแก้ไขโดยตรงไม่ได้</p><div class="fund-table-wrap"><table class="fund-table"><thead><tr><th>ชื่อกองทุน</th><th>ลงทุน/เดือน (บาท)</th><th>สัดส่วน (%)</th><th></th></tr></thead><tbody id="fundRows"></tbody></table></div><div class="actions"><button class="secondary" id="addFund">＋ เพิ่มกองทุน</button><button class="secondary" id="equalFund">แบ่งยอดลงทุนเท่ากัน</button></div><div class="bar"><span id="allocBar" style="width:100%"></span></div><div id="allocLabel" class="hint">สัดส่วนจะคำนวณจากยอดเงินลงทุนรายกองทุน</div><div id="allocError" class="error hidden">กรอกยอดลงทุนต่อเดือนอย่างน้อยหนึ่งกองทุนเพื่อคำนวณสัดส่วน</div></div><aside class="results"><div class="result-label">มูลค่าอนาคตโดยประมาณ</div><div class="big" id="dcaFuture">฿—</div><div class="resultrow"><span>เงินต้นรวม</span><b id="dcaPrincipal">—</b></div><div class="resultrow"><span>กำไร/ขาดทุน</span><b id="dcaProfit">—</b></div><div class="resultrow"><span>% กำไรเทียบเงินต้น</span><b id="dcaProfitPct">—</b></div><div class="resultrow"><span>ผลตอบแทนต่อเดือน</span><b id="dcaMonthlyRate">—</b></div><div class="resultrow"><span>สัดส่วนลงทุนรวม</span><b id="dcaAllocTotal">—</b></div><div class="resultrow"><span>รวมมูลค่าคาดการณ์ต่อกองทุน</span><b id="dcaFundTotal">—</b></div></aside></div><div class="chartgrid"><div class="chartcard"><h3>เงินต้นสะสม เทียบมูลค่าพอร์ตคาดการณ์</h3><canvas id="dcaLine" aria-label="กราฟเงินต้นสะสมและมูลค่าพอร์ต"></canvas></div><div class="chartcard"><h3>สัดส่วนสินทรัพย์</h3><canvas id="dcaDonut" aria-label="กราฟวงแหวนสัดส่วนสินทรัพย์"></canvas><div id="dcaLegend" class="hint"></div></div></div><p class="note">จำลองลงทุนปลายเดือนด้วยอัตราผลตอบแทนรายเดือนที่คำนวณจากผลตอบแทนต่อปี ÷ 12 และสมมติผลตอบแทนคงที่ ไม่รับประกันผลตอบแทนจริง ไม่รวมค่าธรรมเนียม ภาษี หรือความผันผวนของตลาด</p></section>
+
+<section class="panel hidden" id="retirement"><section id="view-retirement">
+    <div class="ret-wrap">
+      <div class="ret-hero">
+        <p class="ret-kicker">RETIREMENT PLANNER</p>
+        <h2 class="ret-title">วางแผนเกษียณของคุณ</h2>
+        
+        <div class="ret-hero-stat">
+          <div class="ret-stat"><div class="k">เป้าหมายเงินเกษียณ</div><div class="v" id="retHeroTarget">฿0</div></div>
+          <div class="ret-stat"><div class="k">คาดการณ์ ณ วันเกษียณ</div><div class="v" id="retHeroProjected">฿0</div></div>
+          <div class="ret-stat"><div class="k">ช่องว่าง</div><div class="v" id="retHeroGap">฿0</div></div>
+        </div>
+      </div>
+
+      <div class="ret-tabs" id="retTabs">
+        <button class="ret-tab active" data-ret-tab="calculate">คำนวณ</button>
+        <button class="ret-tab" data-ret-tab="money">เงินของฉัน</button>
+        <button class="ret-tab" data-ret-tab="plan">วางแผน</button>
+        <button class="ret-tab" data-ret-tab="simulate">จำลอง</button>
+        <button class="ret-tab" data-ret-tab="myplan">แผนของฉัน</button>
+      </div>
+
+      <div class="ret-tab-panel" data-ret-panel="calculate">
+        <div class="ret-panel">
+          <h3>ข้อมูลพื้นฐาน</h3>
+          <div class="sub">ตั้งสมมติฐานหลักสำหรับเป้าหมายเกษียณ</div>
+          <div class="ret-grid">
+            <div class="ret-field"><label>อายุปัจจุบัน</label><input id="retAge" type="number" min="18" max="80" value="35"></div>
+            <div class="ret-field"><label>อายุเกษียณ</label><input id="retRetireAge" type="number" min="30" max="90" value="60"></div>
+            <div class="ret-field"><label>อายุคาดว่าจะใช้เงินถึง</label><input id="retLife" type="number" min="50" max="110" value="90"></div>
+            <div class="ret-field"><label>ค่าใช้จ่าย/เดือนวันนี้</label><input id="retExpense" type="number" min="0" step="500" value="30000"></div>
+            <div class="ret-field"><label>เงินเฟ้อ/ปี (%)</label><input id="retInflation" type="number" min="0" max="20" step="0.1" value="2.5"></div>
+            <div class="ret-field"><label>ผลตอบแทนหลังเกษียณ (%)</label><input id="retPostReturn" type="number" min="0" max="20" step="0.1" value="4"></div>
+          </div>
+          <div class="ret-actions"><button class="ret-btn primary" id="retCalcBtn">คำนวณใหม่</button><button class="ret-btn ghost" id="retSaveCalcBtn">บันทึกการทดลองล่าสุด</button></div>
+          <div class="ret-help">ผลลัพธ์เป็นประมาณการเพื่อใช้วางแผน ไม่ใช่การรับประกันผลตอบแทน</div>
+        </div>
+      </div>
+
+      <div class="ret-tab-panel" data-ret-panel="money" hidden>
+        <div class="ret-panel">
+          <h3>เงินที่มีอยู่แล้ว</h3>
+          <div class="sub">กรอกค่าเงินที่ต้องการใช้ในการทดลองด้วยตัวเอง ระบบจะจำค่าการทดลองล่าสุดไว้ในเครื่อง</div>
+          <div class="ret-grid">
+            <div class="ret-field"><label>Portfolio ปัจจุบัน</label><input id="retCurrent" type="number" min="0" step="1000" value="0"></div>
+            <div class="ret-field"><label>เงินก้อนที่จะเพิ่ม</label><input id="retLump" type="number" min="0" step="1000" value="0"></div>
+            <div class="ret-field full"><label>รายได้ประจำหลังเกษียณ/เดือน (เช่น บำนาญ)</label><input id="retIncome" type="number" min="0" step="500" value="0"></div>
+          </div>
+          <div class="ret-actions"><button class="ret-btn ghost" id="retSaveBtn">บันทึกการทดลองล่าสุด</button></div>
+          <div class="ret-help" id="retSaveNote">ยังไม่มีการทดลองที่บันทึกไว้</div>
+        </div>
+      </div>
+
+      <div class="ret-tab-panel" data-ret-panel="plan" hidden>
+        <div class="ret-panel">
+          <h3>แผนสะสมก่อนเกษียณ</h3>
+          <div class="sub">กำหนด DCA และผลตอบแทนที่คาดหวังก่อนถึงวันเกษียณ</div>
+          <div class="ret-grid">
+            <div class="ret-field"><label>DCA/เดือน</label><input id="retDca" type="number" min="0" step="500" value="10000"></div>
+            <div class="ret-field"><label>เพิ่ม DCA ทุกปี (%)</label><input id="retDcaIncrease" type="number" min="0" max="50" step="1" value="5"></div>
+            <div class="ret-field"><label>ผลตอบแทนก่อนเกษียณ (%)</label><input id="retPreReturn" type="number" min="0" max="30" step="0.1" value="6"></div>
+          </div>
+          <div class="ret-actions"><button class="ret-btn primary" id="retPlanBtn">อัปเดตแผน</button></div>
+        </div>
+      </div>
+
+      <div class="ret-tab-panel" data-ret-panel="simulate" hidden>
+        <div class="ret-panel">
+          <h3>จำลอง What-if</h3>
+          <div class="sub">ลองเปลี่ยนอายุเกษียณ DCA ผลตอบแทน และเงินเฟ้อ แล้วดูผลกระทบต่อเป้าหมาย</div>
+          <div class="ret-grid">
+            <div class="ret-field"><label>อายุเกษียณ</label><input id="retSimAge" type="number" min="30" max="90" value="60"></div>
+            <div class="ret-field"><label>DCA/เดือน</label><input id="retSimDca" type="number" min="0" step="500" value="10000"></div>
+            <div class="ret-field"><label>ผลตอบแทนก่อนเกษียณ (%)</label><input id="retSimReturn" type="number" min="0" max="30" step="0.1" value="6"></div>
+            <div class="ret-field"><label>เงินเฟ้อ (%)</label><input id="retSimInflation" type="number" min="0" max="20" step="0.1" value="2.5"></div>
+          </div>
+          <div class="ret-actions"><button class="ret-btn primary" id="retSimBtn">จำลอง</button></div>
+          <div class="ret-sim-list" id="retSimList"></div>
+        </div>
+      </div>
+
+      <div class="ret-tab-panel" data-ret-panel="myplan" hidden>
+        <div class="ret-panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <div><h3>แผนเกษียณของฉัน</h3><div class="sub" style="margin-bottom:0">สรุปจากข้อมูลทั้งหมดที่กรอกไว้</div></div>
+            <span class="ret-plan-badge" id="retStatus">กำลังคำนวณ</span>
+          </div>
+          <div class="ret-result-grid">
+            <div class="ret-result emph"><div class="k">เงินที่ต้องมี</div><div class="v" id="retTarget">฿0</div></div>
+            <div class="ret-result"><div class="k">คาดการณ์เมื่อเกษียณ</div><div class="v" id="retProjected">฿0</div></div>
+            <div class="ret-result"><div class="k">ยังขาด</div><div class="v" id="retGap">฿0</div></div>
+            <div class="ret-result"><div class="k">DCA ที่แนะนำโดยประมาณ</div><div class="v" id="retNeededDca">฿0</div></div>
+          </div>
+          <div style="font-size:11px;color:var(--ink-soft);margin-top:13px">ความคืบหน้าสู่เป้าหมาย</div>
+          <div class="ret-progress"><i id="retProgress"></i></div>
+          <div class="ret-note" id="retPlanNote">-</div>
+          <div class="ret-warning">การคำนวณใช้สมมติฐานคงที่และไม่ได้รวมภาษี ค่าธรรมเนียม หรือความผันผวนจริงของตลาด</div>
+        </div>
+      </div>
+    </div>
+  </section></section>
+<div class="footer">My Plan · My Family Funds</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);const fmt=n=>Number.isFinite(n)?new Intl.NumberFormat('th-TH',{style:'currency',currency:'THB',maximumFractionDigits:2}).format(n):'—';const num=id=>Math.max(0,Number(String($(id).value??'').replace(/,/g,'').trim())||0);const pct=n=>`${(n*100).toLocaleString('th-TH',{maximumFractionDigits:2})}%`;
+function showMyPlanMenu(){document.querySelector('.menu').classList.remove('hidden');document.querySelectorAll('main > .panel').forEach(x=>x.classList.add('hidden'));document.querySelectorAll('[data-tab]').forEach(x=>x.classList.remove('active'));$('myPlanBack').classList.add('hidden');window.scrollTo({top:0,behavior:'auto'});}
+document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));document.querySelector('.menu').classList.add('hidden');$('myPlanBack').classList.remove('hidden');document.querySelectorAll('main > .panel').forEach(x=>x.classList.toggle('hidden',x.id!==b.dataset.tab));if(b.dataset.tab==='dca')calcDCA();if(b.dataset.tab==='mortgage')calcHome();if(b.dataset.tab==='retirement'){document.querySelectorAll('.ret-tab').forEach(x=>x.classList.toggle('active',x.dataset.retTab==='calculate'));}window.scrollTo({top:0,behavior:'auto'});}));
+$('myPlanBack').addEventListener('click',showMyPlanMenu);document.querySelectorAll('[data-ssosub]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-ssosub]').forEach(x=>x.classList.toggle('active',x===b));$('ssoBasic').classList.toggle('hidden',b.dataset.ssosub!=='ssoBasic');$('pension').classList.toggle('hidden',b.dataset.ssosub!=='pension');}));
+function calcTax(){let salary=num('taxIncome'),other=num('taxOther'),expense=$('taxExpense').value==='standard'?Math.min(salary*.5,100000):0;let net=Math.max(0,salary+other-expense-60000-num('taxDeduct'));let brackets=[[150000,0],[300000,.05],[500000,.1],[750000,.15],[1000000,.2],[2000000,.25],[5000000,.3],[Infinity,.35]];let lower=0,tax=0;for(let [cap,rate] of brackets){let part=Math.max(0,Math.min(net,cap)-lower);tax+=part*rate;if(net<=cap)break;lower=cap;}let balance=tax-num('taxWithheld');$('taxDue').textContent=fmt(tax);$('taxNet').textContent=fmt(net);$('taxRate').textContent=pct(salary+other?tax/(salary+other):0);$('taxBalance').textContent=(balance>0?'ต้องชำระ ':balance<0?'ภาษีชำระเกิน ':'ยอดพอดี ')+fmt(Math.abs(balance));$('taxBalance').className=balance>0?'negative':balance<0?'positive':'';}
+function calcSSO(){let wage=num('ssoWage'),cap=num('ssoCap'),rate=Math.min(100,num('ssoRate'))/100,base=Math.min(wage,cap),m=base*rate;$('ssoMonthly').textContent=fmt(m);$('ssoBase').textContent=fmt(base);$('ssoYear').textContent=fmt(m*12);$('ssoUsedRate').textContent=pct(rate);}
+function calcHome(){let p=num('homePrice'),annual=num('homeRate')/100,years=Math.max(1,num('homeYears')),n=Math.round(years*12),r=annual/12,monthly=r===0?p/n:p*r/(1-Math.pow(1+r,-n));let extra=num('homeExtra'),bal=p,paid=0,interest=0,rows=[],yearPrin=0,yearInt=0;for(let m=1;m<=n&&bal>.005;m++){let int=bal*r,principal=Math.min(bal,Math.max(0,monthly+extra-int));if(principal<=0)break;bal=Math.max(0,bal-principal);paid+=int+principal;interest+=int;yearPrin+=principal;yearInt+=int;if(m%12===0||bal<=.005){rows.push(`<tr><td>${Math.ceil(m/12)}</td><td>${fmt(bal)}</td><td>${fmt(yearPrin)}</td><td>${fmt(yearInt)}</td></tr>`);yearPrin=0;yearInt=0;}}$('homeMonthly').textContent=fmt(monthly);$('homeTotal').textContent=fmt(paid);$('homeInterest').textContent=fmt(interest);$('homeWithExtra').textContent=fmt(monthly+extra);$('homeSchedule').innerHTML=rows.join('');drawHomeChart(p,interest);}
+function drawHomeChart(principal,interest){let c=$('homeChart');if(!c)return;let ctx=c.getContext('2d'),w=c.width=c.clientWidth*devicePixelRatio,h=c.height=Math.max(1,c.clientHeight||220)*devicePixelRatio;ctx.clearRect(0,0,w,h);let total=principal+interest, x=18*devicePixelRatio,y=35*devicePixelRatio,bw=w-36*devicePixelRatio,bh=28*devicePixelRatio;ctx.fillStyle='#e7eef4';ctx.fillRect(x,y,bw,bh);ctx.fillStyle='#3A6C93';ctx.fillRect(x,y,total?bw*principal/total:0,bh);ctx.fillStyle='#C89B3C';ctx.fillRect(x+(total?bw*principal/total:0),y,total?bw*interest/total:0,bh);ctx.font=`${12*devicePixelRatio}px sans-serif`;ctx.fillStyle='#5C6B74';ctx.fillText('เงินต้น '+fmt(principal),x,y+bh+28*devicePixelRatio);ctx.fillStyle='#8C6A20';ctx.fillText('ดอกเบี้ย '+fmt(interest),x,y+bh+52*devicePixelRatio);}
+
+let fundCount=0;function addFund(name='',amount=0){fundCount++;let tr=document.createElement('tr');const safeName=String(name).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));tr.innerHTML=`<td><input class="fundname" aria-label="ชื่อกองทุน" placeholder="ชื่อกองทุน" value="${safeName}"></td><td><input class="fundamount" aria-label="เงินลงทุนต่อเดือนในกองทุน" type="number" min="0" step="100" inputmode="decimal" value="${Math.max(0,Number(amount)||0)}"></td><td><input class="pct" aria-label="สัดส่วนเปอร์เซ็นต์คำนวณอัตโนมัติ" type="text" value="0%" readonly tabindex="-1"></td><td><button type="button" aria-label="ลบกองทุน">×</button></td>`;tr.querySelectorAll('.fundname,.fundamount').forEach(i=>i.addEventListener('input',calcDCA));tr.querySelector('button').addEventListener('click',()=>{if($('fundRows').children.length>1){tr.remove();calcDCA();}});$('fundRows').appendChild(tr);calcDCA();}
+function calcDCA(){let months=Math.max(1,Math.floor(num('dcaMonths'))),annual=Number($('dcaReturn').value)||0,rm=Math.pow(1+annual/100,1/12)-1;let rows=[...$('fundRows').querySelectorAll('tr')],amounts=rows.map(tr=>Math.max(0,Number(tr.querySelector('.fundamount').value)||0)),monthly=amounts.reduce((a,b)=>a+b,0);$('dcaMonthly').value=String(monthly);let principal=monthly*months,future=Math.abs(rm)<1e-10?principal:monthly*(Math.pow(1+rm,months)-1)/rm,profit=future-principal;rows.forEach((tr,i)=>{let share=monthly>0?amounts[i]/monthly*100:0;tr.querySelector('.pct').value=share.toLocaleString('th-TH',{maximumFractionDigits:2})+'%';});let valid=monthly>0;$('dcaFuture').textContent=fmt(future);$('dcaPrincipal').textContent=fmt(principal);$('dcaProfit').textContent=fmt(profit);$('dcaProfit').className='big '+(profit>=0?'positive':'negative');$('dcaProfitPct').textContent=principal?pct(profit/principal):'—';$('dcaMonthlyRate').textContent=pct(rm);$('dcaAllocTotal').textContent=valid?'100%':'0%';$('dcaFundTotal').textContent=valid?fmt(future):'—';$('allocLabel').textContent=valid?'จัดสรรเงินลงทุนรวม '+fmt(monthly)+' บาท/เดือน · สัดส่วนรวม 100%':'กรอกยอดลงทุนรายกองทุนเพื่อคำนวณสัดส่วน';$('allocBar').style.width=valid?'100%':'0%';$('allocError').classList.toggle('hidden',valid);drawDcaCharts(monthly,months,rm,rows);}
+function drawDcaCharts(monthly,months,rm,rows){let c=$('dcaLine');if(!c)return;let ctx=c.getContext('2d'),w=c.width=Math.max(1,c.clientWidth)*devicePixelRatio,h=c.height=Math.max(1,c.clientHeight||220)*devicePixelRatio;ctx.clearRect(0,0,w,h);let maxV=0,series=[];for(let m=0;m<=months;m++){let principal=monthly*m,future=Math.abs(rm)<1e-10?principal:monthly*(Math.pow(1+rm,m)-1)/rm;series.push([principal,future]);maxV=Math.max(maxV,principal,future);}let pad=24*devicePixelRatio,iw=w-2*pad,ih=h-2*pad;ctx.strokeStyle='#e5edf3';ctx.lineWidth=1*devicePixelRatio;for(let i=0;i<5;i++){let y=pad+ih*i/4;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(w-pad,y);ctx.stroke();}[[0,'#3A6C93'],[1,'#1F9D6C']].forEach(([idx,color])=>{ctx.strokeStyle=color;ctx.lineWidth=2.5*devicePixelRatio;ctx.beginPath();series.forEach((v,i)=>{let x=pad+iw*i/Math.max(1,months),y=h-pad-(maxV?v[idx]/maxV:0)*ih;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();});let d=$('dcaDonut');ctx=d.getContext('2d');w=d.width=Math.max(1,d.clientWidth)*devicePixelRatio;h=d.height=Math.max(1,d.clientHeight||220)*devicePixelRatio;ctx.clearRect(0,0,w,h);let total=rows.reduce((a,tr)=>a+Math.max(0,Number(tr.querySelector('.fundamount').value)||0),0),colors=['#072340','#3A6C93','#1F9D6C','#C89B3C','#E0654B','#8B9AA3'];let angle=-Math.PI/2,cx=w*.5,cy=h*.5,r=Math.min(w,h)*.42,inner=r*.58;rows.forEach((tr,i)=>{let amount=Math.max(0,Number(tr.querySelector('.fundamount').value)||0),next=angle+(total?amount/total*Math.PI*2:0);ctx.beginPath();ctx.arc(cx,cy,r,angle,next);ctx.arc(cx,cy,inner,next,angle,true);ctx.closePath();ctx.fillStyle=colors[i%colors.length];ctx.fill();angle=next;});$('dcaLegend').innerHTML=rows.map((tr,i)=>`${tr.querySelector('.fundname').value||'กองทุน '+(i+1)}: ${tr.querySelector('.pct').value} (${fmt(Number(tr.querySelector('.fundamount').value)||0)} บาท/เดือน)`).join(' · ');}
+['taxIncome','taxOther','taxDeduct','taxWithheld','taxExpense'].forEach(id=>$(id).addEventListener('input',calcTax));['ssoWage','ssoRate','ssoCap'].forEach(id=>$(id).addEventListener('input',calcSSO));['homePrice','homeRate','homeYears','homeExtra'].forEach(id=>$(id).addEventListener('input',calcHome));$('dcaMonthly').addEventListener('input',()=>{const el=$('dcaMonthly');const clean=el.value.replace(/[^0-9.]/g,'').replace(/\.(?=.*\.)/g,'');if(clean!==el.value)el.value=clean;calcDCA();});['dcaMonths','dcaReturn'].forEach(id=>$(id).addEventListener('input',calcDCA));$('addFund').addEventListener('click',()=>addFund('',0));$('equalFund').addEventListener('click',()=>{let rows=[...$('fundRows').querySelectorAll('tr')],total=rows.reduce((sum,tr)=>sum+Math.max(0,Number(tr.querySelector('.fundamount').value)||0),0);if(total<=0)total=10000;let base=Math.floor(total/rows.length);rows.forEach((tr,i)=>tr.querySelector('.fundamount').value=i===rows.length-1?total-base*(rows.length-1):base);calcDCA();});
+addFund('กองทุน A',6000);addFund('กองทุน B',4000);calcTax();calcSSO();calcHome();calcDCA();
+function calcPension(){
+ const age=num('penAge'), paid=Math.floor(num('penMonths')), wage=num('penWage'), claim=Math.max(55,Number($('penClaimAge').value)||55), plan=$('penPlan').value;
+ let extra=0;
+ if(plan==='continue') extra=Math.max(0,Math.floor((claim-age)*12));
+ else if(plan==='extra') extra=Math.floor(num('penExtra'));
+ const total=paid+extra, excess=Math.max(0,total-180), fullYears=Math.floor(excess/12);
+ const rate=total>=180?Math.min(100,20+fullYears*1.5):0, benefit=wage*rate/100;
+ $('penExtraWrap').classList.toggle('hidden',plan!=='extra');
+ $('penBenefit').textContent=total>=180?fmt(benefit):'ยังไม่เข้าเกณฑ์บำนาญ';
+ $('penTotalMonths').textContent=total.toLocaleString('th-TH')+' เดือน';
+ $('penRate').textContent=total>=180?rate.toLocaleString('th-TH',{maximumFractionDigits:2})+'%':'—';
+ $('penYearly').textContent=total>=180?fmt(benefit*12):'—';
+ $('penExcess').textContent=excess.toLocaleString('th-TH')+' เดือน ('+fullYears+' ปีเต็ม)';
+ let eligibility=total>=180?'เข้าเกณฑ์ด้านจำนวนเดือน*':'อาจเข้าเงื่อนไขบำเหน็จ*';
+ if(claim<55) eligibility='อายุยังไม่ครบ 55 ปี';
+ $('penEligibility').textContent=eligibility;
+}
+['penAge','penMonths','penWage','penClaimAge','penPlan','penExtra'].forEach(id=>$(id).addEventListener('input',calcPension));
+$('penReset').addEventListener('click',()=>{ $('penAge').value=40;$('penMonths').value=240;$('penWage').value=15000;$('penClaimAge').value=55;$('penPlan').value='continue';$('penExtra').value=180;calcPension();});
+calcPension();
+</script>
+<script id="suksan-retirement-planner-jitta">
+(function(){
+  'use strict';
+
+  const $ = id => document.getElementById(id);
+  const num = id => Math.max(0, Number($(id)?.value || 0));
+  const money = n => '฿' + Math.round(Number(n)||0).toLocaleString('th-TH');
+  const clamp = (n,a,b) => Math.max(a,Math.min(b,n));
+
+  function getPortfolioValue(){
+    try{
+      if(typeof scopedFunds==='function' && typeof fundActual==='function'){
+        return scopedFunds().reduce((sum,f)=>sum+(Number(fundActual(f))||0),0);
+      }
+    }catch(e){}
+    return 0;
+  }
+
+  function annuityPV(payment, monthlyRate, months){
+    if(months<=0) return 0;
+    if(monthlyRate<=0) return payment*months;
+    return payment*(1-Math.pow(1+monthlyRate,-months))/monthlyRate;
+  }
+
+  function futureValueWithGrowingDca(principal, monthlyDca, annualIncreasePct, annualReturnPct, years){
+    const months=Math.max(0,Math.round(years*12));
+    const mr=(annualReturnPct/100)/12;
+    if(months===0) return principal;
+    let balance=principal;
+    const growth=Math.max(0,annualIncreasePct)/100;
+    for(let m=0;m<months;m++){
+      const year=Math.floor(m/12);
+      const payment=monthlyDca*Math.pow(1+growth,year);
+      balance=balance*(1+mr)+payment;
+    }
+    return balance;
+  }
+
+  function retModel(opts){
+    const age=Math.max(18,num('retAge'));
+    const retireAge=Math.max(age+1,num('retRetireAge'));
+    const life=Math.max(retireAge+1,num('retLife'));
+    const expense=num('retExpense');
+    const inflation=num('retInflation')/100;
+    const postReturn=num('retPostReturn')/100;
+    const current=num('retCurrent');
+    const lump=num('retLump');
+    const income=num('retIncome');
+    const dca=num('retDca');
+    const dcaIncrease=num('retDcaIncrease');
+    const preReturn=num('retPreReturn')/100;
+
+    const yearsToRetire=Math.max(0,retireAge-age);
+    const yearsInRetirement=Math.max(1,life-retireAge);
+    const retireMonthlyExpense=expense*Math.pow(1+inflation,yearsToRetire);
+    const netMonthly=Math.max(0,retireMonthlyExpense-income);
+    const target=annuityPV(netMonthly,(postReturn/12),yearsInRetirement*12);
+    const projected=futureValueWithGrowingDca(current+lump,dca,dcaIncrease,preReturn,yearsToRetire);
+    const gap=Math.max(0,target-projected);
+
+    // Approximate flat monthly DCA required if the current annual DCA escalation is kept at 0.
+    const mr=preReturn/12;
+    const fvFactor=mr>0?((Math.pow(1+mr,yearsToRetire*12)-1)/mr):yearsToRetire*12;
+    const neededDca=yearsToRetire>0 && fvFactor>0 ? gap/fvFactor : gap;
+
+    return {age,retireAge,life,expense,inflation,postReturn,current,lump,income,dca,dcaIncrease,preReturn,
+      yearsToRetire,yearsInRetirement,retireMonthlyExpense,netMonthly,target,projected,gap,neededDca};
+  }
+
+  const RET_SAVE_KEY='mff_retirement_latest_experiment_v1';
+  const RET_INPUTS=['retAge','retRetireAge','retLife','retExpense','retInflation','retPostReturn','retCurrent','retLump','retIncome','retDca','retDcaIncrease','retPreReturn'];
+
+  function readRetInputs(){
+    const out={};
+    RET_INPUTS.forEach(id=>{const el=$(id); if(el) out[id]=el.value;});
+    return out;
+  }
+  function writeRetInputs(data){
+    if(!data) return false;
+    RET_INPUTS.forEach(id=>{const el=$(id); if(el && data[id]!==undefined) el.value=data[id];});
+    return true;
+  }
+  function saveLatestRetirement(){
+    try{
+      const payload={savedAt:new Date().toISOString(),inputs:readRetInputs()};
+      localStorage.setItem(RET_SAVE_KEY,JSON.stringify(payload));
+      const note=$('retSaveNote');
+      if(note){const d=new Date(payload.savedAt);note.textContent='บันทึกล่าสุด: '+d.toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'});}
+      showToast('บันทึกการทดลองเกษียณล่าสุดแล้ว');
+      return true;
+    }catch(e){console.warn('retirement save',e);showToast('บันทึกการทดลองไม่สำเร็จ');return false;}
+  }
+  function loadLatestRetirement(){
+    try{
+      const raw=localStorage.getItem(RET_SAVE_KEY);
+      if(!raw) return false;
+      const saved=JSON.parse(raw);
+      writeRetInputs(saved.inputs);
+      const note=$('retSaveNote');
+      if(note&&saved.savedAt){const d=new Date(saved.savedAt);note.textContent='บันทึกล่าสุด: '+d.toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'});}
+      return true;
+    }catch(e){console.warn('retirement load',e);return false;}
+  }
+
+  function renderModel(){
+    const m=retModel();
+    $('retTarget').textContent=money(m.target);
+    $('retProjected').textContent=money(m.projected);
+    $('retGap').textContent=money(m.gap);
+    $('retNeededDca').textContent=money(m.neededDca);
+    $('retHeroTarget').textContent=money(m.target);
+    $('retHeroProjected').textContent=money(m.projected);
+    $('retHeroGap').textContent=money(m.gap);
+
+    const progress=m.target>0?clamp((m.projected/m.target)*100,0,100):0;
+    $('retProgress').style.width=progress.toFixed(1)+'%';
+    $('retStatus').textContent = m.gap<=0 ? 'ถึงเป้าหมายตามสมมติฐาน' : 'ต้องเพิ่มเงินลงทุน';
+
+    if(m.gap<=0){
+      $('retPlanNote').textContent=`ตามสมมติฐานนี้ พอร์ตคาดการณ์เพียงพอสำหรับค่าใช้จ่ายหลังเกษียณประมาณ ${money(m.retireMonthlyExpense)}/เดือน (ก่อนหักรายได้ประจำ ${money(m.income)}/เดือน)`;
+    }else{
+      $('retPlanNote').textContent=`เมื่อเกษียณ ค่าใช้จ่ายที่ปรับด้วยเงินเฟ้อจะอยู่ราว ${money(m.retireMonthlyExpense)}/เดือน และหลังหักรายได้ประจำเหลือ ${money(m.netMonthly)}/เดือน`;
+    }
+    return m;
+  }
+
+  function runSimulation(){
+    const base=retModel();
+    const simAge=Math.max(base.age+1,num('retSimAge'));
+    const simDca=num('retSimDca');
+    const simReturn=num('retSimReturn');
+    const simInflation=num('retSimInflation')/100;
+    const years=Math.max(0,simAge-base.age);
+    const expenseAtRetire=base.expense*Math.pow(1+simInflation,years);
+    const net=Math.max(0,expenseAtRetire-base.income);
+    const target=annuityPV(net,base.postReturn/12,base.yearsInRetirement*12);
+    const projected=futureValueWithGrowingDca(base.current+base.lump,simDca,base.dcaIncrease,simReturn,years);
+    const maxv=Math.max(target,projected,1);
+    $('retSimList').innerHTML=[
+      ['เป้าหมาย',target],
+      ['คาดการณ์',projected],
+      ['ช่องว่าง',Math.max(0,target-projected)]
+    ].map(x=>`<div class="ret-sim-row"><div class="ret-sim-label">${x[0]}</div><div class="ret-sim-bar"><i style="width:${clamp(x[1]/maxv*100,0,100).toFixed(1)}%"></i></div><div class="ret-sim-value">${money(x[1])}</div></div>`).join('');
+  }
+
+  function openRetTab(tab){
+    document.querySelectorAll('.ret-tab').forEach(b=>b.classList.toggle('active',b.dataset.retTab===tab));
+    document.querySelectorAll('.ret-tab-panel').forEach(p=>p.hidden=p.dataset.retPanel!==tab);
+    if(tab==='myplan') renderModel();
+    if(tab==='simulate') runSimulation();
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    if(!$('view-retirement')) return;
+
+    document.querySelectorAll('.ret-tab').forEach(b=>b.addEventListener('click',()=>openRetTab(b.dataset.retTab)));
+    $('retCalcBtn')?.addEventListener('click',()=>{renderModel();saveLatestRetirement();});
+    $('retSaveCalcBtn')?.addEventListener('click',saveLatestRetirement);
+    $('retSaveBtn')?.addEventListener('click',saveLatestRetirement);
+    $('retPlanBtn')?.addEventListener('click',()=>{renderModel();saveLatestRetirement();});
+    $('retSimBtn')?.addEventListener('click',runSimulation);
+
+    // Keep the simulation inputs aligned with the main plan initially.
+    $('retSimAge').value=$('retRetireAge').value;
+    $('retSimDca').value=$('retDca').value;
+    $('retSimReturn').value=$('retPreReturn').value;
+    $('retSimInflation').value=$('retInflation').value;
+
+    ['retAge','retRetireAge','retLife','retExpense','retInflation','retPostReturn','retCurrent','retLump','retIncome','retDca','retDcaIncrease','retPreReturn']
+      .forEach(id=>$(id)?.addEventListener('input',()=>renderModel()));
+
+    // Restore the user's last retirement experiment; never pull Portfolio values automatically.
+    loadLatestRetirement();
+    renderModel();
+    runSimulation();
+  });
+
+  // Retirement is self-contained: reopening the tab restores the saved experiment only.
+  document.querySelectorAll('.bn-item[data-view="retirement"]').forEach(btn=>{
+    btn.addEventListener('click',()=>setTimeout(()=>{loadLatestRetirement();renderModel();runSimulation();},0));
+  });
+})();
+</script>
+
+<script id="my-plan-persist-latest">
+/* Persist My Plan form values locally on this device, including dynamically-added DCA funds.
+   Saved data remains available when the app is closed and reopened in the same browser. */
+(function(){
+  const KEY='suksan_my_plan_latest_v2';
+  const $=id=>document.getElementById(id);
+  function snapshot(){
+    const fields={};
+    document.querySelectorAll('#myPlanApp input[id], #myPlanApp select[id], #myPlanApp textarea[id], input[id^="ret"], select[id^="ret"], textarea[id^="ret"]').forEach(el=>{
+      if(el.type==='button'||el.type==='submit')return;
+      fields[el.id]=el.type==='checkbox'?el.checked:el.value;
+    });
+    const root=document.querySelector('main');
+    if(root){root.querySelectorAll('input[id],select[id],textarea[id]').forEach(el=>{if(el.type!=='button'&&el.type!=='submit')fields[el.id]=el.type==='checkbox'?el.checked:el.value;});}
+    const funds=$('fundRows')?[...$('fundRows').querySelectorAll('tr')].map(tr=>({name:tr.querySelector('.fundname')?.value||'',amount:tr.querySelector('.fundamount')?.value||'0',share:tr.querySelector('.pct')?.value||'0'})):[];
+    const activeTab=document.querySelector('[data-tab].active')?.dataset.tab||'tax';
+    const activeSso=document.querySelector('[data-ssosub].active')?.dataset.ssosub||'ssoBasic';
+    const retTab=document.querySelector('.ret-tab.active')?.dataset.retTab||'calculate';
+    return {fields,funds,activeTab,activeSso,retTab,savedAt:new Date().toISOString()};
+  }
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(snapshot()));}catch(e){console.warn('My Plan autosave unavailable',e);}}
+  function restore(){
+    let data;try{data=JSON.parse(localStorage.getItem(KEY)||'null');}catch(e){data=null;}if(!data)return;
+    Object.entries(data.fields||{}).forEach(([id,value])=>{const el=$(id);if(!el)return;if(el.type==='checkbox')el.checked=!!value;else if(value!==undefined&&value!==null)el.value=String(value);});
+    if($('fundRows')&&Array.isArray(data.funds)&&data.funds.length){$('fundRows').innerHTML='';if(typeof addFund==='function'){data.funds.forEach(f=>addFund(f.name,Number(f.amount!==undefined?f.amount:f.share)||0));}}
+    // Always open on the My Plan menu; keep saved field values without reopening a detail panel.
+    showMyPlanMenu();
+    if(data.activeSso){const btn=document.querySelector('[data-ssosub="'+data.activeSso+'"]');if(btn)btn.click();}
+    if(data.retTab&&typeof openRetTab==='function')try{openRetTab(data.retTab);}catch(e){}
+    try{if(typeof calcTax==='function')calcTax();if(typeof calcSSO==='function')calcSSO();if(typeof calcHome==='function')calcHome();if(typeof calcDCA==='function')calcDCA();if(typeof renderModel==='function')renderModel();if(typeof runSimulation==='function')runSimulation();}catch(e){console.warn('My Plan restore recalculation',e);}
+  }
+  document.addEventListener('input',save,true);
+  document.addEventListener('change',save,true);
+  document.addEventListener('click',e=>{if(e.target.closest('[data-tab],[data-ssosub],.ret-tab,#addFund,#equalFund')||e.target.closest('#fundRows button'))setTimeout(save,0);},true);
+  window.addEventListener('pagehide',save);
+  restore();
+  window.setTimeout(save,250);
+})();
+</script>
+
+<script src="../config.js"></script>
+<script src="../admin-login.js"></script>
+</body></html>

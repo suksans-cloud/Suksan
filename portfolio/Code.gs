@@ -53,6 +53,8 @@ function route(action, body) {
   switch (action) {
     // Authentication endpoints remain public for sign-in, validation and sign-out.
     case 'adminLogin':            return adminLogin(body);
+    case 'googleLogin':           return googleLogin(body);
+    case 'sheetsProxy':           return sheetsProxy(body);
     case 'validateAdminSession':  return validateAdminSession(body);
     case 'adminLogout':           return adminLogout(body);
     // Monthly Report API actions require a valid admin session.
@@ -145,6 +147,61 @@ function isValidAdminSession_(token) {
   return true;
 }
 
+/* ===== Google Sign-In (V85) =====
+ * 1) ใส่อีเมลที่อนุญาตใน GOOGLE_ALLOWED_EMAILS และ OAuth Client ID ใน GOOGLE_CLIENT_ID
+ * 2) Run setupGoogleLogin() หนึ่งครั้ง  3) Deploy เป็น New version
+ */
+const GOOGLE_ALLOWED_EMAILS = 'you@gmail.com'; // คั่นหลายอีเมลด้วย comma
+const GOOGLE_CLIENT_ID = '';                    // xxxx.apps.googleusercontent.com
+const GOOGLE_SHEET_ID = '';                     // ID ของ Google Sheet หลัก (ส่วนระหว่าง /d/ และ /edit ใน URL)
+const GOOGLE_SESSION_DAYS = 30;
+
+function setupGoogleLogin() {
+  PropertiesService.getScriptProperties().setProperties({MFF_ALLOWED_EMAILS: GOOGLE_ALLOWED_EMAILS, MFF_GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID, MFF_SHEET_ID: GOOGLE_SHEET_ID}, false);
+}
+
+function googleLogin(body) {
+  const props = PropertiesService.getScriptProperties();
+  const allowed = String(props.getProperty('MFF_ALLOWED_EMAILS') || '').toLowerCase().split(/[\s,;]+/).filter(Boolean);
+  const cid = props.getProperty('MFF_GOOGLE_CLIENT_ID') || '';
+  if (!allowed.length) return {ok:false, error:'ยังไม่ได้ตั้งอีเมลที่อนุญาต (Run setupGoogleLogin)'};
+  let info;
+  try {
+    const r = UrlFetchApp.fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(String(body.idToken || '')), {muteHttpExceptions:true});
+    if (r.getResponseCode() !== 200) return {ok:false, error:'Google token ไม่ถูกต้อง'};
+    info = JSON.parse(r.getContentText());
+  } catch (e) { return {ok:false, error:'ตรวจสอบ Google token ไม่สำเร็จ'}; }
+  const email = String(info.email || '').toLowerCase();
+  if (String(info.email_verified) !== 'true' || (cid && info.aud !== cid) || allowed.indexOf(email) < 0) {
+    Utilities.sleep(450);
+    return {ok:false, error:'บัญชีนี้ไม่ได้รับอนุญาตให้เข้าใช้งาน'};
+  }
+  const token = Utilities.getUuid().replace(/-/g,'') + Utilities.getUuid().replace(/-/g,'');
+  const expiresAt = Date.now() + GOOGLE_SESSION_DAYS * 24 * 60 * 60 * 1000;
+  const sessions = getAdminSessions_();
+  sessions[token] = {username: email, expiresAt: expiresAt};
+  const keys = Object.keys(sessions);
+  while (keys.length > 12) delete sessions[keys.shift()];
+  props.setProperty('MFF_ADMIN_SESSIONS', JSON.stringify(sessions));
+  return {ok:true, token:token, email:email, name:info.name || '', expiresAt:expiresAt, sheetId:cfgGet('MFF_SHEET_ID')};
+}
+
+/* ตัวกลางเรียก Sheets API: หน้าเว็บส่งคำขอพร้อม session token แล้ว Apps Script เรียกแทนด้วยสิทธิ์เจ้าของสคริปต์
+ * จำกัดเฉพาะ Spreadsheet ที่ตั้งใน GOOGLE_SHEET_ID เท่านั้น */
+function sheetsProxy(body) {
+  if (!isValidAdminSession_(body.token)) return {ok:false, auth:false, status:401, body:'{"error":"unauthorized"}'};
+  const sid = cfgGet('MFF_SHEET_ID');
+  const url = String(body.url || '');
+  const m = url.match(/^https:\/\/sheets\.googleapis\.com\/v4\/spreadsheets\/([A-Za-z0-9_-]+)/);
+  const method = String(body.method || 'GET').toUpperCase();
+  if (!sid) return {ok:false, status:403, body:'{"error":"ยังไม่ได้ตั้ง GOOGLE_SHEET_ID (Run setupGoogleLogin)"}'};
+  if (!m || m[1] !== sid || ['GET','POST','PUT','PATCH'].indexOf(method) < 0) return {ok:false, status:403, body:'{"error":"not allowed"}'};
+  const opt = {method: method.toLowerCase(), headers:{Authorization:'Bearer ' + ScriptApp.getOAuthToken()}, muteHttpExceptions:true};
+  if (method !== 'GET' && body.body) { opt.contentType = 'application/json'; opt.payload = String(body.body); }
+  const r = UrlFetchApp.fetch(url, opt);
+  return {ok:true, status:r.getResponseCode(), body:r.getContentText()};
+}
+
 function validateAdminSession(body) {
   const token = String(body.token || '');
   const sessions = getAdminSessions_();
@@ -153,7 +210,7 @@ function validateAdminSession(body) {
     if (s) { delete sessions[token]; PropertiesService.getScriptProperties().setProperty('MFF_ADMIN_SESSIONS', JSON.stringify(sessions)); }
     return {ok:false, authenticated:false};
   }
-  return {ok:true, authenticated:true, username:s.username, expiresAt:s.expiresAt};
+  return {ok:true, authenticated:true, username:s.username, expiresAt:s.expiresAt, sheetId:cfgGet('MFF_SHEET_ID')};
 }
 function adminLogout(body) {
   const token = String(body.token || '');

@@ -1,15 +1,169 @@
+/* My Family Funds — Google Sign-In + PIN lock (V85)
+ * 1) เข้าสู่ระบบด้วย Google ครั้งเดียว → session เก็บใน localStorage ใช้ร่วมกันทุกหน้า
+ * 2) ตั้ง PIN 6 หลักต่อเครื่อง (เก็บเป็น PBKDF2 hash ไม่เก็บ PIN จริง)
+ * 3) แอปล็อกเมื่อเปิดใหม่ / อยู่เบื้องหลังเกิน 1 นาที / ไม่ใช้งานเกิน 5 นาที แล้วปลดล็อกด้วย PIN
+ */
 (function(){
 'use strict';
 document.documentElement.classList.add('mff-auth-pending');
-const KEY='mff_admin_session_v1';
-const css=`html.mff-auth-pending body>*:not(#mff-login-root){visibility:hidden!important}html.mff-auth-pending #mff-login-root{visibility:visible!important}#mff-login-root{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:18px;background:radial-gradient(ellipse at top,#e9f2f5 0%,#f5f7fa 48%,#e8edf2 100%);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#142b40}#mff-login-root *{box-sizing:border-box}#mff-login-card{width:min(100%,370px);border:1px solid #ffffffd9;border-radius:30px;padding:28px 24px 24px;background:#ffffffed;box-shadow:0 24px 70px #18354b1b;text-align:center}#mff-login-mark{width:70px;height:70px;margin:0 auto 15px;border-radius:23px;background:linear-gradient(145deg,#e7f1f4,#dce7ec);display:grid;place-items:center;font-size:31px;box-shadow:inset 0 1px #fff,0 7px 18px #17364b13}#mff-login-card h1{font-size:23px;letter-spacing:-.5px;margin:0;font-weight:750}#mff-login-sub{font-size:13px;color:#84929d;margin:5px 0 21px}#mff-login-user{width:100%;height:46px;border:1px solid #dce4e8;border-radius:14px;padding:0 14px;font-size:15px;background:#f9fbfc;color:#20384b;outline:none;margin-bottom:18px}#mff-login-user:focus{border-color:#7899aa;box-shadow:0 0 0 3px #dceaf0}#mff-pin-dots{display:flex;justify-content:center;gap:13px;margin:0 0 22px}#mff-pin-dots i{width:12px;height:12px;border-radius:50%;border:1.6px solid #9baeb9;background:transparent;transition:.12s}#mff-pin-dots i.filled{background:#173b55;border-color:#173b55;transform:scale(1.05)}#mff-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:280px;margin:auto}#mff-keypad button{border:1px solid #edf1f3;border-radius:17px;background:linear-gradient(180deg,#fff,#f7f9fa);height:57px;color:#18364c;font-size:23px;font-weight:600;box-shadow:0 3px 8px #1c34450a;cursor:pointer;touch-action:manipulation}#mff-keypad button:active{transform:scale(.96);background:#eaf1f4}#mff-keypad button.alt{font-size:13px;font-weight:650;color:#7c8b96}#mff-login-submit{width:100%;height:48px;border:0;border-radius:15px;margin-top:17px;background:linear-gradient(135deg,#173b55,#245a75);color:white;font-size:15px;font-weight:700;box-shadow:0 7px 17px #173b5526;cursor:pointer}#mff-login-submit:disabled{opacity:.42;box-shadow:none}#mff-login-error{min-height:20px;margin:11px 0 0;color:#d12f3f;font-size:13px;font-weight:600}#mff-login-lock{font-size:11px;color:#a0abb3;margin-top:14px}body.mff-login-locked{overflow:hidden}`;
-function endpoint(){return window.MFF_ENDPOINT||''}
+const SK='mff_admin_session_v2',PK='mff_pin_v2',UK='mff_unlocked_v2',AK='mff_active_v2';
+const HIDDEN_MS=60e3,IDLE_MS=5*60e3,MAX_TRIES=5;
+const ls=localStorage,ss=sessionStorage;
+const J=s=>{try{return JSON.parse(s)}catch(e){return null}};
+const session=()=>J(ls.getItem(SK));
+const endpoint=()=>window.MFF_ENDPOINT||'';
+const clientId=()=>window.MFF_GOOGLE_CLIENT_ID||ls.getItem('google_client_id')||'';
 function request(action,data){return fetch(endpoint(),{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action},data||{}))}).then(r=>r.json())}
-function read(){try{return JSON.parse(sessionStorage.getItem(KEY)||'null')}catch(e){return null}}
-function write(v){sessionStorage.setItem(KEY,JSON.stringify(v));sessionStorage.setItem('mff_auth_token',v.token)}
-function clear(){sessionStorage.removeItem(KEY);sessionStorage.removeItem('mff_auth_token')}
-function install(){if(document.getElementById('mff-login-root'))return;const style=document.createElement('style');style.textContent=css;document.head.appendChild(style);const root=document.createElement('div');root.id='mff-login-root';root.innerHTML=`<section id="mff-login-card" role="dialog" aria-modal="true" aria-labelledby="mff-login-title"><div id="mff-login-mark">🔐</div><h1 id="mff-login-title">My Family Funds</h1><div id="mff-login-sub">เข้าสู่ระบบผู้ดูแล · Admin Access</div><input id="mff-login-user" autocomplete="username" value="admin" aria-label="ชื่อผู้ใช้" placeholder="ชื่อผู้ใช้"><div id="mff-pin-dots" aria-label="รหัส PIN 6 หลัก">${'<i></i>'.repeat(6)}</div><div id="mff-keypad">${['1','2','3','4','5','6','7','8','9','clear','0','back'].map(x=>`<button type="button" class="${/clear|back/.test(x)?'alt':''}" data-key="${x}">${x==='clear'?'ล้าง':x==='back'?'⌫':x}</button>`).join('')}</div><button id="mff-login-submit" disabled type="button">ยืนยันการเข้าสู่ระบบ</button><div id="mff-login-error" role="status"></div><div id="mff-login-lock">◈ PIN 6 หลัก · เซสชัน 12 ชั่วโมง</div></section>`;document.body.appendChild(root);document.body.classList.add('mff-login-locked');let pin='';const dots=[...root.querySelectorAll('#mff-pin-dots i')],submit=root.querySelector('#mff-login-submit'),error=root.querySelector('#mff-login-error');function paint(keepError){dots.forEach((d,i)=>d.classList.toggle('filled',i<pin.length));submit.disabled=pin.length!==6;if(!keepError)error.textContent=''}function add(v){if(pin.length<6&&/^\d$/.test(v)){pin+=v;paint();if(pin.length===6)submit.focus()}}root.querySelector('#mff-keypad').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const k=b.dataset.key;if(k==='clear')pin='';else if(k==='back')pin=pin.slice(0,-1);else add(k);paint()});root.querySelector('#mff-login-user').addEventListener('keydown',e=>{if(e.key==='Enter')root.querySelector('#mff-keypad button[data-key="1"]').focus()});submit.addEventListener('click',async()=>{if(pin.length!==6)return;submit.disabled=true;submit.textContent='กำลังตรวจสอบ…';error.textContent='';try{const r=await request('adminLogin',{username:root.querySelector('#mff-login-user').value.trim(),pin});if(r.ok&&r.token){write({token:r.token,username:r.username,expiresAt:r.expiresAt});root.remove();document.body.classList.remove('mff-login-locked');location.reload();return}error.textContent=r.error||'เข้าสู่ระบบไม่สำเร็จ';}catch(e){error.textContent='เชื่อมต่อระบบยืนยันไม่ได้ กรุณาตรวจสอบ Apps Script และ Deploy';}pin='';paint(true);submit.textContent='ยืนยันการเข้าสู่ระบบ';});paint()}
-async function boot(){const s=read();if(s&&s.token&&s.expiresAt>Date.now()){try{const r=await request('validateAdminSession',{token:s.token});if(r.ok&&r.authenticated){document.documentElement.classList.remove('mff-auth-pending');addLogout(s);return;} }catch(e){/* show login if backend cannot validate */}clear()}install();document.documentElement.classList.remove('mff-auth-pending')}
-function addLogout(s){if(document.getElementById('mff-logout-chip'))return;const b=document.createElement('button');b.id='mff-logout-chip';b.type='button';b.title='ออกจากระบบ';b.setAttribute('aria-label','ออกจากระบบ');b.textContent='ออกจากระบบ';b.style.cssText='position:fixed;right:10px;top:10px;z-index:99999;border:1px solid #d9e3e8;background:#fff;color:#385064;border-radius:12px;padding:7px 10px;font:600 11px system-ui;opacity:.82';b.addEventListener('click',async()=>{try{await request('adminLogout',{token:s.token})}catch(e){}clear();location.reload()});document.body.appendChild(b)}
+function saveSession(v){ls.setItem(SK,JSON.stringify(v));ss.setItem('mff_auth_token',v.token)}
+function clearAll(){ls.removeItem(SK);ls.removeItem(PK);ss.removeItem(UK);ss.removeItem('mff_auth_token');ss.removeItem(TK);ss.removeItem(TE);ls.removeItem('google_sheets_connected')}
+
+/* ---------- Sheets ผ่าน Apps Script: ไม่ต้องขอสิทธิ์ Google ซ้ำในแต่ละหน้า ---------- */
+const TK='mff_google_sheets_access_token_v1',TE='mff_google_sheets_expires_at_v1';
+function prime(){const s=session();if(!s||!s.token||s.expiresAt<=Date.now())return;try{ss.setItem(TK,'mff-proxy');ss.setItem(TE,String(s.expiresAt));ls.setItem('google_sheets_connected','1')}catch(e){}}
+function adoptConfig(r){try{if(r&&r.sheetId&&!ls.getItem('google_sheet_id'))ls.setItem('google_sheet_id',r.sheetId)}catch(e){}}
+const _fetch=window.fetch.bind(window);
+window.fetch=function(u,o){
+  const url=typeof u==='string'?u:(u&&u.url)||'';
+  if(!/^https:\/\/sheets\.googleapis\.com\/v4\/spreadsheets\//.test(url))return _fetch(u,o);
+  const s=session();o=o||{};
+  if(!s||!s.token)return Promise.resolve(new Response('{"error":"no session"}',{status:401}));
+  return request('sheetsProxy',{token:s.token,url,method:(o.method||'GET').toUpperCase(),body:typeof o.body==='string'?o.body:null})
+    .then(r=>{if(r.auth===false){ls.removeItem(SK);setTimeout(()=>location.reload(),300)}return new Response(r.body||'{}',{status:r.status||(r.ok?200:500),headers:{'Content-Type':'application/json'}})})
+    .catch(()=>new Response('{"error":"network"}',{status:503}));
+};
+prime();
+(function(){const st=document.createElement('style');st.textContent='#connectBanner,#connectBtn,#sheetConnectBtn,#connectSheetsBtn{display:none!important}';document.head.appendChild(st)})();
+
+const css=`
+html.mff-auth-pending body>*:not(#mff-root){visibility:hidden!important}
+#mff-root{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:16px;background:#F2F4F6;font-family:'Noto Sans Thai',system-ui,-apple-system,sans-serif;color:#2E3A42;overflow:auto}
+#mff-root *{box-sizing:border-box}
+.mff-card{width:min(100%,400px);background:#fff;border-radius:26px;overflow:hidden;display:grid;box-shadow:0 20px 60px rgba(7,35,64,.14)}
+.mff-main{padding:44px 30px 34px;text-align:center;display:flex;flex-direction:column;align-items:center;min-height:520px;justify-content:center}
+.mff-side{display:none}
+.mff-brand{font-family:'Prompt','Noto Sans Thai',sans-serif;font-weight:700;font-size:50px;line-height:1.1;letter-spacing:-1.5px;margin:0;background:linear-gradient(90deg,#3A93C8,#072340);-webkit-background-clip:text;background-clip:text;color:transparent}
+.mff-sub{font-size:13px;color:#8B9AA3;margin:6px 0 30px}
+.mff-gwrap{min-height:44px;display:flex;justify-content:center}
+.mff-hint{font-size:12px;color:#8B9AA3;line-height:1.7;margin-top:24px;max-width:270px}
+.mff-err{min-height:20px;margin-top:12px;font-size:13px;font-weight:600;color:#D12F3F}
+.mff-field{width:100%;max-width:280px;height:46px;border:1.5px solid #3A6C93;border-radius:14px;padding:0 14px;font-size:13px;margin-top:14px;color:#2E3A42;outline:none}
+.mff-btn{height:44px;min-width:180px;padding:0 26px;border-radius:999px;border:1.5px solid #072340;background:#fff;color:#072340;font:600 14px 'Noto Sans Thai',sans-serif;cursor:pointer;margin-top:12px}
+.mff-link{background:none;border:0;color:#5C6B74;font:500 12px 'Noto Sans Thai',sans-serif;margin-top:20px;cursor:pointer;text-decoration:underline}
+.mff-title{font-family:'Prompt','Noto Sans Thai',sans-serif;font-size:24px;font-weight:700;color:#072340;margin:0}
+.mff-dots{display:flex;gap:14px;margin:0 0 26px;justify-content:center}
+.mff-dots i{width:13px;height:13px;border-radius:50%;border:1.6px solid #3A6C93;transition:.12s}
+.mff-dots i.on{background:#072340;border-color:#072340}
+.mff-dots.bad{animation:mffshake .35s}
+@keyframes mffshake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.mff-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:270px}
+.mff-pad button{height:56px;border-radius:50%;width:56px;justify-self:center;border:1px solid #E1E6EA;background:#F7F9FA;color:#072340;font:600 22px 'Prompt',sans-serif;cursor:pointer;touch-action:manipulation}
+.mff-pad button:active{background:#E3EBF1}
+.mff-pad button.alt{border:0;background:none;font-size:13px;color:#5C6B74;font-family:'Noto Sans Thai',sans-serif}
+@media(min-width:760px){
+ .mff-card{width:min(100%,900px);grid-template-columns:1.1fr 1fr;min-height:540px}
+ .mff-side{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:40px;color:#fff;border-radius:28px 0 0 28px;background:linear-gradient(180deg,#3A6C93 0%,#072340 100%)}
+ .mff-side h2{font-family:'Prompt',sans-serif;font-size:46px;margin:0 0 14px}
+ .mff-side p{font-size:15px;line-height:1.7;margin:0;opacity:.92;max-width:260px}
+ .mff-card{direction:ltr}
+}
+#mff-chips{position:fixed;right:10px;top:10px;z-index:99999;display:flex;gap:6px}
+#mff-chips button{border:1px solid #E1E6EA;background:#fff;color:#072340;border-radius:12px;padding:7px 10px;font:600 11px 'Noto Sans Thai',system-ui;opacity:.85}
+`;
+let root;
+function shell(inner){
+  if(!document.getElementById('mff-style')){
+    const l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Prompt:wght@600;700&family=Noto+Sans+Thai:wght@400;500;600&display=swap';document.head.appendChild(l);
+    const s=document.createElement('style');s.id='mff-style';s.textContent=css;document.head.appendChild(s)}
+  if(!root){root=document.createElement('div');root.id='mff-root';document.body.appendChild(root)}
+  root.innerHTML=`<section class="mff-card" role="dialog" aria-modal="true"><div class="mff-main">${inner}</div><aside class="mff-side"><h2>Hello</h2><p>พร้อมดูแลแผนการเงินของครอบครัวคุณ ทุกที่ ทุกเวลา</p></aside></section>`;
+  document.documentElement.classList.remove('mff-auth-pending');
+  return root.querySelector('.mff-main');
+}
+function done(){if(root){root.remove();root=null}document.documentElement.classList.remove('mff-auth-pending');ready()}
+
+/* ---------- PIN ---------- */
+const b2h=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+async function hashPin(pin,salt){const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(pin),'PBKDF2',false,['deriveBits']);return b2h(await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:new TextEncoder().encode(salt),iterations:150000},k,256))}
+function pinScreen(title,sub,onDone,extra){
+  const m=shell(`<h1 class="mff-title"></h1><div class="mff-sub"></div><div class="mff-dots">${'<i></i>'.repeat(6)}</div><div class="mff-pad">${['1','2','3','4','5','6','7','8','9','ล้าง','0','⌫'].map(k=>`<button type="button" class="${k.length>1||k==='⌫'?'alt':''}" data-k="${k}">${k}</button>`).join('')}</div><div class="mff-err"></div>${extra||''}`);
+  m.querySelector('.mff-title').textContent=title;m.querySelector('.mff-sub').textContent=sub;
+  const dots=[...m.querySelectorAll('.mff-dots i')],err=m.querySelector('.mff-err'),box=m.querySelector('.mff-dots');let pin='',busy=false;
+  const paint=()=>dots.forEach((d,i)=>d.classList.toggle('on',i<pin.length));
+  m.querySelector('.mff-pad').addEventListener('click',async e=>{const b=e.target.closest('button');if(!b||busy)return;const k=b.dataset.k;
+    if(k==='ล้าง')pin='';else if(k==='⌫')pin=pin.slice(0,-1);else if(pin.length<6)pin+=k;
+    paint();err.textContent='';
+    if(pin.length===6){busy=true;const r=await onDone(pin);busy=false;if(r){err.textContent=r;box.classList.add('bad');setTimeout(()=>box.classList.remove('bad'),400)}pin='';paint()}});
+  return m;
+}
+function setupPin(){
+  let first='';
+  const step1=()=>pinScreen('ตั้ง PIN 6 หลัก','ใช้ปลดล็อกแอปบนเครื่องนี้',async p=>{first=p;setTimeout(step2,150)});
+  const step2=()=>pinScreen('ยืนยัน PIN อีกครั้ง','พิมพ์ PIN เดิมอีกรอบ',async p=>{
+    if(p!==first){setTimeout(step1,500);return 'PIN ไม่ตรงกัน ลองตั้งใหม่'}
+    const salt=b2h(crypto.getRandomValues(new Uint8Array(16)));
+    ls.setItem(PK,JSON.stringify({email:session().email,salt,hash:await hashPin(p,salt),tries:0}));
+    unlocked();done()});
+  step1();
+}
+function unlockScreen(){
+  const s=session();
+  pinScreen('ใส่ PIN เพื่อปลดล็อก',s.name||s.email,async p=>{
+    const rec=J(ls.getItem(PK));
+    if(rec&&await hashPin(p,rec.salt)===rec.hash){rec.tries=0;ls.setItem(PK,JSON.stringify(rec));unlocked();done();return}
+    rec.tries=(rec.tries||0)+1;ls.setItem(PK,JSON.stringify(rec));
+    if(rec.tries>=MAX_TRIES){clearAll();setTimeout(loginScreen,700);return 'PIN ผิดเกินกำหนด กรุณาเข้าสู่ระบบ Google ใหม่'}
+    return `PIN ไม่ถูกต้อง (เหลือ ${MAX_TRIES-rec.tries} ครั้ง)`;
+  },'<button class="mff-link" type="button" id="mff-forgot">ลืม PIN? เข้าสู่ระบบด้วย Google ใหม่</button>');
+  root.querySelector('#mff-forgot').onclick=()=>{clearAll();loginScreen()};
+}
+
+/* ---------- Google login ---------- */
+function loadGsi(){return new Promise((res,rej)=>{if(window.google&&google.accounts&&google.accounts.id)return res();const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.async=true;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
+function loginScreen(){
+  const m=shell(`<h1 class="mff-brand">Welcome</h1><div class="mff-sub">เข้าสู่ระบบด้วยบัญชี Google</div><div class="mff-gwrap" id="mff-g"></div><div class="mff-err"></div><div class="mff-hint">เข้าสู่ระบบครั้งเดียวใช้ได้ทุกหน้า จากนั้นตั้ง PIN 6 หลักไว้ปลดล็อกแอป</div>`);
+  const err=m.querySelector('.mff-err');
+  if(!clientId()){
+    m.querySelector('.mff-gwrap').innerHTML=`<div><input class="mff-field" id="mff-cid" placeholder="วาง Google OAuth Client ID"><br><button class="mff-btn" id="mff-cid-ok" type="button">บันทึก</button></div>`;
+    m.querySelector('#mff-cid-ok').onclick=()=>{const v=m.querySelector('#mff-cid').value.trim();if(!/\.apps\.googleusercontent\.com$/.test(v)){err.textContent='Client ID ไม่ถูกต้อง';return}ls.setItem('google_client_id',v);loginScreen()};
+    return;
+  }
+  loadGsi().then(()=>{
+    google.accounts.id.initialize({client_id:clientId(),callback:async resp=>{
+      err.textContent='กำลังตรวจสอบ…';
+      try{const r=await request('googleLogin',{idToken:resp.credential});
+        if(r.ok&&r.token){adoptConfig(r);const old=J(ls.getItem(PK));if(old&&old.email!==r.email)ls.removeItem(PK);saveSession({token:r.token,email:r.email,name:r.name||'',expiresAt:r.expiresAt});boot();return}
+        err.textContent=r.error||'เข้าสู่ระบบไม่สำเร็จ';
+      }catch(e){err.textContent='เชื่อมต่อระบบยืนยันไม่ได้ ตรวจสอบอินเทอร์เน็ตและการ Deploy Apps Script'}}});
+    google.accounts.id.renderButton(m.querySelector('#mff-g'),{theme:'outline',size:'large',shape:'pill',text:'continue_with',width:280,locale:'th'});
+  }).catch(()=>{err.textContent='โหลด Google Sign-In ไม่ได้ ตรวจสอบอินเทอร์เน็ต'});
+}
+
+/* ---------- lock state ---------- */
+function unlocked(){const n=String(Date.now());ss.setItem(UK,n);ss.setItem(AK,n)}
+function isLocked(){const u=+ss.getItem(UK),a=+ss.getItem(AK);return !u||Date.now()-a>IDLE_MS}
+function lockNow(){ss.removeItem(UK);if(!root&&session()&&ls.getItem(PK))unlockScreen()}
+function ready(){
+  const s=session();if(!s||document.getElementById('mff-chips'))return;
+  const c=document.createElement('div');c.id='mff-chips';
+  c.innerHTML='<button type="button" data-a="lock">🔒 ล็อก</button><button type="button" data-a="out">ออกจากระบบ</button>';
+  c.onclick=async e=>{const a=e.target.dataset.a;if(a==='lock')lockNow();if(a==='out'){try{await request('adminLogout',{token:s.token})}catch(x){}clearAll();location.reload()}};
+  document.body.appendChild(c);
+  let hiddenAt=0,t=0;
+  const touch=()=>{const n=Date.now();if(n-t>5000&&!root){t=n;ss.setItem(AK,String(n))}};
+  ['pointerdown','keydown','scroll','touchstart'].forEach(ev=>addEventListener(ev,touch,{passive:true}));
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else if(hiddenAt&&Date.now()-hiddenAt>HIDDEN_MS)lockNow()});
+  setInterval(()=>{if(!root&&isLocked())lockNow()},15000);
+}
+
+async function boot(){
+  const s=session();
+  if(!s||!s.token||s.expiresAt<=Date.now()){clearAll();return loginScreen()}
+  ss.setItem('mff_auth_token',s.token);prime();
+  if(navigator.onLine){try{const r=await request('validateAdminSession',{token:s.token});if(!(r.ok&&r.authenticated)){clearAll();return loginScreen()}adoptConfig(r)}catch(e){/* ออฟไลน์/เชื่อมต่อไม่ได้ → ใช้ session ในเครื่อง */}}
+  const rec=J(ls.getItem(PK));
+  if(!rec||rec.email!==s.email)return setupPin();
+  if(isLocked())return unlockScreen();
+  done();
+}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();

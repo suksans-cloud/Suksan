@@ -1,19 +1,29 @@
-# ตั้งค่า Admin Login (V84)
+# ตั้งค่า Login ด้วย Google + PIN (V85)
 
-ระบบเพิ่มหน้าเข้าสู่ระบบพร้อมแป้นตัวเลขแบบมือถือและ PIN 6 หลัก ตรวจสอบ PIN ที่ Google Apps Script backend และเก็บ hash/salt ใน Script Properties (ไม่เก็บ PIN ในหน้าเว็บ)
+## 1) Google OAuth Client ID
+Google Cloud Console → Credentials → Create OAuth client ID (Web application)
+- Authorized JavaScript origins: ใส่ URL เว็บ GitHub Pages ของคุณ (เช่น `https://ชื่อ.github.io`)
+- คัดลอก Client ID ไปใส่ใน `config.js` ที่ `window.MFF_GOOGLE_CLIENT_ID` (ใช้ตัวเดียวกับที่ใช้ซิงก์ Sheets ได้)
+  ถ้าไม่ใส่ หน้า login จะมีช่องให้วางตอนเปิดครั้งแรก
 
-## ตั้งค่าครั้งแรก
-1. เปิด Apps Script project ที่เป็น backend ของ URL ใน `config.js`
-2. นำโค้ดใน `portfolio/Code.gs` ของ ZIP นี้ไปผสานกับ `Code.gs` เดิม (อย่าลบฟังก์ชันอื่นที่มีอยู่ในโปรเจกต์)
-3. ใน `Code.gs` เปลี่ยน `ADMIN_INITIAL_PIN = 'CHANGE_ME'` เป็น PIN 6 หลักส่วนตัวของคุณชั่วคราว
-4. เลือก `setupAdminLogin` ใน Apps Script editor แล้วกด Run และอนุญาตสิทธิ์หากถาม
-5. กลับไปแก้ `ADMIN_INITIAL_PIN` เป็น `'CHANGE_ME'` อีกครั้งและ Save เพื่อไม่ให้ PIN จริงค้างใน source code
-6. Deploy > Manage deployments > Edit > New version > Deploy แล้วใช้ URL `/exec` เดิมใน `config.js`
-7. อัปโหลดไฟล์หน้าเว็บ V84 ไป GitHub Pages และเปิดแอปใหม่
+## 2) Apps Script
+1. นำโค้ดใน `portfolio/Code.gs` ไปผสานกับของเดิม (มีฟังก์ชันใหม่ `googleLogin`, `setupGoogleLogin` และ case `googleLogin`)
+2. แก้ `GOOGLE_ALLOWED_EMAILS`, `GOOGLE_CLIENT_ID` และ `GOOGLE_SHEET_ID` (ID ของ Google Sheet หลัก)
+3. Run `setupGoogleLogin` หนึ่งครั้ง
+4. Run `authorizeReportPermissions` หนึ่งครั้งเพื่ออนุญาตสิทธิ์ Sheets/UrlFetch (ถ้ามีหน้าขอสิทธิ์ให้กดอนุญาต)
+5. Deploy > Manage deployments > Edit > New version > Deploy (URL `/exec` เดิม)
 
-ชื่อผู้ใช้เริ่มต้นคือ `admin`; เปลี่ยน `ADMIN_INITIAL_USERNAME` ก่อนรัน `setupAdminLogin()` ได้
+## 3) อัปโหลดไฟล์ทั้งหมดขึ้น GitHub Pages
 
-## หมายเหตุ
-- เซสชันมีอายุ 12 ชั่วโมงและผูกกับ sessionStorage ของเบราว์เซอร์
-- ต้อง deploy backend ก่อนหน้า login จะตรวจสอบได้
-- หน้า login เป็นประตูควบคุม UI ฝั่งเว็บ static; โค้ดนี้ตรวจ token สำหรับ actions ของ Monthly Report API เท่านั้น ต้องตรวจสิทธิ์ของ API อื่นทุกตัวแยกต่างหาก
+## วิธีทำงาน
+- Login Google ครั้งเดียว → session 30 วัน ใช้ร่วมกันทุกหน้า
+- ครั้งแรกตั้ง PIN 6 หลักต่อเครื่อง (เก็บเป็น hash ในเครื่อง)
+- ล็อกเมื่อเปิดแอปใหม่ / อยู่เบื้องหลังเกิน 1 นาที / ไม่ใช้งานเกิน 5 นาที
+- PIN ผิด 5 ครั้งหรือกด "ลืม PIN" → ต้อง login Google ใหม่
+- PIN เป็นตัวล็อกหน้าจอในเครื่อง ไม่ใช่การเข้ารหัสข้อมูล
+
+## V86: ไม่ต้องกดเชื่อม/ซิงก์ Google ซ้ำในแต่ละหน้า
+- ทุกคำขอไป Google Sheets จะผ่าน Apps Script (`sheetsProxy`) ด้วยสิทธิ์ของเจ้าของสคริปต์ และจำกัดเฉพาะ Sheet ที่ตั้งใน `GOOGLE_SHEET_ID`
+- หลัง login/ปลดล็อก ทุกหน้าถือว่าเชื่อม Sheets แล้วทันที ปุ่ม/แบนเนอร์ "เชื่อมต่อ Google Sheets" ถูกซ่อน
+- Apps Script ต้อง Deploy แบบ Execute as: Me
+- ส่วน Google Drive (สำรองข้อมูล/รูป) ยังใช้การขอสิทธิ์แบบเดิม
