@@ -15,11 +15,11 @@ const endpoint=()=>window.MFF_ENDPOINT||'';
 const clientId=()=>window.MFF_GOOGLE_CLIENT_ID||ls.getItem('google_client_id')||'';
 function request(action,data){return fetch(endpoint(),{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action},data||{}))}).then(r=>r.json())}
 function saveSession(v){ls.setItem(SK,JSON.stringify(v));ss.setItem('mff_auth_token',v.token)}
-function clearAll(){ls.removeItem(SK);ls.removeItem(PK);ss.removeItem(UK);ss.removeItem('mff_auth_token');ss.removeItem(TK);ss.removeItem(TE);ls.removeItem('google_sheets_connected')}
+function clearAll(){ls.removeItem(SK);ls.removeItem(PK);ss.removeItem(UK);ss.removeItem('mff_auth_token');ss.removeItem(TK);ss.removeItem(TE);ss.removeItem('mff_cal_token');ls.removeItem('google_sheets_connected')}
 
 /* ---------- Sheets ผ่าน Apps Script: ไม่ต้องขอสิทธิ์ Google ซ้ำในแต่ละหน้า ---------- */
 const TK='mff_google_sheets_access_token_v1',TE='mff_google_sheets_expires_at_v1';
-function prime(){const s=session();if(!s||!s.token||s.expiresAt<=Date.now())return;try{ss.setItem(TK,'mff-proxy');ss.setItem(TE,String(s.expiresAt));ls.setItem('google_sheets_connected','1')}catch(e){}}
+function prime(){const s=session();if(!s||!s.token||s.expiresAt<=Date.now())return;try{ss.setItem(TK,'mff-proxy');ss.setItem('mff_cal_token',JSON.stringify({v:'mff-proxy',exp:s.expiresAt,w:1}));ss.setItem(TE,String(s.expiresAt));ls.setItem('google_sheets_connected','1')}catch(e){}}
 function adoptConfig(r){try{if(r&&r.sheetId&&!ls.getItem('google_sheet_id'))ls.setItem('google_sheet_id',r.sheetId)}catch(e){}}
 function sheetsErr(st,bd){try{let m=bd;try{const j=JSON.parse(bd);m=(j.error&&(j.error.message||j.error))||bd}catch(e){}
   let d=document.getElementById('mff-sheets-err');if(!d){d=document.createElement('div');d.id='mff-sheets-err';d.style.cssText='position:fixed;left:10px;right:10px;bottom:76px;z-index:2147483100;background:#7a1f2b;color:#fff;border-radius:12px;padding:10px 12px;font:12px/1.5 system-ui;word-break:break-word;max-height:30vh;overflow:auto';d.onclick=()=>d.remove();document.body.appendChild(d)}
@@ -27,11 +27,11 @@ function sheetsErr(st,bd){try{let m=bd;try{const j=JSON.parse(bd);m=(j.error&&(j
 const _fetch=window.fetch.bind(window);
 window.fetch=function(u,o){
   const url=typeof u==='string'?u:(u&&u.url)||'';
-  if(!/^https:\/\/sheets\.googleapis\.com\/v4\/spreadsheets\//.test(url))return _fetch(u,o);
+  if(!/^https:\/\/(sheets\.googleapis\.com\/v4\/spreadsheets\/|www\.googleapis\.com\/calendar\/v3\/)/.test(url))return _fetch(u,o);
   const s=session();o=o||{};
   if(!s||!s.token)return Promise.resolve(new Response('{"error":"no session"}',{status:401}));
   return request('sheetsProxy',{token:s.token,url,method:(o.method||'GET').toUpperCase(),body:typeof o.body==='string'?o.body:null})
-    .then(r=>{if(r.auth===false){ls.removeItem(SK);setTimeout(()=>location.reload(),300);return new Response('{"error":"session หมดอายุ"}',{status:401})}let st=r.status||(r.ok?200:500);if(st===401||st===403)st=502;/* แสดงสาเหตุจริงแทนข้อความ 'สิทธิ์หมดอายุ' */const bd=r.body||JSON.stringify({error:r.error||'proxy error'});if(st>=400)sheetsErr(st,bd);return new Response(bd,{status:st,headers:{'Content-Type':'application/json'}})})
+    .then(r=>{if(r.auth===false){ls.removeItem(SK);setTimeout(()=>location.reload(),300);return new Response('{"error":"session หมดอายุ"}',{status:401})}let st=r.status||(r.ok?200:500);if(st===401||st===403)st=502;/* แสดงสาเหตุจริงแทนข้อความ 'สิทธิ์หมดอายุ' */const bd=r.body||JSON.stringify({error:r.error||'proxy error'});if(st>=400)sheetsErr(st,bd);return new Response(st===204||st===205?null:bd,{status:st,headers:{'Content-Type':'application/json'}})})
     .catch(()=>new Response('{"error":"network"}',{status:503}));
 };
 prime();
@@ -71,8 +71,12 @@ html.mff-locked,html.mff-locked body{overflow:hidden!important;overscroll-behavi
  .mfl-side p{font-size:15px;line-height:1.7;margin:0;opacity:.92;max-width:260px}
  .mfl-card{direction:ltr}
 }
-#mff-chips{position:fixed;right:10px;top:10px;z-index:99999;display:flex;gap:6px}
-#mff-chips button{border:1px solid #E1E6EA;background:#fff;color:#072340;border-radius:12px;padding:7px 10px;font:600 11px 'Noto Sans Thai',system-ui;opacity:.85}
+#mff-chips{position:fixed;right:10px;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:99999}
+#mff-lockbtn{width:34px;height:34px;border-radius:50%;border:1px solid #E1E6EA;background:rgba(255,255,255,.92);font-size:15px;line-height:1;opacity:.85;padding:0}
+#mff-menu{position:absolute;right:0;top:40px;background:#fff;border:1px solid #E1E6EA;border-radius:14px;box-shadow:0 10px 30px rgba(7,35,64,.18);padding:6px;min-width:150px}
+#mff-menu[hidden]{display:none}
+#mff-menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:10px 12px;border-radius:10px;color:#072340;font:500 13px 'Noto Sans Thai',system-ui}
+#mff-menu button:active{background:#EAF0F6}
 `;
 let root;
 function ensureStyle(){
@@ -153,8 +157,11 @@ function lockNow(){ss.removeItem(UK);if(!root&&session()&&ls.getItem(PK))unlockS
 function ready(){
   const s=session();if(!s||document.getElementById('mff-chips'))return;ensureStyle();
   const c=document.createElement('div');c.id='mff-chips';
-  c.innerHTML='<button type="button" data-a="lock">🔒 ล็อก</button><button type="button" data-a="out">ออกจากระบบ</button>';
-  c.onclick=async e=>{const a=e.target.dataset.a;if(a==='lock')lockNow();if(a==='out'){try{await request('adminLogout',{token:s.token})}catch(x){}clearAll();location.reload()}};
+  c.innerHTML='<button type="button" id="mff-lockbtn" aria-label="ล็อก / ออกจากระบบ">🔒</button><div id="mff-menu" hidden><button type="button" data-a="lock">🔒 ล็อกแอป</button><button type="button" data-a="out">ออกจากระบบ</button></div>';
+  const menu=c.querySelector('#mff-menu');
+  c.onclick=async e=>{const b=e.target.closest('button');if(!b)return;if(b.id==='mff-lockbtn'){menu.hidden=!menu.hidden;return}
+    menu.hidden=true;const a=b.dataset.a;if(a==='lock')lockNow();if(a==='out'){try{await request('adminLogout',{token:s.token})}catch(x){}clearAll();location.reload()}};
+  document.addEventListener('pointerdown',e=>{if(!c.contains(e.target))menu.hidden=true});
   document.body.appendChild(c);
   let hiddenAt=0,t=0;
   const touch=()=>{const n=Date.now();if(n-t>5000&&!root){t=n;ss.setItem(AK,String(n))}};

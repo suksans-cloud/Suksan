@@ -289,11 +289,37 @@ $('myPlanBack').addEventListener('click',showMyPlanMenu);document.querySelectorA
 function calcTax(){let salary=num('taxIncome'),other=num('taxOther'),expense=$('taxExpense').value==='standard'?Math.min(salary*.5,100000):0;let net=Math.max(0,salary+other-expense-60000-num('taxDeduct'));let brackets=[[150000,0],[300000,.05],[500000,.1],[750000,.15],[1000000,.2],[2000000,.25],[5000000,.3],[Infinity,.35]];let lower=0,tax=0;for(let [cap,rate] of brackets){let part=Math.max(0,Math.min(net,cap)-lower);tax+=part*rate;if(net<=cap)break;lower=cap;}let balance=tax-num('taxWithheld');$('taxDue').textContent=fmt(tax);$('taxNet').textContent=fmt(net);$('taxRate').textContent=pct(salary+other?tax/(salary+other):0);$('taxBalance').textContent=(balance>0?'ต้องชำระ ':balance<0?'ภาษีชำระเกิน ':'ยอดพอดี ')+fmt(Math.abs(balance));$('taxBalance').className=balance>0?'negative':balance<0?'positive':'';}
 function calcSSO(){let wage=num('ssoWage'),cap=num('ssoCap'),rate=Math.min(100,num('ssoRate'))/100,base=Math.min(wage,cap),m=base*rate;$('ssoMonthly').textContent=fmt(m);$('ssoBase').textContent=fmt(base);$('ssoYear').textContent=fmt(m*12);$('ssoUsedRate').textContent=pct(rate);}
 function calcHome(){let p=num('homePrice'),annual=num('homeRate')/100,years=Math.max(1,num('homeYears')),n=Math.round(years*12),r=annual/12,monthly=r===0?p/n:p*r/(1-Math.pow(1+r,-n));let extra=num('homeExtra'),bal=p,paid=0,interest=0,rows=[],yearPrin=0,yearInt=0;for(let m=1;m<=n&&bal>.005;m++){let int=bal*r,principal=Math.min(bal,Math.max(0,monthly+extra-int));if(principal<=0)break;bal=Math.max(0,bal-principal);paid+=int+principal;interest+=int;yearPrin+=principal;yearInt+=int;if(m%12===0||bal<=.005){rows.push(`<tr><td>${Math.ceil(m/12)}</td><td>${fmt(bal)}</td><td>${fmt(yearPrin)}</td><td>${fmt(yearInt)}</td></tr>`);yearPrin=0;yearInt=0;}}$('homeMonthly').textContent=fmt(monthly);$('homeTotal').textContent=fmt(paid);$('homeInterest').textContent=fmt(interest);$('homeWithExtra').textContent=fmt(monthly+extra);$('homeSchedule').innerHTML=rows.join('');drawHomeChart(p,interest);}
-function drawHomeChart(principal,interest){let c=$('homeChart');if(!c)return;let ctx=c.getContext('2d'),w=c.width=c.clientWidth*devicePixelRatio,h=c.height=Math.max(1,c.clientHeight||220)*devicePixelRatio;ctx.clearRect(0,0,w,h);let total=principal+interest, x=18*devicePixelRatio,y=35*devicePixelRatio,bw=w-36*devicePixelRatio,bh=28*devicePixelRatio;ctx.fillStyle='#e7eef4';ctx.fillRect(x,y,bw,bh);ctx.fillStyle='#3A6C93';ctx.fillRect(x,y,total?bw*principal/total:0,bh);ctx.fillStyle='#C89B3C';ctx.fillRect(x+(total?bw*principal/total:0),y,total?bw*interest/total:0,bh);ctx.font=`${12*devicePixelRatio}px sans-serif`;ctx.fillStyle='#5C6B74';ctx.fillText('เงินต้น '+fmt(principal),x,y+bh+28*devicePixelRatio);ctx.fillStyle='#8C6A20';ctx.fillText('ดอกเบี้ย '+fmt(interest),x,y+bh+52*devicePixelRatio);}
+function drawHomeChart(principal,interest){let c=$('homeChart');if(!c)return;const dpr=devicePixelRatio||1;let ctx=c.getContext('2d'),w=c.width=Math.max(1,c.clientWidth)*dpr,h=c.height=Math.max(1,c.clientHeight||190)*dpr;ctx.clearRect(0,0,w,h);let total=principal+interest,x=14*dpr,y=26*dpr,bw=w-28*dpr,bh=38*dpr,pw=total?bw*principal/total:0,iw=bw-pw;
+ctx.fillStyle='#e7eef4';ctx.fillRect(x,y,bw,bh);ctx.fillStyle='#3A6C93';ctx.fillRect(x,y,pw,bh);ctx.fillStyle='#C89B3C';ctx.fillRect(x+pw,y,iw,bh);
+ctx.font='600 '+12*dpr+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff';
+if(total&&pw>46*dpr)ctx.fillText((principal/total*100).toFixed(1)+'%',x+pw/2,y+bh/2);if(total&&iw>46*dpr)ctx.fillText((interest/total*100).toFixed(1)+'%',x+pw+iw/2,y+bh/2);
+ctx.textAlign='left';ctx.textBaseline='middle';ctx.font=12*dpr+'px sans-serif';
+[['#3A6C93','เงินต้น '+fmt(principal),'#5C6B74'],['#C89B3C','ดอกเบี้ย '+fmt(interest),'#8C6A20']].forEach(function(o,i){let yy=y+bh+30*dpr+i*26*dpr;ctx.fillStyle=o[0];ctx.beginPath();ctx.arc(x+5*dpr,yy,5*dpr,0,7);ctx.fill();ctx.fillStyle=o[2];ctx.fillText(o[1],x+18*dpr,yy)});}
 
 let fundCount=0;function addFund(name='',amount=0){fundCount++;let tr=document.createElement('tr');const safeName=String(name).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));tr.innerHTML=`<td><input class="fundname" aria-label="ชื่อกองทุน" placeholder="ชื่อกองทุน" value="${safeName}"></td><td><input class="fundamount" aria-label="เงินลงทุนต่อเดือนในกองทุน" type="number" min="0" step="100" inputmode="decimal" value="${Math.max(0,Number(amount)||0)}"></td><td><input class="pct" aria-label="สัดส่วนเปอร์เซ็นต์คำนวณอัตโนมัติ" type="text" value="0%" readonly tabindex="-1"></td><td><button type="button" aria-label="ลบกองทุน">×</button></td>`;tr.querySelectorAll('.fundname,.fundamount').forEach(i=>i.addEventListener('input',calcDCA));tr.querySelector('button').addEventListener('click',()=>{if($('fundRows').children.length>1){tr.remove();calcDCA();}});$('fundRows').appendChild(tr);calcDCA();}
 function calcDCA(){let months=Math.max(1,Math.floor(num('dcaMonths'))),annual=Number($('dcaReturn').value)||0,rm=Math.pow(1+annual/100,1/12)-1;let rows=[...$('fundRows').querySelectorAll('tr')],amounts=rows.map(tr=>Math.max(0,Number(tr.querySelector('.fundamount').value)||0)),monthly=amounts.reduce((a,b)=>a+b,0);$('dcaMonthly').value=String(monthly);let principal=monthly*months,future=Math.abs(rm)<1e-10?principal:monthly*(Math.pow(1+rm,months)-1)/rm,profit=future-principal;rows.forEach((tr,i)=>{let share=monthly>0?amounts[i]/monthly*100:0;tr.querySelector('.pct').value=share.toLocaleString('th-TH',{maximumFractionDigits:2})+'%';});let valid=monthly>0;$('dcaFuture').textContent=fmt(future);$('dcaPrincipal').textContent=fmt(principal);$('dcaProfit').textContent=fmt(profit);$('dcaProfit').className='big '+(profit>=0?'positive':'negative');$('dcaProfitPct').textContent=principal?pct(profit/principal):'—';$('dcaMonthlyRate').textContent=pct(rm);$('dcaAllocTotal').textContent=valid?'100%':'0%';$('dcaFundTotal').textContent=valid?fmt(future):'—';$('allocLabel').textContent=valid?'จัดสรรเงินลงทุนรวม '+fmt(monthly)+' บาท/เดือน · สัดส่วนรวม 100%':'กรอกยอดลงทุนรายกองทุนเพื่อคำนวณสัดส่วน';$('allocBar').style.width=valid?'100%':'0%';$('allocError').classList.toggle('hidden',valid);drawDcaCharts(monthly,months,rm,rows);}
-function drawDcaCharts(monthly,months,rm,rows){let c=$('dcaLine');if(!c)return;let ctx=c.getContext('2d'),w=c.width=Math.max(1,c.clientWidth)*devicePixelRatio,h=c.height=Math.max(1,c.clientHeight||220)*devicePixelRatio;ctx.clearRect(0,0,w,h);let maxV=0,series=[];for(let m=0;m<=months;m++){let principal=monthly*m,future=Math.abs(rm)<1e-10?principal:monthly*(Math.pow(1+rm,m)-1)/rm;series.push([principal,future]);maxV=Math.max(maxV,principal,future);}let pad=24*devicePixelRatio,iw=w-2*pad,ih=h-2*pad;ctx.strokeStyle='#e5edf3';ctx.lineWidth=1*devicePixelRatio;for(let i=0;i<5;i++){let y=pad+ih*i/4;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(w-pad,y);ctx.stroke();}[[0,'#3A6C93'],[1,'#1F9D6C']].forEach(([idx,color])=>{ctx.strokeStyle=color;ctx.lineWidth=2.5*devicePixelRatio;ctx.beginPath();series.forEach((v,i)=>{let x=pad+iw*i/Math.max(1,months),y=h-pad-(maxV?v[idx]/maxV:0)*ih;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();});let d=$('dcaDonut');ctx=d.getContext('2d');w=d.width=Math.max(1,d.clientWidth)*devicePixelRatio;h=d.height=Math.max(1,d.clientHeight||220)*devicePixelRatio;ctx.clearRect(0,0,w,h);let total=rows.reduce((a,tr)=>a+Math.max(0,Number(tr.querySelector('.fundamount').value)||0),0),colors=['#072340','#3A6C93','#1F9D6C','#C89B3C','#E0654B','#8B9AA3'];let angle=-Math.PI/2,cx=w*.5,cy=h*.5,r=Math.min(w,h)*.42,inner=r*.58;rows.forEach((tr,i)=>{let amount=Math.max(0,Number(tr.querySelector('.fundamount').value)||0),next=angle+(total?amount/total*Math.PI*2:0);ctx.beginPath();ctx.arc(cx,cy,r,angle,next);ctx.arc(cx,cy,inner,next,angle,true);ctx.closePath();ctx.fillStyle=colors[i%colors.length];ctx.fill();angle=next;});$('dcaLegend').innerHTML=rows.map((tr,i)=>`${tr.querySelector('.fundname').value||'กองทุน '+(i+1)}: ${tr.querySelector('.pct').value} (${fmt(Number(tr.querySelector('.fundamount').value)||0)} บาท/เดือน)`).join(' · ');}
+function fmtS(v){if(v>=1e6)return (v/1e6).toFixed(v>=1e7?0:1).replace(/\.0$/,'')+'M';if(v>=1e3)return Math.round(v/1e3)+'K';return String(Math.round(v))}
+function drawDcaCharts(monthly,months,rm,rows){let c=$('dcaLine');if(!c)return;const dpr=devicePixelRatio||1;let ctx=c.getContext('2d'),w=c.width=Math.max(1,c.clientWidth)*dpr,h=c.height=Math.max(1,c.clientHeight||190)*dpr;ctx.clearRect(0,0,w,h);
+let maxV=0,series=[];for(let m=0;m<=months;m++){let pr=monthly*m,fu=Math.abs(rm)<1e-10?pr:monthly*(Math.pow(1+rm,m)-1)/rm;series.push([pr,fu]);maxV=Math.max(maxV,pr,fu);}
+let mag=Math.pow(10,Math.floor(Math.log10(maxV||1))),q=mag/2,niceMax=Math.max(q,Math.ceil((maxV||1)/q)*q);
+let L=46*dpr,R=16*dpr,T=34*dpr,B=28*dpr,iw=w-L-R,ih=h-T-B;
+ctx.textBaseline='middle';ctx.font=10*dpr+'px sans-serif';
+for(let i=0;i<=4;i++){let y=T+ih*(1-i/4);ctx.strokeStyle='#e5edf3';ctx.lineWidth=dpr;ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(w-R,y);ctx.stroke();ctx.fillStyle='#7C8DA0';ctx.textAlign='right';ctx.fillText(fmtS(niceMax*i/4),L-6*dpr,y)}
+ctx.textAlign='center';ctx.textBaseline='top';let yrs=months>=24,total=yrs?months/12:months,st=Math.max(1,Math.ceil(total/5));
+for(let v=0;v<=total+1e-9;v+=st){let x=L+iw*(yrs?v*12:v)/Math.max(1,months);ctx.fillStyle='#7C8DA0';ctx.fillText(String(v)+(v+st>total+1e-9?(yrs?' ปี':' ด.'):''),x,h-B+8*dpr);}
+ctx.textAlign='left';ctx.textBaseline='middle';ctx.font='600 '+10.5*dpr+'px sans-serif';let lx=L;
+[['#3A6C93','เงินต้นสะสม'],['#1F9D6C','มูลค่าพอร์ต']].forEach(function(o){ctx.fillStyle=o[0];ctx.beginPath();ctx.arc(lx+5*dpr,14*dpr,4.5*dpr,0,7);ctx.fill();ctx.fillStyle='#5C6B74';ctx.fillText(o[1],lx+14*dpr,14*dpr);lx+=ctx.measureText(o[1]).width+34*dpr});
+
+[[0,'#3A6C93'],[1,'#1F9D6C']].forEach(function(o){let idx=o[0],color=o[1];ctx.strokeStyle=color;ctx.lineWidth=2.5*dpr;ctx.lineJoin='round';ctx.beginPath();series.forEach(function(v,i){let x=L+iw*i/Math.max(1,months),y=T+ih*(1-(niceMax?v[idx]/niceMax:0));i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();
+  let last=series[series.length-1][idx],ey=T+ih*(1-(niceMax?last/niceMax:0));ctx.fillStyle=color;ctx.beginPath();ctx.arc(L+iw,ey,3.5*dpr,0,7);ctx.fill();ctx.font='700 '+10.5*dpr+'px sans-serif';ctx.textAlign='right';ctx.textBaseline=idx?'bottom':'top';ctx.fillText(fmtS(last),L+iw-2*dpr,ey+(idx?-7*dpr:7*dpr))});
+let d=$('dcaDonut'),dc=d.getContext('2d'),dw=d.width=Math.max(1,d.clientWidth)*dpr,dh=d.height=Math.max(1,d.clientHeight||190)*dpr;dc.clearRect(0,0,dw,dh);
+let sum=rows.reduce(function(a,tr){return a+Math.max(0,Number(tr.querySelector('.fundamount').value)||0)},0),colors=['#072340','#3A6C93','#1F9D6C','#C89B3C','#E0654B','#8B9AA3'];
+let ang=-Math.PI/2,cx=dw/2,cy=dh/2,rad=Math.min(dw,dh)*.46,inner=rad*.56;
+rows.forEach(function(tr,i){let amt=Math.max(0,Number(tr.querySelector('.fundamount').value)||0),share=sum?amt/sum:0,next=ang+share*Math.PI*2;dc.beginPath();dc.arc(cx,cy,rad,ang,next);dc.arc(cx,cy,inner,next,ang,true);dc.closePath();dc.fillStyle=colors[i%colors.length];dc.fill();
+  if(share>=.06){let mid=(ang+next)/2,rr=(rad+inner)/2;dc.fillStyle='#fff';dc.font='700 '+11.5*dpr+'px sans-serif';dc.textAlign='center';dc.textBaseline='middle';dc.fillText(Math.round(share*100)+'%',cx+Math.cos(mid)*rr,cy+Math.sin(mid)*rr)}ang=next});
+dc.fillStyle='#072340';dc.textAlign='center';dc.textBaseline='middle';dc.font='700 '+15*dpr+'px sans-serif';dc.fillText('฿'+Math.round(sum).toLocaleString('th-TH'),cx,cy-7*dpr);dc.fillStyle='#5C6B74';dc.font=10.5*dpr+'px sans-serif';dc.fillText('ต่อเดือน',cx,cy+11*dpr);
+let E=function(s){return String(s).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})};
+$('dcaLegend').innerHTML=rows.map(function(tr,i){return '<div class="lg"><i style="background:'+colors[i%colors.length]+'"></i><span>'+E(tr.querySelector('.fundname').value||'กองทุน '+(i+1))+'</span><b>'+E(tr.querySelector('.pct').value)+'</b><em>'+fmt(Number(tr.querySelector('.fundamount').value)||0)+'/เดือน</em></div>'}).join('');}
 ['taxIncome','taxOther','taxDeduct','taxWithheld','taxExpense'].forEach(id=>$(id).addEventListener('input',calcTax));['ssoWage','ssoRate','ssoCap'].forEach(id=>$(id).addEventListener('input',calcSSO));['homePrice','homeRate','homeYears','homeExtra'].forEach(id=>$(id).addEventListener('input',calcHome));$('dcaMonthly').addEventListener('input',()=>{const el=$('dcaMonthly');const clean=el.value.replace(/[^0-9.]/g,'').replace(/\.(?=.*\.)/g,'');if(clean!==el.value)el.value=clean;calcDCA();});['dcaMonths','dcaReturn'].forEach(id=>$(id).addEventListener('input',calcDCA));$('addFund').addEventListener('click',()=>addFund('',0));$('equalFund').addEventListener('click',()=>{let rows=[...$('fundRows').querySelectorAll('tr')],total=rows.reduce((sum,tr)=>sum+Math.max(0,Number(tr.querySelector('.fundamount').value)||0),0);if(total<=0)total=10000;let base=Math.floor(total/rows.length);rows.forEach((tr,i)=>tr.querySelector('.fundamount').value=i===rows.length-1?total-base*(rows.length-1):base);calcDCA();});
 addFund('กองทุน A',6000);addFund('กองทุน B',4000);calcTax();calcSSO();calcHome();calcDCA();
 function calcPension(){
@@ -543,4 +569,130 @@ calcPension();
 
 <script src="../config.js"></script>
 <script src="../admin-login.js"></script>
+
+<style id="mp-v88">
+/* V88: Tax / SSO แบบการ์ดสรุป + โดนัท + ช่องกรอกพร้อม − / + */
+#tax .layout,#ssoBasic .layout,#mortgage .layout,#dca .layout{display:flex;flex-direction:column;gap:14px}
+#tax .results,#ssoBasic .results,#mortgage .results,#dca .results{order:-1;border-radius:20px;padding:16px;background:linear-gradient(145deg,#E3EBF1,#F3F7FA);border:1px solid #d3dde5}
+.mp-hero{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.mp-hero .result-label{font-size:13px;color:#5C6B74}.mp-hero .big{font-size:28px;line-height:1.2;color:#072340;margin:4px 0;white-space:nowrap}
+.mp-sub{font-size:12px;color:#5C6B74}
+.mp-ring{position:relative;flex:none;width:96px;height:96px}.mp-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.mp-ring b{position:absolute;inset:0;display:grid;place-items:center;font:600 17px Prompt,sans-serif;color:#072340;text-align:center;line-height:1.1}
+.mp-ring b small{display:block;font:400 10px "Noto Sans Thai",sans-serif;color:#5C6B74;margin-top:2px}
+#tax .results .resultrow,#ssoBasic .results .resultrow,#mortgage .results .resultrow,#dca .results .resultrow{background:#fff;border-radius:12px;margin-top:6px;padding:10px 12px}
+.mp-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;background:#3A6C93}
+#tax .fields,#ssoBasic .fields,#mortgage .fields,#dca .fields{display:flex;flex-direction:column;gap:2px;background:#fff;border:1px solid #E1E6EA;border-radius:20px;padding:6px 14px;box-shadow:0 4px 14px #0723400b}
+#tax .field,#ssoBasic .field,#mortgage .field,#dca .field{display:grid;grid-template-columns:1fr;align-items:center;gap:6px 10px;padding:10px 0;border-bottom:1px solid #EEF1F4;margin:0}
+#tax .field:last-child,#ssoBasic .field:last-child,#mortgage .field:last-child,#dca .field:last-child{border-bottom:0}
+#tax .field label,#ssoBasic .field label,#mortgage .field label,#dca .field label{font-size:13px;color:#5C6B74;margin:0}
+#tax .field .hint,#ssoBasic .field .hint,#mortgage .field .hint,#dca .field .hint{grid-column:1/-1;font-size:11.5px}
+#tax .field.mp-stack,#ssoBasic .field.mp-stack,#mortgage .field.mp-stack,#dca .field.mp-stack{grid-template-columns:1fr}
+.mp-step{display:flex;align-items:center;gap:8px;width:100%}
+.mp-in{display:flex;align-items:center;gap:4px;border:1.5px solid #D5DEE6;border-radius:12px;padding:0 12px;height:42px;background:#fff;flex:1;min-width:0}
+.mp-in input{border:0!important;box-shadow:none!important;background:none!important;outline:0;width:100%;min-width:0;padding:0!important;text-align:right;font-size:15px;color:#072340;height:auto!important}
+.mp-in span{font-size:11px;color:#7C8DA0;white-space:nowrap}
+.mp-b{width:36px;height:36px;min-height:36px!important;border-radius:11px;border:1px solid #D5DEE6;background:#F3F7FA;color:#072340;font-size:18px;line-height:1;padding:0}
+.mp-b:active{background:#DCE8F2}
+.mp-primary{width:100%;border:0;border-radius:14px;background:#3A6C93;color:#fff;font:600 15px "Noto Sans Thai",sans-serif;padding:13px;box-shadow:0 6px 16px rgba(58,108,147,.28)}
+.sso-subnav{display:flex!important;gap:0!important;border-bottom:1px solid #E1E6EA;margin:0 0 14px!important;background:none!important;padding:0!important}
+.sso-subnav button{flex:1;background:none!important;border:0!important;box-shadow:none!important;border-bottom:3px solid transparent!important;border-radius:0!important;color:#5C6B74!important;font-weight:600;padding:12px 4px;min-height:44px}
+.sso-subnav button.active{color:#3A6C93!important;border-bottom-color:#3A6C93!important}
+#dca .resultrow .big{font-size:inherit!important;margin:0!important;white-space:normal}
+.mp-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mp-tiles button{background:#fff;border:1px solid #E1E6EA;border-radius:16px;padding:12px 6px;color:#072340;font:600 12px "Noto Sans Thai",sans-serif;line-height:1.35;box-shadow:0 4px 14px #0723400b}
+.mp-tiles button i{display:block;font-style:normal;font-size:20px;margin-bottom:4px}
+.mp-cmp{background:#fff;border:1px solid #E1E6EA;border-radius:20px;padding:14px;box-shadow:0 4px 14px #0723400b}
+.mp-cmp h3{margin:0 0 4px;font-size:15px;color:#072340}
+.cmp-r{display:grid;grid-template-columns:1fr 78px 16px;gap:6px;align-items:center;margin-top:10px}
+.cmp-r input{border:1.5px solid #D5DEE6;border-radius:10px;padding:8px 10px;font-size:14px;min-width:0;width:100%}
+.cmp-r .cv{grid-column:1/-1;font-size:12.5px;color:#5C6B74;background:#F3F7FA;border-radius:10px;padding:8px 10px}
+.cmp-r .cv b{color:#072340}
+.fund-table th{color:#5C6B74;font-weight:600;font-size:12px;padding:8px 6px;line-height:1.3}.fund-table input{border-radius:10px}
+#retirement .ret-hero{background:linear-gradient(145deg,#E3EBF1,#F3F7FA)!important;color:#072340!important;border:1px solid #d3dde5}
+#retirement .ret-hero .ret-kicker,#retirement .ret-hero .ret-title,#retirement .ret-hero .v{color:#072340!important}
+#retirement .ret-hero .k{color:#5C6B74!important}
+#retirement .ret-hero .ret-stat{background:#fff!important;border:1px solid #E1E6EA}
+#retirement .ret-tabs{display:flex;gap:0;border-bottom:1px solid #E1E6EA;overflow-x:auto;background:none!important;padding:0!important;scrollbar-width:none}
+#retirement .ret-tab{flex:none;background:none!important;border:0!important;border-bottom:3px solid transparent!important;border-radius:0!important;color:#5C6B74!important;font-weight:600;padding:12px 14px;white-space:nowrap;box-shadow:none!important}
+#retirement .ret-tab.active{color:#3A6C93!important;border-bottom-color:#3A6C93!important}
+.panel,.chartgrid,.chartcard,.layout>*{min-width:0;max-width:100%}
+.chartgrid{grid-template-columns:minmax(0,1fr)}
+.chartcard canvas{width:100%;display:block}
+.fund-table-wrap,.tablewrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
+.mp-hero{display:grid!important;grid-template-columns:minmax(0,1fr) 92px;grid-template-areas:"lab lab" "big big" "sub ring";gap:4px 12px;align-items:center}
+.mp-hero>div:first-child{display:contents}
+.mp-hero .result-label{grid-area:lab}
+.mp-hero .big{grid-area:big;font-size:min(30px,8.4vw);white-space:nowrap;margin:0}
+.mp-hero .mp-sub{grid-area:sub}
+.mp-hero .mp-ring{grid-area:ring;width:92px;height:92px;justify-self:end}
+#dcaLegend{display:block;margin-top:6px}
+.lg{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid #EEF1F4;font-size:13px;color:#2E3A42}
+.lg i{width:10px;height:10px;border-radius:50%;flex:none}.lg span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lg b{color:#072340}.lg em{font-style:normal;color:#5C6B74;font-size:12px;white-space:nowrap}
+#retirement .ret-hero-stat{display:flex!important;flex-direction:column;gap:8px}
+#retirement .ret-hero .ret-stat{display:flex!important;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px!important;min-height:0;width:100%}
+#retirement .ret-hero .ret-stat .k{font-size:12.5px!important;margin:0!important;min-width:0}
+#retirement .ret-hero .ret-stat .v{font-size:clamp(17px,5.8vw,22px)!important;font-weight:700;margin:0!important;white-space:nowrap}
+#retirement .ret-hero .ret-title{font-size:22px}
+main.wrap{min-width:0;width:100%;max-width:100%}
+html,body{overflow-x:hidden}
+#retirement .ret-tabs,#retirement .ret-hero,#view-retirement{max-width:100%;min-width:0}
+#retirement,#retirement .ret-wrap{padding-left:0!important;padding-right:0!important;margin-left:0!important;margin-right:0!important;max-width:100%}
+</style>
+
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)},n=function(i){return +($(i)&&$(i).value)||0},P=function(i){return +(($(i)&&$(i).textContent)||'').replace(/[^\d.-]/g,'')||0};
+var fm=function(v){return '฿'+Math.round(v).toLocaleString('th-TH')};
+function ring(el,a,b,colA,colB,txt,sub){var r=40,c=2*Math.PI*r,fa=Math.max(0,Math.min(1,a/(a+b||1)));
+  el.innerHTML='<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="'+r+'" fill="none" stroke="'+colB+'" stroke-width="14"/><circle cx="50" cy="50" r="'+r+'" fill="none" stroke="'+colA+'" stroke-width="14" stroke-dasharray="'+(c*fa)+' '+c+'" stroke-linecap="butt"/></svg><b><span>'+txt+'<small>'+sub+'</small></span></b>'}
+function steppers(root){root.querySelectorAll('.field').forEach(function(f){var inp=f.querySelector('input[type=number]');if(!inp){f.classList.add('mp-stack');return}
+  if(f.dataset.mp)return;f.dataset.mp=1;var lab=f.querySelector('label'),unit='';
+  lab.textContent=lab.textContent.replace(/\s*\(([^)]*)\)\s*$/,function(m,u){unit=u;return ''});
+  var w=document.createElement('div');w.className='mp-step';var box=document.createElement('div');box.className='mp-in';
+  inp.parentNode.insertBefore(w,inp);box.appendChild(inp);var s=document.createElement('span');s.textContent=unit;box.appendChild(s);w.appendChild(box);
+  [['−',-1],['+',1]].forEach(function(x){var b=document.createElement('button');b.type='button';b.className='mp-b';b.textContent=x[0];b.setAttribute('aria-label',x[1]<0?'ลด':'เพิ่ม');
+    b.onclick=function(){var st=+inp.step||1,v=(+inp.value||0)+x[1]*st;if(inp.min!=='')v=Math.max(+inp.min,v);if(inp.max!=='')v=Math.min(+inp.max,v);v=Math.round(v*100)/100;inp.value=v;inp.dispatchEvent(new Event('input',{bubbles:true}));inp.dispatchEvent(new Event('change',{bubbles:true}))};w.appendChild(b)});
+  if(f.querySelector('.hint'))f.insertBefore(w,f.querySelector('.hint'))})}
+function hero(panel,id,sub){var res=panel.querySelector('.results');if(!res||res.dataset.mp)return;res.dataset.mp=1;
+  var h=document.createElement('div');h.className='mp-hero';var l=document.createElement('div');
+  l.appendChild(res.querySelector('.result-label'));l.appendChild(res.querySelector('.big'));var s=document.createElement('div');s.className='mp-sub';s.id=sub;l.appendChild(s);
+  var rg=document.createElement('div');rg.className='mp-ring';rg.id=id;h.appendChild(l);h.appendChild(rg);res.insertBefore(h,res.firstChild)}
+function btn(panel,label,fn,scrollTo){var f=panel.querySelector('.fields');if(!f||f.dataset.btn)return;f.dataset.btn=1;var b=document.createElement('button');b.type='button';b.className='mp-primary';b.textContent=label;b.style.margin='12px 0 8px';
+  b.onclick=function(){if(window[fn])window[fn]();var r=panel.querySelector('.mp-hero');if(r)r.scrollIntoView({behavior:'smooth',block:'start'})};f.appendChild(b)}
+function updTax(){var g=n('taxIncome')+n('taxOther'),tax=P('taxDue'),after=Math.max(0,g-tax);
+  ring($('taxRing'),tax,after,'#8E7CC3','#3A6C93',(g?(tax/g*100).toFixed(1):'0.0')+'%','สัดส่วนภาษี');
+  $('taxSub').textContent='จากรายได้รวม '+fm(g)+' บาท/ปี';
+  var a=$('taxAfter');if(a)a.textContent=fm(after)}
+function updSso(){var w=n('ssoWage'),m=P('ssoMonthly'),base=P('ssoBase'),eff=w?m/w*100:0;
+  ring($('ssoRing'),m,Math.max(0,w-m),'#1F9D6C','#3A6C93',eff.toFixed(1)+'%','ต่อค่าจ้าง');
+  $('ssoSub').textContent='ค่าจ้างที่ใช้คำนวณ '+fm(base)+' บาท'}
+function pay(p,a,y){var r=a/1200,k=Math.max(1,Math.round(y*12));return r?p*r/(1-Math.pow(1+r,-k)):p/k}
+function updHome(){var p=n('homePrice'),tot=P('homeTotal'),it=P('homeInterest');
+  ring($('homeRing'),it,p,'#C89B3C','#3A6C93',(tot?(it/tot*100).toFixed(1):'0.0')+'%','ดอกเบี้ย');
+  $('homeSub').textContent='เงินกู้ '+fm(p)+' · ดอกเบี้ยรวม '+fm(it);updCmp()}
+function updDca(){var pr=P('dcaPrincipal'),pf=P('dcaProfit');
+  ring($('dcaRing'),Math.max(0,pf),pr,'#1F9D6C','#3A6C93',(pr?(pf/pr*100).toFixed(1):'0.0')+'%','ผลตอบแทน');
+  $('dcaSub').textContent='เงินต้นรวม '+fm(pr)+' บาท'}
+function updCmp(){var p=n('homePrice'),y=n('homeYears');document.querySelectorAll('#cmpRows .cmp-r').forEach(function(row){var a=+row.querySelector('.cr').value||0,m=pay(p,a,y),k=Math.max(1,Math.round(y*12));
+  row.querySelector('.cv').innerHTML='ค่างวด <b>'+fm(m)+'</b>/เดือน · ดอกเบี้ยรวม <b>'+fm(m*k-p)+'</b>'})}
+function extras(m){if($('cmpBox'))return;var lay=m.querySelector('.layout');
+  var tiles=document.createElement('div');tiles.className='mp-tiles';
+  tiles.innerHTML='<button type="button" data-g="sch"><i>📅</i>ตารางผ่อนชำระ</button><button type="button" data-g="chart"><i>🥧</i>แยกเงินต้น-ดอกเบี้ย</button><button type="button" data-g="extra"><i>🚀</i>ทดลองโปะบ้าน</button>';
+  tiles.onclick=function(e){var b=e.target.closest('button');if(!b)return;var g=b.dataset.g,el=g==='sch'?m.querySelector('.amort'):g==='chart'?$('homeChart'):$('homeExtra');if(el){el.scrollIntoView({behavior:'smooth',block:'center'});if(g==='extra')setTimeout(function(){el.focus()},400)}};
+  var box=document.createElement('div');box.className='mp-cmp';box.id='cmpBox';
+  box.innerHTML='<h3>เปรียบเทียบอัตราดอกเบี้ย</h3><div class="hint">ใส่ชื่อและอัตราดอกเบี้ยของแต่ละข้อเสนอ ระบบเทียบค่างวดและดอกเบี้ยรวมจากวงเงินและระยะเวลาด้านบน</div><div id="cmpRows">'+[['ข้อเสนอ A',3],['ข้อเสนอ B',3.5],['ข้อเสนอ C',4]].map(function(x){return '<div class="cmp-r"><input class="cn" value="'+x[0]+'" aria-label="ชื่อข้อเสนอ"><input class="cr" type="number" step="0.05" min="0" max="100" value="'+x[1]+'" aria-label="อัตราดอกเบี้ย"><span>%</span><div class="cv"></div></div>'}).join('')+'</div>';
+  box.addEventListener('input',updCmp);lay.after(tiles);tiles.after(box)}
+function init(){var tax=$('tax'),sso=$('ssoBasic');if(!tax||!sso||!$('mortgage')||!$('dca'))return;
+  var mor=$('mortgage'),dca=$('dca');steppers(tax);steppers(sso);steppers(mor);steppers(dca);hero(tax,'taxRing','taxSub');hero(sso,'ssoRing','ssoSub');hero(mor,'homeRing','homeSub');hero(dca,'dcaRing','dcaSub');extras(mor);
+  var dh=dca.querySelector('.layout>div');if(dh&&!dh.dataset.btn){dh.dataset.btn=1;var db=document.createElement('button');db.type='button';db.className='mp-primary';db.textContent='คำนวณแผน DCA';db.style.margin='12px 0 4px';db.onclick=function(){if(window.calcDCA)calcDCA();var h=dca.querySelector('.mp-hero');if(h)h.scrollIntoView({behavior:'smooth',block:'start'})};dh.appendChild(db)}
+  btn(mor,'คำนวณใหม่','calcHome');
+  var rows=tax.querySelector('.results');if(rows&&!$('taxAfter')){var d=document.createElement('div');d.className='resultrow';d.innerHTML='<span><i class="mp-dot" style="background:#3A6C93"></i>เงินได้หลังภาษี</span><b id="taxAfter">—</b>';rows.appendChild(d)}
+  btn(tax,'คำนวณภาษี','calcTax');btn(sso,'คำนวณเงินสมทบ','calcSSO');
+  [['taxDue',updTax],['ssoMonthly',updSso],['homeMonthly',updHome],['dcaFuture',updDca]].forEach(function(p){var el=$(p[0]);new MutationObserver(p[1]).observe(el,{childList:true,characterData:true,subtree:true})});
+  updTax();updSso();updHome();updDca();if(window.calcTax)calcTax();if(window.calcSSO)calcSSO();if(window.calcHome)calcHome();if(window.calcDCA)calcDCA()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
 </body></html>

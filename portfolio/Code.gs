@@ -190,17 +190,25 @@ function googleLogin(body) {
  * จำกัดเฉพาะ Spreadsheet ที่ตั้งใน GOOGLE_SHEET_ID เท่านั้น */
 function sheetsProxy(body) {
   if (!isValidAdminSession_(body.token)) return {ok:false, auth:false, status:401, body:'{"error":"unauthorized"}'};
-  const sid = cfgGet('MFF_SHEET_ID');
   const url = String(body.url || '');
-  const m = url.match(/^https:\/\/sheets\.googleapis\.com\/v4\/spreadsheets\/([A-Za-z0-9_-]+)/);
   const method = String(body.method || 'GET').toUpperCase();
-  if (!sid) return {ok:false, status:403, body:'{"error":"ยังไม่ได้ตั้ง GOOGLE_SHEET_ID (Run setupGoogleLogin)"}'};
-  if (!m || m[1] !== sid || ['GET','POST','PUT','PATCH'].indexOf(method) < 0) return {ok:false, status:403, body:'{"error":"not allowed"}'};
+  const sm = url.match(/^https:\/\/sheets\.googleapis\.com\/v4\/spreadsheets\/([A-Za-z0-9_-]+)/);
+  const cm = url.match(/^https:\/\/www\.googleapis\.com\/calendar\/v3\/(users\/me\/calendarList|calendars\/[^\/?]+\/events)/);
+  if (sm) {
+    const sid = cfgGet('MFF_SHEET_ID');
+    if (!sid) return {ok:false, status:403, body:'{"error":"ยังไม่ได้ตั้ง GOOGLE_SHEET_ID (Run setupGoogleLogin)"}'};
+    if (sm[1] !== sid || ['GET','POST','PUT','PATCH'].indexOf(method) < 0) return {ok:false, status:403, body:'{"error":"not allowed"}'};
+  } else if (!cm || ['GET','POST','PATCH','DELETE'].indexOf(method) < 0) {
+    return {ok:false, status:403, body:'{"error":"not allowed"}'};
+  }
   const opt = {method: method.toLowerCase(), headers:{Authorization:'Bearer ' + ScriptApp.getOAuthToken()}, muteHttpExceptions:true};
-  if (method !== 'GET' && body.body) { opt.contentType = 'application/json'; opt.payload = String(body.body); }
+  if (method !== 'GET' && method !== 'DELETE' && body.body) { opt.contentType = 'application/json'; opt.payload = String(body.body); }
   const r = UrlFetchApp.fetch(url, opt);
   return {ok:true, status:r.getResponseCode(), body:r.getContentText()};
 }
+
+/* Run หนึ่งครั้งเพื่ออนุญาตสิทธิ์ Google Calendar (ใช้กับหน้า Calendar) */
+function authorizeCalendarPermissions() { CalendarApp.getDefaultCalendar(); }
 
 function validateAdminSession(body) {
   const token = String(body.token || '');
