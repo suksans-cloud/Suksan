@@ -3538,8 +3538,25 @@ async function saveMarketManager(){localStorage.setItem('market_assets_v3982',JS
 document.querySelectorAll('#financeSeg button').forEach(b=>b.classList.toggle('active',b.dataset.tab===financeTab));
 marketInitial();renderFinanceCards();
 document.getElementById('marketRefreshBtn')?.addEventListener('click',()=>pullMarketWatch().then(()=>showToast('อัปเดต Market Watch แล้ว')));
+async function triggerNavUpdate(silent){
+  if(!window.MFFAuth||!MFFAuth.call) return null;
+  try{
+    if(!silent) showToast('กำลังดึง NAV ล่าสุดจากบริษัทจัดการกองทุน…');
+    const r=await MFFAuth.call('updateNAV',{});
+    localStorage.setItem('mff_nav_trigger_at',String(Date.now()));
+    if(!silent && r && !r.ok) showToast('ดึง NAV ไม่สำเร็จ: '+(r.error||'ไม่ทราบสาเหตุ'));
+    return r;
+  }catch(e){ return null; }
+}
+setTimeout(async function(){
+  // อัตโนมัติ: กองทุนที่เพิ่มทีหลังจะได้ NAV เองเมื่อเปิดหน้านี้ (จำกัดไม่เกินทุก 3 ชั่วโมง)
+  if(Date.now()-(+localStorage.getItem('mff_nav_trigger_at')||0) < 3*3600e3) return;
+  const r=await triggerNavUpdate(true);
+  if(r&&r.ok&&r.updated>0){ try{ await pullFromSheets({safeMerge:false}); renderFinanceCards(); }catch(e){} }
+},6000);
 async function refreshFinanceData(){
   try{
+    await triggerNavUpdate(false);
     if(sheetsToken&&sheetId) await pullFromSheets({safeMerge:false});
     await pullMarketWatch();
     await reconcileTransactionUnitsToSheets({silent:true});

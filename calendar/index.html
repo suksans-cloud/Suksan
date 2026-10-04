@@ -88,6 +88,21 @@ body{background:#D9F0F5;color:#072340}
 .grid.sl{animation:gsl .2s ease}.grid.sr{animation:gsr .2s ease}
 @keyframes gsl{from{transform:translateX(26px);opacity:.3}}@keyframes gsr{from{transform:translateX(-26px);opacity:.3}}
 
+
+/* V93: วันนี้กึ่งกลาง / วงกลมส้ม-ม่วง / bottom sheet ลากขึ้นลง */
+.nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.nav>span{display:flex;align-items:center;justify-self:end}
+.nav .today{height:34px;display:grid;place-items:center;padding:0 13px;line-height:1;background:#EDE6FB;color:#4B2E9A;margin-right:2px}
+.nav #next{display:grid!important}
+.d.today i{background:#EDE6FB;box-shadow:inset 0 0 0 2px #7C5CC4}.d.today{color:#4B2E9A}
+.d.sel i,.d.sel.today i{background:#F28C28;box-shadow:0 4px 12px rgba(242,140,40,.45)}
+.d.sel.today i{box-shadow:0 0 0 2px #7C5CC4,0 4px 12px rgba(242,140,40,.45)}
+.d.sel,.d.sel.today{color:#fff}
+.d u b{background:#7C5CC4}.d.sel u b{background:#fff}
+#fab{background:#7C5CC4;box-shadow:0 8px 22px rgba(124,92,196,.42);z-index:40}
+.sheet{position:fixed;left:0;right:0;bottom:0;flex:none;height:46vh;z-index:30;overflow-y:hidden;overscroll-behavior:contain;will-change:height;box-shadow:0 -8px 28px rgba(7,35,64,.14)}
+.sheet.open{overflow-y:auto}
+.sheet:before{width:44px;height:5px;margin-bottom:10px}
 </style>
 </head>
 <body>
@@ -320,6 +335,26 @@ $('frm').addEventListener('click',function(e){if(e.target.id==='frm')closeForm()
 
 render();autoFetch();
 
+
+(function(){
+  var sh=$('sheet'),mode=0,t0=null;
+  function dims(){var m=$('msg').getBoundingClientRect().bottom,bar=document.querySelector('.bar').getBoundingClientRect().bottom,H=window.innerHeight,peek=Math.max(170,H-m-4);return [peek,Math.max(peek+40,H-bar-6)]}
+  function set(h,anim){sh.style.transition=anim?'height .24s cubic-bezier(.2,.8,.2,1)':'none';sh.style.height=h+'px'}
+  function snap(m,anim){mode=m;set(dims()[m],anim!==false);sh.classList.toggle('open',m===1);if(m===0)sh.scrollTop=0}
+  window.mffSheet={snap:snap};
+  window.addEventListener('resize',function(){snap(mode,false)});window.addEventListener('load',function(){snap(mode,false)});
+  var _r=render;render=function(){_r();if(mode===0)setTimeout(function(){snap(0,false)},0)};
+  sh.addEventListener('touchstart',function(e){var t=e.touches[0];t0={y:t.clientY,x:t.clientX,top:t.clientY-sh.getBoundingClientRect().top,h:sh.offsetHeight,drag:null}},{passive:true});
+  sh.addEventListener('touchmove',function(e){if(!t0)return;var t=e.touches[0],dy=t.clientY-t0.y,dx=t.clientX-t0.x;
+    if(t0.drag===null){if(Math.abs(dy)<6&&Math.abs(dx)<6)return;
+      if(Math.abs(dx)>Math.abs(dy)){t0.drag=false;return}
+      t0.drag=mode===0?true:((t0.top<56||sh.scrollTop<=0)&&dy>0)}
+    if(t0.drag){e.preventDefault();var d=dims();set(Math.min(d[1],Math.max(d[0]*.75,t0.h-dy)),false)}},{passive:false});
+  sh.addEventListener('touchend',function(){if(!t0)return;var was=t0.drag;t0=null;if(!was)return;var d=dims(),h=sh.offsetHeight;
+    snap(mode===0?(h>d[0]+50?1:0):(h<d[1]-80?0:1))});
+  sh.addEventListener('click',function(e){if(e.target===sh&&e.clientY-sh.getBoundingClientRect().top<30)snap(mode?0:1)});
+  setTimeout(function(){snap(0,false)},60);
+})();
 })();
 </script>
 </body>

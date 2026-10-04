@@ -55,6 +55,7 @@ function route(action, body) {
     case 'adminLogin':            return adminLogin(body);
     case 'googleLogin':           return googleLogin(body);
     case 'sheetsProxy':           return sheetsProxy(body);
+    case 'updateNAV':             return updateNavAction_(body);
     case 'validateAdminSession':  return validateAdminSession(body);
     case 'adminLogout':           return adminLogout(body);
     // Monthly Report API actions require a valid admin session.
@@ -209,6 +210,17 @@ function sheetsProxy(body) {
 
 /* Run หนึ่งครั้งเพื่ออนุญาตสิทธิ์ Google Calendar (ใช้กับหน้า Calendar) */
 function authorizeCalendarPermissions() { CalendarApp.getDefaultCalendar(); }
+
+/* ดึง NAV ล่าสุดทันที (ต้องมี NAV_Updater.gs ในโปรเจกต์เดียวกัน) */
+function updateNavAction_(body) {
+  if (!isValidAdminSession_(body.token)) return {ok:false, auth:false, error:'unauthorized'};
+  if (typeof updateAllNAVs !== 'function') return {ok:false, error:'ยังไม่ได้ติดตั้ง NAV_Updater.gs'};
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(1000)) return {ok:true, busy:true, updated:0, message:'กำลังอัปเดต NAV อยู่'};
+  try { const r = updateAllNAVs() || {}; return {ok:true, updated:r.updated || 0, history:r.history || 0, message:r.message || ''}; }
+  catch (e) { return {ok:false, error:String(e && e.message || e)}; }
+  finally { lock.releaseLock(); }
+}
 
 function validateAdminSession(body) {
   const token = String(body.token || '');

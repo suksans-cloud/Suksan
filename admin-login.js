@@ -191,6 +191,7 @@ function ready(){
 }
 
 function recheck(s){if(!navigator.onLine)return;request('validateAdminSession',{token:s.token}).then(function(r){if(r&&r.ok&&r.authenticated){adoptConfig(r);return}if(r&&r.authenticated===false){clearAll();location.reload()}}).catch(function(){})}
+window.MFFAuth={call:function(action,data){var s=session();return request(action,Object.assign({token:s&&s.token},data||{}))}};
 function boot(){
   try{
     const s=session();
