@@ -56,6 +56,7 @@ function route(action, body) {
     case 'googleLogin':           return googleLogin(body);
     case 'sheetsProxy':           return sheetsProxy(body);
     case 'updateNAV':             return updateNavAction_(body);
+    case 'searchContacts':        return searchContactsAction_(body);
     case 'validateAdminSession':  return validateAdminSession(body);
     case 'adminLogout':           return adminLogout(body);
     // Monthly Report API actions require a valid admin session.
@@ -221,6 +222,52 @@ function updateNavAction_(body) {
   catch (e) { return {ok:false, error:String(e && e.message || e)}; }
   finally { lock.releaseLock(); }
 }
+
+/* ค้นหา Google Contacts ตามชื่อหรือเบอร์โทร (ต้องเพิ่ม Service "People API" ใน Apps Script) */
+function normPhone_(v) {
+  var d = String(v || '').replace(/\D/g, '');
+  if (d.indexOf('66') === 0 && d.length >= 11) d = '0' + d.slice(2);
+  return d;
+}
+
+function loadContacts_() {
+  var cache = CacheService.getScriptCache(), hit = cache.get('mff_contacts_v1');
+  if (hit) return JSON.parse(hit);
+  var out = [], token = null, guard = 0;
+  do {
+    var opt = {personFields: 'names,phoneNumbers', pageSize: 1000};
+    if (token) opt.pageToken = token;
+    var r = People.People.Connections.list('people/me', opt);
+    (r.connections || []).forEach(function (p) {
+      var n = (p.names && p.names[0] && p.names[0].displayName) || '';
+      var ph = (p.phoneNumbers || []).map(function (x) { return x.value; }).filter(Boolean);
+      if (n || ph.length) out.push({n: n, p: ph});
+    });
+    token = r.nextPageToken; guard++;
+  } while (token && guard < 10);
+  try { cache.put('mff_contacts_v1', JSON.stringify(out), 600); } catch (e) {}
+  return out;
+}
+
+function searchContactsAction_(body) {
+  if (!isValidAdminSession_(body.token)) return {ok:false, auth:false, error:'unauthorized'};
+  var q = String(body.q || '').trim();
+  if (q.length < 2) return {ok:true, items:[]};
+  if (typeof People === 'undefined') return {ok:false, error:'ยังไม่ได้เพิ่ม Service "People API" ใน Apps Script'};
+  try {
+    var ql = q.toLowerCase(), qd = normPhone_(q), items = [];
+    var phoneQuery = /^[\d+\-\s()]+$/.test(q) && qd.length >= 3;
+    loadContacts_().forEach(function (c) {
+      var nameHit = !phoneQuery && c.n.toLowerCase().indexOf(ql) >= 0;
+      var phHit = phoneQuery && c.p.some(function (x) { return normPhone_(x).indexOf(qd) >= 0; });
+      if ((nameHit || phHit) && items.length < 12) items.push({name: c.n, phones: c.p});
+    });
+    return {ok:true, items:items};
+  } catch (e) { return {ok:false, error:String(e && e.message || e)}; }
+}
+
+/* Run หนึ่งครั้งเพื่ออนุญาตสิทธิ์อ่านรายชื่อติดต่อ */
+function authorizeContactsPermissions() { People.People.Connections.list('people/me', {personFields: 'names', pageSize: 1}); }
 
 function validateAdminSession(body) {
   const token = String(body.token || '');

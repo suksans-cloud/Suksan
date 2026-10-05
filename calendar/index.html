@@ -268,7 +268,7 @@ function strip(){var st=$('mstrip');if(!st)return;
   if(!st.firstChild){var y0=today.getFullYear()-1,h='';for(var y=y0;y<=today.getFullYear()+2;y++){h+='<span class="yr">'+(y+543)+'</span>';for(var m=0;m<12;m++)h+='<button data-y="'+y+'" data-m="'+m+'">'+MS[m]+'</button>'}st.innerHTML=h;
     st.onclick=function(e){var b=e.target.closest('button');if(!b)return;view=new Date(+b.dataset.y,+b.dataset.m,1);sel=(view.getFullYear()===today.getFullYear()&&view.getMonth()===today.getMonth())?new Date(today.getFullYear(),today.getMonth(),today.getDate()):new Date(view);render();autoFetch()}}
   var on=null;[].forEach.call(st.querySelectorAll('button'),function(b){var is=+b.dataset.y===view.getFullYear()&&+b.dataset.m===view.getMonth();b.classList.toggle('on',is);if(is)on=b});
-  if(on)st.scrollTo({left:on.offsetLeft-(st.clientWidth-on.offsetWidth)/2,behavior:'smooth'})}
+  if(on){var cl=function(){return on.offsetLeft-(st.clientWidth-on.offsetWidth)/2};if(!st._i){st._i=1;st.style.scrollBehavior='auto';st.scrollLeft=cl();requestAnimationFrame(function(){st.scrollLeft=cl()});window.addEventListener('load',function(){st.scrollLeft=cl()})}else st.scrollTo({left:cl(),behavior:'smooth'})}}
 swipe($('grid'),go);swipe($('sheet'),shiftDay);
 $('prev').onclick=function(){go(-1)};$('next').onclick=function(){go(1)};
 $('todayBtn').onclick=function(){view=new Date(today.getFullYear(),today.getMonth(),1);sel=new Date(today.getFullYear(),today.getMonth(),today.getDate());render();autoFetch()};

@@ -1,4 +1,4 @@
-const CACHE='mff-shell-v40-v93-calendar-sheet-nav';
+const CACHE='mff-shell-v41-v94-contacts-search';
 const SHELL=[
   './index.html','./shell.css','./config.js','./data-safety.js','./admin-login.js',
   './money/index.html','./money/daily.html','./money/monthly.html',
