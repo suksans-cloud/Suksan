@@ -5,4 +5,4 @@
 window.MFF_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwNSgTpMaT03Sx3RwPrp0xtv8zDy2h5CYgSMV370OkLx3bsJU29WGUPI811_pK8gloOWw/exec';
 
 /* Google OAuth Client ID สำหรับหน้า Login (ชนิด Web application; เพิ่ม URL เว็บใน Authorized JavaScript origins) */
-window.MFF_GOOGLE_CLIENT_ID = '626475969282-5qm8vfd3hjhd5mr2lgtufrcsrqa5drdm.apps.googleusercontent.com';
+window.MFF_GOOGLE_CLIENT_ID = '1093878036972-f2ou9kjifs25doj4phe15r4u99ibau43.apps.googleusercontent.com';
