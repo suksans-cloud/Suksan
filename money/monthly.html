@@ -10,8 +10,11 @@
 <link rel="stylesheet" href="../shell.css">
 <script src="../data-safety.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>body.mff-hide-money .t-amt,body.mff-hide-money .mff-sheet-row .amt,body.mff-hide-money #liveBalance,body.mff-hide-money .money-amount,body.mff-hide-money .amount-value{filter:blur(7px);user-select:none}</style>
 </head>
 <body>
+<button id="privacyEye" type="button" aria-label="ซ่อนหรือแสดงตัวเลข" title="ซ่อนหรือแสดงตัวเลข">👁</button>
+<script src="../privacy-eye.js"></script>
 
 <div class="mff-app" style="padding-bottom:20px">
 
@@ -37,6 +40,7 @@
 
 <script src="../config.js"></script>
 <script src="../admin-login.js"></script>
+<script src="../settings-store.js"></script>
 <script src="../portfolio/auth-open.js"></script>
 <script>
 (function(){
@@ -301,6 +305,7 @@ function render(){
     </div>
 
     <button class="mff-edit-trigger" id="editBtn">แก้ไข</button>
+    <button class="mff-edit-trigger mfr-btn" id="recBtn" type="button">🔁 รายการประจำ</button>
 
     ${SECTIONS.map(sec=>renderSheetSection(sec, {income,fixed,variable}[sec.key])).join('')}
 
@@ -316,6 +321,7 @@ function render(){
   document.getElementById('prevMonth').onclick=()=>{ currentMonth=shiftMonth(currentMonth,-1); render(); };
   document.getElementById('nextMonth').onclick=()=>{ currentMonth=shiftMonth(currentMonth,1); render(); };
   document.getElementById('editBtn').onclick=openEditPopup;
+  document.getElementById('recBtn').onclick=openRecurringPopup;
 }
 
 function renderSheetSection(sec, rows){
@@ -429,10 +435,65 @@ async function saveEditPopup(){
   await syncSave();
 }
 
+
+/* ===================== รายการประจำ (ลงให้เองทุกต้นเดือน) ===================== */
+const REC_TYPE_LABEL={income:'รายรับ',fixed:'รายจ่ายคงที่',variable:'รายจ่ายผันแปร'};
+function recList(){ try{ return (window.MFFSettings&&MFFSettings.get('recurring',[]))||[]; }catch(e){ return []; } }
+function realMonthKey(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function applyRecurring(){
+  const list=recList(); if(!list.length) return 0;
+  let applied={}; try{ applied=JSON.parse(localStorage.getItem('mff_recurring_applied_v1')||'{}')||{}; }catch(e){}
+  const mk=realMonthKey(), now=new Date().toISOString(); let n=0;
+  list.forEach(t=>{
+    const key=t.id+'|'+mk; if(applied[key]) return; applied[key]=1;
+    if(items.some(x=>x.month===mk&&x.type===t.type&&x.category===t.category)) return;
+    items.push({id:'rec_'+t.id+'_'+mk, month:mk, type:t.type, category:t.category, amount:Number(t.amount)||0, createdAt:now, updatedAt:now}); n++;
+  });
+  try{ localStorage.setItem('mff_recurring_applied_v1',JSON.stringify(applied)); }catch(e){}
+  if(n){ saveCache(); try{ localStorage.setItem('mff_sync_dirty_v1_money','1'); }catch(e){} }
+  return n;
+}
+function openRecurringPopup(){
+  if(!window.MFFSettings){ toast('โหลดระบบตั้งค่าไม่สำเร็จ ลองรีเฟรชหน้า'); return; }
+  let list=recList().slice();
+  const catOpts=[...new Set(SECTIONS.reduce((a,s)=>a.concat(s.opts),[]))];
+  const body=()=>`
+    <p class="mfr-hint">รายการที่ใส่ไว้จะถูกเพิ่มให้เองในเดือนปัจจุบัน (เปิดแอปครั้งแรกของเดือน) และแก้ยอดแต่ละเดือนได้ตามปกติ</p>
+    <div class="mfr-list">${list.length?list.map((t,i)=>`<div class="mfr-row"><div><b>${esc(t.category)}</b><small>${esc(REC_TYPE_LABEL[t.type]||t.type)}</small></div><span>฿${fmtBaht(t.amount)}</span><button type="button" data-del="${i}" aria-label="ลบ">×</button></div>`).join(''):'<div class="mfr-empty">ยังไม่มีรายการประจำ</div>'}</div>
+    <div class="mfr-add">
+      <select id="mfrType">${SECTIONS.map(s=>`<option value="${s.key}">${esc(REC_TYPE_LABEL[s.key]||s.title)}</option>`).join('')}</select>
+      <input id="mfrCat" list="mfrCats" placeholder="หมวด เช่น ค่าบ้าน"><datalist id="mfrCats">${catOpts.map(o=>`<option value="${esc(o)}">`).join('')}</datalist>
+      <input id="mfrAmt" type="number" inputmode="decimal" placeholder="จำนวนเงิน">
+      <button type="button" id="mfrAddBtn">+ เพิ่มรายการ</button>
+    </div>`;
+  modal('รายการประจำรายเดือน', '<div id="mfrBox"></div>', [
+    {label:'ปิด', ghost:true, onClick:closeModal},
+    {label:'บันทึก', onClick:()=>{
+      MFFSettings.set('recurring', list); closeModal();
+      const n=applyRecurring(); render();
+      toast(n?('เพิ่มรายการประจำของเดือนนี้ '+n+' รายการ'):'บันทึกรายการประจำแล้ว');
+    }}
+  ]);
+  const box=document.getElementById('mfrBox');
+  const paint=()=>{ box.innerHTML=body(); };
+  paint();
+  box.addEventListener('click',e=>{
+    const del=e.target.closest('[data-del]');
+    if(del){ list.splice(+del.dataset.del,1); paint(); return; }
+    if(e.target.id==='mfrAddBtn'){
+      const type=document.getElementById('mfrType').value, category=document.getElementById('mfrCat').value.trim(), amount=parseFloat(document.getElementById('mfrAmt').value)||0;
+      if(!category||amount<=0){ toast('ใส่หมวดและจำนวนเงินก่อน'); return; }
+      list.push({id:'t'+Date.now().toString(36)+Math.random().toString(36).slice(2,5), type, category, amount}); paint();
+    }
+  });
+}
+
 /* ===================== boot ===================== */
 loadCache();
+const recAdded=applyRecurring();
 renderConnectBanner();
 render();
+if(recAdded) toast('เพิ่มรายการประจำของเดือนนี้ '+recAdded+' รายการ');
 
 window.addEventListener('load', async ()=>{
   // Google is not contacted automatically when opening a module. Use Smart Sync in Settings.

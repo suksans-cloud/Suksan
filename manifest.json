@@ -1,14 +1,36 @@
 {
-  "name":"My Family Funds",
-  "short_name":"Family Funds",
-  "start_url":"./index.html",
-  "scope":"./",
-  "display":"standalone",
-  "background_color":"#F2F4F6",
-  "theme_color":"#072340",
-  "lang":"th",
-  "icons":[
-    {"src":"portfolio/icon-192.png","sizes":"192x192","type":"image/png"},
-    {"src":"portfolio/icon-512.png","sizes":"512x512","type":"image/png"}
+  "name": "My Family Funds",
+  "short_name": "Family Funds",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FBF6EE",
+  "theme_color": "#072340",
+  "lang": "th",
+  "icons": [
+    {
+      "src": "icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/splash-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/splash-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
   ]
 }

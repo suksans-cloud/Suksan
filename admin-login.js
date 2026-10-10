@@ -8,8 +8,10 @@
 document.documentElement.classList.add('mff-auth-pending');
 (function(){var st=document.createElement('style');st.id='mff-crit';st.textContent='html.mff-auth-pending body>*:not(#mff-root){visibility:hidden!important}html.mff-auth-pending{background:#F2F4F6}';(document.head||document.documentElement).appendChild(st)})();
 const SK='mff_admin_session_v2',PK='mff_pin_v2',UK='mff_unlocked_v2',AK='mff_active_v2';
-const HIDDEN_MS=60e3,IDLE_MS=5*60e3,MAX_TRIES=5;
+const MAX_TRIES=5,LMK='mff_lock_min_v1';
 const ls=localStorage,ss=sessionStorage;
+const lockMin=()=>+ls.getItem(LMK)||0;
+const IDLE=()=>(lockMin()||5)*60e3,HIDDEN=()=>lockMin()?lockMin()*60e3:60e3;
 const J=s=>{try{return JSON.parse(s)}catch(e){return null}};
 const session=()=>J(ls.getItem(SK));
 const endpoint=()=>window.MFF_ENDPOINT||'';
@@ -137,6 +139,14 @@ function setupPin(){
     unlocked();done()});
   step1();
 }
+function changePin(){
+  const rec=J(ls.getItem(PK)); if(!rec) return setupPin();
+  pinScreen('ใส่ PIN ปัจจุบัน','เพื่อยืนยันก่อนเปลี่ยน PIN',async p=>{
+    if(await hashPin(p,rec.salt)===rec.hash){setTimeout(setupPin,120);return}
+    return 'PIN ไม่ถูกต้อง';
+  },'<button class="mfl-link" type="button" id="mfl-cancel">ยกเลิก</button>');
+  root.querySelector('#mfl-cancel').onclick=()=>{done()};
+}
 function unlockScreen(){
   const s=session();
   pinScreen('ใส่ PIN เพื่อปลดล็อก',s.name||s.email,async p=>{
@@ -172,25 +182,33 @@ function loginScreen(){
 
 /* ---------- lock state ---------- */
 function unlocked(){const n=String(Date.now());ss.setItem(UK,n);ss.setItem(AK,n)}
-function isLocked(){const u=+ss.getItem(UK),a=+ss.getItem(AK);return !u||Date.now()-a>IDLE_MS}
+function isLocked(){const u=+ss.getItem(UK),a=+ss.getItem(AK);return !u||Date.now()-a>IDLE()}
 function lockNow(){ss.removeItem(UK);if(!root&&session()&&ls.getItem(PK))unlockScreen()}
 function ready(){
   const s=session();if(!s||document.getElementById('mff-chips'))return;ensureStyle();
   const c=document.createElement('div');c.id='mff-chips';
-  c.innerHTML='<button type="button" id="mff-lockbtn" aria-label="ล็อก / ออกจากระบบ">🔒</button><div id="mff-menu" hidden><button type="button" data-a="lock">🔒 ล็อกแอป</button><button type="button" data-a="out">ออกจากระบบ</button></div>';
-  const menu=c.querySelector('#mff-menu');
+  c.innerHTML='<button type="button" id="mff-lockbtn" aria-label="ล็อก / ออกจากระบบ">🔒</button><div id="mff-menu" hidden><button type="button" data-a="lock">🔒 ล็อกแอปเดี๋ยวนี้</button><button type="button" data-a="time"></button><button type="button" data-a="pin">🔑 เปลี่ยน PIN</button><button type="button" data-a="out">ออกจากระบบ</button></div>';
+  const menu=c.querySelector('#mff-menu'),tb=c.querySelector('[data-a="time"]');
+  const paintTime=()=>{tb.textContent='⏱ ล็อกอัตโนมัติ: '+(lockMin()?lockMin()+' นาที':'ปกติ (5 นาที)')};paintTime();
   c.onclick=async e=>{const b=e.target.closest('button');if(!b)return;if(b.id==='mff-lockbtn'){menu.hidden=!menu.hidden;return}
-    menu.hidden=true;const a=b.dataset.a;if(a==='lock')lockNow();if(a==='out'){try{await request('adminLogout',{token:s.token})}catch(x){}clearAll();location.reload()}};
+    const a=b.dataset.a;
+    if(a==='time'){const o=[1,5,15,30],i=o.indexOf(lockMin());ls.setItem(LMK,String(o[(i+1)%o.length]));paintTime();return}
+    menu.hidden=true;if(a==='pin')return changePin();
+    if(a==='lock')lockNow();if(a==='out'){try{await request('adminLogout',{token:s.token})}catch(x){}clearAll();location.reload()}};
   document.addEventListener('pointerdown',e=>{if(!c.contains(e.target))menu.hidden=true});
   document.body.appendChild(c);
   let hiddenAt=0,t=0;
   const touch=()=>{const n=Date.now();if(n-t>5000&&!root){t=n;ss.setItem(AK,String(n))}};
   ['pointerdown','keydown','scroll','touchstart'].forEach(ev=>addEventListener(ev,touch,{passive:true}));
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else if(hiddenAt&&Date.now()-hiddenAt>HIDDEN_MS)lockNow()});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else if(hiddenAt&&Date.now()-hiddenAt>HIDDEN())lockNow()});
   setInterval(()=>{if(!root&&isLocked())lockNow()},15000);
 }
 
 function recheck(s){if(!navigator.onLine)return;request('validateAdminSession',{token:s.token}).then(function(r){if(r&&r.ok&&r.authenticated){adoptConfig(r);return}if(r&&r.authenticated===false){clearAll();location.reload()}}).catch(function(){})}
+(function(){var b;function upd(){if(!document.body)return;
+  if(!navigator.onLine){if(!b){b=document.createElement('div');b.id='mff-offline';b.textContent='ออฟไลน์';b.style.cssText='position:fixed;left:10px;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:99998;background:#5C6B74;color:#fff;font:600 11px "Noto Sans Thai",system-ui,sans-serif;padding:5px 10px;border-radius:999px;opacity:.92';document.body.appendChild(b)}}
+  else if(b){b.remove();b=null}}
+  addEventListener('online',upd);addEventListener('offline',upd);document.addEventListener('DOMContentLoaded',upd)})();
 window.MFFAuth={call:function(action,data){var s=session();return request(action,Object.assign({token:s&&s.token},data||{}))}};
 function boot(){
   try{

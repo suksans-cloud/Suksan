@@ -318,14 +318,18 @@ const SYNC_TARGETS = [
     headers:['ID','Month','Type','Category','Amount','CreatedAt','UpdatedAt'],
     toRow:t=>[t.id,t.month,t.type,t.category,t.amount,t.createdAt,t.updatedAt],
     fromRow:r=>({id:r[0], month:r[1]||'', type:r[2]||'', category:r[3]||'', amount:Number(r[4])||0, createdAt:r[5]||'', updatedAt:r[6]||''}), lastSyncKey:'sheet_last_sync_money' },
-  { key:'bookshelf', name:'📚 My Bookshelf', cacheKey:'mff_bookshelf_cache_v1', tab:'BookshelfItems', range:'A:J',
-    headers:['ID','Title','Status','DriveFileId','DriveFileName','MimeType','Size','WebViewLink','AddedAt','UpdatedAt'],
-    toRow:b=>[b.id,b.title,b.status,b.driveFileId,b.driveFileName,b.mimeType,b.size,b.webViewLink,b.addedAt,b.updatedAt],
-    fromRow:r=>({id:r[0],title:r[1]||'',status:r[2]||'queued',driveFileId:r[3]||'',driveFileName:r[4]||'',mimeType:r[5]||'',size:r[6]||'',webViewLink:r[7]||'',addedAt:r[8]||'',updatedAt:r[9]||''}), lastSyncKey:'sheet_last_sync_bookshelf' },
-  { key:'profile', name:'👤 My Profile', cacheKey:'mff_profiles_cache_v1', tab:'Profiles', range:'A:M',
-    headers:['ID','Photo','FirstName','LastName','BloodGroup','Address','Email','Phone','CreatedAt','UpdatedAt','Relation','BankAccounts','IDCard'],
-    toRow:p=>[p.id,p.photo,p.firstName,p.lastName,p.bloodGroup,p.address,p.email,(p.phone?("'"+p.phone):''),p.createdAt,p.updatedAt,p.relation||'',JSON.stringify(p.bankAccounts||[]),(p.idCard?("'"+p.idCard):'')],
-    fromRow:r=>{ let bank=[]; try{const a=JSON.parse(r[11]||'[]');if(Array.isArray(a))bank=a;}catch(e){} return {id:r[0],photo:r[1]||'',firstName:r[2]||'',lastName:r[3]||'',bloodGroup:r[4]||'',address:r[5]||'',email:r[6]||'',phone:r[7]||'',createdAt:r[8]||'',updatedAt:r[9]||'',relation:r[10]||'',bankAccounts:bank,idCard:r[12]||''}; }, lastSyncKey:'sheet_last_sync_profile' },
+  { key:'bookshelf', name:'📚 My Bookshelf', cacheKey:'mff_bookshelf_cache_v1', tab:'BookshelfItems', range:'A:N',
+    headers:['ID','Title','Status','DriveFileId','DriveFileName','MimeType','Size','WebViewLink','AddedAt','UpdatedAt','Progress','Borrower','DueDate','FinishedAt'],
+    toRow:b=>[b.id,b.title,b.status,b.driveFileId,b.driveFileName,b.mimeType,b.size,b.webViewLink,b.addedAt,b.updatedAt,b.progress||'',b.borrower||'',b.dueDate||'',b.finishedAt||''],
+    fromRow:r=>({id:r[0],title:r[1]||'',status:r[2]||'queued',driveFileId:r[3]||'',driveFileName:r[4]||'',mimeType:r[5]||'',size:r[6]||'',webViewLink:r[7]||'',addedAt:r[8]||'',updatedAt:r[9]||'',...((r[10]!==undefined&&r[10]!=='')?{progress:Number(r[10])||0}:{}),...(r[11]?{borrower:r[11]}:{}),...(r[12]?{dueDate:r[12]}:{}),...(r[13]?{finishedAt:r[13]}:{})}), lastSyncKey:'sheet_last_sync_bookshelf' },
+  { key:'profile', name:'👤 My Profile', cacheKey:'mff_profiles_cache_v1', tab:'Profiles', range:'A:N',
+    headers:['ID','Photo','FirstName','LastName','BloodGroup','Address','Email','Phone','CreatedAt','UpdatedAt','Relation','BankAccounts','IDCard','Documents'],
+    toRow:p=>[p.id,p.photo,p.firstName,p.lastName,p.bloodGroup,p.address,p.email,(p.phone?("'"+p.phone):''),p.createdAt,p.updatedAt,p.relation||'',JSON.stringify(p.bankAccounts||[]),(p.idCard?("'"+p.idCard):''),JSON.stringify(p.documents||[])],
+    fromRow:r=>{ let bank=[],docs=[]; try{const a=JSON.parse(r[11]||'[]');if(Array.isArray(a))bank=a;}catch(e){} try{const a=JSON.parse(r[13]||'[]');if(Array.isArray(a))docs=a;}catch(e){} return {id:r[0],photo:r[1]||'',firstName:r[2]||'',lastName:r[3]||'',bloodGroup:r[4]||'',address:r[5]||'',email:r[6]||'',phone:r[7]||'',createdAt:r[8]||'',updatedAt:r[9]||'',relation:r[10]||'',bankAccounts:bank,idCard:r[12]||'',documents:docs}; }, lastSyncKey:'sheet_last_sync_profile' },
+  { key:'settings', name:'⚙️ งบและรายการประจำ', cacheKey:'mff_settings_cache_v1', tab:'AppSettings', range:'A:C',
+    headers:['ID','Value','UpdatedAt'],
+    toRow:s=>[s.id,s.value,s.updatedAt],
+    fromRow:r=>({id:r[0],value:r[1]||'',updatedAt:r[2]||''}), lastSyncKey:'sheet_last_sync_settings' },
 ];
 const SYNC_BASE_PREFIX='mff_sync_base_v1_';
 const SYNC_DIRTY_PREFIX='mff_sync_dirty_v1_';
@@ -882,6 +886,7 @@ function renderModuleStatus(){
     {name:'My Portfolio', key:'sheet_last_sync'},
     {name:'My Bookshelf', key:'sheet_last_sync_bookshelf'},
     {name:'My Profile', key:'sheet_last_sync_profile'},
+    {name:'งบและรายการประจำ', key:'sheet_last_sync_settings'},
   ];
   const detail=document.getElementById('statusPerModule');
   if(detail){

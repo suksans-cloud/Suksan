@@ -801,6 +801,57 @@ html,body{max-width:100%;overflow-x:hidden}
   .finance-history-filter{display:grid !important;grid-template-columns:auto minmax(0,1fr) !important;width:100% !important;max-width:100% !important;min-width:0 !important;}
   .finance-history-select{width:100% !important;min-width:0 !important;max-width:100% !important;overflow:hidden;text-overflow:ellipsis;}
   .finance-history-chart{width:100%;max-width:100%;overflow:hidden;}
+.mnh-ranges{display:flex;gap:6px;margin:10px 0 8px;overflow-x:auto;scrollbar-width:none}
+.mnh-ranges button{flex:none;border:1px solid #D5DEE6;background:#fff;color:#5C6B74;border-radius:999px;padding:7px 12px;font:600 12px inherit;font-family:inherit}
+.mnh-ranges button.on{background:#3A6C93;border-color:#3A6C93;color:#fff}
+.mnh-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:2px 0 8px}
+.mnh-stats>div{background:#F3F7FA;border-radius:12px;padding:9px 10px;min-width:0}
+.mnh-stats small{display:block;font-size:10.5px;color:#7C8DA0}
+.mnh-stats b{display:block;font-size:13px;color:#072340;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mnh-chart{position:relative}
+.mnh-chart svg{height:190px!important;max-width:100%}
+.mnh-t{font-family:inherit;fill:#7C8DA0;font-size:10px}
+.mnh-tip{position:absolute;top:0;z-index:2;background:#072340;color:#fff;border-radius:8px;padding:5px 9px;font-size:11px;white-space:nowrap;pointer-events:none}
+.mat-box{margin-top:12px;border-top:1px solid #E7EEF4;padding-top:10px}
+.mat-box>summary{cursor:pointer;font-weight:600;font-size:13.5px;color:#072340;list-style:none}
+.mat-box>summary::-webkit-details-marker{display:none}.mat-box>summary small{color:#7C8DA0;font-weight:500}
+.mat-head,.mat-row{display:grid;grid-template-columns:minmax(0,1.6fr) 56px 84px;gap:8px;align-items:center}
+.mat-head{margin:12px 0 4px;font-size:11px;color:#7C8DA0}.mat-head span:nth-child(n+2){text-align:right}
+.mat-row{padding:7px 0;border-bottom:1px solid #EEF2F6}
+.mat-name{display:flex;align-items:center;gap:8px;font-size:13px;min-width:0}.mat-name i{width:10px;height:10px;border-radius:50%;flex:none}
+.mat-act{text-align:right;font-size:13px;font-weight:600;color:#072340}
+.mat-in{display:flex;align-items:center;gap:4px;border:1px solid #D5DEE6;border-radius:10px;padding:0 8px;height:36px;background:#fff}
+.mat-in input{width:100%;min-width:0;border:0;outline:0;background:none;text-align:right;font-size:15px;font-family:inherit;color:#072340;padding:0}
+.mat-in span{font-size:11px;color:#7C8DA0}
+.mat-chipwrap{grid-column:1/-1}
+.mat-chip{display:inline-block;border-radius:999px;padding:3px 10px;font-size:11.5px;font-weight:600}
+.mat-chip.ok{background:#E8F5EE;color:#1F7A55}.mat-chip.low{background:#E8F0F7;color:#3A6C93}.mat-chip.high{background:#FFF1DC;color:#B26A00}
+.mat-foot{margin-top:10px;font-size:12px;color:#5C6B74}.mat-foot.warn{color:#B26A00}
+.mat-note{margin-top:6px;font-size:11px;color:#8A98A5;line-height:1.5}
+.asset-allocation-panel .mat-box{border-top-color:rgba(255,255,255,.18)}
+.asset-allocation-panel .mat-box>summary{color:#fff}
+.asset-allocation-panel .mat-box>summary small{color:rgba(255,255,255,.65)}
+.asset-allocation-panel .mat-head{color:rgba(255,255,255,.6)}
+.asset-allocation-panel .mat-row{border-bottom-color:rgba(255,255,255,.14)}
+.asset-allocation-panel .mat-name{color:#fff}
+.asset-allocation-panel .mat-act{color:#fff}
+.asset-allocation-panel .mat-foot{color:rgba(255,255,255,.78)}
+.asset-allocation-panel .mat-foot.warn{color:#FFD58A}
+.asset-allocation-panel .mat-note{color:rgba(255,255,255,.55)}
+.mtx-panel{margin-top:14px}.mtx-sub{font-size:12px;color:#7C8DA0;margin:2px 0 10px}
+.mtx-owner{border-top:1px solid #E7EEF4;padding:12px 0}
+.mtx-name{font-weight:700;color:#072340;margin-bottom:8px}
+.mtx-inputs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:end}
+.mtx-inputs label{display:block;font-size:10.5px;color:#7C8DA0;line-height:1.3}
+.mtx-inputs input,.mtx-inputs select{display:block;width:100%;margin-top:4px;height:38px;border:1px solid #D5DEE6;border-radius:10px;padding:0 8px;font-size:14px;font-family:inherit;color:#072340;background:#fff}
+.mtx-line{margin-top:12px}.mtx-lh{display:flex;justify-content:space-between;font-size:12.5px}.mtx-lh span{color:#7C8DA0}
+.mtx-bar{position:relative;height:9px;border-radius:99px;background:#E7EEF4;margin:6px 0;overflow:hidden}
+.mtx-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:99px}.mtx-bar .p{background:#BFD3E3}.mtx-bar .d{background:#3A6C93}
+.mtx-nums{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:11.5px;color:#5C6B74}.mtx-nums b{color:#072340}
+.mtx-warn{color:#C24D63;font-weight:600}
+.mtx-save{margin-top:10px;background:#E8F5EE;color:#1F7A55;border-radius:12px;padding:8px 12px;font-size:12.5px}
+.mtx-set{margin-top:6px;border-top:1px solid #E7EEF4;padding-top:10px}.mtx-set>summary{cursor:pointer;font-size:12.5px;color:#5C6B74}
+.mtx-set .mtx-inputs{margin-top:10px}
   .finance-history-chart svg{width:100% !important;max-width:100% !important;}
   .finance-portfolio-history-stats{width:100%;max-width:100%;grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
 }
@@ -815,6 +866,7 @@ html,body{max-width:100%;overflow-x:hidden}
 </style>
 <script src="../config.js"></script>
 <script src="../admin-login.js"></script>
+<script src="../settings-store.js"></script>
 <script src="auth-open.js"></script>
 <style id="v39-manager-redesign">
 .v39-manager-sheet{max-width:920px!important;width:96%!important;padding:0!important;overflow:hidden;background:#f7fbfa!important;border-radius:24px!important}
@@ -915,8 +967,22 @@ html,body{max-width:100%;overflow-x:hidden}
   }
 
 </style>
+<style>
+
+body.mff-hide-money .legend-val,body.mff-hide-money .legend-sub,body.mff-hide-money .pct-chip,body.mff-hide-money .fund-row-actual,body.mff-hide-money .fund-row-target,body.mff-hide-money .owner-total,body.mff-hide-money .summary-card .s-v,body.mff-hide-money .notice b,body.mff-hide-money .asset-donut-label,body.mff-hide-money .asset-legend-money,body.mff-hide-money .asset-legend-pct,body.mff-hide-money .mtx-nums,body.mff-hide-money .mtx-save,body.mff-hide-money .mat-act,body.mff-hide-money .mat-chip,body.mff-hide-money .kpi-value,body.mff-hide-money .amount,body.mff-hide-money .money,body.mff-hide-money .amt,body.mff-hide-money [data-money],body.mff-hide-money #assetAllocationTotal,body.mff-hide-money #assetAllocationCenter,body.mff-hide-money .asset-donut-center strong,body.mff-hide-money .finance-portfolio-summary .v,body.mff-hide-money .finance-summary-card .v,body.mff-hide-money .finance-row-price,body.mff-hide-money .finance-row-pct,body.mff-hide-money .finance-detail-kpi .v,body.mff-hide-money .finance-row-portfolio,body.mff-hide-money .chart-value,body.mff-hide-money .finance-history-chart text,body.mff-hide-money .mnh-chart text,body.mff-hide-money .ret-sim-value,body.mff-hide-money .ret-result-value{filter:blur(7px);user-select:none}
+body.mff-hide-money .fund-row .fund-row-actual,body.mff-hide-money .fund-row .fund-row-target,body.mff-hide-money .fund-row .pct-chip{visibility:hidden !important;filter:none !important;user-select:none}
+.mtx-tax{margin-top:14px}.mtx-tax>summary{cursor:pointer;font-weight:700;padding:10px 0}.mtx-tax:not([open]){margin-top:8px;padding-top:6px}.mtx-tax:not([open])>summary{padding:5px 0;line-height:1.35}.mtx-tax-body{padding-bottom:8px}
+.mtx-panel .mtx-tax{border-top:0;margin-top:0;padding-top:0}
+.mat-box>summary,.mtx-tax>summary{display:flex;justify-content:space-between;align-items:center;gap:8px;list-style:none}
+.mat-box>summary::-webkit-details-marker,.mtx-tax>summary::-webkit-details-marker{display:none}
+.mat-box>summary::after,.mtx-tax>summary::after{content:'›';flex:none;color:#7C8DA0;font-size:20px;line-height:1;transform:rotate(90deg);transition:transform .2s}
+.mat-box[open]>summary::after,.mtx-tax[open]>summary::after{transform:rotate(-90deg)}
+.asset-allocation-panel .mat-box>summary::after{color:rgba(255,255,255,.7)}
+</style>
 </head>
 <body>
+<button id="privacyEye" type="button" aria-label="ซ่อนหรือแสดงตัวเลข" title="ซ่อนหรือแสดงตัวเลข">👁</button>
+<script src="../privacy-eye.js"></script>
 
 <div class="topbar">
   <div class="brand">
@@ -957,7 +1023,10 @@ html,body{max-width:100%;overflow-x:hidden}
         </div>
         <div class="asset-legend" id="assetAllocationLegend"></div>
       </div>
+      <details class="mat-box" id="assetTargetBox"></details>
     </div>
+
+    <div class="panel mtx-panel" id="taxTrackerPanel"></div>
 
     <div class="panel market-panel">
       <div class="market-ticker-head">
@@ -2060,6 +2129,109 @@ function assetCategoryForFund(f){
   };
   return byKey[key];
 }
+
+/* ===================== เป้าหมายสัดส่วน + สิทธิ์ลดหย่อน RMF / Thai ESG ===================== */
+const ALLOC_ORDER=[['reserve','เงินสำรอง','#2F9D8F'],['bond','ตราสารหนี้','#3E82DC'],['equity','ตราสารทุน','#F06D6D'],['etf','ETF','#7B2BE0'],['alternative','สินทรัพย์ทางเลือก','#E8B645']];
+const baht0=n=>'฿'+Math.round(Number(n)||0).toLocaleString('th-TH');
+function renderAllocTargets(total,totals){
+  const box=document.getElementById('assetTargetBox'); if(!box||!window.MFFSettings) return;
+  const tg=MFFSettings.get('allocTargets',{})||{};
+  const has=Object.values(tg).some(v=>Number(v)>0);
+  const sum=ALLOC_ORDER.reduce((s,[k])=>s+(Number(tg[k])||0),0);
+  const rows=ALLOC_ORDER.map(([k,label,color])=>{
+    const amt=(totals[k]&&totals[k].amount)||0, act=total?amt/total*100:0, t=Number(tg[k])||0, diff=t-act;
+    let chip='';
+    if(has&&total){
+      chip=Math.abs(diff)<0.5?'<span class="mat-chip ok">ตรงเป้า</span>'
+        :`<span class="mat-chip ${diff>0?'low':'high'}">${diff>0?'ต่ำกว่าเป้า':'เกินเป้า'} ${Math.abs(diff).toFixed(1)} จุด · ≈ ${baht0(Math.abs(diff)/100*total)}</span>`;
+    }
+    return `<div class="mat-row"><div class="mat-name"><i style="background:${color}"></i>${label}</div><div class="mat-act">${act.toFixed(1)}%</div><label class="mat-in"><input type="number" inputmode="decimal" min="0" max="100" step="5" data-k="${k}" value="${t||''}" placeholder="เป้า"><span>%</span></label>${chip?`<div class="mat-chipwrap">${chip}</div>`:''}</div>`;
+  }).join('');
+  box.innerHTML=`<summary>🎯 เทียบกับเป้าหมายสัดส่วน${has?` <small>(เป้ารวม ${sum}%)</small>`:''}</summary>
+    <div class="mat-body"><div class="mat-head"><span>ประเภท</span><span>ปัจจุบัน</span><span>เป้า</span></div>${rows}
+    <div class="mat-foot ${has&&sum!==100?'warn':''}">${has?(sum===100?'เป้ารวม 100%':`เป้ารวม ${sum}% (ควรรวมให้เท่ากับ 100%)`):'ใส่สัดส่วนที่ต้องการของแต่ละประเภท ระบบจะแสดงส่วนต่างจากสัดส่วนปัจจุบัน'}</div>
+    <div class="mat-note">คำนวณจากเงินลงทุนจริงตามกราฟด้านบน เป็นข้อมูลประกอบการตัดสินใจ ไม่ใช่คำแนะนำการลงทุน</div></div>`;
+  box.querySelectorAll('input[data-k]').forEach(inp=>inp.addEventListener('change',()=>{
+    const cur=Object.assign({},MFFSettings.get('allocTargets',{})), v=Math.max(0,Math.min(100,parseFloat(inp.value)||0));
+    if(v>0) cur[inp.dataset.k]=v; else delete cur[inp.dataset.k];
+    MFFSettings.set('allocTargets',cur); renderAllocTargets(total,totals);
+  }));
+}
+function taxFundTotals(Y,curM){
+  const per={};
+  DATA.funds.forEach(f=>{
+    const code=canonicalFundCode(f.name), ac=String(FUND_MASTER[code]?.assetClass||'');
+    const kind=(/^RMF/i.test(ac)||/RMF/i.test(code))?'rmf':(/thai\s*esg/i.test(ac)||/ESG/i.test(code))?'esg':null;
+    if(!kind) return;
+    const yd=yearData(f,Y,false), pm=(yd&&yd.planMonths)||{};
+    const o=per[f.owner]||(per[f.owner]={rmf:{done:0,plan:0},esg:{done:0,plan:0}});
+    Object.entries(pm).forEach(([m,v])=>{ const n=Number(v)||0; o[kind].plan+=n; if(Number(m)<=curM) o[kind].done+=n; });
+  });
+  return per;
+}
+function publishPlanFeed(){
+  try{
+    const now=new Date(), Y=now.getFullYear(), M=now.getMonth()+1, owners={};
+    const per=taxFundTotals(Y,M);
+    Object.keys(per).forEach(n=>{ owners[n]=Object.assign({},owners[n]||{},{rmfPlan:per[n].rmf.plan,rmfDone:per[n].rmf.done,esgPlan:per[n].esg.plan,esgDone:per[n].esg.done}); });
+    DATA.funds.forEach(f=>{
+      const yd=yearData(f,Y,false), n=Number(((yd&&yd.planMonths)||{})[M])||0; if(!n) return;
+      const o=owners[f.owner]||(owners[f.owner]={}); o.monthPlan=(o.monthPlan||0)+n;
+    });
+    localStorage.setItem('mff_plan_feed_v1',JSON.stringify({year:Y,at:Date.now(),owners:owners}));
+  }catch(e){}
+}
+function renderTaxTracker(){
+  const panel=document.getElementById('taxTrackerPanel'); if(!panel||!window.MFFSettings) return;
+  const Y=new Date().getFullYear(), curM=new Date().getMonth()+1;
+  const plan=MFFSettings.get('taxPlan',{})||{};
+  const P={pct:Number(plan.pct)||30,rmfCap:Number(plan.rmfCap)||500000,esgCap:Number(plan.esgCap)||300000,owners:plan.owners||{}};
+  const per=taxFundTotals(Y,curM);
+  const names=Object.keys(per).filter(n=>per[n].rmf.plan+per[n].esg.plan>0);
+  if(!names.length){ panel.style.display='none'; return; }
+  panel.style.display='';
+  const line=(label,x,cap)=>{
+    const w1=cap>0?Math.min(100,x.done/cap*100):0, w2=cap>0?Math.min(100,x.plan/cap*100):0;
+    const over=cap>0&&x.plan>cap;
+    return `<div class="mtx-line"><div class="mtx-lh"><b>${label}</b><span>${cap>0?'สิทธิ์สูงสุด '+baht0(cap):'ใส่รายได้เพื่อคำนวณสิทธิ์'}</span></div>
+      ${cap>0?`<div class="mtx-bar"><i class="p" style="width:${w2}%"></i><i class="d" style="width:${w1}%"></i></div>`:''}
+      <div class="mtx-nums"><span>ซื้อแล้วถึงเดือนนี้ <b>${baht0(x.done)}</b></span><span>แผนทั้งปี <b>${baht0(x.plan)}</b></span>${cap>0?(over?`<span class="mtx-warn">แผนเกินสิทธิ์ ${baht0(x.plan-cap)}</span>`:`<span>เหลือสิทธิ์ <b>${baht0(Math.max(0,cap-x.plan))}</b></span>`):''}</div></div>`;
+  };
+  const blocks=names.map(n=>{
+    const c=P.owners[n]||{}, income=Number(c.income)||0, other=Number(c.other)||0, rate=Number(c.rate)||0, o=per[n];
+    const rmfCap=income>0?Math.max(0,Math.min(income*P.pct/100,P.rmfCap-other)):0;
+    const esgCap=income>0?Math.min(income*P.pct/100,P.esgCap):0;
+    const saved=rate>0?(Math.min(o.rmf.plan,rmfCap)+Math.min(o.esg.plan,esgCap))*rate/100:0;
+    return `<div class="mtx-owner"><div class="mtx-name">${esc(n)}</div>
+      <div class="mtx-inputs">
+        <label>รายได้ทั้งปี (บาท)<input type="number" inputmode="decimal" data-o="${esc(n)}" data-f="income" value="${income||''}" placeholder="0"></label>
+        <label>ออมเกษียณอื่น (PVD/ประกันบำนาญ)<input type="number" inputmode="decimal" data-o="${esc(n)}" data-f="other" value="${other||''}" placeholder="0"></label>
+        <label>อัตราภาษีส่วนเพิ่ม<select data-o="${esc(n)}" data-f="rate">${[0,5,10,15,20,25,30,35].map(r=>`<option value="${r}" ${r===rate?'selected':''}>${r?r+'%':'ไม่ระบุ'}</option>`).join('')}</select></label>
+      </div>
+      ${o.rmf.plan>0?line('RMF',o.rmf,rmfCap):''}${o.esg.plan>0?line('Thai ESG',o.esg,esgCap):''}
+      ${saved>0?`<div class="mtx-save">ประหยัดภาษีโดยประมาณถ้าซื้อตามแผน ≈ <b>${baht0(saved)}</b></div>`:''}</div>`;
+  }).join('');
+  const settingsOpen=panel.querySelector('.mtx-set')?.open;
+  panel.innerHTML=`<details class="mat-box mtx-tax"><summary>สิทธิ์ลดหย่อนภาษี RMF / Thai ESG • ปีภาษี ${Y+543}</summary><div class="mtx-tax-body">
+    <div class="mtx-sub">คำนวณจากแผนลงทุนรายเดือนของปีนี้ (แถบเข้ม = ซื้อแล้วถึงเดือนนี้ แถบจาง = รวมแผนทั้งปี)</div>${blocks}
+    <details class="mtx-set"><summary>⚙️ เกณฑ์ที่ใช้คำนวณ (แก้ได้)</summary>
+      <div class="mtx-inputs"><label>เพดาน % ของรายได้<input type="number" data-g="pct" value="${P.pct}"></label>
+      <label>เพดาน RMF (รวมออมเกษียณอื่น)<input type="number" data-g="rmfCap" value="${P.rmfCap}"></label>
+      <label>เพดาน Thai ESG<input type="number" data-g="esgCap" value="${P.esgCap}"></label></div>
+      <div class="mat-note">ค่าเริ่มต้นตามเกณฑ์ที่เผยแพร่: RMF ไม่เกิน 30% ของรายได้ และไม่เกิน 500,000 บาท (รวมกองทุนเกษียณอื่นไม่เกิน 500,000) • Thai ESG ไม่เกิน 30% และไม่เกิน 300,000 บาท แยกจากกลุ่มเกษียณ โปรดตรวจเกณฑ์ของปีภาษีนี้กับกรมสรรพากรก่อนตัดสินใจ ข้อมูลนี้ไม่ใช่คำแนะนำด้านภาษี</div></details></div></details>`;
+  if(settingsOpen) panel.querySelector('.mtx-set').open=true;
+  panel.querySelectorAll('[data-o]').forEach(el=>el.addEventListener('change',()=>{
+    const cur=Object.assign({},MFFSettings.get('taxPlan',{})); cur.owners=Object.assign({},cur.owners||{});
+    cur.owners[el.dataset.o]=Object.assign({},cur.owners[el.dataset.o]||{},{[el.dataset.f]:Math.max(0,parseFloat(el.value)||0)});
+    MFFSettings.set('taxPlan',cur); renderTaxTracker();
+  }));
+  panel.querySelectorAll('[data-g]').forEach(el=>el.addEventListener('change',()=>{
+    const cur=Object.assign({},MFFSettings.get('taxPlan',{})); const v=parseFloat(el.value);
+    if(v>0) cur[el.dataset.g]=v; else delete cur[el.dataset.g];
+    MFFSettings.set('taxPlan',cur); renderTaxTracker();
+  }));
+}
+
 function renderHero(){
   const funds=scopedFunds();
   const totals={};
@@ -2108,6 +2280,7 @@ function renderHero(){
     const pct=total?((x.amount/total)*100):0;
     return `<div class="asset-legend-item">\n      <div class="asset-legend-dot" style="background:${x.color}"></div>\n      <div class="asset-legend-name">${escapeHtml(x.label)}${x.note?`<small>${escapeHtml(x.note)}</small>`:''}</div>\n      <div class="asset-legend-money">${fmtInt(x.amount)}</div>\n      <div class="asset-legend-pct">${pct.toFixed(1)}%</div>\n    </div>`;
   }).join('') || '<div class="asset-empty">ยังไม่มีข้อมูลการลงทุนจริง</div>';
+  try{ renderAllocTargets(total,totals); renderTaxTracker(); }catch(e){ console.warn('[alloc/tax]',e); }
 }
 function renderAllocation(){
   const totals = ownerTotals();
@@ -3391,6 +3564,8 @@ function openFinanceRealTransactions(){
  <div class="finance-overview-note">รายการนี้อ่านจาก transaction จริงเท่านั้น • PlanMaster/เงินลงทุนตามแผนไม่ถูกนับเป็นเงินลงทุนจริง • มูลค่า = หน่วย × NAV ล่าสุด • P/L = มูลค่า − เงินซื้อ</div>`;
  overlay.hidden=false;
 }
+const NAV_RANGES=[['1m','1 เดือน',31],['3m','3 เดือน',92],['6m','6 เดือน',183],['1y','1 ปี',366],['all','ทั้งหมด',0]];
+let navRange='3m';
 function openFinanceNavHistory(){
   const overlay=document.getElementById('financeNavHistoryOverlay'), body=document.getElementById('financeNavHistoryBody');
   if(!overlay||!body)return;
@@ -3406,19 +3581,63 @@ function openFinanceNavHistory(){
   const select=document.getElementById('financeNavHistorySelect');
   const render=()=>{
     const chosen=rows.find(r=>r.code===select.value)||rows[0];
-    const arr=chosen.arr;
+    const all=chosen.arr, last=all[all.length-1];
+    const rg=NAV_RANGES.find(r=>r[0]===navRange)||NAV_RANGES[4];
+    let arr=all;
+    if(rg[2]){
+      const lim=new Date(String(last.date).slice(0,10)); lim.setDate(lim.getDate()-rg[2]);
+      const lk=lim.toISOString().slice(0,10);
+      arr=all.filter(x=>String(x.date).slice(0,10)>=lk);
+      if(arr.length<2) arr=all.slice(-2);
+    }
     const maxRows=arr.slice().reverse().slice(0,30);
     const tr=maxRows.map(x=>{const d=String(x.date).split('-').reverse().join('/');return `<tr><td>${esc(d)}</td><td>${Number(x.nav).toFixed(4)}</td><td>${esc(x.source||'—')}</td></tr>`;}).join('');
-    const vals=arr.map(x=>Number(x.nav)).filter(Number.isFinite); const min=Math.min(...vals),max=Math.max(...vals); const range=max-min||1;
-    const w=640,h=160,p={l:42,r:10,t:10,b:28}; const xx=i=>p.l+(arr.length===1?(w-p.l-p.r)/2:(i/(arr.length-1))*(w-p.l-p.r)); const yy=v=>h-p.b-((v-min)/range)*(h-p.t-p.b);
-    const path=arr.map((x,i)=>`${i?'L':'M'} ${xx(i).toFixed(1)} ${yy(Number(x.nav)).toFixed(1)}`).join(' ');
-    const dots=arr.length<=20?arr.map((x,i)=>`<circle class="chart-value-dot" cx="${xx(i)}" cy="${yy(Number(x.nav))}" r="2.5"/>`).join(''):'';
-    const labels=[0,Math.floor((arr.length-1)/2),arr.length-1].filter((v,i,a)=>v>=0&&a.indexOf(v)===i).map(i=>{const d=String(arr[i].date).split('-');return `<text x="${xx(i)}" y="${h-8}" text-anchor="middle">${d[2]}/${d[1].slice(0,2)}</text>`;}).join('');
-    const chart=`<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" role="img" aria-label="กราฟ NAV History"><line class="chart-axis" x1="${p.l}" x2="${p.l}" y1="${p.t}" y2="${h-p.b}"/><line class="chart-axis" x1="${p.l}" x2="${w-p.r}" y1="${h-p.b}" y2="${h-p.b}"/><path class="chart-value-line" d="${path}"/>${dots}${labels}</svg>`;
+    const vals=arr.map(x=>Number(x.nav)).filter(Number.isFinite);
+    const min=Math.min(...vals), max=Math.max(...vals), span=(max-min)||Math.abs(max)*0.02||1;
+    const first=vals[0], lastV=vals[vals.length-1], chg=lastV-first, pct=first?chg/first*100:0;
+    const dec=max<10?4:max<100?3:2;
+    const W=Math.max(260,body.clientWidth||320), H=190, p={l:50,r:16,t:16,b:28};
+    const lo=min-span*0.08, hi=max+span*0.08;
+    const xx=i=>p.l+(arr.length===1?(W-p.l-p.r)/2:(i/(arr.length-1))*(W-p.l-p.r));
+    const yy=v=>H-p.b-((v-lo)/(hi-lo))*(H-p.t-p.b);
+    const line=arr.map((x,i)=>`${i?'L':'M'} ${xx(i).toFixed(1)} ${yy(Number(x.nav)).toFixed(1)}`).join(' ');
+    const area=`${line} L ${xx(arr.length-1).toFixed(1)} ${H-p.b} L ${xx(0).toFixed(1)} ${H-p.b} Z`;
+    const up=chg>=0, col=up?'#1F9D6C':'#D12F3F';
+    const grid=[0,1,2,3].map(k=>{const v=lo+(hi-lo)*k/3,y=yy(v);return `<line x1="${p.l}" x2="${W-p.r}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#E5EDF3" stroke-width="1"/><text x="${p.l-6}" y="${(y+3).toFixed(1)}" text-anchor="end" class="mnh-t">${v.toFixed(dec)}</text>`;}).join('');
+    const TM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    const longR=rg[2]===0||rg[2]>200;
+    const fmtX=d=>{const q=String(d).slice(0,10).split('-');return longR?`${TM[+q[1]-1]} ${String((+q[0]+543)%100).padStart(2,'0')}`:`${+q[2]} ${TM[+q[1]-1]}`;};
+    const nX=Math.min(4,arr.length), idxs=[...new Set(Array.from({length:nX},(_,k)=>Math.round(k*(arr.length-1)/Math.max(1,nX-1))))];
+    const xl=idxs.map((i,k)=>`<text x="${xx(i).toFixed(1)}" y="${H-8}" text-anchor="${k===0?'start':k===idxs.length-1?'end':'middle'}" class="mnh-t">${fmtX(arr[i].date)}</text>`).join('');
+    const dots=arr.length<=20?arr.map((x,i)=>`<circle cx="${xx(i).toFixed(1)}" cy="${yy(Number(x.nav)).toFixed(1)}" r="2.6" fill="${col}"/>`).join(''):'';
+    const endDot=`<circle cx="${xx(arr.length-1).toFixed(1)}" cy="${yy(lastV).toFixed(1)}" r="4" fill="${col}" stroke="#fff" stroke-width="2"/>`;
+    const chart=`<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="กราฟ NAV History" id="mnhSvg" style="touch-action:pan-y">
+      <defs><linearGradient id="mnhFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".22"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
+      ${grid}<path d="${area}" fill="url(#mnhFill)"/><path d="${line}" fill="none" stroke="${col}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>${dots}${endDot}${xl}
+      <line id="mnhCur" x1="0" x2="0" y1="${p.t}" y2="${H-p.b}" stroke="#7C8DA0" stroke-dasharray="3 3" style="display:none"/><circle id="mnhCurDot" r="4.5" fill="${col}" stroke="#fff" stroke-width="2" style="display:none"/></svg>`;
     const mobileRows=maxRows.map(x=>{const d=String(x.date).split('-').reverse().join('/');return `<div class="finance-nav-mobile-item"><div><div class="finance-nav-mobile-date">${esc(d)}</div><div class="finance-nav-mobile-source">${esc(x.source||'—')}</div></div><div class="finance-nav-mobile-value">${Number(x.nav).toFixed(4)}</div></div>`;}).join('');
-    document.getElementById('financeNavHistoryContent').innerHTML=`<div class="finance-detail-note"><b>${esc(chosen.code)}</b> • ${arr.length} วัน • แสดง NAV จริง ไม่ใช่ Portfolio Value</div><div class="finance-history-chart">${chart}</div><div class="finance-nav-table-wrap" style="overflow:auto;max-height:320px"><table class="finance-overview-table"><thead><tr><th>วันที่</th><th>NAV</th><th>แหล่งข้อมูล</th></tr></thead><tbody>${tr}</tbody></table></div><div class="finance-nav-mobile-list">${mobileRows}</div>`;
+    window.__mnhArr={arr,xx,yy,dec,W};
+    const ranges=`<div class="mnh-ranges">${NAV_RANGES.map(r=>`<button type="button" data-r="${r[0]}" class="${r[0]===navRange?'on':''}">${r[1]}</button>`).join('')}</div>`;
+    const stats=`<div class="mnh-stats"><div><small>NAV ล่าสุด</small><b>${lastV.toFixed(dec)}</b></div><div><small>เปลี่ยนแปลงในช่วง</small><b style="color:${col}">${up?'+':''}${pct.toFixed(2)}%</b></div><div><small>สูง / ต่ำ ในช่วง</small><b style="white-space:normal;font-size:12px;line-height:1.4">▲ ${max.toFixed(dec)}<br>▼ ${min.toFixed(dec)}</b></div></div>`;
+    document.getElementById('financeNavHistoryContent').innerHTML=`<div class="finance-detail-note"><b>${esc(chosen.code)}</b> • ${all.length} วันที่มีข้อมูล • แสดง NAV จริง ไม่ใช่ Portfolio Value</div>${ranges}${stats}<div class="finance-history-chart mnh-chart"><div id="mnhTip" class="mnh-tip" hidden></div>${chart}</div><div class="finance-nav-table-wrap" style="overflow:auto;max-height:320px"><table class="finance-overview-table"><thead><tr><th>วันที่</th><th>NAV</th><th>แหล่งข้อมูล</th></tr></thead><tbody>${tr}</tbody></table></div><div class="finance-nav-mobile-list">${mobileRows}</div>`;
+    wireChart();
   };
-  select.addEventListener('change',render); select.value=rows[0].code; render(); overlay.hidden=false;
+  const wireChart=()=>{
+    const content=document.getElementById('financeNavHistoryContent');
+    content.querySelectorAll('.mnh-ranges button').forEach(bt=>bt.addEventListener('click',()=>{navRange=bt.dataset.r;render();}));
+    const svg=document.getElementById('mnhSvg'); if(!svg||!window.__mnhArr) return;
+    const {arr,xx,yy,dec,W}=window.__mnhArr, tip=document.getElementById('mnhTip'), cur=document.getElementById('mnhCur'), dot=document.getElementById('mnhCurDot');
+    const show=ev=>{
+      const r=svg.getBoundingClientRect(), x=(ev.clientX-r.left)*(W/r.width);
+      let bi=0,bd=1e9; arr.forEach((v,i)=>{const d=Math.abs(xx(i)-x); if(d<bd){bd=d;bi=i;}});
+      const v=arr[bi], cx=xx(bi), cy=yy(Number(v.nav));
+      cur.setAttribute('x1',cx);cur.setAttribute('x2',cx);cur.style.display='';dot.setAttribute('cx',cx);dot.setAttribute('cy',cy);dot.style.display='';
+      tip.hidden=false; tip.textContent=String(v.date).slice(0,10).split('-').reverse().join('/')+'  •  NAV '+Number(v.nav).toFixed(dec);
+      tip.style.left=Math.min(Math.max(cx/W*r.width-70,0),r.width-150)+'px';
+    };
+    svg.addEventListener('pointerdown',show); svg.addEventListener('pointermove',e=>{if(e.pressure>0||e.pointerType==='mouse')show(e)});
+  };
+  overlay.hidden=false; select.addEventListener('change',render); select.value=rows[0].code; render();
 }
 
 function setFinanceTab(tab){
@@ -3538,6 +3757,24 @@ async function saveMarketManager(){localStorage.setItem('market_assets_v3982',JS
 document.querySelectorAll('#financeSeg button').forEach(b=>b.classList.toggle('active',b.dataset.tab===financeTab));
 marketInitial();renderFinanceCards();
 document.getElementById('marketRefreshBtn')?.addEventListener('click',()=>pullMarketWatch().then(()=>showToast('อัปเดต Market Watch แล้ว')));
+function publishHomeSummary(){
+  publishPlanFeed();
+  try{
+    const codes=[...new Set(DATA.funds.map(f=>canonicalFundCode(f.name)))];
+    let value=0,inv=0,day=0,funds=0,pending=0;
+    codes.forEach(c=>{
+      const p=financeFundPortfolio(c);
+      if(p.value==null){ if(p.invested>0) pending++; return; }
+      value+=p.value; inv+=p.investedWithUnits; funds++;
+      const ch=financeFundNavChange(c); if(ch&&p.units>0) day+=p.units*ch.change;
+    });
+    if(!funds) return; // ยังไม่มี NAV (เช่นออฟไลน์) — เก็บยอดล่าสุดเดิมไว้
+    localStorage.setItem('mff_home_summary_v1',JSON.stringify({portfolio:{value:value,invested:inv,pnl:value-inv,pct:inv>0?(value-inv)/inv*100:null,day:day,funds:funds,pending:pending,at:Date.now()}}));
+  }catch(e){}
+}
+setTimeout(publishHomeSummary,5000);
+document.addEventListener('visibilitychange',function(){ if(document.hidden) publishHomeSummary(); });
+window.addEventListener('pagehide',publishHomeSummary);
 async function triggerNavUpdate(silent){
   if(!window.MFFAuth||!MFFAuth.call) return null;
   try{

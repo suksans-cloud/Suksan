@@ -170,7 +170,9 @@ body{display:flex;flex-direction:column;min-height:100vh}.footer{order:99;margin
 <section class="panel hidden" id="tax"><div class="panelhead"><div><h2>คำนวณภาษีบุคคลธรรมดา</h2><p>ประมาณการภาษีเงินได้บุคคลธรรมดาประจำปี</p></div><span class="pill">Tax Calculator</span></div><div class="layout"><div class="fields">
 <div class="field"><label for="taxIncome">รายได้จากเงินเดือนต่อปี (บาท)</label><input id="taxIncome" type="number" min="0" step="1000" value="900000"></div>
 <div class="field"><label for="taxOther">รายได้อื่นต่อปี (บาท)</label><input id="taxOther" type="number" min="0" step="1000" value="0"></div>
-<div class="field"><label for="taxDeduct">ค่าลดหย่อนอื่น ๆ รวม (บาท)</label><input id="taxDeduct" type="number" min="0" step="1000" value="60000"><div class="hint">ไม่รวมค่าใช้จ่ายเงินเดือนและค่าลดหย่อนส่วนตัว 60,000 บาท</div></div>
+<div class="field"><label for="taxDeduct">ค่าลดหย่อนอื่น ๆ รวม (บาท)</label><input id="taxDeduct" type="number" min="0" step="1000" value="60000"><div class="hint">ไม่รวมค่าใช้จ่ายเงินเดือนและค่าลดหย่อนส่วนตัว 60,000 บาท และไม่รวม RMF / Thai ESG ที่กรอกแยกด้านล่าง</div></div>
+<div class="field"><label for="taxRmf">ลงทุน RMF ปีนี้ (บาท)</label><input id="taxRmf" type="number" min="0" step="1000" value="0"></div>
+<div class="field"><label for="taxEsg">ลงทุน Thai ESG ปีนี้ (บาท)</label><input id="taxEsg" type="number" min="0" step="1000" value="0"><div class="hint" id="taxFundNote">ลดหย่อนตามเพดาน RMF ไม่เกิน 30% ของรายได้และ 500,000 บาท / Thai ESG ไม่เกิน 30% และ 300,000 บาท (ปรับเพดานได้ที่ My Portfolio)</div></div>
 <div class="field"><label for="taxWithheld">ภาษีหัก ณ ที่จ่ายแล้ว (บาท)</label><input id="taxWithheld" type="number" min="0" step="100" value="0"></div>
 <div class="field full"><label for="taxExpense">หักค่าใช้จ่ายเงินเดือน</label><select id="taxExpense"><option value="standard">50% ของเงินเดือน สูงสุด 100,000 บาท</option><option value="none">ไม่หักค่าใช้จ่ายเงินเดือน</option></select></div>
 </div><aside class="results"><div class="result-label">ภาษีทั้งปีโดยประมาณ</div><div class="big" id="taxDue">฿—</div><div class="resultrow"><span>เงินได้สุทธิ</span><b id="taxNet">—</b></div><div class="resultrow"><span>อัตราภาษีเฉลี่ย</span><b id="taxRate">—</b></div><div class="resultrow"><span>หลังหักภาษี ณ ที่จ่าย</span><b id="taxBalance">—</b></div></aside></div><p class="note">คำนวณตามขั้นอัตราภาษีเงินได้บุคคลธรรมดาไทย และใช้ค่าลดหย่อนส่วนตัว 60,000 บาทกับค่าใช้จ่ายเงินเดือนตามตัวเลือก ตัวเลขเป็นการประมาณการ ไม่ครอบคลุมสิทธิยกเว้นหรือเงื่อนไขเฉพาะบุคคลทุกกรณี</p></section>
@@ -286,7 +288,7 @@ const $=id=>document.getElementById(id);const fmt=n=>Number.isFinite(n)?new Intl
 function showMyPlanMenu(){document.querySelector('.menu').classList.remove('hidden');document.querySelectorAll('main > .panel').forEach(x=>x.classList.add('hidden'));document.querySelectorAll('[data-tab]').forEach(x=>x.classList.remove('active'));$('myPlanBack').classList.add('hidden');window.scrollTo({top:0,behavior:'auto'});}
 document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));document.querySelector('.menu').classList.add('hidden');$('myPlanBack').classList.remove('hidden');document.querySelectorAll('main > .panel').forEach(x=>x.classList.toggle('hidden',x.id!==b.dataset.tab));if(b.dataset.tab==='dca')calcDCA();if(b.dataset.tab==='mortgage')calcHome();if(b.dataset.tab==='retirement'){document.querySelectorAll('.ret-tab').forEach(x=>x.classList.toggle('active',x.dataset.retTab==='calculate'));}window.scrollTo({top:0,behavior:'auto'});}));
 $('myPlanBack').addEventListener('click',showMyPlanMenu);document.querySelectorAll('[data-ssosub]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-ssosub]').forEach(x=>x.classList.toggle('active',x===b));$('ssoBasic').classList.toggle('hidden',b.dataset.ssosub!=='ssoBasic');$('pension').classList.toggle('hidden',b.dataset.ssosub!=='pension');}));
-function calcTax(){let salary=num('taxIncome'),other=num('taxOther'),expense=$('taxExpense').value==='standard'?Math.min(salary*.5,100000):0;let net=Math.max(0,salary+other-expense-60000-num('taxDeduct'));let brackets=[[150000,0],[300000,.05],[500000,.1],[750000,.15],[1000000,.2],[2000000,.25],[5000000,.3],[Infinity,.35]];let lower=0,tax=0;for(let [cap,rate] of brackets){let part=Math.max(0,Math.min(net,cap)-lower);tax+=part*rate;if(net<=cap)break;lower=cap;}let balance=tax-num('taxWithheld');$('taxDue').textContent=fmt(tax);$('taxNet').textContent=fmt(net);$('taxRate').textContent=pct(salary+other?tax/(salary+other):0);$('taxBalance').textContent=(balance>0?'ต้องชำระ ':balance<0?'ภาษีชำระเกิน ':'ยอดพอดี ')+fmt(Math.abs(balance));$('taxBalance').className=balance>0?'negative':balance<0?'positive':'';}
+function calcTax(){let salary=num('taxIncome'),other=num('taxOther'),expense=$('taxExpense').value==='standard'?Math.min(salary*.5,100000):0;let tp=(window.MFFSettings&&MFFSettings.get('taxPlan',{}))||{},pctCap=(Number(tp.pct)||30)/100,inc=salary+other,rmfD=Math.max(0,Math.min(num('taxRmf'),inc*pctCap,Number(tp.rmfCap)||500000)),esgD=Math.max(0,Math.min(num('taxEsg'),inc*pctCap,Number(tp.esgCap)||300000));let fn=$('taxFundNote');if(fn&&(num('taxRmf')||num('taxEsg')))fn.textContent='ลดหย่อนได้จริง RMF '+fmt(rmfD)+' • Thai ESG '+fmt(esgD)+' (ตามเพดาน)';let net=Math.max(0,salary+other-expense-60000-num('taxDeduct')-rmfD-esgD);let brackets=[[150000,0],[300000,.05],[500000,.1],[750000,.15],[1000000,.2],[2000000,.25],[5000000,.3],[Infinity,.35]];let lower=0,tax=0;for(let [cap,rate] of brackets){let part=Math.max(0,Math.min(net,cap)-lower);tax+=part*rate;if(net<=cap)break;lower=cap;}let balance=tax-num('taxWithheld');$('taxDue').textContent=fmt(tax);$('taxNet').textContent=fmt(net);$('taxRate').textContent=pct(salary+other?tax/(salary+other):0);$('taxBalance').textContent=(balance>0?'ต้องชำระ ':balance<0?'ภาษีชำระเกิน ':'ยอดพอดี ')+fmt(Math.abs(balance));$('taxBalance').className=balance>0?'negative':balance<0?'positive':'';}
 function calcSSO(){let wage=num('ssoWage'),cap=num('ssoCap'),rate=Math.min(100,num('ssoRate'))/100,base=Math.min(wage,cap),m=base*rate;$('ssoMonthly').textContent=fmt(m);$('ssoBase').textContent=fmt(base);$('ssoYear').textContent=fmt(m*12);$('ssoUsedRate').textContent=pct(rate);}
 function calcHome(){let p=num('homePrice'),annual=num('homeRate')/100,years=Math.max(1,num('homeYears')),n=Math.round(years*12),r=annual/12,monthly=r===0?p/n:p*r/(1-Math.pow(1+r,-n));let extra=num('homeExtra'),bal=p,paid=0,interest=0,rows=[],yearPrin=0,yearInt=0;for(let m=1;m<=n&&bal>.005;m++){let int=bal*r,principal=Math.min(bal,Math.max(0,monthly+extra-int));if(principal<=0)break;bal=Math.max(0,bal-principal);paid+=int+principal;interest+=int;yearPrin+=principal;yearInt+=int;if(m%12===0||bal<=.005){rows.push(`<tr><td>${Math.ceil(m/12)}</td><td>${fmt(bal)}</td><td>${fmt(yearPrin)}</td><td>${fmt(yearInt)}</td></tr>`);yearPrin=0;yearInt=0;}}$('homeMonthly').textContent=fmt(monthly);$('homeTotal').textContent=fmt(paid);$('homeInterest').textContent=fmt(interest);$('homeWithExtra').textContent=fmt(monthly+extra);$('homeSchedule').innerHTML=rows.join('');drawHomeChart(p,interest);}
 function drawHomeChart(principal,interest){let c=$('homeChart');if(!c)return;const dpr=devicePixelRatio||1;let ctx=c.getContext('2d'),w=c.width=Math.max(1,c.clientWidth)*dpr,h=c.height=Math.max(1,c.clientHeight||190)*dpr;ctx.clearRect(0,0,w,h);let total=principal+interest,x=14*dpr,y=26*dpr,bw=w-28*dpr,bh=38*dpr,pw=total?bw*principal/total:0,iw=bw-pw;
@@ -320,7 +322,7 @@ rows.forEach(function(tr,i){let amt=Math.max(0,Number(tr.querySelector('.fundamo
 dc.fillStyle='#072340';dc.textAlign='center';dc.textBaseline='middle';dc.font='700 '+15*dpr+'px sans-serif';dc.fillText('฿'+Math.round(sum).toLocaleString('th-TH'),cx,cy-7*dpr);dc.fillStyle='#5C6B74';dc.font=10.5*dpr+'px sans-serif';dc.fillText('ต่อเดือน',cx,cy+11*dpr);
 let E=function(s){return String(s).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})};
 $('dcaLegend').innerHTML=rows.map(function(tr,i){return '<div class="lg"><i style="background:'+colors[i%colors.length]+'"></i><span>'+E(tr.querySelector('.fundname').value||'กองทุน '+(i+1))+'</span><b>'+E(tr.querySelector('.pct').value)+'</b><em>'+fmt(Number(tr.querySelector('.fundamount').value)||0)+'/เดือน</em></div>'}).join('');}
-['taxIncome','taxOther','taxDeduct','taxWithheld','taxExpense'].forEach(id=>$(id).addEventListener('input',calcTax));['ssoWage','ssoRate','ssoCap'].forEach(id=>$(id).addEventListener('input',calcSSO));['homePrice','homeRate','homeYears','homeExtra'].forEach(id=>$(id).addEventListener('input',calcHome));$('dcaMonthly').addEventListener('input',()=>{const el=$('dcaMonthly');const clean=el.value.replace(/[^0-9.]/g,'').replace(/\.(?=.*\.)/g,'');if(clean!==el.value)el.value=clean;calcDCA();});['dcaMonths','dcaReturn'].forEach(id=>$(id).addEventListener('input',calcDCA));$('addFund').addEventListener('click',()=>addFund('',0));$('equalFund').addEventListener('click',()=>{let rows=[...$('fundRows').querySelectorAll('tr')],total=rows.reduce((sum,tr)=>sum+Math.max(0,Number(tr.querySelector('.fundamount').value)||0),0);if(total<=0)total=10000;let base=Math.floor(total/rows.length);rows.forEach((tr,i)=>tr.querySelector('.fundamount').value=i===rows.length-1?total-base*(rows.length-1):base);calcDCA();});
+['taxIncome','taxOther','taxDeduct','taxRmf','taxEsg','taxWithheld','taxExpense'].forEach(id=>$(id).addEventListener('input',calcTax));['ssoWage','ssoRate','ssoCap'].forEach(id=>$(id).addEventListener('input',calcSSO));['homePrice','homeRate','homeYears','homeExtra'].forEach(id=>$(id).addEventListener('input',calcHome));$('dcaMonthly').addEventListener('input',()=>{const el=$('dcaMonthly');const clean=el.value.replace(/[^0-9.]/g,'').replace(/\.(?=.*\.)/g,'');if(clean!==el.value)el.value=clean;calcDCA();});['dcaMonths','dcaReturn'].forEach(id=>$(id).addEventListener('input',calcDCA));$('addFund').addEventListener('click',()=>addFund('',0));$('equalFund').addEventListener('click',()=>{let rows=[...$('fundRows').querySelectorAll('tr')],total=rows.reduce((sum,tr)=>sum+Math.max(0,Number(tr.querySelector('.fundamount').value)||0),0);if(total<=0)total=10000;let base=Math.floor(total/rows.length);rows.forEach((tr,i)=>tr.querySelector('.fundamount').value=i===rows.length-1?total-base*(rows.length-1):base);calcDCA();});
 addFund('กองทุน A',6000);addFund('กองทุน B',4000);calcTax();calcSSO();calcHome();calcDCA();
 function calcPension(){
  const age=num('penAge'), paid=Math.floor(num('penMonths')), wage=num('penWage'), claim=Math.max(55,Number($('penClaimAge').value)||55), plan=$('penPlan').value;
@@ -569,6 +571,7 @@ calcPension();
 
 <script src="../config.js"></script>
 <script src="../admin-login.js"></script>
+<script src="../settings-store.js"></script>
 
 <style id="mp-v88">
 /* V88: Tax / SSO แบบการ์ดสรุป + โดนัท + ช่องกรอกพร้อม − / + */
@@ -639,6 +642,11 @@ main.wrap{min-width:0;width:100%;max-width:100%}
 html,body{overflow-x:hidden}
 #retirement .ret-tabs,#retirement .ret-hero,#view-retirement{max-width:100%;min-width:0}
 #retirement,#retirement .ret-wrap{padding-left:0!important;padding-right:0!important;margin-left:0!important;margin-right:0!important;max-width:100%}
+
+.mpf-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;grid-column:1/-1}
+.mpf-chip{border:1px dashed #3A6C93;background:#F3F7FA;color:#072340;border-radius:999px;padding:7px 12px;font:600 12px "Noto Sans Thai",sans-serif;text-align:left;line-height:1.35}
+.mpf-chip small{display:block;font-weight:400;color:#5C6B74;font-size:10.5px}
+.mpf-chip.done{background:#E8F5EE;border-color:#1F9D6C;color:#1F7A55}
 </style>
 
 <script>
@@ -693,6 +701,43 @@ function init(){var tax=$('tax'),sso=$('ssoBasic');if(!tax||!sso||!$('mortgage')
   [['taxDue',updTax],['ssoMonthly',updSso],['homeMonthly',updHome],['dcaFuture',updDca]].forEach(function(p){var el=$(p[0]);new MutationObserver(p[1]).observe(el,{childList:true,characterData:true,subtree:true})});
   updTax();updSso();updHome();updDca();if(window.calcTax)calcTax();if(window.calcSSO)calcSSO();if(window.calcHome)calcHome();if(window.calcDCA)calcDCA()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+
+<script>
+/* ปุ่มดึงค่าจริงจาก My Portfolio / My Money มาใส่ช่องคำนวณ */
+(function(){
+  function rj(k,f){try{var r=localStorage.getItem(k);return r?JSON.parse(r):f}catch(e){return f}}
+  var nf=function(n){return Math.round(Number(n)||0).toLocaleString('th-TH')};
+  function chip(inputId,label,sub,value){
+    var inp=document.getElementById(inputId); if(!inp||!(value>0)) return;
+    var field=inp.closest('.field')||inp.parentNode; var box=field.querySelector('.mpf-chips');
+    if(!box){box=document.createElement('div');box.className='mpf-chips';field.appendChild(box)}
+    var b=document.createElement('button');b.type='button';b.className='mpf-chip';b.innerHTML=label+(sub?'<small>'+sub+'</small>':'');
+    b.onclick=function(){inp.value=Math.round(value);inp.dispatchEvent(new Event('input',{bubbles:true}));inp.dispatchEvent(new Event('change',{bubbles:true}));b.classList.add('done');b.firstChild.textContent='✓ '+b.firstChild.textContent.replace(/^[↺✓] /,'')};
+    box.appendChild(b);
+  }
+  function moneyAvg(){
+    var items=rj('mff_money_cache_v3',[]),daily=rj('mff_daily_cache_v1',[]),by={},cur=new Date().toISOString().slice(0,7);
+    (Array.isArray(items)?items:[]).forEach(function(t){if(t.type==='income'||!t.month||t.month>=cur)return;by[t.month]=(by[t.month]||0)+(Number(t.amount)||0)});
+    (Array.isArray(daily)?daily:[]).forEach(function(e){var m=String(e.date||'').slice(0,7);if(!m||m>=cur)return;by[m]=(by[m]||0)+(Number(e.amount)||0)});
+    var ms=Object.keys(by).filter(function(m){return by[m]>0}).sort().slice(-6);
+    return ms.length?{avg:ms.reduce(function(a,m){return a+by[m]},0)/ms.length,n:ms.length}:null;
+  }
+  function init(){
+    if(document.body.dataset.mpf) return; document.body.dataset.mpf='1';
+    var feed=rj('mff_plan_feed_v1',null), home=rj('mff_home_summary_v1',null), owners=feed&&feed.owners?Object.keys(feed.owners):[];
+    owners.forEach(function(o){
+      var d=feed.owners[o];
+      if(d.rmfPlan>0) chip('taxRmf','↺ ดึงแผน RMF ปีนี้ของ '+o+' ฿'+nf(d.rmfPlan),'ซื้อแล้วถึงเดือนนี้ ฿'+nf(d.rmfDone),d.rmfPlan);
+      if(d.esgPlan>0) chip('taxEsg','↺ ดึงแผน Thai ESG ปีนี้ของ '+o+' ฿'+nf(d.esgPlan),'ซื้อแล้วถึงเดือนนี้ ฿'+nf(d.esgDone),d.esgPlan);
+      if(d.monthPlan>0) chip('retDca','↺ ใช้แผนลงทุนเดือนนี้ของ '+o+' ฿'+nf(d.monthPlan)+'/เดือน','จาก My Portfolio',d.monthPlan);
+    });
+    var pv=home&&home.portfolio&&home.portfolio.funds>0?home.portfolio.value:0;
+    chip('retCurrent','↺ ใช้มูลค่าพอร์ตปัจจุบัน ฿'+nf(pv),'จาก My Portfolio รวมทุกคนในครอบครัว',pv);
+    var ma=moneyAvg(); if(ma) chip('retExpense','↺ ใช้ค่าใช้จ่ายเฉลี่ย ฿'+nf(ma.avg)+'/เดือน','จาก My Money ย้อนหลัง '+ma.n+' เดือน (รวมทั้งครอบครัว)',ma.avg);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(init,60)});else setTimeout(init,60);
 })();
 </script>
 </body></html>

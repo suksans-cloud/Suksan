@@ -36,6 +36,7 @@
 
 <script src="../config.js"></script>
 <script src="../admin-login.js"></script>
+<script src="../settings-store.js"></script>
 <script src="../portfolio/auth-open.js"></script>
 <script>
 (function(){
@@ -55,7 +56,7 @@ const CACHE_KEY='mff_bookshelf_cache_v1';
 const SEARCH_CACHE_KEY='mff_bookshelf_search_cache_v2';
 const BOOK_META_CACHE_KEY='mff_bookshelf_meta_cache_v1';
 const TAB='BookshelfItems';
-const HEADERS=['ID','Title','Status','DriveFileId','DriveFileName','MimeType','Size','WebViewLink','AddedAt','UpdatedAt'];
+const HEADERS=['ID','Title','Status','DriveFileId','DriveFileName','MimeType','Size','WebViewLink','AddedAt','UpdatedAt','Progress','Borrower','DueDate','FinishedAt'];
 
 let sheetsToken=null, sheetsTokenExpiresAt=0, sheetsClient=null;
 let driveToken=null, driveTokenExpiresAt=0, driveClient=null;
@@ -166,9 +167,9 @@ function mergeById(localList, remoteList){
   return Array.from(map.values());
 }
 async function pullBooks(force){
-  const j=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:J`);
+  const j=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:N`);
   const rows=(j.values||[]).slice(1);
-  const remote=rows.filter(r=>r[0]).map(r=>({id:r[0],title:r[1]||'',status:r[2]||'queued',driveFileId:r[3]||'',driveFileName:r[4]||'',mimeType:r[5]||'',size:r[6]||'',webViewLink:r[7]||'',addedAt:r[8]||'',updatedAt:r[9]||''}));
+  const remote=rows.filter(r=>r[0]).map(r=>({id:r[0],title:r[1]||'',status:r[2]||'queued',driveFileId:r[3]||'',driveFileName:r[4]||'',mimeType:r[5]||'',size:r[6]||'',webViewLink:r[7]||'',addedAt:r[8]||'',updatedAt:r[9]||'',...bookExtras(r)}));
   if(force){ books=remote; saveCache(); return; }
   const merged=mergeById(books, remote);
   const needsPushBack = JSON.stringify(merged.slice().sort((a,b)=>a.id<b.id?-1:1)) !== JSON.stringify(remote.slice().sort((a,b)=>a.id<b.id?-1:1));
@@ -177,9 +178,9 @@ async function pullBooks(force){
   if(needsPushBack) await pushBooks();
 }
 async function pushBooks(){
-  const values=[HEADERS].concat(books.map(b=>[b.id,b.title,b.status,b.driveFileId,b.driveFileName,b.mimeType,b.size,b.webViewLink,b.addedAt,b.updatedAt]));
+  const values=[HEADERS].concat(books.map(b=>[b.id,b.title,b.status,b.driveFileId,b.driveFileName,b.mimeType,b.size,b.webViewLink,b.addedAt,b.updatedAt,b.progress||'',b.borrower||'',b.dueDate||'',b.finishedAt||'']));
   await ensureBookshelfTab();
-  await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:J:clear`,{method:'POST',body:'{}'});
+  await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:N:clear`,{method:'POST',body:'{}'});
   await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${TAB}!A1`,majorDimension:'ROWS',values})});
 }
 async function syncSave(){
@@ -353,6 +354,7 @@ function render(){
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <input id="bookSearch" class="mff-search-input" placeholder="ค้นหาชื่อหนังสือใน Google Drive..." autocomplete="off">
     </div>
+    ${renderGoalCard()}
     ${SHELVES.map(sh=>renderShelf(sh)).join('')}
   `;
   document.getElementById('bookBack')?.remove();
@@ -369,6 +371,90 @@ function render(){
   wireShelfEvents();
 }
 
+
+/* ===================== ความคืบหน้า / การยืม / เป้าหมายการอ่าน ===================== */
+const BK_MON=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+function bookExtras(r){
+  const o={};
+  if(r[10]!==undefined&&r[10]!=='') o.progress=Number(r[10])||0;
+  if(r[11]) o.borrower=r[11];
+  if(r[12]) o.dueDate=r[12];
+  if(r[13]) o.finishedAt=r[13];
+  return o;
+}
+function bkDaysTo(iso){
+  const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||''); if(!m) return null;
+  const d=new Date(+m[1],+m[2]-1,+m[3]), n=new Date(); n.setHours(0,0,0,0);
+  return Math.round((d-n)/86400000);
+}
+function bkFmtDate(iso){
+  const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||''); if(!m) return '';
+  return (+m[3])+' '+BK_MON[+m[2]-1]+' '+(+m[1]+543);
+}
+function bookMetaHtml(b){
+  const parts=[], pr=Math.max(0,Math.min(100,Number(b.progress)||0));
+  if(b.status==='reading'||(pr>0&&b.status!=='finished')) parts.push(`<div class="mbk-prog"><div class="mbk-bar"><i style="width:${pr}%"></i></div><span>อ่านแล้ว ${pr}%</span></div>`);
+  if(b.borrower){
+    const d=bkDaysTo(b.dueDate); let cls='ok', txt=b.dueDate?('คืน '+bkFmtDate(b.dueDate)):'';
+    if(d!==null){ if(d<0){cls='exp';txt='เกินกำหนด '+Math.abs(d)+' วัน';} else if(d<=3){cls='warn';txt='ครบกำหนดใน '+d+' วัน';} }
+    parts.push(`<span class="mbk-chip ${cls}">📚 ${esc(b.borrower)} ยืมอยู่${txt?' · '+txt:''}</span>`);
+  }
+  return parts.length?`<div class="mbk-meta">${parts.join('')}</div>`:'';
+}
+function renderGoalCard(){
+  const yr=new Date().getFullYear();
+  let g=null; try{ g=window.MFFSettings&&MFFSettings.get('readingGoal',null); }catch(e){}
+  const target=(g&&g.year===yr)?Number(g.target)||0:0;
+  const done=books.filter(x=>x.status==='finished'&&String(x.finishedAt||'').slice(0,4)===String(yr)).length;
+  const legacy=books.some(x=>x.status==='finished'&&!x.finishedAt);
+  if(!target) return `<div class="mbk-goal"><button type="button" id="mbkGoalBtn" class="mbk-goal-set">🎯 ตั้งเป้าหมายการอ่านปีนี้</button></div>`;
+  const pc=Math.min(100,Math.round(done/target*100));
+  return `<div class="mbk-goal"><div class="mbk-goal-top"><b>🎯 เป้าหมายปี ${yr+543}</b><button type="button" id="mbkGoalBtn" class="mbk-goal-edit">แก้เป้า</button></div>
+    <div class="mbk-goal-num"><span>${done}</span> / ${target} เล่ม</div><div class="mbk-bar big"><i style="width:${pc}%"></i></div>
+    ${legacy?'<div class="mbk-hint">นับเฉพาะเล่มที่ย้ายเข้า "อ่านจบแล้ว" หลังอัปเดตนี้</div>':''}</div>`;
+}
+function openGoalModal(){
+  const yr=new Date().getFullYear(); let g=null; try{ g=MFFSettings.get('readingGoal',null); }catch(e){}
+  const cur=(g&&g.year===yr)?g.target:12;
+  modal('เป้าหมายการอ่านปี '+(yr+543), `<div class="mbk-form"><label>อ่านให้จบกี่เล่มในปีนี้<input id="mbkTarget" type="number" inputmode="numeric" min="1" max="999" value="${cur}"></label></div>`, [
+    {label:'ยกเลิก', ghost:true, onClick:closeModal},
+    {label:'บันทึก', onClick:()=>{
+      const t=Math.max(1,parseInt(document.getElementById('mbkTarget').value,10)||0);
+      try{ MFFSettings.set('readingGoal',{year:yr,target:t}); }catch(e){}
+      closeModal(); render();
+    }}
+  ]);
+}
+function openBookModal(id){
+  const bk=books.find(x=>x.id===id); if(!bk) return;
+  const pr=Math.max(0,Math.min(100,Number(bk.progress)||0));
+  modal(bk.title, `<div class="mbk-form">
+      <label>ชั้นหนังสือ<select id="mbkShelf">${SHELVES.map(s=>`<option value="${s.key}" ${s.key===bk.status?'selected':''}>${s.icon} ${s.title}</option>`).join('')}</select></label>
+      <label>ความคืบหน้าการอ่าน <b id="mbkPctLbl">${pr}%</b><input id="mbkPct" type="range" min="0" max="100" step="5" value="${pr}"></label>
+      <label>ให้ใครยืม (ถ้ามี)<input id="mbkBorrower" type="text" placeholder="ชื่อผู้ยืม" value="${esc(bk.borrower||'')}"></label>
+      <label>วันที่ต้องคืน<input id="mbkDue" type="date" value="${esc(bk.dueDate||'')}"></label>
+      <button type="button" id="mbkReturned" class="mbk-ret">รับคืนแล้ว (ล้างข้อมูลการยืม)</button>
+    </div>`, [
+    {label:'ยกเลิก', ghost:true, onClick:closeModal},
+    {label:'บันทึก', onClick:async()=>{
+      const now=new Date().toISOString(), shelf=document.getElementById('mbkShelf').value;
+      let progress=parseInt(document.getElementById('mbkPct').value,10)||0;
+      if(shelf!==bk.status){
+        if(shelf==='finished'){ progress=100; bk.finishedAt=now; }
+        else if(bk.status==='finished'){ delete bk.finishedAt; }
+      }
+      bk.status=shelf; bk.progress=progress;
+      const bw=document.getElementById('mbkBorrower').value.trim(), due=document.getElementById('mbkDue').value;
+      if(bw) bk.borrower=bw; else delete bk.borrower;
+      if(bw&&due) bk.dueDate=due; else delete bk.dueDate;
+      bk.updatedAt=now; closeModal(); render(); await syncSave();
+    }}
+  ]);
+  const pct=document.getElementById('mbkPct'), lbl=document.getElementById('mbkPctLbl');
+  pct.addEventListener('input',()=>{ lbl.textContent=pct.value+'%'; });
+  document.getElementById('mbkReturned').addEventListener('click',()=>{ document.getElementById('mbkBorrower').value=''; document.getElementById('mbkDue').value=''; });
+}
+
 function renderShelf(sh){
   const list=books.filter(b=>b.status===sh.key);
   return `
@@ -380,13 +466,16 @@ function renderShelf(sh){
       ${list.length? list.map(b=>`
         <div class="mff-book-row" data-id="${esc(b.id)}">
           <div class="b-icon">${fileIconSvg(b.mimeType)}</div>
-          <div class="b-title">${b.webViewLink?`<a href="${esc(b.webViewLink)}" target="_blank" rel="noopener">${esc(b.title)}</a>`:esc(b.title)}</div>
+          <div class="b-title">${b.webViewLink?`<a href="${esc(b.webViewLink)}" target="_blank" rel="noopener">${esc(b.title)}</a>`:esc(b.title)}${bookMetaHtml(b)}</div>
+          <button class="b-edit" data-edit="${esc(b.id)}" aria-label="แก้ไขรายละเอียด">✎</button>
           <button class="b-del" data-del="${esc(b.id)}" aria-label="ลบ">×</button>
         </div>`).join('') : `<div class="mff-shelf-empty">ยังไม่มีหนังสือในหมวดนี้</div>`}
     </div>`;
 }
 
 function wireShelfEvents(){
+  document.getElementById('mbkGoalBtn')?.addEventListener('click',openGoalModal);
+  document.querySelectorAll('[data-edit]').forEach(btn=>btn.addEventListener('click',()=>openBookModal(btn.dataset.edit)));
   document.querySelectorAll('[data-addmanual]').forEach(btn=>{
     btn.addEventListener('click',()=>openManualAddModal(btn.dataset.addmanual));
   });

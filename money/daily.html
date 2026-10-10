@@ -28,8 +28,11 @@
 .mff-sheet-row.has-note .top{display:flex;justify-content:space-between;width:100%}
 .mff-sheet-row.has-note .note{font-size:11px;color:var(--ink-faint)}
 </style>
+<style>body.mff-hide-money .t-amt,body.mff-hide-money .mff-sheet-row .amt,body.mff-hide-money #liveBalance,body.mff-hide-money .money-amount,body.mff-hide-money .amount-value{filter:blur(7px);user-select:none}</style>
 </head>
 <body>
+<button id="privacyEye" type="button" aria-label="ซ่อนหรือแสดงตัวเลข" title="ซ่อนหรือแสดงตัวเลข">👁</button>
+<script src="../privacy-eye.js"></script>
 
 <div class="mff-app" style="padding-bottom:20px">
 
@@ -55,6 +58,7 @@
 
 <script src="../config.js"></script>
 <script src="../admin-login.js"></script>
+<script src="../settings-store.js"></script>
 <script src="../portfolio/auth-open.js"></script>
 <script>
 (function(){
@@ -331,6 +335,64 @@ function monthTotal(date){
   return sumOf(entries.filter(t=>monthOf(t.date)===mk));
 }
 
+
+/* ===================== งบรายหมวดต่อเดือน (เก็บในเครื่อง) ===================== */
+const BUDGET_KEY='mff_daily_budget_v1';
+function loadBudget(){
+  try{ window.MFFSettings&&MFFSettings.hydrate(); }catch(e){}
+  try{ const b=JSON.parse(localStorage.getItem(BUDGET_KEY)||'null'); if(b&&typeof b==='object') return {total:Number(b.total)||0, cats:b.cats&&typeof b.cats==='object'?b.cats:{}}; }catch(e){}
+  return {total:0, cats:{}};
+}
+function monthSpendByCat(mk){
+  const out={};
+  entries.forEach(e=>{ if(monthOf(e.date)!==mk) return; out[e.category]=(out[e.category]||0)+(Number(e.amount)||0); });
+  return out;
+}
+function budgetBar(label, spent, limit){
+  const pct=limit>0?Math.round(spent/limit*100):0;
+  const cls=limit<=0?'none':pct>=100?'over':pct>=80?'warn':'ok';
+  const left=limit>0?(limit-spent>=0?`เหลือ ฿${fmtBaht(limit-spent)}`:`เกินงบ ฿${fmtBaht(spent-limit)}`):'ยังไม่ได้ตั้งงบ';
+  return `<div class="mfb-row ${cls}">
+    <div class="mfb-top"><span class="mfb-nm">${esc(label)}</span><span class="mfb-am">฿${fmtBaht(spent)}${limit>0?` / ฿${fmtBaht(limit)}`:''}</span></div>
+    ${limit>0?`<div class="mfb-track"><i style="width:${Math.min(100,pct)}%"></i></div>`:''}
+    <div class="mfb-sub"><span>${left}</span>${limit>0?`<b>${pct}%</b>`:''}</div>
+  </div>`;
+}
+function budgetCardHtml(date){
+  const mk=monthOf(date), b=loadBudget(), spent=monthSpendByCat(mk);
+  const cats=SEC.opts.concat(Object.keys(spent).filter(c=>!SEC.opts.includes(c)), Object.keys(b.cats).filter(c=>!SEC.opts.includes(c)&&!(c in spent)));
+  const shown=cats.filter(c=>(b.cats[c]>0)||(spent[c]>0));
+  const totalSpent=Object.values(spent).reduce((a,v)=>a+v,0);
+  const hasAny=b.total>0||shown.length;
+  return `<div class="mff-sheet mfb-card">
+    <div class="mff-sheet-head summary mfb-head"><span>งบเดือนนี้ • ${esc(monthLabel(mk))}</span><button type="button" id="budgetBtn" class="mfb-set">ตั้งงบ</button></div>
+    <div class="mfb-body">
+      ${hasAny?'':'<div class="mfb-empty">ตั้งงบรายหมวดเพื่อดูแถบความคืบหน้าและรับเตือนเมื่อใกล้เกิน</div>'}
+      ${b.total>0?budgetBar('รวมทั้งเดือน', totalSpent, b.total):''}
+      ${shown.map(c=>budgetBar(c, spent[c]||0, Number(b.cats[c])||0)).join('')}
+    </div>
+  </div>`;
+}
+function openBudgetPopup(){
+  const mk=monthOf(currentDate), b=loadBudget(), spent=monthSpendByCat(mk);
+  const cats=SEC.opts.concat(Object.keys(spent).filter(c=>!SEC.opts.includes(c)), Object.keys(b.cats).filter(c=>!SEC.opts.includes(c)&&!(c in spent)));
+  const row=(label,key,val)=>`<label class="mfb-edit"><span>${esc(label)}</span><input type="number" inputmode="decimal" min="0" step="100" data-b="${esc(key)}" placeholder="ไม่จำกัด" value="${val>0?val:''}"></label>`;
+  modal('ตั้งงบรายเดือน', `<p class="mfb-hint">ใส่ยอดงบต่อเดือนของแต่ละหมวด เว้นว่าง = ไม่ตั้งงบ แถบจะเตือนเมื่อใช้เกิน 80% และ 100%</p>`+
+    row('งบรวมทั้งเดือน','__total',b.total)+cats.map(c=>row(c,c,Number(b.cats[c])||0)).join(''), [
+    {label:'ยกเลิก', ghost:true, onClick:closeModal},
+    {label:'บันทึกงบ', onClick:()=>{
+      const nb={total:0,cats:{}};
+      document.querySelectorAll('#mffModal [data-b]').forEach(inp=>{
+        const v=Math.max(0,Number(inp.value)||0), k=inp.dataset.b;
+        if(k==='__total') nb.total=v; else if(v>0) nb.cats[k]=v;
+      });
+      try{ localStorage.setItem(BUDGET_KEY, JSON.stringify(nb)); }catch(e){}
+      try{ window.MFFSettings&&MFFSettings.set('budget',nb); }catch(e){}
+      closeModal(); render(); toast('บันทึกงบแล้ว');
+    }}
+  ]);
+}
+
 /* ===================== rendering (main page) ===================== */
 function render(){
   const root=document.getElementById('viewRoot');
@@ -369,6 +431,8 @@ function render(){
       <div class="mff-sheet-row total"><span class="nm">รวม</span><span class="amt">฿${fmtBaht(dToday)}</span></div>
     </div>
 
+    ${budgetCardHtml(currentDate)}
+
     <div class="mff-sheet">
       <div class="mff-sheet-head summary">สรุป</div>
       <div class="mff-sheet-row total"><span class="nm">รายจ่ายรายวัน</span><span class="amt">฿${fmtBaht(dToday)}</span></div>
@@ -381,6 +445,7 @@ function render(){
   document.getElementById('prevDay').onclick=()=>{ currentDate=shiftDate(currentDate,-1); render(); };
   document.getElementById('nextDay').onclick=()=>{ currentDate=shiftDate(currentDate,1); render(); };
   document.getElementById('editBtn').onclick=openEditPopup;
+  document.getElementById('budgetBtn')?.addEventListener('click',openBudgetPopup);
 }
 
 /* ===================== edit popup (ป้อนรายจ่ายของวันที่กำลังดู + โน้ต + เพิ่มรายการอื่นได้) ===================== */

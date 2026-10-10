@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shell.css">
+
 </head>
 <body class="mff-home">
 
@@ -34,6 +35,8 @@
       <path d="M0,40 C 90,60 170,25 250,38 C 330,50 400,22 460,40 L460,60 L0,60 Z" fill="#ffffff" opacity="0.1"/>
     </svg>
   </div>
+
+
 
   <div class="mff-grid">
 
@@ -110,6 +113,7 @@
 
 <script src="config.js"></script>
 <script src="admin-login.js"></script>
+<script src="settings-store.js"></script>
 <script src="data-safety.js"></script>
 <script>
 (function(){
@@ -254,6 +258,7 @@ if('serviceWorker' in navigator){
   function monthKeyNow(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
   function buildNotifications(){
     var list=[];
+    try{ window.MFFSettings&&MFFSettings.hydrate(); }catch(e){}
 
     var sheetsConnected = localStorage.getItem('google_sheets_connected')==='1';
     if(!sheetsConnected){
@@ -288,6 +293,57 @@ if('serviceWorker' in navigator){
       list.push({level:'info', icon:'📚', title:'ชั้นหนังสือยังว่างอยู่',
         text:'เพิ่มหนังสือเล่มแรกได้ที่ My Bookshelf', href:'bookshelf/index.html', hrefLabel:'ไปที่ My Bookshelf →'});
     }
+
+    // งบรายหมวด (My Money > รายวัน)
+    try{
+      var bg=readJSON('mff_daily_budget_v1',null), dly=readJSON('mff_daily_cache_v1',[]);
+      if(bg && Array.isArray(dly)){
+        var nowD=new Date(), mk2=nowD.getFullYear()+'-'+String(nowD.getMonth()+1).padStart(2,'0'), byCat={}, tot=0;
+        dly.forEach(function(e){ if((e.date||'').slice(0,7)!==mk2) return; var a=Number(e.amount)||0; byCat[e.category]=(byCat[e.category]||0)+a; tot+=a; });
+        var over=[]; if(bg.total>0) over.push({n:'รวมทั้งเดือน',s:tot,l:Number(bg.total)});
+        Object.keys(bg.cats||{}).forEach(function(c){ var l=Number(bg.cats[c])||0; if(l>0) over.push({n:c,s:byCat[c]||0,l:l}); });
+        over.map(function(o){o.p=o.s/o.l*100;return o}).filter(function(o){return o.p>=80}).sort(function(a,b){return b.p-a.p}).slice(0,3).forEach(function(o){
+          var f=function(n){return Math.round(n).toLocaleString('th-TH')};
+          list.push({level:o.p>=100?'warn':'info', icon:'💸',
+            title:'งบ '+o.n+(o.p>=100?' เกินแล้ว ':' ใช้ไปแล้ว ')+Math.round(o.p)+'%',
+            text:'฿'+f(o.s)+' จากงบ ฿'+f(o.l)+' ของเดือนนี้', href:'money/daily.html', hrefLabel:'ดูงบ My Money →'});
+        });
+      }
+    }catch(e){}
+
+    // เอกสารใกล้หมดอายุ (จาก My Profile)
+    try{
+      var ppl=readJSON('mff_profiles_cache_v1',[]), today=new Date(); today.setHours(0,0,0,0);
+      var TM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'], due=[];
+      (Array.isArray(ppl)?ppl:[]).forEach(function(pp){
+        (Array.isArray(pp.documents)?pp.documents:[]).forEach(function(d){
+          var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(d&&d.expiry||''); if(!m) return;
+          var days=Math.round((new Date(+m[1],+m[2]-1,+m[3])-today)/86400000);
+          if(days<=60) due.push({days:days,who:pp.firstName||'สมาชิก',type:d.type||'เอกสาร',date:(+m[3])+' '+TM[+m[2]-1]+' '+(+m[1]+543)});
+        });
+      });
+      due.sort(function(a,b){return a.days-b.days}).slice(0,5).forEach(function(x){
+        list.push({level:x.days<=30?'warn':'info', icon:'🪪',
+          title:x.who+' · '+x.type+(x.days<0?' หมดอายุแล้ว '+Math.abs(x.days)+' วัน':x.days===0?' หมดอายุวันนี้':' จะหมดอายุใน '+x.days+' วัน'),
+          text:'ครบกำหนด '+x.date+' — ต่ออายุก่อนครบกำหนด', href:'profile/index.html', hrefLabel:'เปิด My Profile →'});
+      });
+    }catch(e){}
+
+    // หนังสือที่ให้ยืม ใกล้ครบกำหนด/เกินกำหนด (จาก My Bookshelf)
+    try{
+      var shelf=readJSON('mff_bookshelf_cache_v1',[]), t0=new Date(); t0.setHours(0,0,0,0);
+      var BM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'], lend=[];
+      (Array.isArray(shelf)?shelf:[]).forEach(function(bk){
+        var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(bk&&bk.dueDate||''); if(!bk.borrower||!m) return;
+        var days=Math.round((new Date(+m[1],+m[2]-1,+m[3])-t0)/86400000);
+        if(days<=3) lend.push({days:days,title:bk.title||'หนังสือ',who:bk.borrower,date:(+m[3])+' '+BM[+m[2]-1]+' '+(+m[1]+543)});
+      });
+      lend.sort(function(a,b){return a.days-b.days}).slice(0,4).forEach(function(x){
+        list.push({level:x.days<0?'warn':'info', icon:'📚',
+          title:x.who+' ยืม "'+x.title+'" '+(x.days<0?'เกินกำหนด '+Math.abs(x.days)+' วัน':x.days===0?'ครบกำหนดวันนี้':'ครบกำหนดใน '+x.days+' วัน'),
+          text:'กำหนดคืน '+x.date, href:'bookshelf/index.html', hrefLabel:'เปิด My Bookshelf →'});
+      });
+    }catch(e){}
 
     // Sync queue: แจ้งเตือนสิ่งที่แก้ไว้ตอน Offline และยังรอขึ้น Google Sheets
     try{

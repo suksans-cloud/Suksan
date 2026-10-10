@@ -51,7 +51,7 @@
 const SHEETS_SCOPE='https://www.googleapis.com/auth/spreadsheets';
 const CACHE_KEY='mff_profiles_cache_v1';
 const TAB='Profiles';
-const HEADERS=['ID','Photo','FirstName','LastName','BloodGroup','Address','Email','Phone','CreatedAt','UpdatedAt','Relation','BankAccounts','IDCard'];
+const HEADERS=['ID','Photo','FirstName','LastName','BloodGroup','Address','Email','Phone','CreatedAt','UpdatedAt','Relation','BankAccounts','IDCard','Documents'];
 
 let sheetsToken=null, sheetsTokenExpiresAt=0;
 let sheetId=localStorage.getItem('google_sheet_id')||'';
@@ -124,12 +124,12 @@ function mergeById(localList, remoteList){
   return Array.from(map.values());
 }
 async function pullProfiles(force){
-  const j=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:M`);
+  const j=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:N`);
   const rows=(j.values||[]).slice(1);
   const remote=rows.filter(r=>r[0]).map(r=>({
     id:r[0], photo:r[1]||'', firstName:r[2]||'', lastName:r[3]||'', bloodGroup:r[4]||'',
     address:r[5]||'', email:r[6]||'', phone:r[7]||'', createdAt:r[8]||'', updatedAt:r[9]||'',
-    relation:r[10]||'', bankAccounts: parseBankAccounts(r[11]), idCard:r[12]||''
+    relation:r[10]||'', bankAccounts: parseBankAccounts(r[11]), idCard:r[12]||'', documents: parseDocs(r[13])
   }));
   if(force){ people=remote; saveCache(); return; }
   const merged=mergeById(people, remote);
@@ -147,12 +147,15 @@ function parseBankAccounts(raw){
 // strips leading zeros (e.g. เบอร์โทร "081234..." -> 81234...) or mangles long ID numbers.
 // Prefixing with a leading apostrophe forces the cell to stay literal text; the apostrophe
 // itself is never stored/returned by the API, it's purely an input-time formatting hint.
+function parseDocs(raw){
+  try{ const a=JSON.parse(raw||'[]'); return Array.isArray(a)?a.filter(d=>d&&(d.type||d.number||d.expiry)).map(d=>({type:d.type||'',number:d.number||'',expiry:d.expiry||''})):[]; }catch(e){ return []; }
+}
 function forceTextCell(v){ return v ? ("'"+v) : ''; }
 
 async function pushProfiles(){
-  const values=[HEADERS].concat(people.map(p=>[p.id,p.photo,p.firstName,p.lastName,p.bloodGroup,p.address,p.email,forceTextCell(p.phone),p.createdAt,p.updatedAt,p.relation||'',JSON.stringify(p.bankAccounts||[]),forceTextCell(p.idCard)]));
+  const values=[HEADERS].concat(people.map(p=>[p.id,p.photo,p.firstName,p.lastName,p.bloodGroup,p.address,p.email,forceTextCell(p.phone),p.createdAt,p.updatedAt,p.relation||'',JSON.stringify(p.bankAccounts||[]),forceTextCell(p.idCard),JSON.stringify(p.documents||[])]));
   await ensureProfilesTab();
-  await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:M:clear`,{method:'POST',body:'{}'});
+  await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:N:clear`,{method:'POST',body:'{}'});
   await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${TAB}!A1`,majorDimension:'ROWS',values})});
 }
 
@@ -339,7 +342,7 @@ function fieldRow(label, key, val, editing, type, opts){
 function renderDetail(p){
   const isNew = !p;
   const editing = view.editing || isNew;
-  const rec = p || {id:'', photo:'', firstName:'', lastName:'', relation:'', bloodGroup:'', idCard:'', address:'', email:'', phone:'', bankAccounts:[]};
+  const rec = p || {id:'', photo:'', firstName:'', lastName:'', relation:'', bloodGroup:'', idCard:'', address:'', email:'', phone:'', bankAccounts:[], documents:[]};
 
   const photoBlock = rec.photo
     ? `<img class="mff-idcard-photo" src="${rec.photo}" alt="">`
@@ -390,6 +393,7 @@ function renderDetail(p){
       </div>
       ${fields || (editing?'':'<div style="font-size:12.5px;color:var(--ink-faint)">ยังไม่มีรายละเอียดเพิ่มเติม</div>')}
       ${bankSection}
+      ${renderDocsSection(rec.documents||[], editing)}
     </div>
     ${actions}
   `;
@@ -404,6 +408,59 @@ function bankRowHtml(b){
       </select>
       <input class="bank-number" type="text" inputmode="numeric" placeholder="เลขบัญชี" value="${esc(b.number)}">
       <button type="button" class="bank-remove" aria-label="ลบบัญชีนี้">×</button>
+    </div>`;
+}
+
+
+/* ===================== เอกสารและวันหมดอายุ ===================== */
+const DOC_TYPES=['','บัตรประชาชน','พาสปอร์ต','ใบขับขี่','ประกันชีวิต','ประกันสุขภาพ','ประกันรถยนต์','ภาษีรถ / พ.ร.บ.','วีซ่า','อื่นๆ'];
+const TH_MON=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+function docDays(iso){
+  const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||''); if(!m) return null;
+  const d=new Date(+m[1],+m[2]-1,+m[3]), n=new Date(); n.setHours(0,0,0,0);
+  return Math.round((d-n)/86400000);
+}
+function fmtDocDate(iso){
+  const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||''); if(!m) return '';
+  return (+m[3])+' '+TH_MON[+m[2]-1]+' '+(+m[1]+543);
+}
+function docChip(iso){
+  const d=docDays(iso); if(d===null) return '';
+  if(d<0) return `<span class="mfd-chip exp">หมดอายุแล้ว ${Math.abs(d)} วัน</span>`;
+  if(d===0) return '<span class="mfd-chip exp">หมดอายุวันนี้</span>';
+  if(d<=30) return `<span class="mfd-chip exp">อีก ${d} วัน</span>`;
+  if(d<=90) return `<span class="mfd-chip warn">อีก ${d} วัน</span>`;
+  return `<span class="mfd-chip ok">อีก ${d} วัน</span>`;
+}
+function docRowHtml(d){
+  d=d||{type:'',number:'',expiry:''};
+  return `
+    <div class="mfd-row">
+      <div class="mfd-top">
+        <select class="mfd-type" aria-label="ประเภทเอกสาร">${DOC_TYPES.map(o=>`<option value="${o}" ${o===d.type?'selected':''}>${o||'— เลือกประเภทเอกสาร —'}</option>`).join('')}</select>
+        <button type="button" class="mfd-remove" aria-label="ลบเอกสารนี้">×</button>
+      </div>
+      <div class="mfd-bottom">
+        <input class="mfd-num" type="text" placeholder="เลขที่ / รายละเอียด" value="${esc(d.number)}">
+        <label class="mfd-datelab"><span>วันหมดอายุ</span><input class="mfd-exp" type="date" value="${esc(d.expiry)}"></label>
+      </div>
+    </div>`;
+}
+function renderDocsSection(docs, editing){
+  if(!editing){
+    if(!docs.length) return '';
+    const sorted=docs.slice().sort((a,b)=>String(a.expiry||'9999').localeCompare(String(b.expiry||'9999')));
+    return `
+      <div class="mfd-sec">
+        <div class="lbl">เอกสารและวันหมดอายุ</div>
+        ${sorted.map(d=>`<div class="mfd-view"><div style="min-width:0"><div class="mfd-vt">${esc(d.type)||'เอกสาร'}</div>${d.number?`<div class="mfd-vn">${esc(d.number)}</div>`:''}</div><div class="mfd-vr">${d.expiry?`<div class="mfd-vd">${esc(fmtDocDate(d.expiry))}</div>${docChip(d.expiry)}`:'<span class="mfd-vn">ไม่ระบุวันหมดอายุ</span>'}</div></div>`).join('')}
+      </div>`;
+  }
+  return `
+    <div class="mfd-sec">
+      <div class="lbl">เอกสารและวันหมดอายุ</div>
+      <div id="docRows">${docs.map(docRowHtml).join('')}</div>
+      <button type="button" class="mff-bank-add-btn" id="addDocBtn">+ เพิ่มเอกสาร</button>
     </div>`;
 }
 
@@ -494,6 +551,12 @@ function wireDetail(){
     if(rows.length<=1){ btn.closest('.mff-bank-row').querySelectorAll('select,input').forEach(el=>el.value=''); return; }
     btn.closest('.mff-bank-row').remove();
   });
+  document.getElementById('addDocBtn')?.addEventListener('click',()=>{
+    document.getElementById('docRows').insertAdjacentHTML('beforeend', docRowHtml());
+  });
+  document.getElementById('docRows')?.addEventListener('click',e=>{
+    const btn=e.target.closest('.mfd-remove'); if(btn) btn.closest('.mfd-row').remove();
+  });
   document.getElementById('saveBtn')?.addEventListener('click', async()=>{
     const card=document.querySelector('.mff-idcard');
     const get=k=>card.querySelector(`[data-field="${k}"]`)?.value?.trim()||'';
@@ -517,6 +580,11 @@ function wireDetail(){
     p.bloodGroup=get('bloodGroup'); p.address=get('address');
     p.email=get('email'); p.phone=get('phone'); p.idCard=get('idCard');
     p.bankAccounts=bankAccounts;
+    p.documents=Array.from(card.querySelectorAll('#docRows .mfd-row')).map(row=>({
+      type: row.querySelector('.mfd-type').value,
+      number: row.querySelector('.mfd-num').value.trim(),
+      expiry: row.querySelector('.mfd-exp').value
+    })).filter(d=>d.type||d.number||d.expiry);
     p.updatedAt=now;
     if(pendingPhoto) p.photo=pendingPhoto;
 
