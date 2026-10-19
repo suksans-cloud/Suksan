@@ -80,11 +80,22 @@
 .mff-report-status{margin-top:9px;padding:9px 10px;border-radius:12px;background:var(--bg);border:1px solid var(--line);font-size:11.5px;line-height:1.5}
 </style>
 <style>
-.mff-toggle{position:relative;width:48px;height:28px;flex:0 0 48px;display:block;cursor:pointer;}
-.mff-toggle input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;z-index:3;}
-.mff-toggle span{position:absolute;inset:0;border-radius:999px;background:#cfd8d3;transition:.2s;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04);pointer-events:none;}
-.mff-toggle span i{position:absolute;width:20px;height:20px;left:4px;top:4px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.18);transition:.2s;}
-.mff-toggle.on span{background:var(--primary);}.mff-toggle.on span i{transform:translateX(20px);}
+.mff-toggle{
+  position:relative;width:48px;height:28px;flex:0 0 48px;display:block;
+  border:0;padding:0;margin:0;background:transparent;cursor:pointer;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  z-index:5;
+}
+.mff-toggle span{
+  position:absolute;inset:0;border-radius:999px;background:#cfd8d3;transition:.2s;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.04);pointer-events:none;
+}
+.mff-toggle span i{
+  position:absolute;width:20px;height:20px;left:4px;top:4px;border-radius:50%;
+  background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.18);transition:.2s;
+}
+.mff-toggle.on span{background:var(--primary);}
+.mff-toggle.on span i{transform:translateX(20px);}
 </style>
 </head>
 <body>
@@ -117,7 +128,7 @@
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,.06)">
       <div><b style="font-size:11.5px">⚡ Auto Sync เมื่อกลับมา Online</b><div style="font-size:10.5px;color:var(--ink-soft);margin-top:2px">ใช้เฉพาะ Google Session ที่ยังใช้งานได้ — ไม่เปิดหน้าขอสิทธิ์เอง</div></div>
-      <label class="mff-toggle" title="เปิด/ปิด Auto Sync"><input id="autoSyncToggle" type="checkbox"><span id="autoSyncTrack" aria-hidden="true"><i></i></span></label>
+      <button id="autoSyncToggle" class="mff-toggle" type="button" role="switch" aria-label="เปิด/ปิด Auto Sync" aria-checked="false" title="เปิด/ปิด Auto Sync"><span id="autoSyncTrack" aria-hidden="true"><i></i></span></button>
     </div>
   </section>
 
@@ -681,7 +692,7 @@ const AUTO_RETRY_KEY='mff_auto_sync_retry_v1';
 function autoRetryState(){try{return JSON.parse(localStorage.getItem(AUTO_RETRY_KEY)||'{}')}catch(e){return {}}}
 function saveAutoRetryState(v){try{localStorage.setItem(AUTO_RETRY_KEY,JSON.stringify(v))}catch(e){}}
 function autoSyncEnabled(){const v=localStorage.getItem(AUTO_SYNC_KEY);return v===null?true:v==='1';}
-function renderAutoSyncToggle(){const cb=document.getElementById('autoSyncToggle'),track=document.getElementById('autoSyncTrack');if(!cb||!track)return;const on=autoSyncEnabled();cb.checked=on;cb.closest('.mff-toggle')?.classList.toggle('on',on);track.setAttribute('aria-checked',String(on));}
+function renderAutoSyncToggle(){const cb=document.getElementById('autoSyncToggle'),track=document.getElementById('autoSyncTrack');if(!cb||!track)return;const on=autoSyncEnabled();cb.classList.toggle('on',on);cb.setAttribute('aria-checked',String(on));track.setAttribute('aria-checked',String(on));}
 function queueItems(){try{return window.MFFDataSafety?.exportQueue?.()||[]}catch(e){return[];}}
 function renderOfflineQueue(){
   const q=queueItems();
@@ -796,8 +807,7 @@ document.getElementById('btnFinalLocalCheck')?.addEventListener('click',runFinal
 
 window.addEventListener('online',()=>{updateSystemPulse();renderOfflineQueue();scheduleAutoSync('กลับมา Online');});
 window.addEventListener('offline',()=>{updateSystemPulse();clearTimeout(autoSyncTimer);});
-document.getElementById('autoSyncToggle')?.addEventListener('change',e=>setAutoSync(e.target.checked));
-document.getElementById('autoSyncTrack')?.addEventListener('click',e=>{e.preventDefault();const cb=document.getElementById('autoSyncToggle');if(cb){cb.checked=!cb.checked;cb.dispatchEvent(new Event('change',{bubbles:true}));}});
+document.getElementById('autoSyncToggle')?.addEventListener('click',e=>{e.preventDefault();setAutoSync(!autoSyncEnabled());});
 renderAutoSyncToggle();
 window.addEventListener('mff:data-safety',()=>{updateSystemPulse();if(navigator.onLine!==false)scheduleAutoSync('มีข้อมูลใหม่ในคิว Offline');});
 /* ---------- All-module readiness audit ---------- */
