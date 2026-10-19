@@ -81,21 +81,24 @@
 </style>
 <style>
 .mff-toggle{
-  position:relative;width:48px;height:28px;flex:0 0 48px;display:block;
-  border:0;padding:0;margin:0;background:transparent;cursor:pointer;
-  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
-  z-index:5;
+  position:relative!important;width:52px!important;height:32px!important;flex:0 0 52px!important;
+  display:block!important;border:0!important;padding:0!important;margin:0!important;
+  background:transparent!important;cursor:pointer!important;touch-action:manipulation!important;
+  -webkit-tap-highlight-color:transparent!important;pointer-events:auto!important;z-index:30!important;
 }
 .mff-toggle span{
-  position:absolute;inset:0;border-radius:999px;background:#cfd8d3;transition:.2s;
-  box-shadow:inset 0 0 0 1px rgba(0,0,0,.04);pointer-events:none;
+  position:absolute!important;inset:0!important;display:block!important;border-radius:999px!important;
+  background:#cfd8d3!important;transition:.2s!important;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)!important;
+  pointer-events:none!important;
 }
 .mff-toggle span i{
-  position:absolute;width:20px;height:20px;left:4px;top:4px;border-radius:50%;
-  background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.18);transition:.2s;
+  position:absolute!important;width:24px!important;height:24px!important;left:4px!important;top:4px!important;
+  border-radius:50%!important;background:#fff!important;box-shadow:0 1px 4px rgba(0,0,0,.18)!important;
+  transition:.2s!important;pointer-events:none!important;
 }
-.mff-toggle.on span{background:var(--primary);}
-.mff-toggle.on span i{transform:translateX(20px);}
+.mff-toggle.on span{background:var(--primary)!important}
+.mff-toggle.on span i{transform:translateX(20px)!important}
+.mff-auto-sync-row{cursor:pointer;touch-action:manipulation;}
 </style>
 </head>
 <body>
@@ -126,9 +129,9 @@
       <div class="mff-control-stat"><b id="mffStatPending">0</b><span>รอซิงก์</span></div>
       <div class="mff-control-stat"><b id="mffStatLast">—</b><span>ซิงก์ล่าสุด</span></div>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,.06)">
+    <div id="autoSyncRow" class="mff-auto-sync-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,.06)" role="button" tabindex="0" aria-label="เปิดหรือปิด Auto Sync">
       <div><b style="font-size:11.5px">⚡ Auto Sync เมื่อกลับมา Online</b><div style="font-size:10.5px;color:var(--ink-soft);margin-top:2px">ใช้เฉพาะ Google Session ที่ยังใช้งานได้ — ไม่เปิดหน้าขอสิทธิ์เอง</div></div>
-      <button id="autoSyncToggle" class="mff-toggle" type="button" role="switch" aria-label="เปิด/ปิด Auto Sync" aria-checked="false" title="เปิด/ปิด Auto Sync"><span id="autoSyncTrack" aria-hidden="true"><i></i></span></button>
+      <button id="autoSyncToggle" class="mff-toggle" type="button" role="switch" aria-checked="false" title="เปิด/ปิด Auto Sync"><span id="autoSyncTrack" aria-hidden="true"><i></i></span></button>
     </div>
   </section>
 
@@ -692,7 +695,7 @@ const AUTO_RETRY_KEY='mff_auto_sync_retry_v1';
 function autoRetryState(){try{return JSON.parse(localStorage.getItem(AUTO_RETRY_KEY)||'{}')}catch(e){return {}}}
 function saveAutoRetryState(v){try{localStorage.setItem(AUTO_RETRY_KEY,JSON.stringify(v))}catch(e){}}
 function autoSyncEnabled(){const v=localStorage.getItem(AUTO_SYNC_KEY);return v===null?true:v==='1';}
-function renderAutoSyncToggle(){const cb=document.getElementById('autoSyncToggle'),track=document.getElementById('autoSyncTrack');if(!cb||!track)return;const on=autoSyncEnabled();cb.classList.toggle('on',on);cb.setAttribute('aria-checked',String(on));track.setAttribute('aria-checked',String(on));}
+function renderAutoSyncToggle(){const cb=document.getElementById('autoSyncToggle'),track=document.getElementById('autoSyncTrack'),row=document.getElementById('autoSyncRow');if(!cb||!track)return;const on=autoSyncEnabled();cb.classList.toggle('on',on);cb.setAttribute('aria-checked',String(on));track.setAttribute('aria-checked',String(on));if(row)row.setAttribute('aria-pressed',String(on));}
 function queueItems(){try{return window.MFFDataSafety?.exportQueue?.()||[]}catch(e){return[];}}
 function renderOfflineQueue(){
   const q=queueItems();
@@ -807,7 +810,10 @@ document.getElementById('btnFinalLocalCheck')?.addEventListener('click',runFinal
 
 window.addEventListener('online',()=>{updateSystemPulse();renderOfflineQueue();scheduleAutoSync('กลับมา Online');});
 window.addEventListener('offline',()=>{updateSystemPulse();clearTimeout(autoSyncTimer);});
-document.getElementById('autoSyncToggle')?.addEventListener('click',e=>{e.preventDefault();setAutoSync(!autoSyncEnabled());});
+function toggleAutoSync(){setAutoSync(!autoSyncEnabled());}
+document.getElementById('autoSyncToggle')?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();toggleAutoSync();});
+document.getElementById('autoSyncRow')?.addEventListener('click',e=>{if(e.target.closest('#autoSyncToggle'))return;e.preventDefault();toggleAutoSync();});
+document.getElementById('autoSyncRow')?.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleAutoSync();}});
 renderAutoSyncToggle();
 window.addEventListener('mff:data-safety',()=>{updateSystemPulse();if(navigator.onLine!==false)scheduleAutoSync('มีข้อมูลใหม่ในคิว Offline');});
 /* ---------- All-module readiness audit ---------- */
