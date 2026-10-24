@@ -290,7 +290,7 @@ function ensureSheetsClient(cid){
     sheetsClient=google.accounts.oauth2.initTokenClient({
       client_id:cid, scope:'https://www.googleapis.com/auth/spreadsheets',
       callback:r=>{
-        if(r && r.access_token){ const exp=Date.now()+Math.max(60,(Number(r.expires_in)||3600)-60)*1000; window.MFFGoogleSession?.saveSheetsToken(r.access_token,exp); localStorage.setItem('google_sheets_connected','1'); renderSheetsStatus();
+        if(r && r.access_token && google.accounts.oauth2.hasGrantedAllScopes(r,'https://www.googleapis.com/auth/spreadsheets')){ const exp=Date.now()+Math.max(60,(Number(r.expires_in)||3600)-60)*1000; window.MFFGoogleSession?.saveSheetsToken(r.access_token,exp); localStorage.setItem('google_sheets_connected','1'); renderSheetsStatus();
 function renderGoogleSessionStatus(){
   const sh=window.MFFGoogleSession?.getSheetsToken();
   const dr=window.MFFGoogleSession?.getDriveToken();
@@ -304,7 +304,7 @@ document.getElementById('btnClearGoogleSession')?.addEventListener('click',()=>{
   renderSheetsStatus(); renderGoogleSessionStatus();
   toast('ล้างสิทธิ์ Google แล้ว');
 }); toast('เชื่อมต่อ Google Sheets แล้ว'); }
-        else toast('เชื่อมต่อไม่สำเร็จ');
+        else toast(r&&r.access_token?'ยังไม่ได้ติ๊กสิทธิ์ Google Sheets — กรุณาเชื่อมต่อใหม่และอนุญาตทุกช่อง':'เชื่อมต่อไม่สำเร็จ');
       }
     });
     sheetsClient._cid=cid;
@@ -368,7 +368,7 @@ async function ensureSheetsTokenForSyncAll(cid){
   return new Promise(resolve=>{
     if(!window.google?.accounts?.oauth2){resolve(null);return;}
     const c=google.accounts.oauth2.initTokenClient({client_id:cid,scope:'https://www.googleapis.com/auth/spreadsheets',callback:r=>{
-      if(r&&r.access_token){const exp=Date.now()+Math.max(60,(Number(r.expires_in)||3600)-60)*1000;window.MFFGoogleSession?.saveSheetsToken(r.access_token,exp);resolve(r.access_token);}else resolve(null);
+      if(r&&r.access_token&&google.accounts.oauth2.hasGrantedAllScopes(r,'https://www.googleapis.com/auth/spreadsheets')){const exp=Date.now()+Math.max(60,(Number(r.expires_in)||3600)-60)*1000;window.MFFGoogleSession?.saveSheetsToken(r.access_token,exp);resolve(r.access_token);}else resolve(null);
     }});
     try{c.requestAccessToken({prompt:'consent'});}catch(e){resolve(null);}
   });

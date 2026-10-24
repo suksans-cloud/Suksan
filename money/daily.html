@@ -129,7 +129,7 @@ function ensureSheetsClient(cid){
   if(!window.google?.accounts?.oauth2){toast('Google API ยังโหลดไม่เสร็จ ลองใหม่อีกครั้ง');return null;}
   if(!sheetsClient||sheetsClient._cid!==cid){
     sheetsClient=google.accounts.oauth2.initTokenClient({client_id:cid,scope:SHEETS_SCOPE,callback:async r=>{
-      if(r.error){toast('เชื่อมต่อ Google Sheets ไม่สำเร็จ');return;}
+      if(r.error){toast('เชื่อมต่อ Google Sheets ไม่สำเร็จ');return;}if(!google.accounts.oauth2.hasGrantedAllScopes(r,'https://www.googleapis.com/auth/spreadsheets')){toast('ยังไม่ได้ติ๊กสิทธิ์ Google Sheets — กรุณาเชื่อมต่อใหม่และอนุญาตทุกช่อง');return;}
       sheetsToken=r.access_token;
       sheetsTokenExpiresAt=Date.now()+Math.max(60,(Number(r.expires_in)||3600)-60)*1000;
       window.MFFGoogleSession?.saveSheetsToken(sheetsToken,sheetsTokenExpiresAt);
