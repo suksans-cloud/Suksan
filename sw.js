@@ -1,4 +1,4 @@
-const CACHE='mff-shell-v56-finance-thai-funds';
+const CACHE='mff-shell-v57-portfolio-owner-guard';
 const SHELL=[
   './index.html','./shell.css','./config.js','./data-safety.js','./admin-login.js','./settings-store.js','./themes.js','./reminders.js','./privacy-eye.js',
   './money/index.html','./money/daily.html','./money/monthly.html',

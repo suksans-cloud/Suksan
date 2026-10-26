@@ -1942,10 +1942,18 @@ function syncAllMonthlyCellsToTransactions(data){
   return changed;
 }
 
+/* Portfolio holds ONLY Suksan / Wirocha / Phoom and E-Saving owners.
+   FundMaster (NAV monitoring list) rows must never become portfolio funds, so any record whose
+   owner is not one of these (e.g. a fund code read as an "owner") is dropped on load and on pull. */
+function isPortfolioOwner(owner){
+  const o=canonicalOwner(owner||'');
+  return o==='Suksan'||o==='Wirocha'||o==='Phoom'||/e\s*[- ]?saving|esaving|เงินสำรอง/i.test(String(o));
+}
+function pruneNonPortfolioFunds(list){ return (list||[]).filter(f=>f && isPortfolioOwner(f.owner)); }
 function loadData(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
-    if(raw){ const d=JSON.parse(raw); d.funds=dedupeFundsByOwnerCode(d.funds||[]); syncAllMonthlyCellsToTransactions(d); localStorage.setItem(STORAGE_KEY,JSON.stringify(d)); return d; }
+    if(raw){ const d=JSON.parse(raw); d.funds=pruneNonPortfolioFunds(dedupeFundsByOwnerCode(d.funds||[])); syncAllMonthlyCellsToTransactions(d); localStorage.setItem(STORAGE_KEY,JSON.stringify(d)); return d; }
   }catch(e){}
   const data = { funds: seedFunds() };
   data.funds=dedupeFundsByOwnerCode(data.funds);
@@ -4179,7 +4187,7 @@ async function pullFromSheets(options={}){if(!sheetsToken||!sheetId)throw new Er
   });
   let transactionUnitsEnriched=false;
   if(map.size){
-    DATA={funds:dedupeFundsByOwnerCode([...map.values()])};
+    DATA={funds:pruneNonPortfolioFunds(dedupeFundsByOwnerCode([...map.values()]))};
     DATA.funds.forEach(f=>{ normalizeFund(f); (f.transactions||[]).forEach(t=>{ if(t) t.fundId=f.id; }); });
     transactionUnitsEnriched=enrichAllTransactionUnits();
     localStorage.setItem(STORAGE_KEY,JSON.stringify(DATA));renderAll();
@@ -4340,7 +4348,7 @@ async function pullFromCloud(){
   });
   const json = await res.json();
   if(json && Array.isArray(json.funds)){
-    DATA = json;
+    DATA = json; if(Array.isArray(DATA.funds)) DATA.funds=pruneNonPortfolioFunds(DATA.funds);
     (DATA.funds||[]).forEach(normalizeFund);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
     localStorage.setItem('drive_last_sync', new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}));
@@ -4392,7 +4400,7 @@ document.getElementById('importJsonFile')?.addEventListener('change',async e=>{
     const obj=JSON.parse(await file.text());
     if(!obj||!Array.isArray(obj.funds)) throw new Error('invalid');
     const incoming={funds:obj.funds}; incoming.funds.forEach(normalizeFund);
-    DATA={funds:incoming.funds}; DATA.funds.forEach(rebuildFundMonths);
+    DATA={funds:pruneNonPortfolioFunds(incoming.funds)}; DATA.funds.forEach(rebuildFundMonths);
     localStorage.setItem(STORAGE_KEY,JSON.stringify(DATA)); updateLastUpdated(); renderAll();
     await ensureSheetsAccess();
     if(sheetsToken&&sheetId){await pushToSheets(); showToast('Import สำเร็จ และ Sync กลับ Google Sheets แล้ว');}
