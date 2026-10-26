@@ -1,4 +1,4 @@
-const CACHE='mff-shell-v53-v110-eye-home-restore';
+const CACHE='mff-shell-v55-finance-fix';
 const SHELL=[
   './index.html','./shell.css','./config.js','./data-safety.js','./admin-login.js','./settings-store.js','./privacy-eye.js',
   './money/index.html','./money/daily.html','./money/monthly.html',

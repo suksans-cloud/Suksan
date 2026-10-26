@@ -1102,8 +1102,8 @@ body.mff-hide-money .fund-row .fund-row-actual,body.mff-hide-money .fund-row .fu
         </button>
         <div class="finance-sort-menu" id="financeSortMenu" hidden>
           <button type="button" data-sort="default" data-dir="asc">ค่าเริ่มต้น</button>
-          <button type="button" data-sort="name" data-dir="asc">ชื่อ (ก → ฮ)</button>
-          <button type="button" data-sort="name" data-dir="desc">ชื่อ (ฮ → ก)</button>
+          <button type="button" data-sort="name" data-dir="asc">Name (A → Z)</button>
+          <button type="button" data-sort="name" data-dir="desc">Name (Z → A)</button>
           <button type="button" data-sort="price" data-dir="desc">ราคา/NAV (สูง → ต่ำ)</button>
           <button type="button" data-sort="price" data-dir="asc">ราคา/NAV (ต่ำ → สูง)</button>
           <button type="button" data-sort="change" data-dir="desc">เปลี่ยนแปลง (บวกมากสุด)</button>
@@ -3137,6 +3137,19 @@ function financeFundOwners(code){
  DATA.funds.forEach(f=>{if(fundMatchKey(f.name)===fundMatchKey(code))owners.add(f.owner);});
  return [...owners].join(' / ');
 }
+function isFinanceThaiFundCode(code){
+ const m=FUND_MASTER[code]||{};
+ if(m.active===false)return false;
+ const text=[code,m.displayName,m.officialName,m.assetClass].join(' ');
+ // E-Saving is a cash-reserve bucket, not a fund to track here.
+ if(/e\s*[- ]?saving|esaving|เงินสำรอง|สภาพคล่อง|reserve/i.test(text))return false;
+ // FundMaster also carries ETF / US stock rows; those belong to the ETF and Stock tabs.
+ if(/^\s*(etf|us\s*stock|stock)\b/i.test(String(m.assetClass||'')))return false;
+ if(MARKET_ASSETS.some(a=>String(a.ticker).toUpperCase()===String(code).toUpperCase() && String(a.exchange||'').toUpperCase()!=='FUND'))return false;
+ return true;
+}
+// Funds the family actually holds (DATA.funds). Portfolio overview, history, summaries
+// and every other portfolio calculation must keep using ONLY this list.
 function financeMyFundsList(){
  const map=new Map();
  DATA.funds.forEach(f=>{
@@ -3145,8 +3158,14 @@ function financeMyFundsList(){
  });
  return [...map.values()].map(x=>({...x,owner:financeFundOwners(x.ticker)}));
 }
+// Finance > "My funds" tab only: every Thai fund in FundMaster (E-Saving excluded).
+function financeFundTabList(){
+ return Object.keys(FUND_MASTER).filter(isFinanceThaiFundCode).map(code=>({
+  ticker:code,name:FUND_MASTER[code]?.displayName||code,exchange:'FUND',group:FUND_MASTER[code]?.assetClass||'กองทุน',owner:financeFundOwners(code)
+ }));
+}
 function financeListForTab(tab){
- if(tab==='fund')return financeMyFundsList();
+ if(tab==='fund')return financeFundTabList();
  if(tab==='etf')return MARKET_ASSETS.filter(a=>a.active!==false && isETFAsset(a));
  return MARKET_ASSETS.filter(a=>a.active!==false && String(a.exchange).toUpperCase()!=='FUND' && !isETFAsset(a));
 }
@@ -3243,7 +3262,7 @@ function financeRow(a){
 let financeSort=JSON.parse(localStorage.getItem('finance_sort_v1')||'null')||{key:'default',dir:'asc'};
 const FINANCE_SORT_LABELS={
  'default|asc':'ค่าเริ่มต้น',
- 'name|asc':'ชื่อ (ก → ฮ)','name|desc':'ชื่อ (ฮ → ก)',
+ 'name|asc':'Name (A → Z)','name|desc':'Name (Z → A)',
  'price|desc':'ราคา/NAV (สูง → ต่ำ)','price|asc':'ราคา/NAV (ต่ำ → สูง)',
  'change|desc':'เปลี่ยนแปลง (บวกมากสุด)','change|asc':'เปลี่ยนแปลง (ลบมากสุด)'
 };
@@ -3264,7 +3283,7 @@ function sortFinanceList(list){
  const dir=financeSort.dir==='asc'?1:-1;
  return [...list].sort((a,b)=>{
   const va=financeSortValue(a,financeSort.key),vb=financeSortValue(b,financeSort.key);
-  if(typeof va==='string')return va.localeCompare(vb,'th')*dir;
+  if(typeof va==='string')return va.localeCompare(vb,'en',{numeric:true,sensitivity:'base'})*dir;
   return (va-vb)*dir;
  });
 }
