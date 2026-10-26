@@ -621,3 +621,26 @@ body{background:var(--bg)}
 .mbk-form input[type=text],.mbk-form input[type=date],.mbk-form input[type=number],.mbk-form select{display:block;width:100%;margin-top:6px;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:16px;font-family:inherit;color:var(--ink);background:#fff}
 .mbk-form input[type=range]{display:block;width:100%;margin-top:10px}
 .mbk-ret{width:100%;margin-top:14px;border:1px dashed #C24D63;background:#FDF4F6;color:#C24D63;border-radius:10px;padding:10px;font-weight:600;font-family:inherit}
+
+/* Wish List: แถวกะทัดรัด ชื่อเรื่องได้พื้นที่เต็ม ปุ่มเป็นไอคอนขนาดเล็ก */
+.mbk-wish-row{align-items:center;gap:6px;padding:5px 0}
+.mbk-wish-row .b-title{flex:1 1 auto;min-width:0;font-size:13px;line-height:1.3}
+.mbk-wish-row .b-title b{font-weight:700;overflow-wrap:anywhere}
+.mbk-wish-row .w-meta{font-size:11px;line-height:1.3;color:var(--ink-soft);margin-top:1px}
+.mbk-wish-row .w-acts{flex:none;display:flex;gap:4px}
+.mbk-wish-row .b-edit,.mbk-wish-row .b-del{width:30px;height:30px;padding:0;font-size:12px;border-radius:7px}
+.mbk-wish-row .w-buy{background:#E3F4EA;color:#1E8F5A;font-weight:800}
+.mbk-wish-row .w-buy.undo{background:#EAF0F6;color:#3A6C93}
+#wishCard .mbk-hint{margin-top:6px!important;margin-bottom:2px!important}
+
+/* My Bookshelf: รายการไฟล์จาก Drive แบบกะทัดรัด ชื่อไฟล์ได้พื้นที่มากสุด */
+.mff-file-list:has(.mff-drv){gap:6px;padding-left:14px;padding-right:14px}
+.mff-drv{gap:6px;padding:6px 8px;border-radius:12px;box-shadow:none}
+.mff-drv .mff-file-icon{width:26px;height:26px;border-radius:8px}
+.mff-drv .mff-file-icon svg{width:15px;height:15px}
+.mff-drv .mff-file-meta .fn{font-size:13px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;word-break:normal}
+.mff-drv .mff-file-meta .fs{font-size:10.5px;margin-top:0;line-height:1.3}
+.mff-drv .mff-file-dl{width:28px;height:28px;border-radius:8px}
+.mff-drv .mff-file-dl svg{width:14px;height:14px}
+.mff-drv .mff-drv-open{background:var(--surface);color:var(--ink-soft);border:1px solid var(--line)}
+.mff-drv .mff-drv-sel{border-width:1.5px}

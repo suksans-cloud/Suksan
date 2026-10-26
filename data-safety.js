@@ -14,7 +14,7 @@
      base looks "changed" forever even when nothing changed, and the offline-queue
      badge can never reach zero because syncing itself creates new queue entries.
      So these keys are left completely untouched here — Smart Sync alone owns them. */
-  const syncEngineOwned=/^mff_(daily_cache_v1|money_cache_v3|bookshelf_cache_v1|profiles_cache_v1|sync_base_v1_|sync_dirty_v1_|sync_backup_v2|sync_history_v2)/;
+  const syncEngineOwned=/^mff_(daily_cache_v1|money_cache_v3|bookshelf_cache_v1|profiles_cache_v1|notes_cache_v1|goals_cache_v1|sync_base_v1_|sync_dirty_v1_|sync_backup_v2|sync_history_v2)/;
   const clone=o=>{try{return JSON.parse(JSON.stringify(o));}catch(e){return o;}};
   const read=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}};
   const write=(k,v)=>{try{if(typeof rawSet==='function') rawSet(k,JSON.stringify(v)); else localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}};

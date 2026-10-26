@@ -104,6 +104,7 @@ body{background:#D9F0F5;color:#072340}
 .sheet.open{overflow-y:auto}
 .sheet:before{width:44px;height:5px;margin-bottom:10px}
 </style>
+<script src="../themes.js"></script>
 </head>
 <body>
 <div class="top">
@@ -193,6 +194,10 @@ function render(){
   if(apiHelp) hs+='<div class="conn">ต้องเปิดใช้ Google Calendar API ในโปรเจกต์ Google Cloud ก่อน<br><a class="btn" target="_blank" rel="noopener" href="'+esc(apiHelp)+'">เปิดหน้าเปิดใช้ API</a><br><small>เปิดแล้วรอ 1-2 นาที แล้วกด Sync อีกครั้ง</small></div>';
   hs+='<button type="button" class="btn light" id="dcaBtn" style="width:100%;margin:0 0 12px">💰 ตั้งเตือน DCA รายเดือน</button>';
   hs+='<div class="sh"><b>'+sel.getDate()+' '+MTH[sel.getMonth()]+'</b><span>'+list.length+' รายการ'+(cache.updated?' · อัปเดต '+hm(cache.updated):'')+'</span></div>';
+  var tds=[];try{(JSON.parse(localStorage.getItem('mff_notes_cache_v1'))||[]).forEach(function(n){if(n.archived||n.kind!=='check'||n.due!==sk)return;(n.items||[]).forEach(function(it){tds.push({t:it.t||it.text||'',d:!!it.d})})})}catch(e){}
+  hs+='<div class="sh"><b>✅ To-do</b><span>'+tds.filter(function(x){return !x.d}).length+' ค้างอยู่</span></div>';
+  tds.forEach(function(x){hs+='<div class="ev" style="background:#e9eefb;color:#0d1f45"><div class="av" style="background:#0d1f4522">'+(x.d?'✓':'○')+'</div><div><h3'+(x.d?' style="text-decoration:line-through;opacity:.6"':'')+'>'+esc(x.t)+'</h3></div></div>'});
+  hs+='<a class="btn light" href="../notes/index.html?new=check&due='+sk+'" style="display:block;text-align:center;margin:0 0 14px">+ เพิ่ม To-do วันที่ '+sel.getDate()+'</a>';
   if(!list.length) hs+='<div class="empty">ไม่มีนัดหมายในวันนี้</div>';
   list.forEach(function(e,i){
     var t=e.ad?'ทั้งวัน':hm(e.s)+' - '+hm(e.e);

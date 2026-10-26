@@ -10,6 +10,27 @@
 <link rel="stylesheet" href="../shell.css">
 <script src="../data-safety.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="../themes.js"></script>
+<style>
+/* My bookshelf: ทุกแถว/สัญลักษณ์/เป้าหมายการอ่าน ขนาดกะทัดรัดเท่า Wish List */
+.mff-shelf{padding:10px 12px 8px}
+.mff-shelf-head{margin-bottom:4px}
+.mff-shelf-head h4{font-size:13.5px}
+.mff-book-row{gap:6px;padding:5px 0}
+.mff-book-row .b-icon{width:26px;height:26px;border-radius:7px}
+.mff-book-row .b-icon svg{width:14px;height:14px}
+.mff-book-row .b-title{font-size:13px;line-height:1.3}
+.mff-book-row .b-edit,.mff-book-row .b-del{width:30px;height:30px;padding:0;font-size:12px;border-radius:7px}
+.mbk-meta{margin-top:3px;gap:3px}
+.mbk-prog{font-size:10.5px;gap:6px}
+.mbk-goal{padding:8px 12px;border-radius:16px}
+.mbk-goal-top{font-size:12.5px}
+.mbk-goal-edit{padding:3px 10px;font-size:11px}
+.mbk-goal-num{font-size:11.5px;margin-top:2px}
+.mbk-goal-num span{font-size:17px}
+.mbk-bar.big{height:6px;margin-top:5px}
+.mbk-goal-set{padding:7px;font-size:12.5px;border-radius:12px}
+</style>
 </head>
 <body>
 
@@ -56,11 +77,13 @@ const CACHE_KEY='mff_bookshelf_cache_v1';
 const SEARCH_CACHE_KEY='mff_bookshelf_search_cache_v2';
 const BOOK_META_CACHE_KEY='mff_bookshelf_meta_cache_v1';
 const TAB='BookshelfItems';
+const WISH_KEY='mff_wishlist_cache_v1', WISH_DIRTY='mff_sync_dirty_v1_wishlist';
 const HEADERS=['ID','Title','Status','DriveFileId','DriveFileName','MimeType','Size','WebViewLink','AddedAt','UpdatedAt','Progress','Borrower','DueDate','FinishedAt'];
 
 let sheetsToken=null, sheetsTokenExpiresAt=0, sheetsClient=null;
 let driveToken=null, driveTokenExpiresAt=0, driveClient=null;
 let sheetId=localStorage.getItem('google_sheet_id')||'';
+let wishes=[], wishYear=new Date().getFullYear();
 let books=[]; // {id,title,status,driveFileId,driveFileName,mimeType,size,webViewLink,addedAt,updatedAt}
 let view={mode:'home'}; // 'home' | 'search'
 let searchResults=[];
@@ -346,6 +369,71 @@ async function downloadDriveFile(file, btnEl){
 }
 
 /* ===================== rendering ===================== */
+/* ===================== Wish List ประจำปี: รอซื้อ / ซื้อแล้ว ===================== */
+function loadWish(){ try{ const a=JSON.parse(localStorage.getItem(WISH_KEY)||'[]'); wishes=Array.isArray(a)?a:[]; }catch(e){ wishes=[]; } }
+function saveWish(){ try{ localStorage.setItem(WISH_KEY,JSON.stringify(wishes)); localStorage.setItem(WISH_DIRTY,'1'); }catch(e){ toast('บันทึกในเครื่องไม่สำเร็จ'); } }
+function wishRow(w){
+  const bought=w.status==='bought';
+  /* สถานะรอซื้อ/ซื้อแล้ว ถูกแยกด้วยหัวข้อกลุ่มอยู่แล้ว จึงไม่แสดงป้ายสถานะซ้ำ */
+  const meta=[w.author?'โดย '+esc(w.author):'', bought&&w.boughtAt?'ซื้อเมื่อ '+bkFmtDate(String(w.boughtAt).slice(0,10)):''].filter(Boolean).join(' · ');
+  return `<div class="mff-book-row mbk-wish-row" data-wid="${esc(w.id)}">
+    <div class="b-title"><b>${esc(w.title)}</b>${meta?`<div class="w-meta">${meta}</div>`:''}</div>
+    <div class="w-acts">
+      <button class="b-edit w-buy${bought?' undo':''}" data-wbuy="${esc(w.id)}" title="${bought?'ย้อนกลับเป็นรอซื้อ':'ทำเครื่องหมายว่าซื้อแล้ว'}" aria-label="${bought?'ย้อนกลับเป็นรอซื้อ':'ทำเครื่องหมายว่าซื้อแล้ว'}">${bought?'↩':'✓'}</button>
+      <button class="b-edit" data-wedit="${esc(w.id)}" aria-label="แก้ไข">✎</button>
+      <button class="b-del" data-wdel="${esc(w.id)}" aria-label="ลบ">✕</button>
+    </div>
+  </div>`;
+}
+function renderWish(){
+  const list=wishes.slice();
+  const want=list.filter(w=>w.status!=='bought'), got=list.filter(w=>w.status==='bought');
+  return `<div class="mff-shelf" id="wishCard">
+    <div class="mff-shelf-head"><h4>🛒 Wish List <span class="count">${list.length}</span></h4>
+      <button class="mff-shelf-add" id="wishAdd">+ เพิ่มเล่มที่อยากซื้อ</button></div>
+    <div class="mbk-hint" style="margin:0 0 4px;font-weight:700;color:var(--ink-soft)">หนังสือที่อยากได้ (${want.length})</div>
+    ${want.length?want.map(wishRow).join(''):'<div class="mff-shelf-empty">ยังไม่มีหนังสือที่อยากได้</div>'}
+    <div class="mbk-hint" style="margin:12px 0 4px;font-weight:700;color:var(--ink-soft);border-top:1px dashed var(--line);padding-top:10px">หนังสือที่ซื้อแล้ว (${got.length})</div>
+    ${got.length?got.map(wishRow).join(''):'<div class="mff-shelf-empty">ยังไม่มีหนังสือที่ซื้อแล้ว</div>'}
+  </div>`;
+}
+function openWishModal(id){
+  const w=id?wishes.find(x=>x.id===id):null; if(id&&!w) return;
+  modal(w?'แก้ไขรายการ':'เพิ่มหนังสือที่อยากซื้อ', `<div class="mbk-form">
+    <label>ชื่อเรื่อง<input id="wsT" type="text" placeholder="ชื่อหนังสือ" value="${esc(w?.title||'')}"></label>
+    <label>ผู้แต่ง<input id="wsA" type="text" placeholder="ชื่อผู้แต่ง" value="${esc(w?.author||'')}"></label>
+    <label>สถานะ<select id="wsS"><option value="want" ${w&&w.status==='bought'?'':'selected'}>หนังสือที่อยากได้</option><option value="bought" ${w&&w.status==='bought'?'selected':''}>หนังสือที่ซื้อแล้ว</option></select></label></div>`, [
+    {label:'ยกเลิก', ghost:true, onClick:closeModal},
+    {label:'บันทึก', onClick:()=>{
+      const title=document.getElementById('wsT').value.trim(); if(!title){ toast('ใส่ชื่อเรื่องก่อน'); return; }
+      const author=document.getElementById('wsA').value.trim(), status=document.getElementById('wsS').value;
+      const yr=w&&Number(w.year)?Number(w.year):new Date().getFullYear(), now=new Date().toISOString();
+      if(w){ w.title=title; w.author=author; w.year=yr;
+        if(status==='bought'&&w.status!=='bought') w.boughtAt=now; if(status!=='bought') delete w.boughtAt;
+        w.status=status; w.updatedAt=now; }
+      else wishes.push({id:uuid(),title,author,year:yr,status,boughtAt:status==='bought'?now:'',createdAt:now,updatedAt:now});
+      saveWish(); closeModal(); render(); toast('บันทึกแล้ว');
+    }}
+  ]);
+}
+function wireWish(){
+  document.getElementById('wishAdd')?.addEventListener('click',()=>openWishModal());
+  document.querySelectorAll('[data-wedit]').forEach(b=>b.addEventListener('click',()=>openWishModal(b.dataset.wedit)));
+  document.querySelectorAll('[data-wbuy]').forEach(b=>b.addEventListener('click',()=>{
+    const w=wishes.find(x=>x.id===b.dataset.wbuy); if(!w) return; const now=new Date().toISOString();
+    if(w.status==='bought'){ w.status='want'; delete w.boughtAt; toast('ย้ายกลับไปรอซื้อ'); }
+    else { w.status='bought'; w.boughtAt=now; toast('ย้ายไปรายการที่ซื้อแล้ว ✅'); }
+    w.updatedAt=now; saveWish(); render();
+  }));
+  document.querySelectorAll('[data-wdel]').forEach(b=>b.addEventListener('click',()=>{
+    const w=wishes.find(x=>x.id===b.dataset.wdel); if(!w) return;
+    modal('ลบรายการนี้?', `<p style="font-size:13.5px;color:var(--ink-soft);margin:14px 0">ลบ "<b>${esc(w.title)}</b>" ออกจาก Wish List?</p>`, [
+      {label:'ยกเลิก', ghost:true, onClick:closeModal},
+      {label:'ลบ', onClick:()=>{ wishes=wishes.filter(x=>x.id!==w.id); saveWish(); closeModal(); render(); }}
+    ]);
+  }));
+}
+
 function render(){
   const root=document.getElementById('viewRoot');
   if(view.mode==='search'){ renderSearchView(); return; }
@@ -355,6 +443,7 @@ function render(){
       <input id="bookSearch" class="mff-search-input" placeholder="ค้นหาชื่อหนังสือใน Google Drive..." autocomplete="off">
     </div>
     ${renderGoalCard()}
+    ${renderWish()}
     ${SHELVES.map(sh=>renderShelf(sh)).join('')}
   `;
   document.getElementById('bookBack')?.remove();
@@ -369,6 +458,7 @@ function render(){
   input.addEventListener('keydown',e=>{ if(e.key==='Enter'){ clearTimeout(searchTimer); view={mode:'search'}; doSearch(input.value); } });
 
   wireShelfEvents();
+  wireWish();
 }
 
 
@@ -605,19 +695,19 @@ function renderSearchView(){
       ${searchResults.map(f=>{
         const picked=selectedFileIds.has(f.id);
         return `
-        <div class="mff-file-row" data-fileid="${esc(f.id)}" style="${picked?'border-color:var(--invest);background:var(--invest-soft)':''}">
+        <div class="mff-file-row mff-drv" data-fileid="${esc(f.id)}" style="${picked?'border-color:var(--invest);background:var(--invest-soft)':''}">
           <div class="mff-file-icon">${fileIconSvg(f.mimeType)}</div>
           <div class="mff-file-meta">
             <div class="fn">${f.webViewLink?`<a href="${esc(f.webViewLink)}" target="_blank" rel="noopener">${esc(f.name)}</a>`:esc(f.name)}</div>
             <div class="fs">${fmtSize(f.size)}</div>
           </div>
-          <button class="mff-shelf-add" data-open="${esc(f.webViewLink||'')}" title="เปิดดู" style="border:1px solid var(--line);border-radius:9px;padding:6px 8px">
+          <button class="mff-file-dl mff-drv-open" data-open="${esc(f.webViewLink||'')}" title="เปิดดู" aria-label="เปิดดู">
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"/></svg>
           </button>
           <button class="mff-file-dl" data-dl="${esc(f.id)}" aria-label="ดาวน์โหลด">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
           </button>
-          <button class="mff-file-dl" style="background:${picked?'var(--invest)':'var(--surface)'};color:${picked?'#fff':'var(--invest)'};border:1.5px solid var(--invest)" data-select="${esc(f.id)}" aria-label="เลือก">
+          <button class="mff-file-dl mff-drv-sel" style="background:${picked?'var(--invest)':'var(--surface)'};color:${picked?'#fff':'var(--invest)'};border:1.5px solid var(--invest)" data-select="${esc(f.id)}" aria-label="เลือก">
             ${picked
               ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M5 13l4 4L19 7"/></svg>`
               : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>`}
@@ -699,7 +789,7 @@ function openAssignShelfModal(files){
 }
 
 /* ===================== boot ===================== */
-loadCache();
+loadCache(); loadWish();
 renderSheetsBanner();
 render();
 

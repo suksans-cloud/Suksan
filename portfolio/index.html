@@ -130,6 +130,8 @@
   .asset-donut-center{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;pointer-events:none;}
   .asset-donut-center strong{display:block;color:#fff;font-size:22px;font-weight:900;font-variant-numeric:tabular-nums;}
   .asset-donut-center span{display:block;color:rgba(255,255,255,.82);font-size:11px;font-weight:600;margin-top:2px;line-height:1.2;}
+  .asset-donut-wrap{padding:16px 0}
+  .asset-donut-label.outside{font-size:11px!important;color:rgba(255,255,255,.92)}
   .asset-donut-label{position:absolute;z-index:3;transform:translate(-50%,-50%);color:#fff;font-size:12px;font-weight:900;line-height:1;letter-spacing:-.15px;text-shadow:0 1px 2px rgba(0,0,0,.24);white-space:nowrap;pointer-events:none;font-variant-numeric:tabular-nums;}
   .asset-legend{border:0;border-radius:0;padding:0;background:transparent;}
   .asset-legend-item{display:grid;grid-template-columns:14px minmax(0,1fr) auto auto;gap:9px;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.16);}
@@ -978,7 +980,71 @@ body.mff-hide-money .fund-row .fund-row-actual,body.mff-hide-money .fund-row .fu
 .mat-box>summary::after,.mtx-tax>summary::after{content:'›';flex:none;color:#7C8DA0;font-size:20px;line-height:1;transform:rotate(90deg);transition:transform .2s}
 .mat-box[open]>summary::after,.mtx-tax[open]>summary::after{transform:rotate(-90deg)}
 .asset-allocation-panel .mat-box>summary::after{color:rgba(255,255,255,.7)}
+
+/* ===== V79 layout polish ===== */
+/* หัวหน้า: ลดช่องว่างระหว่างหัวข้อกับการ์ดแรก */
+.topbar{padding:10px 16px 0 !important}
+.brand{margin-bottom:2px !important}
+.brand-sub{font-size:12px}
+.last-updated{font-size:11px;margin-top:1px;line-height:1.3}
+main{padding-top:0 !important}
+#view-dashboard>.panel:first-child{margin-top:6px}
+/* กราฟสัดส่วนประเภทสินทรัพย์: วงกลมใหญ่ขึ้น รายการด้านข้างชิดขวา ไม่ชนกัน */
+@media(max-width:650px){
+  .asset-allocation-body{grid-template-columns:150px minmax(0,1fr) !important;gap:6px !important;padding:2px 10px 10px 8px !important}
+  .asset-donut-wrap{min-height:0 !important;overflow:visible}
+  .asset-donut{width:146px !important;height:146px !important;transform:none !important}
+  .asset-donut::after{inset:29px !important}
+  .asset-donut-center strong{font-size:17px !important}
+  .asset-donut-center span{font-size:9px !important}
+  .asset-donut-label{font-size:10.5px !important;letter-spacing:-.3px}
+  .asset-legend-item{grid-template-columns:8px minmax(0,1fr) auto !important;grid-template-areas:"dot name pct" "dot money money";gap:0 5px !important;padding:5px 0 !important}
+  .asset-legend-dot{grid-area:dot;align-self:start;margin-top:3px;width:8px !important;height:8px !important}
+  .asset-legend-name{grid-area:name;font-size:12.5px !important;white-space:nowrap}
+  .asset-legend-name small{font-size:7.5px !important;max-width:none !important}
+  .asset-legend-pct{grid-area:pct;min-width:0 !important;font-size:13px !important}
+  .asset-legend-money{grid-area:money;color:rgba(255,255,255,.9);font-weight:800 !important;font-size:14px !important}
+}
+@media(max-width:370px){
+  .asset-allocation-body{grid-template-columns:140px minmax(0,1fr) !important}
+  .asset-donut{width:136px !important;height:136px !important}
+  .asset-donut::after{inset:27px !important}
+  .asset-donut-center strong{font-size:15px !important}
+  .asset-donut-label{font-size:9.5px !important}
+}
+/* สมดุลใหม่: กราฟใหญ่ขึ้น รายการด้านขวาตัวเล็กลง ป้าย % ตัวเล็ก */
+@media(max-width:650px){
+  .asset-allocation-body{grid-template-columns:minmax(0,47%) minmax(0,1fr) !important;gap:8px !important;padding:2px 10px 10px 8px !important}
+  .asset-donut-wrap{padding:14px 8px !important}
+  .asset-donut{width:100% !important;max-width:168px;height:auto !important;aspect-ratio:1/1}
+  .asset-donut::after{inset:22% !important}
+  .asset-donut-center strong{font-size:13px !important;letter-spacing:-.3px}
+  .asset-donut-center span{font-size:8px !important}
+  .asset-donut-label{font-size:7.5px !important;letter-spacing:-.3px}
+  .asset-donut-label.outside{font-size:7.5px !important}
+  .asset-legend-item{padding:3px 0 !important;gap:0 4px !important}
+  .asset-legend-name{font-size:9.5px !important;white-space:normal !important;line-height:1.2}
+  .asset-legend-pct{font-size:9.5px !important}
+  .asset-legend-money{font-size:10px !important}
+  .asset-legend-dot{width:7px !important;height:7px !important}
+  .asset-legend-name small{font-size:6.5px !important;padding:1px 4px !important}
+}
+/* สัดส่วนตามเจ้าของพอร์ต: แถวเต็มความกว้าง ไม่มีกราฟวงกลม */
+.alloc-row{display:block}
+#allocLegend.legend{gap:0}
+#allocLegend .legend-item{display:grid;grid-template-columns:10px minmax(0,1fr) auto auto;align-items:center;gap:8px;padding:7px 0;font-size:13px;border-bottom:1px dashed var(--line)}
+#allocLegend .legend-item:not(:last-child){padding-bottom:7px}
+#allocLegend .legend-item:last-child{border-bottom:0;padding-bottom:0}
+#allocLegend .legend-dot{width:10px;height:10px}
+#allocLegend .legend-name{color:var(--ink);font-weight:700;display:flex;align-items:baseline;gap:6px;min-width:0}
+#allocLegend .legend-name small{font-size:11px;color:var(--ink-faint);font-weight:500}
+#allocLegend .legend-amt{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+#allocLegend .legend-val{font-weight:700;font-size:13px}
+#allocLegend .legend-sub{display:inline;padding:0;margin-left:3px;font-size:11px;color:var(--ink-faint)}
+#view-dashboard .panel:has(#allocLegend){padding:12px 14px}
+#view-dashboard .panel:has(#allocLegend) .panel-title{margin-bottom:6px}
 </style>
+<script src="../themes.js"></script>
 </head>
 <body>
 <button id="privacyEye" type="button" aria-label="ซ่อนหรือแสดงตัวเลข" title="ซ่อนหรือแสดงตัวเลข">👁</button>
@@ -1043,7 +1109,6 @@ body.mff-hide-money .fund-row .fund-row-actual,body.mff-hide-money .fund-row .fu
     <div class="panel">
       <p class="panel-title">สัดส่วนเงินลงทุนตามเจ้าของพอร์ต</p>
       <div class="alloc-row">
-        <div class="donut" id="allocDonut"></div>
         <div class="legend" id="allocLegend"></div>
       </div>
     </div>
@@ -2259,21 +2324,31 @@ function renderHero(){
   donut.querySelectorAll('.asset-donut-label').forEach(el=>el.remove());
   if(total){
     let labelAcc=0;
+    const outside=[];
+    const put=(deg,r,text,cls)=>{
+      const rad=deg*Math.PI/180;
+      const label=document.createElement('div');
+      label.className='asset-donut-label'+(cls?' '+cls:'');
+      label.style.left=(50+Math.sin(rad)*r)+'%';
+      label.style.top=(50-Math.cos(rad)*r)+'%';
+      label.textContent=text;
+      donut.appendChild(label);
+    };
     entries.forEach(x=>{
       const pct=(x.amount/total)*100;
       const mid=(labelAcc + (pct/100*360)/2);
       labelAcc += (pct/100*360);
-      const rad=mid*Math.PI/180;
-      // Position labels on the middle of each colored slice.
-      const xPos=50 + Math.sin(rad)*38;
-      const yPos=50 - Math.cos(rad)*38;
-      const label=document.createElement('div');
-      label.className='asset-donut-label';
-      label.style.left=xPos+'%';
-      label.style.top=yPos+'%';
-      label.textContent=pct.toFixed(1)+'%';
-      donut.appendChild(label);
+      const text=pct.toFixed(1)+'%';
+      if(pct>=8) put(mid,39,text);            /* ชิ้นใหญ่: ป้ายอยู่บนวง */
+      else outside.push({mid,text});           /* ชิ้นเล็ก: ป้ายอยู่นอกวง กันตัวเลขซ้อนกัน */
     });
+    /* กันป้ายนอกวงชนกัน: ถ่างมุมให้ห่างกันอย่างน้อย minGap องศา */
+    const minGap=24;
+    outside.sort((a,b)=>a.mid-b.mid);
+    for(let i=1;i<outside.length;i++){
+      if(outside[i].mid-outside[i-1].mid<minGap) outside[i].mid=outside[i-1].mid+minGap;
+    }
+    outside.forEach(o=>put(o.mid%360,60,o.text,'outside'));
   }
   const legend=document.getElementById('assetAllocationLegend');
   legend.innerHTML=entries.map(x=>{
@@ -2293,8 +2368,6 @@ function renderAllocation(){
     const end = (acc/sum)*360;
     return `${ownerColor(owner)} ${start}deg ${end}deg`;
   });
-  const donut = document.getElementById('allocDonut');
-  donut.style.background = stops.length ? `conic-gradient(${stops.join(',')})` : 'var(--primary-soft)';
   const legend = document.getElementById('allocLegend');
   legend.innerHTML = entries.map(([owner,v])=>{
     const share = Math.round((v.actual/sum)*100);
@@ -2302,15 +2375,10 @@ function renderAllocation(){
     const band = goalPct>=100 ? 'met' : goalPct>=66 ? 'high' : goalPct>=33 ? 'mid' : 'low';
     return `
     <div class="legend-item">
-      <div class="legend-row">
-        <div class="legend-dot" style="background:${ownerColor(owner)}"></div>
-        <div class="legend-name">${owner}</div>
-        <div class="legend-val">${fmtInt(v.actual)} <span style="color:var(--ink-faint); font-weight:500;">(${share}%)</span></div>
-      </div>
-      <div class="legend-sub">
-        <span>${fmtInt(v.actual)} / ${fmtInt(v.target)}</span>
-        <span class="pct-chip ${band}">${goalPct}%${goalPct>=100?' ✓':''}</span>
-      </div>
+      <div class="legend-dot" style="background:${ownerColor(owner)}"></div>
+      <div class="legend-name">${owner}<small>${share}%</small></div>
+      <div class="legend-amt"><span class="legend-val">${fmtInt(v.actual)}</span><span class="legend-sub">/ ${fmtInt(v.target)}</span></div>
+      <span class="pct-chip ${band}">${goalPct}%${goalPct>=100?' ✓':''}</span>
     </div>`;
   }).join('') || '<div class="legend-item"><div class="legend-name">ยังไม่มีข้อมูล</div></div>';
 }
@@ -3137,6 +3205,14 @@ function financeFundOwners(code){
  DATA.funds.forEach(f=>{if(fundMatchKey(f.name)===fundMatchKey(code))owners.add(f.owner);});
  return [...owners].join(' / ');
 }
+function financeMyFundsList(){
+ const map=new Map();
+ DATA.funds.forEach(f=>{
+  const code=canonicalFundCode(f.name);
+  if(!map.has(code))map.set(code,{ticker:code,name:FUND_MASTER[code]?.displayName||code,exchange:'FUND',group:FUND_MASTER[code]?.assetClass||'กองทุน'});
+ });
+ return [...map.values()].map(x=>({...x,owner:financeFundOwners(x.ticker)}));
+}
 function isFinanceThaiFundCode(code){
  const m=FUND_MASTER[code]||{};
  if(m.active===false)return false;
@@ -3148,17 +3224,8 @@ function isFinanceThaiFundCode(code){
  if(MARKET_ASSETS.some(a=>String(a.ticker).toUpperCase()===String(code).toUpperCase() && String(a.exchange||'').toUpperCase()!=='FUND'))return false;
  return true;
 }
-// Funds the family actually holds (DATA.funds). Portfolio overview, history, summaries
-// and every other portfolio calculation must keep using ONLY this list.
-function financeMyFundsList(){
- const map=new Map();
- DATA.funds.forEach(f=>{
-  const code=canonicalFundCode(f.name);
-  if(!map.has(code))map.set(code,{ticker:code,name:FUND_MASTER[code]?.displayName||code,exchange:'FUND',group:FUND_MASTER[code]?.assetClass||'กองทุน'});
- });
- return [...map.values()].map(x=>({...x,owner:financeFundOwners(x.ticker)}));
-}
-// Finance > "My funds" tab only: every Thai fund in FundMaster (E-Saving excluded).
+// Finance > "My funds" tab ONLY: every Thai fund in FundMaster (E-Saving excluded), held or not.
+// financeMyFundsList() above stays limited to funds actually held, for the portfolio overview.
 function financeFundTabList(){
  return Object.keys(FUND_MASTER).filter(isFinanceThaiFundCode).map(code=>({
   ticker:code,name:FUND_MASTER[code]?.displayName||code,exchange:'FUND',group:FUND_MASTER[code]?.assetClass||'กองทุน',owner:financeFundOwners(code)

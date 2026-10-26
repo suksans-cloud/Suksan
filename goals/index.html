@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My Goals — My Family Funds</title>
+<meta name="theme-color" content="#072340">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shell.css">
+<script src="../data-safety.js"></script>
+<style>
+.gl-year{display:flex;align-items:center;justify-content:center;gap:14px;padding:12px 16px 0}
+.gl-year button{width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--primary);font-size:20px;cursor:pointer}
+.gl-year b{font:700 18px 'Prompt',sans-serif;color:var(--primary);min-width:90px;text-align:center}
+.gl-sum{margin:12px 16px 0;padding:16px;border-radius:20px;background:var(--surface);box-shadow:var(--shadow-card)}
+.gl-sum .big{font:700 30px 'Prompt',sans-serif;color:var(--primary)}
+.gl-bar{height:9px;border-radius:999px;background:var(--primary-soft);overflow:hidden;margin-top:8px}
+.gl-bar span{display:block;height:100%;border-radius:999px;background:var(--primary)}
+.gl-card{margin:12px 16px 0;padding:14px;border-radius:18px;background:var(--surface);box-shadow:var(--shadow-card);color:var(--ink)}
+.gl-card h3{margin:0;font-size:14.5px;line-height:1.4}
+.gl-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.gl-tag{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--primary-soft);color:var(--primary);white-space:nowrap}
+.gl-pct{font-size:12px;color:var(--ink-soft);margin-top:8px;display:flex;justify-content:space-between}
+.gl-q{margin-top:10px;font-size:11px;font-weight:700;color:var(--ink-soft)}
+.gl-st{display:flex;gap:8px;align-items:center;min-height:36px;font-size:13px}
+.gl-st input{width:20px;height:20px;flex:none}
+.gl-st.d span{text-decoration:line-through;opacity:.55}
+.gl-empty{text-align:center;color:var(--ink-faint);padding:48px 24px;font-size:13px;line-height:1.7}
+.gl-fab{position:fixed;right:18px;bottom:calc(22px + var(--safe-b));width:56px;height:56px;border-radius:50%;border:0;background:var(--primary);color:#fff;font-size:30px;box-shadow:0 6px 18px rgba(0,0,0,.28);cursor:pointer;z-index:50}
+.gl-modal{position:fixed;inset:0;z-index:80;background:rgba(10,20,30,.5);display:none;align-items:flex-end;justify-content:center}
+.gl-modal.on{display:flex}
+.gl-sheet{width:100%;max-width:480px;max-height:92vh;overflow:auto;background:var(--bg);color:var(--ink);border-radius:22px 22px 0 0;padding:16px 16px calc(16px + var(--safe-b))}
+.gl-sheet input[type=text],.gl-sheet input[type=number],.gl-sheet select,.gl-sheet textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:11px 12px;font-size:16px;font-family:inherit;margin-bottom:8px}
+.gl-sheet label.l{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin:6px 0 3px}
+.gl-row{display:flex;gap:8px;align-items:center;margin:8px 0}
+.gl-btn{height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:700 13px inherit;cursor:pointer}
+.gl-btn.p{background:var(--primary);color:#fff;border-color:var(--primary)}
+.gl-btn.d{color:#B5422B}
+.gl-sr{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.gl-sr input[type=text]{margin:0;flex:1}
+.gl-sr select{width:84px;margin:0;padding:11px 6px}
+.gl-toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#14211D;color:#fff;padding:10px 16px;border-radius:999px;font-size:12.5px;z-index:120;opacity:0;transition:opacity .2s;max-width:88vw;text-align:center;pointer-events:none}
+.gl-seg{display:flex;gap:6px;margin-top:10px}.gl-seg button{flex:1;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);font:700 13px inherit;cursor:pointer}.gl-seg button.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+.gl-ev{margin-top:8px;padding:8px 10px;border-radius:12px;font-size:12px;line-height:1.5;background:var(--primary-soft);color:var(--ink)}
+.gl-ev.done{background:#dff3e6;color:#17663a}.gl-ev.ok{background:#e4eefb;color:#1f4f8f}.gl-ev.late{background:#fde8e1;color:#a63b22}
+.gl-chips{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.gl-chips span{font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--primary-soft);color:var(--primary)}
+</style>
+</head>
+<body>
+<div class="mff-app">
+  <div class="mff-hero-wrap" style="padding-bottom:20px;border-radius:0 0 28px 28px">
+    <div class="mff-topbar">
+      <a class="back" href="../my-plan/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 5 8 12l7 7"/></svg>My Plan</a>
+      <span></span>
+    </div>
+    <div class="mff-hero" style="padding-top:0">
+      <p class="eyebrow" style="margin-bottom:2px">My Goals</p>
+      <h1 style="font-size:19px;white-space:nowrap">เป้าหมายและแผนประจำปี</h1>
+    </div>
+  </div>
+  <div class="gl-year"><button type="button" id="yPrev" aria-label="ปีก่อนหน้า">‹</button><b id="yLbl"></b><button type="button" id="yNext" aria-label="ปีถัดไป">›</button></div>
+  <div id="sum"></div>
+  <div id="list"></div>
+  <div style="height:96px"></div>
+</div>
+<button class="gl-fab" id="fab" type="button" aria-label="เพิ่มเป้าหมาย">+</button>
+<div class="gl-modal" id="modal"><div class="gl-sheet" id="sheet"></div></div>
+<div class="gl-toast" id="toast"></div>
+<script src="../themes.js"></script>
+<script>
+(function(){
+'use strict';
+var CK='mff_goals_cache_v1', DIRTY='mff_sync_dirty_v1_goals', NK='mff_notes_cache_v1', ND='mff_sync_dirty_v1_notes';
+var CATS=['การเงิน','สุขภาพ','การเรียนรู้','ครอบครัว','งาน/ธุรกิจ','อื่น ๆ'];
+var QS=['ไตรมาส 1 (ม.ค.–มี.ค.)','ไตรมาส 2 (เม.ย.–มิ.ย.)','ไตรมาส 3 (ก.ค.–ก.ย.)','ไตรมาส 4 (ต.ค.–ธ.ค.)'];
+var QEND=['03-31','06-30','09-30','12-31'];
+var goals=[], year=new Date().getFullYear(), ed=null, scope='month';
+var INV=/กองทุน|ลงทุน|RMF|SSF|SCBAM|WelthX|Small bank|หุ้น|ทอง|คริปโต/i;
+var TPL={invest:{t:'เงินลงทุนสะสมต่อปี',c:'การเงิน',link:'invest',period:'year',unit:'บาท'},saveY:{t:'เงินออมต่อปี',c:'การเงิน',link:'saving',period:'year',unit:'บาท'},saveM:{t:'เงินออมต่อเดือน',c:'การเงิน',link:'saving',period:'month',unit:'บาท'},reserve:{t:'เงินสำรองฉุกเฉิน',c:'การเงิน',link:'reserve',period:'year',unit:'บาท'},books:{t:'อ่านหนังสือให้ครบ',c:'การเรียนรู้',link:'books',period:'year',unit:'เล่ม'},other:{t:'',c:'อื่น ๆ',link:'',period:'year',unit:'ครั้ง'}};
+var $=function(i){return document.getElementById(i)};
+function esc(s){return String(s==null?'':s).replace(/[&<>'"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]})}
+function uid(){return 'g_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8)}
+function now(){return new Date().toISOString()}
+function toast(m){var t=$('toast');t.textContent=m;t.style.opacity='1';clearTimeout(toast._t);toast._t=setTimeout(function(){t.style.opacity='0'},2600)}
+function num(n){return Math.round(Number(n)||0).toLocaleString('th-TH')}
+function load(){try{var a=JSON.parse(localStorage.getItem(CK)||'[]');goals=Array.isArray(a)?a:[]}catch(e){goals=[]}goals.forEach(function(g){g.steps=Array.isArray(g.steps)?g.steps:[];g.year=Number(g.year)||year;g.kind=g.kind==='amount'?'amount':'steps';g.link=g.link||'';g.done=g.done?1:0;g.target=Number(g.target)||0;g.current=Number(g.current)||0;g.unit=g.unit||'บาท';g.period=g.period==='month'?'month':'year'})}
+function save(){try{localStorage.setItem(CK,JSON.stringify(goals));localStorage.setItem(DIRTY,'1')}catch(e){toast('บันทึกในเครื่องไม่สำเร็จ')}}
+function rj(k){try{var a=JSON.parse(localStorage.getItem(k)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function mm(y,m){return String(y)+(m?'-'+('0'+m).slice(-2):'')}
+/* เงินออม = รายรับ − รายจ่ายประจำ − แปรผัน ต่อเดือน (ไม่ติดลบ) · m=0 รวมทั้งปี */
+function savedFrom(y,m){var by={};rj('mff_money_cache_v3').forEach(function(t){if(String(t.month||'').slice(0,4)!==String(y))return;var o=by[t.month]||(by[t.month]={i:0,e:0}),a=Number(t.amount)||0;if(t.type==='income')o.i+=a;else if(t.type==='fixed'||t.type==='variable')o.e+=a});
+  return Object.keys(by).filter(function(k){return !m||k===mm(y,m)}).reduce(function(s,k){return s+Math.max(0,by[k].i-by[k].e)},0)}
+function investFrom(y,m){return rj('mff_money_cache_v3').reduce(function(s,t){return String(t.month||'').indexOf(mm(y,m))===0&&t.type!=='income'&&INV.test(t.category||'')?s+(Number(t.amount)||0):s},0)}
+/* เงินสำรองฉุกเฉิน = ยอดสะสมทุกปีของกองทุน/บัญชีที่เป็น E-Saving (เงินสำรอง) ใน My Portfolio */
+function reserveFrom(){
+  var d;try{d=JSON.parse(localStorage.getItem('khlangthun_portfolio_oldui_latest_v4')||'null')}catch(e){d=null}
+  var funds=d&&Array.isArray(d.funds)?d.funds:[],RE=/e\s*[- ]?saving|esaving|เงินสำรอง/i,seen={},sum=0;
+  funds.forEach(function(f){
+    if(!f||!(f.assetCategoryKey==='reserve'||RE.test(String(f.owner||''))||RE.test(String(f.name||''))))return;
+    var k=String(f.owner||'').trim().toLowerCase()+'|'+String(f.name||'').trim().toLowerCase().replace(/\s+/g,' ');
+    if(seen[k])return;seen[k]=1;
+    var ys=f.years||{};
+    Object.keys(ys).forEach(function(y){
+      var yd=ys[y]||{},pm=yd.planMonths||yd.months||{};
+      var t=Object.keys(pm).reduce(function(a,m){return a+(Number(pm[m])||0)},0);
+      if(!(t>0)&&yd.masterActual!==undefined)t=Number(yd.masterActual)||0;
+      sum+=t;
+    });
+  });
+  return sum;
+}
+function booksFrom(y,m){return rj('mff_bookshelf_cache_v1').filter(function(b){return b.status==='finished'&&String(b.finishedAt||'').indexOf(mm(y,m))===0}).length}
+function mval(g,m){return g.link==='reserve'?reserveFrom():g.link==='saving'?savedFrom(g.year,m):g.link==='invest'?investFrom(g.year,m):g.link==='books'?booksFrom(g.year,m):0}
+function ref(){var n=new Date();return year===n.getFullYear()?n.getMonth()+1:(year<n.getFullYear()?12:0)}
+function frac(){var n=new Date();if(year<n.getFullYear())return 1;if(year>n.getFullYear())return 0;return (n.getMonth()+n.getDate()/new Date(year,n.getMonth()+1,0).getDate())/12}
+function cur(g){if(!g.link)return g.current;return mval(g,g.period==='month'?(ref()||1):0)}
+function fm(g,n){return num(n)+' '+g.unit}
+/* ประเมิน: st = done / ok / late */
+function evalG(g){
+  var p=pct(g),f=frac(),n=new Date(),R=ref();
+  if(g.kind==='steps'){
+    var q=year<n.getFullYear()?4:year>n.getFullYear()?0:Math.floor(n.getMonth()/3)+1;
+    var due=g.steps.filter(function(s){return (s.q||1)<=q}),dd=due.filter(function(s){return s.d}).length;
+    if(g.done||p>=100)return{st:'done',tx:'สำเร็จครบทุกก้าวแล้ว 🎉'};
+    if(!due.length)return{st:'ok',tx:'ยังไม่ถึงกำหนดก้าวแรก'};
+    return{st:dd/due.length>=.8?'ok':'late',tx:'ก้าวที่ถึงกำหนด ทำแล้ว '+dd+' / '+due.length};
+  }
+  var v=cur(g),t=g.target;if(!t)return{st:'ok',tx:'ยังไม่ได้ตั้งตัวเลขเป้าหมาย'};
+  if(g.period==='month'){
+    if(scope==='month'){var dayF=year===n.getFullYear()?n.getDate()/new Date(year,n.getMonth()+1,0).getDate():1;
+      if(v>=t)return{st:'done',tx:'เดือนนี้ผ่านเป้าแล้ว '+fm(g,v)+' / '+fm(g,t)};
+      return{st:v>=t*dayF*.8?'ok':'late',tx:'เดือนนี้ '+fm(g,v)+' / '+fm(g,t)+' · ขาดอีก '+fm(g,t-v)}}
+    var hit=0;for(var m=1;m<=R;m++)if(mval(g,m)>=t)hit++;
+    return{st:!R?'ok':hit/R>=.8?'ok':'late',tx:'ผ่านเป้า '+hit+' จาก '+R+' เดือน (เป้าเดือนละ '+fm(g,t)+')'};
+  }
+  if(v>=t)return{st:'done',tx:'ถึงเป้าแล้ว '+fm(g,v)+' / '+fm(g,t)};
+  if(scope==='month'&&year===n.getFullYear()){var left=13-R,need=Math.ceil((t-v)/left);
+    return{st:v>=t*f*.9?'ok':'late',tx:'ควรทำเดือนละ '+fm(g,need)+' ใน '+left+' เดือนที่เหลือ เพื่อให้ทัน'}}
+  return{st:v>=t*f*.9?'ok':'late',tx:'ทำได้ '+p+'% · ตามเวลาควรอยู่ที่ ~'+Math.round(f*100)+'%'};
+}
+function pct(g){
+  if(g.done) return 100;
+  if(g.kind==='amount'){return g.target>0?Math.min(100,Math.round(cur(g)/g.target*100)):0}
+  if(!g.steps.length) return 0;
+  return Math.round(g.steps.filter(function(s){return s.d}).length/g.steps.length*100);
+}
+function render(){
+  $('yLbl').textContent='ปี '+(year+543)+' ('+year+')';
+  var list=goals.filter(function(g){return g.year===year});
+  var ev=list.map(evalG),cnt={done:0,ok:0,late:0};ev.forEach(function(e){cnt[e.st]++});
+  var avg=list.length?Math.round(list.reduce(function(s,g){return s+pct(g)},0)/list.length):0;
+  var good=list.length?Math.round((cnt.done+cnt.ok)/list.length*100):0;
+  var grade=!list.length?'':good>=80?'🌟 ยอดเยี่ยม — เป็นไปตามแผนเกือบทั้งหมด':good>=50?'👍 พอใช้ — มีบางเป้าหมายที่ควรเร่ง':'⚠️ ต้องเร่ง — หลายเป้าหมายตามแผนไม่ทัน';
+  var mn=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  $('sum').innerHTML='<div class="gl-sum"><div style="font-size:12px;color:var(--ink-soft)">สรุปและประเมิน'+(scope==='month'?' เดือน'+(ref()?mn[ref()-1]:'')+' '+(year+543):'ประจำปี '+(year+543))+'</div><div class="gl-seg"><button type="button" data-sc="month" class="'+(scope==='month'?'on':'')+'">รายเดือน</button><button type="button" data-sc="year" class="'+(scope==='year'?'on':'')+'">รายปี</button></div><div class="big" style="margin-top:10px">'+avg+'%</div><div class="gl-bar"><span style="width:'+avg+'%"></span></div><div class="gl-chips"><span>✅ สำเร็จ '+cnt.done+'</span><span>🔵 ตามแผน '+cnt.ok+'</span><span>🔴 ล่าช้า '+cnt.late+'</span></div>'+(grade?'<div style="font-size:12.5px;font-weight:700;margin-top:10px">'+grade+'</div>':'')+'</div>';
+  if(!list.length){$('list').innerHTML='<div class="gl-empty">ยังไม่มีเป้าหมายในปีนี้<br>กดปุ่ม + เพื่อตั้งเป้าหมายแรก<br>เช่น เก็บเงิน 100,000 บาท หรืออ่านหนังสือ 12 เล่ม</div>';return}
+  $('list').innerHTML=list.map(function(g,gi){
+    var p=pct(g), h='<div class="gl-card"><div class="gl-top"><h3>'+esc(g.title)+'</h3><span class="gl-tag">'+esc(g.category||'อื่น ๆ')+'</span></div>';
+    h+='<div class="gl-bar"><span style="width:'+p+'%"></span></div><div class="gl-pct"><span>'+(g.kind==='amount'?num(cur(g))+' / '+num(g.target)+' '+esc(g.unit)+(g.link?' · '+(g.period==='month'?'เดือนนี้':'ปีนี้')+' · อัตโนมัติ':''):g.steps.filter(function(s){return s.d}).length+' / '+g.steps.length+' ก้าว')+'</span><b>'+p+'%</b></div><div class="gl-ev '+ev[gi].st+'">'+(ev[gi].st==='done'?'✅ ':ev[gi].st==='ok'?'🔵 ตามแผน · ':'🔴 ล่าช้า · ')+esc(ev[gi].tx)+'</div>';
+    for(var q=1;q<=4;q++){
+      var st=g.steps.map(function(s,i){return{s:s,i:i}}).filter(function(x){return (x.s.q||1)===q});
+      if(!st.length) continue;
+      h+='<div class="gl-q">'+QS[q-1]+'</div>'+st.map(function(x){return '<label class="gl-st'+(x.s.d?' d':'')+'"><input type="checkbox" data-g="'+esc(g.id)+'" data-i="'+x.i+'" '+(x.s.d?'checked':'')+'><span>'+esc(x.s.t)+'</span></label>'}).join('');
+    }
+    return h+'<div class="gl-row" style="margin-bottom:0"><button type="button" class="gl-btn" data-edit="'+esc(g.id)+'">แก้ไข</button></div></div>';
+  }).join('');
+}
+/* ---------- editor ---------- */
+function openEd(id){
+  var g=goals.filter(function(x){return x.id===id})[0];
+  ed=g?JSON.parse(JSON.stringify(g)):{id:uid(),title:'',category:'การเงิน',year:year,kind:'steps',period:'year',target:0,current:0,unit:'บาท',link:'',steps:[],done:0,createdAt:now(),updatedAt:now(),_new:1};
+  paint(); $('modal').classList.add('on');
+}
+function paint(){
+  var g=ed, h='';
+  if(g._new&&!g.title&&!g._tpl) h+='<label class="l" for="gTpl">เริ่มจากแม่แบบ</label><select id="gTpl"><option value="">— เลือกประเภทเป้าหมาย —</option><option value="invest">📈 เงินลงทุนสะสมต่อปี</option><option value="saveY">💰 เงินออมต่อปี</option><option value="saveM">🐷 เงินออมต่อเดือน</option><option value="reserve">🛟 เงินสำรองฉุกเฉิน (นับจาก E-Saving เงินสำรอง)</option><option value="books">📚 อ่านหนังสือ (นับจาก My Bookshelf)</option><option value="other">✨ เป้าหมายอื่น ๆ (ตั้งเอง)</option></select>';
+  h+='<label class="l" for="gT">ชื่อเป้าหมาย</label><input type="text" id="gT" value="'+esc(g.title)+'" placeholder="เช่น เก็บเงินฉุกเฉิน">';
+  h+='<label class="l" for="gC">หมวด</label><select id="gC">'+CATS.map(function(c){return '<option'+(c===g.category?' selected':'')+'>'+c+'</option>'}).join('')+'</select>';
+  h+='<label class="l" for="gK">วัดความคืบหน้าแบบ</label><select id="gK"><option value="steps"'+(g.kind==='steps'?' selected':'')+'>ตามก้าวย่อยที่ทำเสร็จ</option><option value="amount"'+(g.kind==='amount'?' selected':'')+'>ตามตัวเลข (เงิน/จำนวน)</option></select>';
+  if(g.kind==='amount'){
+    h+='<label class="l" for="gTg">เป้าหมาย</label><input type="number" inputmode="decimal" id="gTg" value="'+(g.target||'')+'"><label class="l" for="gU">หน่วย</label><input type="text" id="gU" value="'+esc(g.unit)+'">';
+    h+='<label class="l" for="gL">ตัวเลขปัจจุบัน</label><select id="gL"><option value=""'+(!g.link?' selected':'')+'>กรอกเอง</option><option value="saving"'+(g.link==='saving'?' selected':'')+'>ดึงเงินออมจาก My Money อัตโนมัติ</option><option value="invest"'+(g.link==='invest'?' selected':'')+'>ดึงเงินลงทุนจาก My Money อัตโนมัติ</option><option value="reserve"'+(g.link==='reserve'?' selected':'')+'>ดึงเงินสำรองจาก E-Saving (My Portfolio)</option><option value="books"'+(g.link==='books'?' selected':'')+'>นับหนังสืออ่านจบจาก My Bookshelf</option></select>';
+    if(g.link!=='reserve') h+='<label class="l" for="gP">รอบเป้าหมาย</label><select id="gP"><option value="year"'+(g.period!=='month'?' selected':'')+'>ต่อปี (ยอดรวมทั้งปี)</option><option value="month"'+(g.period==='month'?' selected':'')+'>ต่อเดือน (ต้องถึงเป้าทุกเดือน)</option></select>';
+    if(!g.link) h+='<input type="number" inputmode="decimal" id="gCu" value="'+(g.current||'')+'" aria-label="ตัวเลขปัจจุบัน">';
+  }
+  h+='<label class="l">ก้าวย่อยรายไตรมาส</label>'+g.steps.map(function(s,i){return '<div class="gl-sr"><input type="text" data-st="'+i+'" value="'+esc(s.t)+'" aria-label="ก้าวย่อย"><select data-sq="'+i+'" aria-label="ไตรมาส">'+[1,2,3,4].map(function(q){return '<option value="'+q+'"'+((s.q||1)===q?' selected':'')+'>Q'+q+'</option>'}).join('')+'</select><button type="button" class="gl-btn" data-todo="'+i+'" aria-label="เพิ่มเป็น To-do" title="เพิ่มเป็น To-do" style="padding:0 10px">To-do</button><button type="button" class="gl-btn" data-rm="'+i+'" aria-label="ลบ" style="width:44px;padding:0">×</button></div>'}).join('');
+  h+='<div class="gl-row"><button type="button" class="gl-btn" id="gAdd">+ เพิ่มก้าวย่อย</button></div>';
+  h+='<label class="gl-row" style="font-size:13px"><input type="checkbox" id="gD" '+(g.done?'checked':'')+' style="width:20px;height:20px"> ทำสำเร็จแล้ว</label>';
+  h+='<div class="gl-row" style="margin-top:14px"><button type="button" class="gl-btn p" id="gS" style="flex:1">บันทึก</button>'+(g._new?'':'<button type="button" class="gl-btn d" id="gDel">ลบ</button>')+'<button type="button" class="gl-btn" id="gX">ปิด</button></div>';
+  $('sheet').innerHTML=h;
+}
+function pull(){
+  if(!$('gT')) return; var g=ed;
+  g.title=$('gT').value.trim(); g.category=$('gC').value; g.kind=$('gK').value; g.done=$('gD').checked?1:0;
+  if(g.kind==='amount'){g.target=Number($('gTg').value)||0;g.unit=$('gU').value.trim()||'บาท';g.link=$('gL').value;g.period=$('gP')?$('gP').value:'year';if($('gCu'))g.current=Number($('gCu').value)||0}
+  Array.prototype.forEach.call(document.querySelectorAll('[data-st]'),function(el){var i=+el.getAttribute('data-st');if(g.steps[i])g.steps[i].t=el.value});
+  Array.prototype.forEach.call(document.querySelectorAll('[data-sq]'),function(el){var i=+el.getAttribute('data-sq');if(g.steps[i])g.steps[i].q=+el.value});
+}
+function addTodo(i){
+  var g=ed, s=g.steps[i]; if(!s||!(s.t||'').trim()){toast('พิมพ์ชื่อก้าวย่อยก่อน');return}
+  var arr=[]; try{arr=JSON.parse(localStorage.getItem(NK)||'[]')}catch(e){} if(!Array.isArray(arr)) arr=[];
+  var id='n_'+g.id+'_'+i;
+  if(arr.some(function(n){return n.id===id})){toast('เพิ่มเป็น To-do ไว้แล้ว');return}
+  arr.push({id:id,title:'🎯 '+(g.title||'เป้าหมาย'),body:'',kind:'check',items:[{t:s.t,d:s.d?1:0}],color:'blue',pinned:0,archived:0,due:g.year+'-'+QEND[(s.q||1)-1],calId:'',createdAt:now(),updatedAt:now()});
+  try{localStorage.setItem(NK,JSON.stringify(arr));localStorage.setItem(ND,'1')}catch(e){}
+  toast('เพิ่มใน My Notes แล้ว (กำหนดสิ้นไตรมาส)');
+}
+$('sheet').addEventListener('click',function(ev){
+  var t=ev.target, g=ed; if(!g) return;
+  if(t.id==='gAdd'){pull();g.steps.push({t:'',q:1,d:0});paint();return}
+  if(t.hasAttribute('data-rm')){pull();g.steps.splice(+t.getAttribute('data-rm'),1);paint();return}
+  if(t.hasAttribute('data-todo')){pull();addTodo(+t.getAttribute('data-todo'));return}
+  if(t.id==='gX'){close();return}
+  if(t.id==='gDel'){if(confirm('ลบเป้าหมายนี้?')){goals=goals.filter(function(x){return x.id!==g.id});save();close();render()}return}
+  if(t.id==='gS'){pull();
+    if(!g.title){toast('ใส่ชื่อเป้าหมายก่อน');return}
+    g.steps=g.steps.filter(function(s){return (s.t||'').trim()}); g.updatedAt=now(); delete g._new;
+    var ix=goals.findIndex(function(x){return x.id===g.id}); if(ix>=0) goals[ix]=g; else goals.push(g);
+    save(); close(); render(); toast('บันทึกแล้ว — ซิงก์ขึ้น Sheets ได้ที่ Setting');
+  }
+});
+$('sheet').addEventListener('change',function(ev){var t=ev.target,g;if(t.id==='gTpl'){var T=TPL[t.value];if(T){g=ed;g.title=T.t;g.category=T.c;g.kind='amount';g.link=T.link;g.period=T.period;g.unit=T.unit;g._tpl=1;paint();$('gT').focus()}return}
+  if(t.id==='gK'||t.id==='gL'||t.id==='gP'){pull();paint()}});
+function close(){$('modal').classList.remove('on');ed=null}
+$('modal').addEventListener('click',function(e){if(e.target===$('modal'))close()});
+$('sum').addEventListener('click',function(e){var b=e.target.getAttribute('data-sc');if(b){scope=b;render()}});
+$('list').addEventListener('click',function(e){var b=e.target.getAttribute('data-edit');if(b)openEd(b)});
+$('list').addEventListener('change',function(e){
+  var t=e.target, id=t.getAttribute('data-g'); if(!id) return;
+  var g=goals.filter(function(x){return x.id===id})[0]; if(!g) return;
+  g.steps[+t.getAttribute('data-i')].d=t.checked?1:0; g.updatedAt=now(); save(); render();
+});
+$('fab').onclick=function(){openEd()};
+$('yPrev').onclick=function(){year--;render()};
+$('yNext').onclick=function(){year++;render()};
+window.addEventListener('storage',function(e){if(e.key===CK){load();render()}});
+load(); render();
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('../sw.js').catch(function(){})})}
+})();
+</script>
+</body>
+</html>

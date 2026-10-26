@@ -11,6 +11,25 @@
 <script src="../data-safety.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
+/* ฟอร์มแจ้งเตือน: ให้หน้าตาเหมือนช่องกรอกอื่นในแอป (มน นุ่ม) */
+.mff-rem-form{display:grid;gap:10px;margin-top:12px}
+.mff-rem-form input,.mff-rem-form select{
+  width:100%;box-sizing:border-box;min-height:46px;padding:0 14px;font-size:14px;font-family:inherit;
+  color:var(--ink);background:var(--primary-soft);border:1px solid transparent!important;
+  border-radius:14px!important;-webkit-appearance:none;appearance:none;box-shadow:none;
+}
+.mff-rem-form select{
+  padding-right:38px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%236b6880' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;
+}
+.mff-rem-form input::placeholder{color:var(--ink-faint);font-size:13px}
+.mff-rem-form input:focus,.mff-rem-form select:focus{
+  outline:none;background-color:var(--bg);border-color:var(--primary)!important;box-shadow:0 0 0 3px var(--primary-soft);
+}
+.mff-rem-form #remEveryBox input{min-width:0}
+.mff-rem-form .mff-sync-bar-btn{width:100%;min-height:46px;border-radius:14px;font-size:13.5px}
+.mff-rem-form #remAdd{background:var(--primary);color:#fff;border-color:transparent}
 .mff-settings-body{padding:16px 18px 40px;max-width:460px;margin:0 auto}
 .mff-settings-card{background:var(--bg);box-shadow:var(--shadow-card);border-radius:18px;padding:16px 16px 14px;margin-bottom:14px}
 .mff-settings-card h2{margin:0 0 4px;font-size:15.5px;display:flex;align-items:center;gap:7px}
@@ -78,6 +97,30 @@
 #btnModuleAudit,#btnSyncPreflight,#btnSyncEngineTest,#btnQueueSafetyTest,#btnFinalLocalCheck,#btnSyncAllPull,#btnSyncAllPush{display:none!important}
 #syncAllProgress{margin-top:10px}
 .mff-report-status{margin-top:9px;padding:9px 10px;border-radius:12px;background:var(--bg);border:1px solid var(--line);font-size:11.5px;line-height:1.5}
+
+/* ===== compact: System Control + Google Sheets ===== */
+.mff-control-strip{margin:8px 14px 0;padding:8px 10px;border-radius:14px}
+.mff-control-sub{display:none}
+.mff-control-title{font-size:12.5px}
+.mff-online-pill{font-size:10px;padding:3px 8px}
+.mff-control-top{gap:8px}
+.mff-control-grid{grid-template-columns:repeat(3,1fr);gap:5px;margin-top:6px}
+.mff-control-stat{padding:4px 4px;border-radius:9px;display:flex;align-items:baseline;justify-content:center;gap:5px;white-space:nowrap}
+.mff-control-stat b{display:inline;font-size:13px}.mff-control-stat span{font-size:9.5px}
+@media(max-width:360px){.mff-control-grid{grid-template-columns:repeat(3,1fr)}.mff-control-stat:last-child{grid-column:auto}}
+#autoSyncRow{margin-top:6px!important;padding-top:6px!important}
+#autoSyncRow b{font-size:11.5px!important}
+#autoSyncRow>div>div{display:none}
+#autoSyncRow .mff-toggle{transform:scale(.8);transform-origin:right center;margin:-4px 0}
+.mff-compact{padding:10px 12px!important}
+.mff-compact h2{font-size:13.5px!important;margin:0 0 4px!important}
+.mff-compact .hint{display:none}
+.mff-compact .mff-field-row{padding:3px 0!important;gap:8px;align-items:center;border-bottom:0!important}
+.mff-compact .mff-field-row .lbl{width:70px;padding-top:0;font-size:11px}
+.mff-compact .mff-field-row input{min-height:34px!important;height:34px;padding:0 10px!important;font-size:13px!important}
+.mff-compact .mff-settings-actions{margin-top:6px!important;display:flex;align-items:center;gap:10px}
+.mff-compact .mff-btn{min-height:36px!important;height:36px;padding:0 14px!important;font-size:12.5px!important;flex:none;width:auto!important}
+.mff-compact .mff-sync-status{margin:0!important;font-size:12px;flex:1}
 </style>
 <style>
 .mff-toggle{
@@ -100,6 +143,7 @@
 .mff-toggle.on span i{transform:translateX(20px)!important}
 .mff-auto-sync-row{cursor:pointer;touch-action:manipulation;}
 </style>
+<script src="../themes.js"></script>
 </head>
 <body>
 
@@ -137,16 +181,7 @@
 
   <div class="mff-settings-body">
 
-    <section class="mff-settings-card" id="advancedGoogleSession">
-      <h2>🔐 Google Session</h2>
-      <p class="hint">สิทธิ์ Google จะอยู่เฉพาะใน session ของเบราว์เซอร์ ไม่เก็บ access token ไว้ใน Local Storage และจะไม่ขอสิทธิ์ใหม่เมื่อเปลี่ยนหน้า</p>
-      <div class="mff-settings-actions">
-        <button id="btnClearGoogleSession" class="mff-btn mff-btn-ghost" type="button">ล้างสิทธิ์ Google</button>
-      </div>
-      <div class="mff-sync-status" id="statusGoogleSession"></div>
-    </section>
-
-    <section class="mff-settings-card">
+    <section class="mff-settings-card mff-compact" id="sheetsCard">
       <h2>🔗 ซิงก์กับ Google Sheets</h2>
       <p class="hint">ใช้ค่าเดียวกันทั้ง 4 โมดูล (My Money, My Portfolio, My Bookshelf, My Profile) — ข้อมูลจะแยกเก็บกันคนละแท็บในสเปรดชีตเดียวกัน</p>
       <div class="mff-field-row"><div class="lbl">Client ID</div><input id="cfgClientId" placeholder="วาง Google OAuth Client ID"></div>
@@ -190,6 +225,39 @@
       </div>
     </section>
 
+    <section class="mff-settings-card" id="themeCard">
+      <h2>🎨 ธีมของแอป</h2>
+      <p class="hint">เลือกสีที่ชอบ ระบบจะจำไว้ในเครื่องนี้และใช้กับทุกหน้า</p>
+      <div id="themeGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px"></div>
+    </section>
+    <script>
+    (function(){
+      function render(){
+        var g=document.getElementById('themeGrid'); if(!g||!window.MFFTheme) return;
+        var cur=MFFTheme.get(); g.innerHTML='';
+        Object.keys(MFFTheme.list).forEach(function(id){
+          var t=MFFTheme.list[id], b=document.createElement('button');
+          b.type='button';
+          b.style.cssText='display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:12px;background:var(--surface);color:var(--ink);font:600 11.5px inherit;text-align:left;cursor:pointer;border:2px solid '+(id===cur?'var(--primary)':'var(--line)');
+          b.innerHTML='<span style="flex:none;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,'+t.sw[0]+' 50%,'+t.sw[1]+' 50%);border:1px solid rgba(128,128,128,.3)"></span><span>'+t.name+(id===cur?' ✓':'')+'</span>';
+          b.onclick=function(){MFFTheme.set(id);render();};
+          g.appendChild(b);
+        });
+      }
+      if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',render); else render();
+    })();
+    </script>
+
+    <section class="mff-settings-card" id="advancedGoogleSession">
+      <h2>🔐 Google Session</h2>
+      <p class="hint">สิทธิ์ Google จะอยู่เฉพาะใน session ของเบราว์เซอร์ ไม่เก็บ access token ไว้ใน Local Storage และจะไม่ขอสิทธิ์ใหม่เมื่อเปลี่ยนหน้า</p>
+      <div class="mff-settings-actions">
+        <button id="btnClearGoogleSession" class="mff-btn mff-btn-ghost" type="button">ล้างสิทธิ์ Google</button>
+      </div>
+      <div class="mff-sync-status" id="statusGoogleSession"></div>
+    </section>
+
+
 
     <section class="mff-settings-card" id="advancedCache">
       <h2>🧹 จัดการ Cache & ข้อมูลชั่วคราว</h2>
@@ -205,7 +273,7 @@
       <div id="cacheStatus" class="mff-sync-status"></div>
     </section>
 
-    <section class="mff-settings-card">
+    <section class="mff-settings-card" hidden style="display:none">
       <h2>💾 Google Drive — My Bookshelf</h2>
       <p class="hint">ใช้สำหรับค้นหา/แนบไฟล์หนังสือใน My Bookshelf เท่านั้น • Google Sheets ยังคงเป็นฐานข้อมูลกลางของระบบ</p>
       <div class="mff-settings-actions">
@@ -220,7 +288,7 @@
       <div id="statusPerModule"></div>
     </section>
 
-    <section class="mff-settings-card">
+    <section class="mff-settings-card" hidden style="display:none">
       <h2>📧 สรุปรายเดือนทางอีเมล</h2>
       <p class="hint">สรุปรายรับ-รายจ่าย (My Money), เงินลงทุนสะสมเทียบเดือนก่อน (My Portfolio), จำนวนหนังสือ 3 หมวด (My Bookshelf) — ส่งเข้าอีเมลอัตโนมัติทุกวันที่ 1 ของเดือนถัดไป โดยอ่านข้อมูลจาก Google Sheet ด้านบน</p>
       <div id="reportAdminGate">
@@ -241,9 +309,58 @@
       <p class="hint" style="margin-top:8px">แก้ URL นี้ได้ที่ไฟล์ <code>config.js</code> จุดเดียว ใช้ร่วมกันทั้งระบบล็อกอินและรายงานสรุปรายเดือน</p>
     </section>
 
+    <section class="mff-settings-card" id="reminders">
+      <h2>🔔 แจ้งเตือนชำระ / DCA</h2>
+      <p style="font-size:12px;color:var(--ink-soft);margin:0 0 10px">ระบุรายการชำระรายเดือน หรือรอบ DCA ระบบจะแจ้งเตือนในไอคอนกระดิ่งเมื่อใกล้ถึงกำหนด</p>
+      <div id="remList"></div>
+      <div class="mff-rem-form">
+        <select id="remType"><option value="bill">🧾 ชำระรายเดือน</option><option value="dca">📈 DCA</option></select>
+        <input id="remName" placeholder="ชื่อรายการ เช่น ค่าบัตรเครดิต / DCA SCBAM" maxlength="60">
+        <input id="remAmt" type="number" inputmode="decimal" placeholder="จำนวนเงิน (ไม่บังคับ)">
+        <select id="remMode"><option value="month">ทุกเดือน ตามวันที่</option><option value="every">ทุกๆ N วัน</option></select>
+        <input id="remDay" type="number" min="1" max="31" placeholder="วันที่ของเดือน (1-31)">
+        <div id="remEveryBox" style="display:none;gap:8px"><input id="remEvery" type="number" min="1" placeholder="ทุกกี่วัน" style="flex:1"><input id="remStart" type="date" style="flex:1"></div>
+        <select id="remLead"><option value="0">เตือนวันครบกำหนด</option><option value="1">เตือนล่วงหน้า 1 วัน</option><option value="3" selected>เตือนล่วงหน้า 3 วัน</option><option value="7">เตือนล่วงหน้า 7 วัน</option></select>
+        <button type="button" id="remAdd" class="mff-sync-bar-btn">+ เพิ่มการแจ้งเตือน</button>
+        <button type="button" id="remPerm" class="mff-sync-bar-btn">📲 เปิดแจ้งเตือนของเครื่อง</button>
+        <small id="remMsg" style="color:var(--ink-soft)"></small>
+      </div>
+    </section>
+    
+
   </div>
 </div>
 
+<script src="../reminders.js"></script>
+<script>
+(function(){
+  function $(i){return document.getElementById(i)}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function paint(){
+    var l=MFFRem.load();
+    $('remList').innerHTML=l.length?l.map(function(r,i){
+      var d=MFFRem.nextDue(r),w=r.mode==='every'?'ทุก '+r.every+' วัน':'ทุกวันที่ '+r.day;
+      return '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #e6ebf2"><div style="min-width:0"><b style="font-size:13px">'+(r.type==='dca'?'📈 ':'🧾 ')+esc(r.name)+'</b><br><small style="color:var(--ink-soft)">'+w+(r.amount?' · ฿'+Number(r.amount).toLocaleString('th-TH'):'')+' · เตือนก่อน '+r.lead+' วัน'+(d?' · ครั้งถัดไป '+d.toLocaleDateString('th-TH',{day:'numeric',month:'short'}):'')+'</small></div><button type="button" data-i="'+i+'" aria-label="ลบ" style="border:0;background:none;font-size:20px;min-width:40px;min-height:40px">×</button></div>';
+    }).join(''):'<div style="font-size:12.5px;color:var(--ink-soft);padding:6px 0">ยังไม่มีรายการ</div>';
+  }
+  $('remMode').onchange=function(){var e=this.value==='every';$('remDay').style.display=e?'none':'';$('remEveryBox').style.display=e?'flex':'none'};
+  $('remList').onclick=function(e){var b=e.target.closest('button');if(!b)return;var l=MFFRem.load();l.splice(+b.dataset.i,1);MFFRem.save(l);paint()};
+  $('remAdd').onclick=function(){
+    var name=$('remName').value.trim(),mode=$('remMode').value,m=$('remMsg');
+    if(!name){m.textContent='ใส่ชื่อรายการก่อน';return}
+    var r={id:'r'+Date.now().toString(36),type:$('remType').value,name:name,amount:Number($('remAmt').value)||0,mode:mode,lead:Number($('remLead').value)||0};
+    if(mode==='every'){r.every=Number($('remEvery').value)||0;r.start=$('remStart').value;if(r.every<1||!r.start){m.textContent='ใส่จำนวนวันและวันที่เริ่ม';return}}
+    else{r.day=Number($('remDay').value)||0;if(r.day<1||r.day>31){m.textContent='ใส่วันที่ 1-31';return}}
+    var l=MFFRem.load();l.push(r);MFFRem.save(l);$('remName').value='';$('remAmt').value='';m.textContent='เพิ่มแล้ว';paint();
+  };
+  $('remPerm').onclick=function(){
+    var m=$('remMsg');
+    if(!('Notification' in window)){m.textContent='เบราว์เซอร์นี้ไม่รองรับ';return}
+    Notification.requestPermission().then(function(p){m.textContent=p==='granted'?'เปิดแล้ว — จะเด้งเตือนเมื่อเปิดแอป':'ยังไม่ได้อนุญาต (ยังเห็นในไอคอนกระดิ่งได้)'});
+  };
+  paint();
+})();
+</script>
 <script src="../config.js"></script>
 <script src="../admin-login.js"></script>
 <script src="../portfolio/auth-open.js"></script>
@@ -340,6 +457,18 @@ const SYNC_TARGETS = [
     headers:['ID','Photo','FirstName','LastName','BloodGroup','Address','Email','Phone','CreatedAt','UpdatedAt','Relation','BankAccounts','IDCard','Documents'],
     toRow:p=>[p.id,p.photo,p.firstName,p.lastName,p.bloodGroup,p.address,p.email,(p.phone?("'"+p.phone):''),p.createdAt,p.updatedAt,p.relation||'',JSON.stringify(p.bankAccounts||[]),(p.idCard?("'"+p.idCard):''),JSON.stringify(p.documents||[])],
     fromRow:r=>{ let bank=[],docs=[]; try{const a=JSON.parse(r[11]||'[]');if(Array.isArray(a))bank=a;}catch(e){} try{const a=JSON.parse(r[13]||'[]');if(Array.isArray(a))docs=a;}catch(e){} return {id:r[0],photo:r[1]||'',firstName:r[2]||'',lastName:r[3]||'',bloodGroup:r[4]||'',address:r[5]||'',email:r[6]||'',phone:r[7]||'',createdAt:r[8]||'',updatedAt:r[9]||'',relation:r[10]||'',bankAccounts:bank,idCard:r[12]||'',documents:docs}; }, lastSyncKey:'sheet_last_sync_profile' },
+  { key:'notes', name:'📝 My Notes', cacheKey:'mff_notes_cache_v1', tab:'Notes', range:'A:M',
+    headers:['ID','Title','Body','Kind','Items','Color','Pinned','Due','CalEventId','Archived','CreatedAt','UpdatedAt','DueTime'],
+    toRow:n=>[n.id,n.title||'',n.body||'',n.kind||'note',JSON.stringify(n.items||[]),n.color||'default',n.pinned?1:0,n.due||'',n.calId||'',n.archived?1:0,n.createdAt||'',n.updatedAt||'',(n.dueTime?("'"+n.dueTime):'')],
+    fromRow:r=>{ let it=[]; try{const a=JSON.parse(r[4]||'[]');if(Array.isArray(a))it=a;}catch(e){} return {id:r[0],title:r[1]||'',body:r[2]||'',kind:r[3]||'note',items:it,color:r[5]||'default',pinned:Number(r[6])?1:0,due:r[7]||'',calId:r[8]||'',archived:Number(r[9])?1:0,createdAt:r[10]||'',updatedAt:r[11]||'',...(/^\d{1,2}:\d{2}/.test(String(r[12]||''))?{dueTime:String(r[12]).replace(/^(\d{1,2}):(\d{2}).*$/,(m,h,mi)=>String(h).padStart(2,'0')+':'+mi)}:{})}; }, lastSyncKey:'sheet_last_sync_notes' },
+  { key:'goals', name:'🎯 My Goals', cacheKey:'mff_goals_cache_v1', tab:'Goals', range:'A:N',
+    headers:['ID','Title','Category','Year','Kind','Target','Current','Unit','Link','Steps','Done','CreatedAt','UpdatedAt','Period'],
+    toRow:g=>[g.id,g.title||'',g.category||'',g.year||'',g.kind||'steps',g.target||0,g.current||0,g.unit||'',g.link||'',JSON.stringify(g.steps||[]),g.done?1:0,g.createdAt||'',g.updatedAt||'',g.period||'year'],
+    fromRow:r=>{ let st=[]; try{const a=JSON.parse(r[9]||'[]');if(Array.isArray(a))st=a;}catch(e){} return {id:r[0],title:r[1]||'',category:r[2]||'',year:Number(r[3])||new Date().getFullYear(),kind:r[4]||'steps',target:Number(r[5])||0,current:Number(r[6])||0,unit:r[7]||'บาท',link:r[8]||'',steps:st,done:Number(r[10])?1:0,createdAt:r[11]||'',updatedAt:r[12]||'',period:r[13]==='month'?'month':'year'}; }, lastSyncKey:'sheet_last_sync_goals' },
+  { key:'wishlist', name:'🛒 Wish List หนังสือ', cacheKey:'mff_wishlist_cache_v1', tab:'Wishlist', range:'A:H',
+    headers:['ID','Title','Author','Year','Status','BoughtAt','CreatedAt','UpdatedAt'],
+    toRow:w=>[w.id,w.title||'',w.author||'',w.year||'',w.status==='bought'?'bought':'want',w.boughtAt||'',w.createdAt||'',w.updatedAt||''],
+    fromRow:r=>({id:r[0],title:r[1]||'',author:r[2]||'',year:Number(r[3])||new Date().getFullYear(),status:r[4]==='bought'?'bought':'want',boughtAt:r[5]||'',createdAt:r[6]||'',updatedAt:r[7]||''}), lastSyncKey:'sheet_last_sync_wishlist' },
   { key:'settings', name:'⚙️ งบและรายการประจำ', cacheKey:'mff_settings_cache_v1', tab:'AppSettings', range:'A:C',
     headers:['ID','Value','UpdatedAt'],
     toRow:s=>[s.id,s.value,s.updatedAt],

@@ -1,8 +1,8 @@
-const CACHE='mff-shell-v55-finance-fix';
+const CACHE='mff-shell-v56-finance-thai-funds';
 const SHELL=[
-  './index.html','./shell.css','./config.js','./data-safety.js','./admin-login.js','./settings-store.js','./privacy-eye.js',
+  './index.html','./shell.css','./config.js','./data-safety.js','./admin-login.js','./settings-store.js','./themes.js','./reminders.js','./privacy-eye.js',
   './money/index.html','./money/daily.html','./money/monthly.html',
-  './calendar/index.html','./my-plan/index.html','./bookshelf/index.html','./profile/index.html','./settings/index.html',
+  './calendar/index.html','./my-plan/index.html','./bookshelf/index.html','./profile/index.html','./settings/index.html','./notes/index.html','./goals/index.html',
   './portfolio/index.html','./portfolio/dashboard.html','./portfolio/auth-open.js',
   './portfolio/manifest.json','./manifest.json'
 ];
