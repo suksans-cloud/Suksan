@@ -10,21 +10,24 @@
 <link rel="stylesheet" href="../shell.css">
 <script src="../data-safety.js"></script>
 <style>
-.gl-year{display:flex;align-items:center;justify-content:center;gap:14px;padding:12px 16px 0}
-.gl-year button{width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--primary);font-size:20px;cursor:pointer}
+.gl-year{display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 16px 0}
+.gl-year button{width:36px;height:36px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--primary);font-size:20px;cursor:pointer}
 .gl-year b{font:700 18px 'Prompt',sans-serif;color:var(--primary);min-width:90px;text-align:center}
-.gl-sum{margin:12px 16px 0;padding:16px;border-radius:20px;background:var(--surface);box-shadow:var(--shadow-card)}
-.gl-sum .big{font:700 30px 'Prompt',sans-serif;color:var(--primary)}
-.gl-bar{height:9px;border-radius:999px;background:var(--primary-soft);overflow:hidden;margin-top:8px}
+.gl-sum{margin:8px 16px 0;padding:12px 14px;border-radius:16px;background:var(--surface);box-shadow:var(--shadow-card)}
+.gl-sum .big{font:700 24px 'Prompt',sans-serif;color:var(--primary);line-height:1.1}
+.gl-sum .gl-sumrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.gl-bar{height:6px;border-radius:999px;background:var(--primary-soft);overflow:hidden;margin-top:6px}
 .gl-bar span{display:block;height:100%;border-radius:999px;background:var(--primary)}
-.gl-card{margin:12px 16px 0;padding:14px;border-radius:18px;background:var(--surface);box-shadow:var(--shadow-card);color:var(--ink)}
-.gl-card h3{margin:0;font-size:14.5px;line-height:1.4}
-.gl-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.gl-tag{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--primary-soft);color:var(--primary);white-space:nowrap}
-.gl-pct{font-size:12px;color:var(--ink-soft);margin-top:8px;display:flex;justify-content:space-between}
-.gl-q{margin-top:10px;font-size:11px;font-weight:700;color:var(--ink-soft)}
-.gl-st{display:flex;gap:8px;align-items:center;min-height:36px;font-size:13px}
-.gl-st input{width:20px;height:20px;flex:none}
+.gl-card{margin:8px 16px 0;padding:10px 12px;border-radius:14px;background:var(--surface);box-shadow:var(--shadow-card);color:var(--ink)}
+.gl-card h3{margin:0;font-size:13.5px;line-height:1.3}
+.gl-top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.gl-top .r{display:flex;gap:6px;align-items:center;flex:none}
+.gl-edit{border:0;background:transparent;color:var(--ink-faint);font-size:11px;font-weight:700;padding:8px 4px;margin:-8px -4px;cursor:pointer}
+.gl-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--primary-soft);color:var(--primary);white-space:nowrap}
+.gl-pct{font-size:11.5px;color:var(--ink-soft);margin-top:4px;display:flex;justify-content:space-between}
+.gl-q{margin-top:6px;font-size:10.5px;font-weight:700;color:var(--ink-soft)}
+.gl-st{display:flex;gap:8px;align-items:center;min-height:28px;font-size:12.5px;line-height:1.3}
+.gl-st input{width:18px;height:18px;flex:none;margin:0}
 .gl-st.d span{text-decoration:line-through;opacity:.55}
 .gl-empty{text-align:center;color:var(--ink-faint);padding:48px 24px;font-size:13px;line-height:1.7}
 .gl-fab{position:fixed;right:18px;bottom:calc(22px + var(--safe-b));width:56px;height:56px;border-radius:50%;border:0;background:var(--primary);color:#fff;font-size:30px;box-shadow:0 6px 18px rgba(0,0,0,.28);cursor:pointer;z-index:50}
@@ -41,10 +44,10 @@
 .gl-sr input[type=text]{margin:0;flex:1}
 .gl-sr select{width:84px;margin:0;padding:11px 6px}
 .gl-toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#14211D;color:#fff;padding:10px 16px;border-radius:999px;font-size:12.5px;z-index:120;opacity:0;transition:opacity .2s;max-width:88vw;text-align:center;pointer-events:none}
-.gl-seg{display:flex;gap:6px;margin-top:10px}.gl-seg button{flex:1;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);font:700 13px inherit;cursor:pointer}.gl-seg button.on{background:var(--primary);color:#fff;border-color:var(--primary)}
-.gl-ev{margin-top:8px;padding:8px 10px;border-radius:12px;font-size:12px;line-height:1.5;background:var(--primary-soft);color:var(--ink)}
+.gl-seg{display:flex;gap:6px;margin-top:6px}.gl-seg button{flex:1;height:32px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);font:700 13px inherit;cursor:pointer}.gl-seg button.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+.gl-ev{margin-top:6px;padding:4px 8px;border-radius:8px;font-size:11px;line-height:1.4;background:var(--primary-soft);color:var(--ink)}
 .gl-ev.done{background:#dff3e6;color:#17663a}.gl-ev.ok{background:#e4eefb;color:#1f4f8f}.gl-ev.late{background:#fde8e1;color:#a63b22}
-.gl-chips{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.gl-chips span{font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--primary-soft);color:var(--primary)}
+.gl-chips{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}.gl-chips span{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--primary-soft);color:var(--primary)}
 </style>
 </head>
 <body>
@@ -153,17 +156,17 @@ function render(){
   var good=list.length?Math.round((cnt.done+cnt.ok)/list.length*100):0;
   var grade=!list.length?'':good>=80?'🌟 ยอดเยี่ยม — เป็นไปตามแผนเกือบทั้งหมด':good>=50?'👍 พอใช้ — มีบางเป้าหมายที่ควรเร่ง':'⚠️ ต้องเร่ง — หลายเป้าหมายตามแผนไม่ทัน';
   var mn=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-  $('sum').innerHTML='<div class="gl-sum"><div style="font-size:12px;color:var(--ink-soft)">สรุปและประเมิน'+(scope==='month'?' เดือน'+(ref()?mn[ref()-1]:'')+' '+(year+543):'ประจำปี '+(year+543))+'</div><div class="gl-seg"><button type="button" data-sc="month" class="'+(scope==='month'?'on':'')+'">รายเดือน</button><button type="button" data-sc="year" class="'+(scope==='year'?'on':'')+'">รายปี</button></div><div class="big" style="margin-top:10px">'+avg+'%</div><div class="gl-bar"><span style="width:'+avg+'%"></span></div><div class="gl-chips"><span>✅ สำเร็จ '+cnt.done+'</span><span>🔵 ตามแผน '+cnt.ok+'</span><span>🔴 ล่าช้า '+cnt.late+'</span></div>'+(grade?'<div style="font-size:12.5px;font-weight:700;margin-top:10px">'+grade+'</div>':'')+'</div>';
+  $('sum').innerHTML='<div class="gl-sum"><div style="font-size:12px;color:var(--ink-soft)">สรุปและประเมิน'+(scope==='month'?' เดือน'+(ref()?mn[ref()-1]:'')+' '+(year+543):'ประจำปี '+(year+543))+'</div><div class="gl-seg"><button type="button" data-sc="month" class="'+(scope==='month'?'on':'')+'">รายเดือน</button><button type="button" data-sc="year" class="'+(scope==='year'?'on':'')+'">รายปี</button></div><div class="gl-sumrow" style="margin-top:8px"><div class="big">'+avg+'%</div><div class="gl-chips" style="margin:0;justify-content:flex-end"><span>✅ '+cnt.done+'</span><span>🔵 '+cnt.ok+'</span><span>🔴 '+cnt.late+'</span></div></div><div class="gl-bar"><span style="width:'+avg+'%"></span></div>'+(grade?'<div style="font-size:12px;font-weight:700;margin-top:6px">'+grade+'</div>':'')+'</div>';
   if(!list.length){$('list').innerHTML='<div class="gl-empty">ยังไม่มีเป้าหมายในปีนี้<br>กดปุ่ม + เพื่อตั้งเป้าหมายแรก<br>เช่น เก็บเงิน 100,000 บาท หรืออ่านหนังสือ 12 เล่ม</div>';return}
   $('list').innerHTML=list.map(function(g,gi){
-    var p=pct(g), h='<div class="gl-card"><div class="gl-top"><h3>'+esc(g.title)+'</h3><span class="gl-tag">'+esc(g.category||'อื่น ๆ')+'</span></div>';
+    var p=pct(g), h='<div class="gl-card"><div class="gl-top"><h3>'+esc(g.title)+'</h3><span class="r"><span class="gl-tag">'+esc(g.category||'อื่น ๆ')+'</span><button type="button" class="gl-edit" data-edit="'+esc(g.id)+'">แก้ไข</button></span></div>';
     h+='<div class="gl-bar"><span style="width:'+p+'%"></span></div><div class="gl-pct"><span>'+(g.kind==='amount'?num(cur(g))+' / '+num(g.target)+' '+esc(g.unit)+(g.link?' · '+(g.period==='month'?'เดือนนี้':'ปีนี้')+' · อัตโนมัติ':''):g.steps.filter(function(s){return s.d}).length+' / '+g.steps.length+' ก้าว')+'</span><b>'+p+'%</b></div><div class="gl-ev '+ev[gi].st+'">'+(ev[gi].st==='done'?'✅ ':ev[gi].st==='ok'?'🔵 ตามแผน · ':'🔴 ล่าช้า · ')+esc(ev[gi].tx)+'</div>';
     for(var q=1;q<=4;q++){
       var st=g.steps.map(function(s,i){return{s:s,i:i}}).filter(function(x){return (x.s.q||1)===q});
       if(!st.length) continue;
-      h+='<div class="gl-q">'+QS[q-1]+'</div>'+st.map(function(x){return '<label class="gl-st'+(x.s.d?' d':'')+'"><input type="checkbox" data-g="'+esc(g.id)+'" data-i="'+x.i+'" '+(x.s.d?'checked':'')+'><span>'+esc(x.s.t)+'</span></label>'}).join('');
+      h+='<div class="gl-q">'+QS[q-1].replace(/ไตรมาส (\d) \((.*)\)/,'Q$1 · $2')+'</div>'+st.map(function(x){return '<label class="gl-st'+(x.s.d?' d':'')+'"><input type="checkbox" data-g="'+esc(g.id)+'" data-i="'+x.i+'" '+(x.s.d?'checked':'')+'><span>'+esc(x.s.t)+'</span></label>'}).join('');
     }
-    return h+'<div class="gl-row" style="margin-bottom:0"><button type="button" class="gl-btn" data-edit="'+esc(g.id)+'">แก้ไข</button></div></div>';
+    return h+'</div>';
   }).join('');
 }
 /* ---------- editor ---------- */

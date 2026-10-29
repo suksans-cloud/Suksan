@@ -57,7 +57,7 @@ a{color:inherit;text-decoration:none;}
   transition:transform .25s ease; z-index:40;
 }
 .brand{display:flex; align-items:center; gap:10px; padding:6px 6px 18px;}
-.brand-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(150deg,var(--primary),#3A6C93);display:flex;align-items:center;justify-content:center;flex:none;}
+.brand-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(150deg,var(--primary),var(--primary-light,#3A6C93));display:flex;align-items:center;justify-content:center;flex:none;}
 .brand-mark svg{width:19px;height:19px;}
 .brand-name{font-weight:700;font-size:16px;letter-spacing:.2px;}
 .brand-sub{font-size:10px;color:var(--text-faint);margin-top:1px;}
@@ -181,7 +181,7 @@ a{color:inherit;text-decoration:none;}
   padding:8px 12px; border-radius:10px; cursor:pointer;
 }
 .btn-primary{
-  background:linear-gradient(150deg,var(--primary),#3A6C93); color:#FFFFFF; font-weight:700; font-size:12.5px;
+  background:linear-gradient(150deg,var(--primary),var(--primary-light,#3A6C93)); color:#FFFFFF; font-weight:700; font-size:12.5px;
   padding:9px 15px; border-radius:10px; border:none; cursor:pointer; display:flex; align-items:center; gap:6px;
 }
 .btn-primary svg{width:14px;height:14px;}
@@ -271,7 +271,7 @@ a{color:inherit;text-decoration:none;}
 .live-kpi-value{font-family:'Prompt','Noto Sans Thai',sans-serif;font-size:18px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .live-kpi-note{font-size:9.5px;color:var(--text-faint);margin-top:2px}
 .live-progress{height:7px;background:var(--surface-3);border-radius:99px;overflow:hidden;margin-top:12px}
-.live-progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--primary),#3A6C93);border-radius:inherit;transition:width .35s ease}
+.live-progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--primary-light,#3A6C93));border-radius:inherit;transition:width .35s ease}
 @media(max-width:760px){.live-kpis{grid-template-columns:repeat(2,1fr)}.live-summary{padding:14px}.live-kpi-value{font-size:16px}}
 
 
@@ -740,8 +740,8 @@ function renderInvestCard(){
       </defs>
       ${gridY}
       <path d="${areaPath}" fill="url(#areaFade)" stroke="none"/>
-      <path d="${linePath}" fill="none" stroke="#072340" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
-      ${pts.map((pt,i)=>`<circle cx="${pt[0].toFixed(1)}" cy="${pt[1].toFixed(1)}" r="2.6" fill="#FFFFFF" stroke="#072340" stroke-width="1.6" data-idx="${i}" class="hpt" style="opacity:0"/>`).join('')}
+      <path d="${linePath}" fill="none" style="stroke:var(--primary,#072340)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+      ${pts.map((pt,i)=>`<circle cx="${pt[0].toFixed(1)}" cy="${pt[1].toFixed(1)}" r="2.6" fill="#FFFFFF" stroke-width="1.6" data-idx="${i}" class="hpt" style="stroke:var(--primary,#072340);opacity:0"/>`).join('')}
       ${xlabels}
       <rect x="0" y="0" width="${w}" height="${h}" fill="transparent" id="investHoverRect"/>
     </svg>

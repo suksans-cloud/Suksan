@@ -2,30 +2,29 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#F2F4F6"><title>My Plan — Financial Tools</title>
+<meta name="theme-color" content="var(--bg)"><title>My Plan — Financial Tools</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--navy:#072340;--blue:#3A6C93;--cyan:#E3EBF1;--ink:#2E3A42;--muted:#5C6B74;--line:#E1E6EA;--bg:#F2F4F6;--green:#1F9D6C;--red:#E0654B;--white:#fff}*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:'Noto Sans Thai',sans-serif;color:var(--ink)}button,input,select{font:inherit}button{cursor:pointer}.hero{background:linear-gradient(130deg,#072340,#3A6C93);color:white;padding:22px max(18px,calc((100vw - 1100px)/2)) 28px}.top{display:flex;align-items:center;gap:12px}.back{width:40px;height:40px;border:1px solid #ffffff55;border-radius:13px;background:#ffffff12;color:#fff;font-size:22px}.eyebrow{font-size:12px;opacity:.75;letter-spacing:.08em;margin:0 0 4px}.hero h1{font:700 27px Prompt,sans-serif;margin:0}.hero p:last-child{font-size:13px;opacity:.82;margin:6px 0 0}.wrap{max-width:1100px;margin:-12px auto 40px;padding:0 16px}.menu{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:18px}.menu button{background:white;border:1px solid var(--line);border-radius:18px;padding:16px 12px;text-align:left;color:var(--ink);box-shadow:0 5px 18px #163f5a08;transition:.15s}.menu button.active{border-color:#7FA3BE;box-shadow:0 0 0 2px #E3EBF1;background:#F7F9FA}.ico{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:var(--cyan);font-size:21px;margin-bottom:10px}.menu strong{display:block;font:600 14px Prompt,sans-serif}.menu small{display:block;color:var(--muted);font-size:11px;margin-top:4px}.panel{background:white;border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 10px 28px #19384d08}.panelhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:20px}.panel h2{font:600 21px Prompt,sans-serif;margin:0}.panelhead p{margin:4px 0 0;color:var(--muted);font-size:13px}.pill{border-radius:99px;background:#E3EBF1;color:#3A6C93;padding:6px 10px;font-size:11px;white-space:nowrap}.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.78fr);gap:22px}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{min-width:0}.field.full{grid-column:1/-1}label{display:block;font-size:12px;font-weight:600;color:#5C6B74;margin:0 0 6px}.inputwrap{position:relative}input,select{width:100%;border:1px solid #E1E6EA;border-radius:12px;padding:12px 13px;background:#F7F9FA;color:var(--ink);outline:none;min-width:0}input:focus,select:focus{border-color:#3A6C93;box-shadow:0 0 0 3px #E3EBF1}input[type=range]{padding:0;accent-color:var(--blue);box-shadow:none;border:0;background:transparent}.hint{font-size:11px;color:var(--muted);margin-top:5px}.results{border-radius:18px;padding:20px;background:linear-gradient(145deg,#072340,#3A6C93);color:white;align-self:start}.result-label{font-size:12px;opacity:.75}.big{font:700 clamp(25px,4vw,34px) Prompt,sans-serif;margin:5px 0 16px;overflow-wrap:anywhere}.resultrow{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #ffffff28;padding:11px 0;font-size:12px}.resultrow b{font-size:13px;text-align:right}.resultrow:last-child{padding-bottom:0}.note{font-size:11px;color:var(--muted);line-height:1.7;margin:16px 0 0}.positive{color:#7FD1AE}.negative{color:#F3B5A8}.hidden{display:none!important}.fund-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}.fund-table th{text-align:left;color:var(--muted);font-weight:600;padding:9px 5px;border-bottom:1px solid var(--line)}.fund-table td{padding:7px 4px;border-bottom:1px solid #E1E6EA}.fund-table input{padding:9px 8px;border-radius:9px}.fund-table .pct{width:78px}.fund-table .fundname{min-width:95px}.fund-table button{border:0;background:#F3DFDA;color:#E0654B;border-radius:8px;padding:8px}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.secondary,.primary{border-radius:11px;padding:10px 14px;font-size:12px;font-weight:600}.secondary{background:#fff;border:1px solid var(--line);color:#5C6B74}.primary{background:var(--blue);border:0;color:white}.bar{height:8px;background:#E1E6EA;border-radius:99px;overflow:hidden;margin:10px 0}.bar span{display:block;height:100%;background:linear-gradient(90deg,#3A6C93,#3A6C93);border-radius:99px}.chartgrid{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-top:16px}.chartcard{border:1px solid var(--line);border-radius:16px;padding:14px;min-width:0}.chartcard h3{font:600 14px Prompt,sans-serif;margin:0 0 10px}.chartcard canvas{width:100%;height:220px;display:block}.sso-subnav{display:flex;gap:8px;flex-wrap:wrap;margin:-4px 0 18px}.sso-subnav button{border:1px solid var(--line);border-radius:10px;background:#fff;padding:9px 12px;color:var(--ink);font-size:12px}.sso-subnav button.active{background:#E3EBF1;border-color:#7FA3BE;color:#3A6C93}.tablewrap{overflow:auto;max-height:320px;border:1px solid var(--line);border-radius:12px;margin-top:12px}.amort{border-collapse:collapse;width:100%;font-size:11px;white-space:nowrap}.amort th,.amort td{padding:8px;border-bottom:1px solid var(--line);text-align:right}.amort th:first-child,.amort td:first-child{text-align:left}.footer{text-align:center;font-size:11px;color:#8B9AA3;padding:18px 0 0}.error{color:var(--red);font-size:12px;margin-top:8px}.subhead{font:600 14px Prompt,sans-serif;margin:20px 0 8px}@media(max-width:760px){.chartgrid{grid-template-columns:1fr}.menu{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.menu button{padding:13px}.layout{grid-template-columns:1fr}.panel{padding:17px}.hero h1{font-size:24px}.results{order:-1}.fields{gap:12px}}@media(max-width:390px){.fields{grid-template-columns:1fr}.field.full{grid-column:auto}.panelhead{display:block}.pill{display:inline-block;margin-top:10px}}
+:root{--primary:#072340;--primary-light:#3A6C93;--primary-soft:#E3EBF1;--surface:#fff;--ink:#2E3A42;--ink-soft:#5C6B74;--ink-faint:#8B9AA3;--navy:#072340;--blue:#3A6C93;--cyan:#E3EBF1;--bg:#F2F4F6;--line:#E1E6EA;--muted:#5C6B74;--green:#1F9D6C;--red:#E0654B;--white:#fff}*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:'Noto Sans Thai',sans-serif;color:var(--ink)}button,input,select{font:inherit}button{cursor:pointer}.hero{background:linear-gradient(130deg,var(--primary),var(--primary-light));color:white;padding:22px max(18px,calc((100vw - 1100px)/2)) 28px}.top{display:flex;align-items:center;gap:12px}.back{width:40px;height:40px;border:1px solid #ffffff55;border-radius:13px;background:#ffffff12;color:#fff;font-size:22px}.eyebrow{font-size:12px;opacity:.75;letter-spacing:.08em;margin:0 0 4px}.hero h1{font:700 27px Prompt,sans-serif;margin:0}.hero p:last-child{font-size:13px;opacity:.82;margin:6px 0 0}.wrap{max-width:1100px;margin:-12px auto 40px;padding:0 16px}.menu{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:18px}.menu button{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px 12px;text-align:left;color:var(--ink);box-shadow:0 5px 18px #163f5a08;transition:.15s}.menu button.active{border-color:var(--primary-light);box-shadow:0 0 0 2px var(--primary-soft);background:var(--bg)}.ico{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:var(--cyan);font-size:21px;margin-bottom:10px}.menu strong{display:block;font:600 14px Prompt,sans-serif}.menu small{display:block;color:var(--muted);font-size:11px;margin-top:4px}.panel{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 10px 28px #19384d08}.panelhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:20px}.panel h2{font:600 21px Prompt,sans-serif;margin:0}.panelhead p{margin:4px 0 0;color:var(--muted);font-size:13px}.pill{border-radius:99px;background:var(--primary-soft);color:var(--primary-light);padding:6px 10px;font-size:11px;white-space:nowrap}.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.78fr);gap:22px}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{min-width:0}.field.full{grid-column:1/-1}label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:0 0 6px}.inputwrap{position:relative}input,select{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px 13px;background:var(--bg);color:var(--ink);outline:none;min-width:0}input:focus,select:focus{border-color:var(--primary-light);box-shadow:0 0 0 3px var(--primary-soft)}input[type=range]{padding:0;accent-color:var(--blue);box-shadow:none;border:0;background:transparent}.hint{font-size:11px;color:var(--muted);margin-top:5px}.results{border-radius:18px;padding:20px;background:linear-gradient(145deg,var(--primary),var(--primary-light));color:white;align-self:start}.result-label{font-size:12px;opacity:.75}.big{font:700 clamp(25px,4vw,34px) Prompt,sans-serif;margin:5px 0 16px;overflow-wrap:anywhere}.resultrow{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #ffffff28;padding:11px 0;font-size:12px}.resultrow b{font-size:13px;text-align:right}.resultrow:last-child{padding-bottom:0}.note{font-size:11px;color:var(--muted);line-height:1.7;margin:16px 0 0}.positive{color:#7FD1AE}.negative{color:#F3B5A8}.hidden{display:none!important}.fund-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}.fund-table th{text-align:left;color:var(--muted);font-weight:600;padding:9px 5px;border-bottom:1px solid var(--line)}.fund-table td{padding:7px 4px;border-bottom:1px solid var(--line)}.fund-table input{padding:9px 8px;border-radius:9px}.fund-table .pct{width:78px}.fund-table .fundname{min-width:95px}.fund-table button{border:0;background:#F3DFDA;color:#E0654B;border-radius:8px;padding:8px}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.secondary,.primary{border-radius:11px;padding:10px 14px;font-size:12px;font-weight:600}.secondary{background:var(--surface);border:1px solid var(--line);color:var(--muted)}.primary{background:var(--blue);border:0;color:white}.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin:10px 0}.bar span{display:block;height:100%;background:linear-gradient(90deg,var(--primary-light),var(--primary-light));border-radius:99px}.chartgrid{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-top:16px}.chartcard{border:1px solid var(--line);border-radius:16px;padding:14px;min-width:0}.chartcard h3{font:600 14px Prompt,sans-serif;margin:0 0 10px}.chartcard canvas{width:100%;height:220px;display:block}.sso-subnav{display:flex;gap:8px;flex-wrap:wrap;margin:-4px 0 18px}.sso-subnav button{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:9px 12px;color:var(--ink);font-size:12px}.sso-subnav button.active{background:var(--primary-soft);border-color:var(--primary-light);color:var(--primary-light)}.tablewrap{overflow:auto;max-height:320px;border:1px solid var(--line);border-radius:12px;margin-top:12px}.amort{border-collapse:collapse;width:100%;font-size:11px;white-space:nowrap}.amort th,.amort td{padding:8px;border-bottom:1px solid var(--line);text-align:right}.amort th:first-child,.amort td:first-child{text-align:left}.footer{text-align:center;font-size:11px;color:var(--ink-faint);padding:18px 0 0}.error{color:var(--red);font-size:12px;margin-top:8px}.subhead{font:600 14px Prompt,sans-serif;margin:20px 0 8px}@media(max-width:760px){.chartgrid{grid-template-columns:1fr}.menu{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.menu button{padding:13px}.layout{grid-template-columns:1fr}.panel{padding:17px}.hero h1{font-size:24px}.results{order:-1}.fields{gap:12px}}@media(max-width:390px){.fields{grid-template-columns:1fr}.field.full{grid-column:auto}.panelhead{display:block}.pill{display:inline-block;margin-top:10px}}
 
 /* Mobile-first finance dashboard polish */
-:root{--navy:#072340;--blue:#3A6C93;--cyan:#E3EBF1;--bg:#F2F4F6;--line:#E1E6EA;--green:#1F9D6C}
-body{background:linear-gradient(180deg,#F2F4F6 0%,#F2F4F6 100%);-webkit-text-size-adjust:100%}
-.hero{background:linear-gradient(135deg,#072340,#3A6C93);padding-top:max(18px,env(safe-area-inset-top));border-radius:0 0 26px 26px}
+body{background:linear-gradient(180deg,var(--bg) 0%,var(--bg) 100%);-webkit-text-size-adjust:100%}
+.hero{background:linear-gradient(135deg,var(--primary),var(--primary-light));padding-top:max(18px,env(safe-area-inset-top));border-radius:0 0 26px 26px}
 .wrap{margin-top:-14px}
 .menu button{border-radius:17px;min-height:112px;position:relative;overflow:hidden}
-.menu button.active{background:linear-gradient(150deg,#fff,#F7F9FA);border-color:#3A6C93;box-shadow:0 6px 18px #3A6C9318}
-.ico{border-radius:14px;background:linear-gradient(145deg,#E3EBF1,#E3EBF1);color:#3A6C93}
-.panel{border-radius:22px;border-color:#E1E6EA;box-shadow:0 8px 24px #0723400b}
+.menu button.active{background:linear-gradient(150deg,#fff,var(--bg));border-color:var(--primary-light);box-shadow:0 6px 18px color-mix(in srgb,var(--primary-light) 9%,transparent)}
+.ico{border-radius:14px;background:linear-gradient(145deg,var(--primary-soft),var(--primary-soft));color:var(--primary-light)}
+.panel{border-radius:22px;border-color:var(--line);box-shadow:0 8px 24px color-mix(in srgb,var(--primary) 4%,transparent)}
 .panelhead{margin-bottom:16px}
-.results{background:linear-gradient(145deg,#E3EBF1,#E3EBF1);color:#072340;border:1px solid #d3dde5;box-shadow:inset 0 1px #fff}
-.result-label{color:#5C6B74;opacity:1}.resultrow{border-top-color:#d3dde5}.big{color:#3A6C93}.positive{color:#1F9D6C}.negative{color:#E0654B}
-input,select{border-radius:10px;background:#F7F9FA;min-height:44px;font-size:16px}
+.results{background:linear-gradient(145deg,var(--primary-soft),var(--primary-soft));color:var(--primary);border:1px solid var(--line);box-shadow:inset 0 1px var(--surface)}
+.result-label{color:var(--muted);opacity:1}.resultrow{border-top-color:var(--line)}.big{color:var(--primary-light)}.positive{color:#1F9D6C}.negative{color:#E0654B}
+input,select{border-radius:10px;background:var(--bg);min-height:44px;font-size:16px}
 input[type=number],input[inputmode=decimal]{font-variant-numeric:tabular-nums}
 button,.secondary,.primary{touch-action:manipulation;min-height:42px}
-.primary{background:linear-gradient(90deg,#3A6C93,#3A6C93)}
-.chartcard{border-radius:17px;background:#fff}
+.primary{background:linear-gradient(90deg,var(--primary-light),var(--primary-light))}
+.chartcard{border-radius:17px;background:var(--surface)}
 .tablewrap{-webkit-overflow-scrolling:touch}
-.fund-table-wrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:12px}.fund-table{width:100%;min-width:0;table-layout:fixed}.fund-table th,.fund-table td{overflow-wrap:anywhere}.fund-table th:nth-child(1){width:31%}.fund-table th:nth-child(2){width:32%}.fund-table th:nth-child(3){width:22%}.fund-table th:nth-child(4){width:15%}.fund-table input{width:100%;min-width:0;font-size:14px;min-height:40px;padding:8px 7px}.fund-table .pct{width:100%;background:#E1E6EA;color:#5C6B74;text-align:right}.fund-table .fundname{width:100%;min-width:0}.fund-table .fundamount{width:100%;min-width:0}
+.fund-table-wrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:12px}.fund-table{width:100%;min-width:0;table-layout:fixed}.fund-table th,.fund-table td{overflow-wrap:anywhere}.fund-table th:nth-child(1){width:31%}.fund-table th:nth-child(2){width:32%}.fund-table th:nth-child(3){width:22%}.fund-table th:nth-child(4){width:15%}.fund-table input{width:100%;min-width:0;font-size:14px;min-height:40px;padding:8px 7px}.fund-table .pct{width:100%;background:var(--line);color:var(--muted);text-align:right}.fund-table .fundname{width:100%;min-width:0}.fund-table .fundamount{width:100%;min-width:0}
 /* Avoid page overflow on phones; keep wide data tables swipeable */
 html,body{max-width:100%;overflow-x:hidden}
 @media(max-width:760px){
@@ -42,7 +41,7 @@ html,body{max-width:100%;overflow-x:hidden}
   /* ---------- RETIREMENT PLANNER — uses the same Portfolio/Jitta visual system ---------- */
   .ret-wrap{padding:0 0 18px;}
   .ret-hero{
-    background:radial-gradient(120% 140% at 15% 0%, #3A6C93 0%, var(--primary) 46%, #072340 100%);
+    background:radial-gradient(120% 140% at 15% 0%, var(--primary-light) 0%, var(--primary) 46%, var(--primary) 100%);
     border-radius:var(--radius-l); padding:24px 20px 22px; color:#fff;
     box-shadow:var(--shadow-hero); position:relative; overflow:hidden; margin-top:6px;
   }
@@ -76,7 +75,7 @@ html,body{max-width:100%;overflow-x:hidden}
   .ret-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
   .ret-field label{display:block;font-size:11.5px;font-weight:700;color:var(--ink-soft);margin:0 0 5px;}
   .ret-field input,.ret-field select{
-    width:100%;border:1px solid var(--line);background:#fff;color:var(--ink);
+    width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);
     border-radius:11px;padding:10px 11px;font:600 13px 'Noto Sans Thai','Prompt',sans-serif;outline:none;
   }
   .ret-field input:focus,.ret-field select:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft);}
@@ -113,16 +112,16 @@ html,body{max-width:100%;overflow-x:hidden}
 
 
 /* My Plan integration: use the latest Suksan mobile visual system */
-#retirement .ret-wrap{--primary:#072340;--radius-l:20px;--shadow-hero:0 8px 24px #07234012;--ink-soft:#5C6B74;color:#2E3A42;font-family:'Noto Sans Thai',sans-serif}
-#retirement .ret-hero{background:linear-gradient(135deg,#072340,#3A6C93);border-radius:20px;padding:20px 16px;color:#fff}
-#retirement .ret-panel{background:#fff;border:1px solid #E1E6EA;border-radius:17px;padding:16px;box-shadow:0 5px 18px #07234008}
-#retirement .ret-field input{width:100%;min-width:0;min-height:44px;font-size:16px;border:1px solid #E1E6EA;border-radius:10px;padding:10px 12px;background:#F7F9FA}
+#retirement .ret-wrap{--radius-l:20px;--shadow-hero:0 8px 24px color-mix(in srgb,var(--primary) 7%,transparent);--ink-soft:var(--muted);color:var(--ink);font-family:'Noto Sans Thai',sans-serif}
+#retirement .ret-hero{background:linear-gradient(135deg,var(--primary),var(--primary-light));border-radius:20px;padding:20px 16px;color:#fff}
+#retirement .ret-panel{background:var(--surface);border:1px solid var(--line);border-radius:17px;padding:16px;box-shadow:0 5px 18px color-mix(in srgb,var(--primary) 3%,transparent)}
+#retirement .ret-field input{width:100%;min-width:0;min-height:44px;font-size:16px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--bg)}
 #retirement .ret-tabs{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:12px 0;padding:4px}
-#retirement .ret-tab{flex:1 0 auto;min-height:42px;border-radius:11px;padding:9px 12px;border:1px solid #E1E6EA;background:#fff;color:#5C6B74}
-#retirement .ret-tab.active{background:#E3EBF1;border-color:#7FA3BE;color:#3A6C93}
+#retirement .ret-tab{flex:1 0 auto;min-height:42px;border-radius:11px;padding:9px 12px;border:1px solid var(--line);background:var(--surface);color:var(--muted)}
+#retirement .ret-tab.active{background:var(--primary-soft);border-color:var(--primary-light);color:var(--primary-light)}
 #retirement .ret-btn{min-height:42px;border-radius:11px;padding:10px 13px}
 #retirement .ret-result-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-#retirement .ret-result{min-width:0;overflow-wrap:anywhere;border-radius:13px;padding:12px;background:#F7F9FA}
+#retirement .ret-result{min-width:0;overflow-wrap:anywhere;border-radius:13px;padding:12px;background:var(--bg)}
 #retirement .ret-hero-stat{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 #retirement .ret-stat{min-width:0;overflow-wrap:anywhere}
 #retirement .ret-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -130,61 +129,61 @@ html,body{max-width:100%;overflow-x:hidden}
 
 </style><style id="mff-theme">
 /* match the main app (shell.css): grey page, white header, navy primary, slate text */
-:root{--navy:#072340;--blue:#3A6C93;--cyan:#E3EBF1;--bg:#F2F4F6;--line:#E1E6EA;--ink:#2E3A42;--muted:#5C6B74;--green:#1F9D6C;--red:#E0654B}
-body{background:#F2F4F6;color:#2E3A42}
-.hero{background:#F2F4F6;color:#2E3A42;box-shadow:0 8px 24px #07234012;border-radius:0 0 28px 28px;padding:calc(18px + env(safe-area-inset-top,0px)) 20px 22px}
+body{background:var(--bg);color:var(--ink)}
+.hero{background:var(--bg);color:var(--ink);box-shadow:0 8px 24px color-mix(in srgb,var(--primary) 7%,transparent);border-radius:0 0 28px 28px;padding:calc(18px + env(safe-area-inset-top,0px)) 20px 22px}
 .hero .top{display:block}
-.hero .back{all:unset;display:inline-flex;align-items:center;gap:6px;color:#2E3A42;font:600 15px 'Noto Sans Thai',sans-serif;opacity:.85;cursor:pointer;margin-bottom:6px;padding:4px 0}
+.hero .back{all:unset;display:inline-flex;align-items:center;gap:6px;color:var(--ink);font:600 15px 'Noto Sans Thai',sans-serif;opacity:.85;cursor:pointer;margin-bottom:6px;padding:4px 0}
 .hero .back::after{content:"หน้าแรก"}
-.hero .eyebrow{color:#072340;font:700 13px 'Noto Sans Thai',sans-serif;letter-spacing:0;text-transform:none;margin:0 0 4px;opacity:1}
-.hero h1{color:#2E3A42;font:700 26px/1.25 'Prompt','Noto Sans Thai',sans-serif;margin:0}
-.hero p:last-child{color:#5C6B74;font-size:13px;line-height:1.55;margin:6px 0 0}
+.hero .eyebrow{color:var(--primary);font:700 13px 'Noto Sans Thai',sans-serif;letter-spacing:0;text-transform:none;margin:0 0 4px;opacity:1}
+.hero h1{color:var(--ink);font:700 26px/1.25 'Prompt','Noto Sans Thai',sans-serif;margin:0}
+.hero p:last-child{color:var(--muted);font-size:13px;line-height:1.55;margin:6px 0 0}
 .wrap{margin-top:16px;padding:0 20px !important}
 .menu{gap:14px !important}
-.menu button{background:#fff;border:1px solid #E1E6EA;border-radius:24px;box-shadow:0 4px 14px #0723400d;padding:16px !important;min-height:128px !important;text-align:left}
+.menu button{background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 4px 14px color-mix(in srgb,var(--primary) 5%,transparent);padding:16px !important;min-height:128px !important;text-align:left}
 .menu button{display:flex !important;flex-direction:column;align-items:flex-start;justify-content:flex-start !important;gap:6px}
 .menu button:last-child:nth-child(odd){grid-column:1/-1;min-height:104px !important}
-.menu button.active{background:#fff;border-color:#3A6C93;box-shadow:0 6px 18px #3A6C9322}
-.menu strong{color:#2E3A42;font-size:15px !important}.menu small{color:#5C6B74;font-size:11.5px !important}
-.ico{background:#E3EBF1;color:#072340;border-radius:16px}
-.panel,.chartcard{border-color:#E1E6EA;border-radius:22px;box-shadow:0 4px 14px #0723400b;background:#fff}
-.results{background:#E3EBF1;color:#072340;border:1px solid #d3dde5}
-.result-label{color:#5C6B74}.resultrow{border-top-color:#d3dde5}.big{color:#072340}.positive{color:#1F9D6C}.negative{color:#E0654B}
-input,select{background:#F7F9FA;border-color:#E1E6EA}
-.primary{background:#072340;color:#fff}
-.footer{color:#8B9AA3}
-#retirement .ret-wrap{--primary:#072340}
+.menu button.active{background:var(--surface);border-color:var(--primary-light);box-shadow:0 6px 18px color-mix(in srgb,var(--primary-light) 13%,transparent)}
+.menu strong{color:var(--ink);font-size:15px !important}.menu small{color:var(--muted);font-size:11.5px !important}
+.ico{background:var(--primary-soft);color:var(--primary);border-radius:16px}
+.panel,.chartcard{border-color:var(--line);border-radius:22px;box-shadow:0 4px 14px color-mix(in srgb,var(--primary) 4%,transparent);background:var(--surface)}
+.results{background:var(--primary-soft);color:var(--primary);border:1px solid var(--line)}
+.result-label{color:var(--muted)}.resultrow{border-top-color:var(--line)}.big{color:var(--primary)}.positive{color:#1F9D6C}.negative{color:#E0654B}
+input,select{background:var(--bg);border-color:var(--line)}
+.primary{background:var(--primary);color:#fff}
+.footer{color:var(--ink-faint)}
 #retirement.panel{background:none;border:0;box-shadow:none;padding:0}
 #retirement .ret-tabs>*:last-child:nth-child(odd){grid-column:1/-1}
 body{display:flex;flex-direction:column;min-height:100vh}.footer{order:99;margin-top:auto}
 /* ===== My Plan v2: icon-circle menu (app palette) + new calculators ===== */
-.menu.menu-grid{background:#fff;border:1px solid #E1E6EA;border-radius:22px;padding:16px 10px 12px;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 4px;box-shadow:0 8px 24px #0723400b}
+.menu.menu-grid{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:16px 10px 12px;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 4px;box-shadow:0 8px 24px color-mix(in srgb,var(--primary) 4%,transparent)}
 .menu.menu-grid .menu-title{grid-column:1/-1;margin:0 8px 2px;font:700 17px Prompt,sans-serif;color:var(--navy)}
 .menu.menu-grid .menu-title small{display:block;font:400 11.5px 'Noto Sans Thai',sans-serif;color:var(--muted);margin-top:2px}
 .menu.menu-grid button{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:16px;min-height:0!important;padding:4px 2px 6px!important;display:flex;flex-direction:column;align-items:center;text-align:center;gap:0}
-.menu.menu-grid button:active{background:#F2F4F6!important}
-.menu.menu-grid .ico{width:64px;height:64px;border-radius:50%;margin:0 0 8px;background:radial-gradient(circle at 30% 25%,#F4F8FB,#E3EBF1 70%);box-shadow:inset 0 0 0 1px #d3dde5;display:grid;place-items:center;font-size:0}
-.menu.menu-grid .ico svg{width:36px;height:36px;stroke:#072340;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.menu.menu-grid .ico svg .ac{stroke:#3A6C93}
-.menu.menu-grid .ico svg .fl{fill:#3A6C9333;stroke:#3A6C93}
-.menu.menu-grid strong{font:600 12.5px/1.35 Prompt,sans-serif;color:#2E3A42}
-.menu.menu-grid small{font-size:9.5px;color:#7a8791;margin-top:2px}
-.menu.menu-grid .ico{position:relative}.menu.menu-grid button.tag-new .ico:after{content:"ใหม่";position:absolute;top:-3px;right:-8px;font:600 8.5px 'Noto Sans Thai',sans-serif;color:#fff;background:#3A6C93;border-radius:99px;padding:1px 6px;line-height:1.5;box-shadow:0 0 0 2px #fff}
+.menu.menu-grid button:active{background:var(--bg)!important}
+.menu.menu-grid .ico{width:64px;height:64px;border-radius:50%;margin:0 0 8px;background:radial-gradient(circle at 30% 25%,var(--bg),var(--primary-soft) 70%);box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center;font-size:0}
+.menu.menu-grid .ico svg{width:36px;height:36px;stroke:var(--primary);stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.menu.menu-grid .ico svg .ac{stroke:var(--primary-light)}
+.menu.menu-grid .ico svg .fl{fill:color-mix(in srgb,var(--primary-light) 20%,transparent);stroke:var(--primary-light)}
+.menu.menu-grid strong{font:600 12.5px/1.35 Prompt,sans-serif;color:var(--ink)}
+.menu.menu-grid small{font-size:9.5px;color:var(--ink-faint);margin-top:2px}
+.menu.menu-grid .ico{position:relative}.menu.menu-grid button.tag-new .ico:after{content:"ใหม่";position:absolute;top:-3px;right:-8px;font:600 8.5px 'Noto Sans Thai',sans-serif;color:#fff;background:var(--primary-light);border-radius:99px;padding:1px 6px;line-height:1.5;box-shadow:0 0 0 2px var(--surface)}
 @media(min-width:900px){.menu.menu-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
 .matrix-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:14px;margin-top:8px}
 .matrix{width:100%;border-collapse:collapse;font-size:11.5px;min-width:0;font-variant-numeric:tabular-nums}
-.matrix th{background:#F7F9FA;color:#5C6B74;font-weight:600;padding:8px 4px;text-align:center;border-bottom:1px solid var(--line)}
-.matrix td{padding:9px 3px;text-align:center;border-bottom:1px solid #fff;font-weight:600}
-.matrix td.rowh{background:#F7F9FA;color:#5C6B74;font-weight:600}
+.matrix th{background:var(--bg);color:var(--muted);font-weight:600;padding:8px 4px;text-align:center;border-bottom:1px solid var(--line)}
+.matrix td{padding:9px 3px;text-align:center;border-bottom:1px solid var(--surface);font-weight:600}
+.matrix td.rowh{background:var(--bg);color:var(--muted);font-weight:600}
 .legend-bar{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);margin-top:8px}
-.legend-bar i{flex:1;height:8px;border-radius:99px;background:linear-gradient(90deg,#E3EBF1,#3A6C93)}
-.goalbox{background:linear-gradient(145deg,#F4F8FB,#E3EBF1);border:1px solid #d3dde5;border-radius:16px;padding:14px 16px;margin-bottom:14px}
-.goalbox b{display:block;font:700 24px Prompt,sans-serif;color:#072340}
+.legend-bar i{flex:1;height:8px;border-radius:99px;background:linear-gradient(90deg,var(--primary-soft),var(--primary-light))}
+.goalbox{background:linear-gradient(145deg,var(--bg),var(--primary-soft));border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:14px}
+.goalbox b{display:block;font:700 24px Prompt,sans-serif;color:var(--primary)}
 .goalbox span{font-size:12px;color:var(--muted)}
 .warn-box{background:#FCEFEA;border:1px solid #F3D0C6;color:#B5472F;border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.6;margin-top:10px}
-.info-box{background:#EEF4F8;border:1px solid #d3dde5;color:#3A5B75;border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.7;margin-top:10px}
-.rate-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}.rate-table th{text-align:left;color:var(--muted);font-weight:600;padding:7px 4px;border-bottom:1px solid var(--line)}.rate-table td{padding:7px 4px;border-bottom:1px solid #E1E6EA}.rate-table tr.cur td{background:#E3EBF1;font-weight:700}
-</style><script src="../themes.js"></script>
+.info-box{background:var(--primary-soft);border:1px solid var(--line);color:var(--primary);border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.7;margin-top:10px}
+.rate-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}.rate-table th{text-align:left;color:var(--muted);font-weight:600;padding:7px 4px;border-bottom:1px solid var(--line)}.rate-table td{padding:7px 4px;border-bottom:1px solid var(--line)}.rate-table tr.cur td{background:var(--primary-soft);font-weight:700}
+html[data-theme="dark"] .primary,html[data-theme="dark"] .menu.menu-grid button.tag-new .ico:after{color:#12151C}
+html[data-theme="dark"] .hero{box-shadow:0 8px 24px #0006}
+</style><script src="../themes.js"></script><script>window.TC=function(n,f){try{return getComputedStyle(document.documentElement).getPropertyValue(n).trim()||f}catch(e){return f}};</script>
 </head><body>
 <header class="hero"><div class="top"><button class="back" onclick="location.href='../index.html'" aria-label="กลับหน้าหลัก">‹</button><div><p class="eyebrow">My Plan</p><h1>วางแผนการเงินครอบครัว</h1><p>วางแผนภาษี ประกันสังคม บ้าน รถ บัตรเครดิต เงินปันผล การลงทุน และเกษียณในที่เดียว</p></div></div></header>
 <main class="wrap"><button type="button" id="myPlanBack" class="secondary hidden" style="margin:0 0 14px;min-height:44px" aria-label="กลับไปหน้า My Plan">‹ กลับไปหน้า My Plan</button><nav class="menu menu-grid" aria-label="เลือกโปรแกรม"><div class="menu-title">โปรแกรมคำนวณ<small>เลือกเครื่องมือที่ต้องการวางแผน</small></div>
@@ -405,11 +404,11 @@ function calcTax(){let salary=num('taxIncome'),other=num('taxOther'),expense=$('
 function calcSSO(){let wage=num('ssoWage'),cap=num('ssoCap'),rate=Math.min(100,num('ssoRate'))/100,base=Math.min(wage,cap),m=base*rate;$('ssoMonthly').textContent=fmt(m);$('ssoBase').textContent=fmt(base);$('ssoYear').textContent=fmt(m*12);$('ssoUsedRate').textContent=pct(rate);}
 function calcHome(){let p=num('homePrice'),annual=num('homeRate')/100,years=Math.max(1,num('homeYears')),n=Math.round(years*12),r=annual/12,monthly=r===0?p/n:p*r/(1-Math.pow(1+r,-n));let extra=num('homeExtra'),bal=p,paid=0,interest=0,rows=[],yearPrin=0,yearInt=0;for(let m=1;m<=n&&bal>.005;m++){let int=bal*r,principal=Math.min(bal,Math.max(0,monthly+extra-int));if(principal<=0)break;bal=Math.max(0,bal-principal);paid+=int+principal;interest+=int;yearPrin+=principal;yearInt+=int;if(m%12===0||bal<=.005){rows.push(`<tr><td>${Math.ceil(m/12)}</td><td>${fmt(bal)}</td><td>${fmt(yearPrin)}</td><td>${fmt(yearInt)}</td></tr>`);yearPrin=0;yearInt=0;}}$('homeMonthly').textContent=fmt(monthly);$('homeTotal').textContent=fmt(paid);$('homeInterest').textContent=fmt(interest);$('homeWithExtra').textContent=fmt(monthly+extra);$('homeSchedule').innerHTML=rows.join('');drawHomeChart(p,interest);}
 function drawHomeChart(principal,interest){let c=$('homeChart');if(!c)return;const dpr=devicePixelRatio||1;let ctx=c.getContext('2d'),w=c.width=Math.max(1,c.clientWidth)*dpr,h=c.height=Math.max(1,c.clientHeight||190)*dpr;ctx.clearRect(0,0,w,h);let total=principal+interest,x=14*dpr,y=26*dpr,bw=w-28*dpr,bh=38*dpr,pw=total?bw*principal/total:0,iw=bw-pw;
-ctx.fillStyle='#e7eef4';ctx.fillRect(x,y,bw,bh);ctx.fillStyle='#3A6C93';ctx.fillRect(x,y,pw,bh);ctx.fillStyle='#C89B3C';ctx.fillRect(x+pw,y,iw,bh);
+ctx.fillStyle=TC('--primary-soft','#E3EBF1');ctx.fillRect(x,y,bw,bh);ctx.fillStyle=TC('--primary-light','#3A6C93');ctx.fillRect(x,y,pw,bh);ctx.fillStyle='#C89B3C';ctx.fillRect(x+pw,y,iw,bh);
 ctx.font='600 '+12*dpr+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff';
 if(total&&pw>46*dpr)ctx.fillText((principal/total*100).toFixed(1)+'%',x+pw/2,y+bh/2);if(total&&iw>46*dpr)ctx.fillText((interest/total*100).toFixed(1)+'%',x+pw+iw/2,y+bh/2);
 ctx.textAlign='left';ctx.textBaseline='middle';ctx.font=12*dpr+'px sans-serif';
-[['#3A6C93','เงินต้น '+fmt(principal),'#5C6B74'],['#C89B3C','ดอกเบี้ย '+fmt(interest),'#8C6A20']].forEach(function(o,i){let yy=y+bh+30*dpr+i*26*dpr;ctx.fillStyle=o[0];ctx.beginPath();ctx.arc(x+5*dpr,yy,5*dpr,0,7);ctx.fill();ctx.fillStyle=o[2];ctx.fillText(o[1],x+18*dpr,yy)});}
+[[TC('--primary-light','#3A6C93'),'เงินต้น '+fmt(principal),TC('--muted','#5C6B74')],['#C89B3C','ดอกเบี้ย '+fmt(interest),'#8C6A20']].forEach(function(o,i){let yy=y+bh+30*dpr+i*26*dpr;ctx.fillStyle=o[0];ctx.beginPath();ctx.arc(x+5*dpr,yy,5*dpr,0,7);ctx.fill();ctx.fillStyle=o[2];ctx.fillText(o[1],x+18*dpr,yy)});}
 
 let fundCount=0;function addFund(name='',amount=0){fundCount++;let tr=document.createElement('tr');const safeName=String(name).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));tr.innerHTML=`<td><input class="fundname" aria-label="ชื่อกองทุน" placeholder="ชื่อกองทุน" value="${safeName}"></td><td><input class="fundamount" aria-label="เงินลงทุนต่อเดือนในกองทุน" type="number" min="0" step="100" inputmode="decimal" value="${Math.max(0,Number(amount)||0)}"></td><td><input class="pct" aria-label="สัดส่วนเปอร์เซ็นต์คำนวณอัตโนมัติ" type="text" value="0%" readonly tabindex="-1"></td><td><button type="button" aria-label="ลบกองทุน">×</button></td>`;tr.querySelectorAll('.fundname,.fundamount').forEach(i=>i.addEventListener('input',calcDCA));tr.querySelector('button').addEventListener('click',()=>{if($('fundRows').children.length>1){tr.remove();calcDCA();}});$('fundRows').appendChild(tr);calcDCA();}
 function calcDCA(){let months=Math.max(1,Math.floor(num('dcaMonths'))),annual=Number($('dcaReturn').value)||0,rm=Math.pow(1+annual/100,1/12)-1;let rows=[...$('fundRows').querySelectorAll('tr')],amounts=rows.map(tr=>Math.max(0,Number(tr.querySelector('.fundamount').value)||0)),monthly=amounts.reduce((a,b)=>a+b,0);$('dcaMonthly').value=String(monthly);let principal=monthly*months,future=Math.abs(rm)<1e-10?principal:monthly*(Math.pow(1+rm,months)-1)/rm,profit=future-principal;rows.forEach((tr,i)=>{let share=monthly>0?amounts[i]/monthly*100:0;tr.querySelector('.pct').value=share.toLocaleString('th-TH',{maximumFractionDigits:2})+'%';});let valid=monthly>0;$('dcaFuture').textContent=fmt(future);$('dcaPrincipal').textContent=fmt(principal);$('dcaProfit').textContent=fmt(profit);$('dcaProfit').className='big '+(profit>=0?'positive':'negative');$('dcaProfitPct').textContent=principal?pct(profit/principal):'—';$('dcaMonthlyRate').textContent=pct(rm);$('dcaAllocTotal').textContent=valid?'100%':'0%';$('dcaFundTotal').textContent=valid?fmt(future):'—';$('allocLabel').textContent=valid?'จัดสรรเงินลงทุนรวม '+fmt(monthly)+' บาท/เดือน · สัดส่วนรวม 100%':'กรอกยอดลงทุนรายกองทุนเพื่อคำนวณสัดส่วน';$('allocBar').style.width=valid?'100%':'0%';$('allocError').classList.toggle('hidden',valid);drawDcaCharts(monthly,months,rm,rows);}
@@ -419,20 +418,20 @@ let maxV=0,series=[];for(let m=0;m<=months;m++){let pr=monthly*m,fu=Math.abs(rm)
 let mag=Math.pow(10,Math.floor(Math.log10(maxV||1))),q=mag/2,niceMax=Math.max(q,Math.ceil((maxV||1)/q)*q);
 let L=46*dpr,R=16*dpr,T=34*dpr,B=28*dpr,iw=w-L-R,ih=h-T-B;
 ctx.textBaseline='middle';ctx.font=10*dpr+'px sans-serif';
-for(let i=0;i<=4;i++){let y=T+ih*(1-i/4);ctx.strokeStyle='#e5edf3';ctx.lineWidth=dpr;ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(w-R,y);ctx.stroke();ctx.fillStyle='#7C8DA0';ctx.textAlign='right';ctx.fillText(fmtS(niceMax*i/4),L-6*dpr,y)}
+for(let i=0;i<=4;i++){let y=T+ih*(1-i/4);ctx.strokeStyle=TC('--line','#E1E6EA');ctx.lineWidth=dpr;ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(w-R,y);ctx.stroke();ctx.fillStyle=TC('--ink-faint','#8B9AA3');ctx.textAlign='right';ctx.fillText(fmtS(niceMax*i/4),L-6*dpr,y)}
 ctx.textAlign='center';ctx.textBaseline='top';let yrs=months>=24,total=yrs?months/12:months,st=Math.max(1,Math.ceil(total/5));
-for(let v=0;v<=total+1e-9;v+=st){let x=L+iw*(yrs?v*12:v)/Math.max(1,months);ctx.fillStyle='#7C8DA0';ctx.fillText(String(v)+(v+st>total+1e-9?(yrs?' ปี':' ด.'):''),x,h-B+8*dpr);}
+for(let v=0;v<=total+1e-9;v+=st){let x=L+iw*(yrs?v*12:v)/Math.max(1,months);ctx.fillStyle=TC('--ink-faint','#8B9AA3');ctx.fillText(String(v)+(v+st>total+1e-9?(yrs?' ปี':' ด.'):''),x,h-B+8*dpr);}
 ctx.textAlign='left';ctx.textBaseline='middle';ctx.font='600 '+10.5*dpr+'px sans-serif';let lx=L;
-[['#3A6C93','เงินต้นสะสม'],['#1F9D6C','มูลค่าพอร์ต']].forEach(function(o){ctx.fillStyle=o[0];ctx.beginPath();ctx.arc(lx+5*dpr,14*dpr,4.5*dpr,0,7);ctx.fill();ctx.fillStyle='#5C6B74';ctx.fillText(o[1],lx+14*dpr,14*dpr);lx+=ctx.measureText(o[1]).width+34*dpr});
+[[TC('--primary-light','#3A6C93'),'เงินต้นสะสม'],['#1F9D6C','มูลค่าพอร์ต']].forEach(function(o){ctx.fillStyle=o[0];ctx.beginPath();ctx.arc(lx+5*dpr,14*dpr,4.5*dpr,0,7);ctx.fill();ctx.fillStyle=TC('--muted','#5C6B74');ctx.fillText(o[1],lx+14*dpr,14*dpr);lx+=ctx.measureText(o[1]).width+34*dpr});
 
-[[0,'#3A6C93'],[1,'#1F9D6C']].forEach(function(o){let idx=o[0],color=o[1];ctx.strokeStyle=color;ctx.lineWidth=2.5*dpr;ctx.lineJoin='round';ctx.beginPath();series.forEach(function(v,i){let x=L+iw*i/Math.max(1,months),y=T+ih*(1-(niceMax?v[idx]/niceMax:0));i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();
+[[0,TC('--primary-light','#3A6C93')],[1,'#1F9D6C']].forEach(function(o){let idx=o[0],color=o[1];ctx.strokeStyle=color;ctx.lineWidth=2.5*dpr;ctx.lineJoin='round';ctx.beginPath();series.forEach(function(v,i){let x=L+iw*i/Math.max(1,months),y=T+ih*(1-(niceMax?v[idx]/niceMax:0));i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();
   let last=series[series.length-1][idx],ey=T+ih*(1-(niceMax?last/niceMax:0));ctx.fillStyle=color;ctx.beginPath();ctx.arc(L+iw,ey,3.5*dpr,0,7);ctx.fill();ctx.font='700 '+10.5*dpr+'px sans-serif';ctx.textAlign='right';ctx.textBaseline=idx?'bottom':'top';ctx.fillText(fmtS(last),L+iw-2*dpr,ey+(idx?-7*dpr:7*dpr))});
 let d=$('dcaDonut'),dc=d.getContext('2d'),dw=d.width=Math.max(1,d.clientWidth)*dpr,dh=d.height=Math.max(1,d.clientHeight||190)*dpr;dc.clearRect(0,0,dw,dh);
-let sum=rows.reduce(function(a,tr){return a+Math.max(0,Number(tr.querySelector('.fundamount').value)||0)},0),colors=['#072340','#3A6C93','#1F9D6C','#C89B3C','#E0654B','#8B9AA3'];
+let sum=rows.reduce(function(a,tr){return a+Math.max(0,Number(tr.querySelector('.fundamount').value)||0)},0),colors=[TC('--primary','#072340'),TC('--primary-light','#3A6C93'),'#1F9D6C','#C89B3C','#E0654B',TC('--ink-faint','#8B9AA3')];
 let ang=-Math.PI/2,cx=dw/2,cy=dh/2,rad=Math.min(dw,dh)*.46,inner=rad*.56;
 rows.forEach(function(tr,i){let amt=Math.max(0,Number(tr.querySelector('.fundamount').value)||0),share=sum?amt/sum:0,next=ang+share*Math.PI*2;dc.beginPath();dc.arc(cx,cy,rad,ang,next);dc.arc(cx,cy,inner,next,ang,true);dc.closePath();dc.fillStyle=colors[i%colors.length];dc.fill();
   if(share>=.06){let mid=(ang+next)/2,rr=(rad+inner)/2;dc.fillStyle='#fff';dc.font='700 '+11.5*dpr+'px sans-serif';dc.textAlign='center';dc.textBaseline='middle';dc.fillText(Math.round(share*100)+'%',cx+Math.cos(mid)*rr,cy+Math.sin(mid)*rr)}ang=next});
-dc.fillStyle='#072340';dc.textAlign='center';dc.textBaseline='middle';dc.font='700 '+15*dpr+'px sans-serif';dc.fillText('฿'+Math.round(sum).toLocaleString('th-TH'),cx,cy-7*dpr);dc.fillStyle='#5C6B74';dc.font=10.5*dpr+'px sans-serif';dc.fillText('ต่อเดือน',cx,cy+11*dpr);
+dc.fillStyle=TC('--primary','#072340');dc.textAlign='center';dc.textBaseline='middle';dc.font='700 '+15*dpr+'px sans-serif';dc.fillText('฿'+Math.round(sum).toLocaleString('th-TH'),cx,cy-7*dpr);dc.fillStyle=TC('--muted','#5C6B74');dc.font=10.5*dpr+'px sans-serif';dc.fillText('ต่อเดือน',cx,cy+11*dpr);
 let E=function(s){return String(s).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})};
 $('dcaLegend').innerHTML=rows.map(function(tr,i){return '<div class="lg"><i style="background:'+colors[i%colors.length]+'"></i><span>'+E(tr.querySelector('.fundname').value||'กองทุน '+(i+1))+'</span><b>'+E(tr.querySelector('.pct').value)+'</b><em>'+fmt(Number(tr.querySelector('.fundamount').value)||0)+'/เดือน</em></div>'}).join('');}
 ['taxIncome','taxOther','taxDeduct','taxRmf','taxEsg','taxPvd','taxSso','taxHome','taxWithheld','taxExpense'].forEach(id=>$(id).addEventListener('input',calcTax));['ssoWage','ssoRate','ssoCap'].forEach(id=>$(id).addEventListener('input',calcSSO));['homePrice','homeRate','homeYears','homeExtra'].forEach(id=>$(id).addEventListener('input',calcHome));$('dcaMonthly').addEventListener('input',()=>{const el=$('dcaMonthly');const clean=el.value.replace(/[^0-9.]/g,'').replace(/\.(?=.*\.)/g,'');if(clean!==el.value)el.value=clean;calcDCA();});['dcaMonths','dcaReturn'].forEach(id=>$(id).addEventListener('input',calcDCA));$('addFund').addEventListener('click',()=>addFund('',0));$('equalFund').addEventListener('click',()=>{let rows=[...$('fundRows').querySelectorAll('tr')],total=rows.reduce((sum,tr)=>sum+Math.max(0,Number(tr.querySelector('.fundamount').value)||0),0);if(total<=0)total=10000;let base=Math.floor(total/rows.length);rows.forEach((tr,i)=>tr.querySelector('.fundamount').value=i===rows.length-1?total-base*(rows.length-1):base);calcDCA();});
@@ -709,7 +708,7 @@ function calcDividend(){
   const rets=[4,6,8,10,12],yrs=[5,10,15,20,25,30];
   const grid=rets.map(r=>yrs.map(y=>monthlyNeeded(target,lump,r,y)));
   const flat=grid.flat(),mn=Math.min(...flat),mx=Math.max(...flat);
-  const cell=v=>{const t=mx>mn?(v-mn)/(mx-mn):0,a=[227,235,241],b=[58,108,147];const c=a.map((x,i)=>Math.round(x+(b[i]-x)*t));return `<td style="background:rgb(${c});color:${t>.5?'#fff':'#072340'}">${Math.round(v).toLocaleString('th-TH')}</td>`;};
+  const cell=v=>{const t=mx>mn?(v-mn)/(mx-mn):0,a=[227,235,241],b=[58,108,147];const c=a.map((x,i)=>Math.round(x+(b[i]-x)*t));return `<td style="background:rgb(${c});color:${t>.5?'#fff':TC('--primary','#072340')}">${Math.round(v).toLocaleString('th-TH')}</td>`;};
   g('dvMatrix').innerHTML='<thead><tr><th>ผลตอบแทน</th>'+yrs.map(y=>'<th>'+y+' ปี</th>').join('')+'</tr></thead><tbody>'+rets.map((r,i)=>'<tr><td class="rowh">'+r+'%</td>'+grid[i].map(cell).join('')+'</tr>').join('')+'</tbody>';
   const ret=nv('dvRet'),years=Math.max(1,nv('dvYears')),pm=monthlyNeeded(target,lump,ret,years),principal=lump+pm*Math.round(years*12);
   g('dvMonthly').textContent=baht(pm);g('dvPrincipal').textContent=baht(principal);g('dvGain').textContent=baht(Math.max(0,target-principal));
@@ -762,49 +761,49 @@ window.calcSSO();
 <style id="mp-v88">
 /* V88: Tax / SSO แบบการ์ดสรุป + โดนัท + ช่องกรอกพร้อม − / + */
 #tax .layout,#ssoBasic .layout,#mortgage .layout,#dca .layout{display:flex;flex-direction:column;gap:14px}
-#tax .results,#ssoBasic .results,#mortgage .results,#dca .results{order:-1;border-radius:20px;padding:16px;background:linear-gradient(145deg,#E3EBF1,#F3F7FA);border:1px solid #d3dde5}
+#tax .results,#ssoBasic .results,#mortgage .results,#dca .results{order:-1;border-radius:20px;padding:16px;background:linear-gradient(145deg,var(--primary-soft),var(--bg));border:1px solid var(--line)}
 .mp-hero{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-.mp-hero .result-label{font-size:13px;color:#5C6B74}.mp-hero .big{font-size:28px;line-height:1.2;color:#072340;margin:4px 0;white-space:nowrap}
-.mp-sub{font-size:12px;color:#5C6B74}
+.mp-hero .result-label{font-size:13px;color:var(--muted)}.mp-hero .big{font-size:28px;line-height:1.2;color:var(--primary);margin:4px 0;white-space:nowrap}
+.mp-sub{font-size:12px;color:var(--muted)}
 .mp-ring{position:relative;flex:none;width:96px;height:96px}.mp-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
-.mp-ring b{position:absolute;inset:0;display:grid;place-items:center;font:600 17px Prompt,sans-serif;color:#072340;text-align:center;line-height:1.1}
-.mp-ring b small{display:block;font:400 10px "Noto Sans Thai",sans-serif;color:#5C6B74;margin-top:2px}
-#tax .results .resultrow,#ssoBasic .results .resultrow,#mortgage .results .resultrow,#dca .results .resultrow{background:#fff;border-radius:12px;margin-top:6px;padding:10px 12px}
-.mp-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;background:#3A6C93}
-#tax .fields,#ssoBasic .fields,#mortgage .fields,#dca .fields{display:flex;flex-direction:column;gap:2px;background:#fff;border:1px solid #E1E6EA;border-radius:20px;padding:6px 14px;box-shadow:0 4px 14px #0723400b}
-#tax .field,#ssoBasic .field,#mortgage .field,#dca .field{display:grid;grid-template-columns:1fr;align-items:center;gap:6px 10px;padding:10px 0;border-bottom:1px solid #EEF1F4;margin:0}
+.mp-ring b{position:absolute;inset:0;display:grid;place-items:center;font:600 17px Prompt,sans-serif;color:var(--primary);text-align:center;line-height:1.1}
+.mp-ring b small{display:block;font:400 10px "Noto Sans Thai",sans-serif;color:var(--muted);margin-top:2px}
+#tax .results .resultrow,#ssoBasic .results .resultrow,#mortgage .results .resultrow,#dca .results .resultrow{background:var(--surface);border-radius:12px;margin-top:6px;padding:10px 12px}
+.mp-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;background:var(--primary-light)}
+#tax .fields,#ssoBasic .fields,#mortgage .fields,#dca .fields{display:flex;flex-direction:column;gap:2px;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:6px 14px;box-shadow:0 4px 14px color-mix(in srgb,var(--primary) 4%,transparent)}
+#tax .field,#ssoBasic .field,#mortgage .field,#dca .field{display:grid;grid-template-columns:1fr;align-items:center;gap:6px 10px;padding:10px 0;border-bottom:1px solid var(--bg);margin:0}
 #tax .field:last-child,#ssoBasic .field:last-child,#mortgage .field:last-child,#dca .field:last-child{border-bottom:0}
-#tax .field label,#ssoBasic .field label,#mortgage .field label,#dca .field label{font-size:13px;color:#5C6B74;margin:0}
+#tax .field label,#ssoBasic .field label,#mortgage .field label,#dca .field label{font-size:13px;color:var(--muted);margin:0}
 #tax .field .hint,#ssoBasic .field .hint,#mortgage .field .hint,#dca .field .hint{grid-column:1/-1;font-size:11.5px}
 #tax .field.mp-stack,#ssoBasic .field.mp-stack,#mortgage .field.mp-stack,#dca .field.mp-stack{grid-template-columns:1fr}
 .mp-step{display:flex;align-items:center;gap:8px;width:100%}
-.mp-in{display:flex;align-items:center;gap:4px;border:1.5px solid #D5DEE6;border-radius:12px;padding:0 12px;height:42px;background:#fff;flex:1;min-width:0}
-.mp-in input{border:0!important;box-shadow:none!important;background:none!important;outline:0;width:100%;min-width:0;padding:0!important;text-align:right;font-size:15px;color:#072340;height:auto!important}
-.mp-in span{font-size:11px;color:#7C8DA0;white-space:nowrap}
-.mp-b{width:36px;height:36px;min-height:36px!important;border-radius:11px;border:1px solid #D5DEE6;background:#F3F7FA;color:#072340;font-size:18px;line-height:1;padding:0}
+.mp-in{display:flex;align-items:center;gap:4px;border:1.5px solid var(--line);border-radius:12px;padding:0 12px;height:42px;background:var(--surface);flex:1;min-width:0}
+.mp-in input{border:0!important;box-shadow:none!important;background:none!important;outline:0;width:100%;min-width:0;padding:0!important;text-align:right;font-size:15px;color:var(--primary);height:auto!important}
+.mp-in span{font-size:11px;color:var(--ink-faint);white-space:nowrap}
+.mp-b{width:36px;height:36px;min-height:36px!important;border-radius:11px;border:1px solid var(--line);background:var(--bg);color:var(--primary);font-size:18px;line-height:1;padding:0}
 .mp-b:active{background:#DCE8F2}
-.mp-primary{width:100%;border:0;border-radius:14px;background:#3A6C93;color:#fff;font:600 15px "Noto Sans Thai",sans-serif;padding:13px;box-shadow:0 6px 16px rgba(58,108,147,.28)}
-.sso-subnav{display:flex!important;gap:0!important;border-bottom:1px solid #E1E6EA;margin:0 0 14px!important;background:none!important;padding:0!important}
-.sso-subnav button{flex:1;background:none!important;border:0!important;box-shadow:none!important;border-bottom:3px solid transparent!important;border-radius:0!important;color:#5C6B74!important;font-weight:600;padding:12px 4px;min-height:44px}
-.sso-subnav button.active{color:#3A6C93!important;border-bottom-color:#3A6C93!important}
+.mp-primary{width:100%;border:0;border-radius:14px;background:var(--primary-light);color:#fff;font:600 15px "Noto Sans Thai",sans-serif;padding:13px;box-shadow:0 6px 16px rgba(58,108,147,.28)}
+.sso-subnav{display:flex!important;gap:0!important;border-bottom:1px solid var(--line);margin:0 0 14px!important;background:none!important;padding:0!important}
+.sso-subnav button{flex:1;background:none!important;border:0!important;box-shadow:none!important;border-bottom:3px solid transparent!important;border-radius:0!important;color:var(--muted)!important;font-weight:600;padding:12px 4px;min-height:44px}
+.sso-subnav button.active{color:var(--primary-light)!important;border-bottom-color:var(--primary-light)!important}
 #dca .resultrow .big{font-size:inherit!important;margin:0!important;white-space:normal}
 .mp-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.mp-tiles button{background:#fff;border:1px solid #E1E6EA;border-radius:16px;padding:12px 6px;color:#072340;font:600 12px "Noto Sans Thai",sans-serif;line-height:1.35;box-shadow:0 4px 14px #0723400b}
+.mp-tiles button{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 6px;color:var(--primary);font:600 12px "Noto Sans Thai",sans-serif;line-height:1.35;box-shadow:0 4px 14px color-mix(in srgb,var(--primary) 4%,transparent)}
 .mp-tiles button i{display:block;font-style:normal;font-size:20px;margin-bottom:4px}
-.mp-cmp{background:#fff;border:1px solid #E1E6EA;border-radius:20px;padding:14px;box-shadow:0 4px 14px #0723400b}
-.mp-cmp h3{margin:0 0 4px;font-size:15px;color:#072340}
+.mp-cmp{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:14px;box-shadow:0 4px 14px color-mix(in srgb,var(--primary) 4%,transparent)}
+.mp-cmp h3{margin:0 0 4px;font-size:15px;color:var(--primary)}
 .cmp-r{display:grid;grid-template-columns:1fr 78px 16px;gap:6px;align-items:center;margin-top:10px}
-.cmp-r input{border:1.5px solid #D5DEE6;border-radius:10px;padding:8px 10px;font-size:14px;min-width:0;width:100%}
-.cmp-r .cv{grid-column:1/-1;font-size:12.5px;color:#5C6B74;background:#F3F7FA;border-radius:10px;padding:8px 10px}
-.cmp-r .cv b{color:#072340}
-.fund-table th{color:#5C6B74;font-weight:600;font-size:12px;padding:8px 6px;line-height:1.3}.fund-table input{border-radius:10px}
-#retirement .ret-hero{background:linear-gradient(145deg,#E3EBF1,#F3F7FA)!important;color:#072340!important;border:1px solid #d3dde5}
-#retirement .ret-hero .ret-kicker,#retirement .ret-hero .ret-title,#retirement .ret-hero .v{color:#072340!important}
-#retirement .ret-hero .k{color:#5C6B74!important}
-#retirement .ret-hero .ret-stat{background:#fff!important;border:1px solid #E1E6EA}
-#retirement .ret-tabs{display:flex;gap:0;border-bottom:1px solid #E1E6EA;overflow-x:auto;background:none!important;padding:0!important;scrollbar-width:none}
-#retirement .ret-tab{flex:none;background:none!important;border:0!important;border-bottom:3px solid transparent!important;border-radius:0!important;color:#5C6B74!important;font-weight:600;padding:12px 14px;white-space:nowrap;box-shadow:none!important}
-#retirement .ret-tab.active{color:#3A6C93!important;border-bottom-color:#3A6C93!important}
+.cmp-r input{border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px;min-width:0;width:100%}
+.cmp-r .cv{grid-column:1/-1;font-size:12.5px;color:var(--muted);background:var(--bg);border-radius:10px;padding:8px 10px}
+.cmp-r .cv b{color:var(--primary)}
+.fund-table th{color:var(--muted);font-weight:600;font-size:12px;padding:8px 6px;line-height:1.3}.fund-table input{border-radius:10px}
+#retirement .ret-hero{background:linear-gradient(145deg,var(--primary-soft),var(--bg))!important;color:var(--primary)!important;border:1px solid var(--line)}
+#retirement .ret-hero .ret-kicker,#retirement .ret-hero .ret-title,#retirement .ret-hero .v{color:var(--primary)!important}
+#retirement .ret-hero .k{color:var(--muted)!important}
+#retirement .ret-hero .ret-stat{background:var(--surface)!important;border:1px solid var(--line)}
+#retirement .ret-tabs{display:flex;gap:0;border-bottom:1px solid var(--line);overflow-x:auto;background:none!important;padding:0!important;scrollbar-width:none}
+#retirement .ret-tab{flex:none;background:none!important;border:0!important;border-bottom:3px solid transparent!important;border-radius:0!important;color:var(--muted)!important;font-weight:600;padding:12px 14px;white-space:nowrap;box-shadow:none!important}
+#retirement .ret-tab.active{color:var(--primary-light)!important;border-bottom-color:var(--primary-light)!important}
 .panel,.chartgrid,.chartcard,.layout>*{min-width:0;max-width:100%}
 .chartgrid{grid-template-columns:minmax(0,1fr)}
 .chartcard canvas{width:100%;display:block}
@@ -816,9 +815,9 @@ window.calcSSO();
 .mp-hero .mp-sub{grid-area:sub}
 .mp-hero .mp-ring{grid-area:ring;width:92px;height:92px;justify-self:end}
 #dcaLegend{display:block;margin-top:6px}
-.lg{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid #EEF1F4;font-size:13px;color:#2E3A42}
+.lg{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--bg);font-size:13px;color:var(--ink)}
 .lg i{width:10px;height:10px;border-radius:50%;flex:none}.lg span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lg b{color:#072340}.lg em{font-style:normal;color:#5C6B74;font-size:12px;white-space:nowrap}
+.lg b{color:var(--primary)}.lg em{font-style:normal;color:var(--muted);font-size:12px;white-space:nowrap}
 #retirement .ret-hero-stat{display:flex!important;flex-direction:column;gap:8px}
 #retirement .ret-hero .ret-stat{display:flex!important;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px!important;min-height:0;width:100%}
 #retirement .ret-hero .ret-stat .k{font-size:12.5px!important;margin:0!important;min-width:0}
@@ -830,8 +829,8 @@ html,body{overflow-x:hidden}
 #retirement,#retirement .ret-wrap{padding-left:0!important;padding-right:0!important;margin-left:0!important;margin-right:0!important;max-width:100%}
 
 .mpf-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;grid-column:1/-1}
-.mpf-chip{border:1px dashed #3A6C93;background:#F3F7FA;color:#072340;border-radius:999px;padding:7px 12px;font:600 12px "Noto Sans Thai",sans-serif;text-align:left;line-height:1.35}
-.mpf-chip small{display:block;font-weight:400;color:#5C6B74;font-size:10.5px}
+.mpf-chip{border:1px dashed var(--primary-light);background:var(--bg);color:var(--primary);border-radius:999px;padding:7px 12px;font:600 12px "Noto Sans Thai",sans-serif;text-align:left;line-height:1.35}
+.mpf-chip small{display:block;font-weight:400;color:var(--muted);font-size:10.5px}
 .mpf-chip.done{background:#E8F5EE;border-color:#1F9D6C;color:#1F7A55}
 </style>
 
@@ -856,18 +855,18 @@ function hero(panel,id,sub){var res=panel.querySelector('.results');if(!res||res
 function btn(panel,label,fn,scrollTo){var f=panel.querySelector('.fields');if(!f||f.dataset.btn)return;f.dataset.btn=1;var b=document.createElement('button');b.type='button';b.className='mp-primary';b.textContent=label;b.style.margin='12px 0 8px';
   b.onclick=function(){if(window[fn])window[fn]();var r=panel.querySelector('.mp-hero');if(r)r.scrollIntoView({behavior:'smooth',block:'start'})};f.appendChild(b)}
 function updTax(){var g=n('taxIncome')+n('taxOther'),tax=P('taxDue'),after=Math.max(0,g-tax);
-  ring($('taxRing'),tax,after,'#8E7CC3','#3A6C93',(g?(tax/g*100).toFixed(1):'0.0')+'%','สัดส่วนภาษี');
+  ring($('taxRing'),tax,after,'#8E7CC3',TC('--primary-light','#3A6C93'),(g?(tax/g*100).toFixed(1):'0.0')+'%','สัดส่วนภาษี');
   $('taxSub').textContent='จากรายได้รวม '+fm(g)+' บาท/ปี';
   var a=$('taxAfter');if(a)a.textContent=fm(after)}
 function updSso(){var w=n('ssoWage'),m=P('ssoMonthly'),base=P('ssoBase'),eff=w?m/w*100:0;
-  ring($('ssoRing'),m,Math.max(0,w-m),'#1F9D6C','#3A6C93',eff.toFixed(1)+'%','ต่อค่าจ้าง');
+  ring($('ssoRing'),m,Math.max(0,w-m),'#1F9D6C',TC('--primary-light','#3A6C93'),eff.toFixed(1)+'%','ต่อค่าจ้าง');
   $('ssoSub').textContent='ค่าจ้างที่ใช้คำนวณ '+fm(base)+' บาท'}
 function pay(p,a,y){var r=a/1200,k=Math.max(1,Math.round(y*12));return r?p*r/(1-Math.pow(1+r,-k)):p/k}
 function updHome(){var p=n('homePrice'),tot=P('homeTotal'),it=P('homeInterest');
-  ring($('homeRing'),it,p,'#C89B3C','#3A6C93',(tot?(it/tot*100).toFixed(1):'0.0')+'%','ดอกเบี้ย');
+  ring($('homeRing'),it,p,'#C89B3C',TC('--primary-light','#3A6C93'),(tot?(it/tot*100).toFixed(1):'0.0')+'%','ดอกเบี้ย');
   $('homeSub').textContent='เงินกู้ '+fm(p)+' · ดอกเบี้ยรวม '+fm(it);updCmp()}
 function updDca(){var pr=P('dcaPrincipal'),pf=P('dcaProfit');
-  ring($('dcaRing'),Math.max(0,pf),pr,'#1F9D6C','#3A6C93',(pr?(pf/pr*100).toFixed(1):'0.0')+'%','ผลตอบแทน');
+  ring($('dcaRing'),Math.max(0,pf),pr,'#1F9D6C',TC('--primary-light','#3A6C93'),(pr?(pf/pr*100).toFixed(1):'0.0')+'%','ผลตอบแทน');
   $('dcaSub').textContent='เงินต้นรวม '+fm(pr)+' บาท'}
 function updCmp(){var p=n('homePrice'),y=n('homeYears');document.querySelectorAll('#cmpRows .cmp-r').forEach(function(row){var a=+row.querySelector('.cr').value||0,m=pay(p,a,y),k=Math.max(1,Math.round(y*12));
   row.querySelector('.cv').innerHTML='ค่างวด <b>'+fm(m)+'</b>/เดือน · ดอกเบี้ยรวม <b>'+fm(m*k-p)+'</b>'})}
@@ -882,7 +881,7 @@ function init(){var tax=$('tax'),sso=$('ssoBasic');if(!tax||!sso||!$('mortgage')
   var mor=$('mortgage'),dca=$('dca');steppers(tax);steppers(sso);steppers(mor);steppers(dca);hero(tax,'taxRing','taxSub');hero(sso,'ssoRing','ssoSub');hero(mor,'homeRing','homeSub');hero(dca,'dcaRing','dcaSub');extras(mor);
   var dh=dca.querySelector('.layout>div');if(dh&&!dh.dataset.btn){dh.dataset.btn=1;var db=document.createElement('button');db.type='button';db.className='mp-primary';db.textContent='คำนวณแผน DCA';db.style.margin='12px 0 4px';db.onclick=function(){if(window.calcDCA)calcDCA();var h=dca.querySelector('.mp-hero');if(h)h.scrollIntoView({behavior:'smooth',block:'start'})};dh.appendChild(db)}
   btn(mor,'คำนวณใหม่','calcHome');
-  var rows=tax.querySelector('.results');if(rows&&!$('taxAfter')){var d=document.createElement('div');d.className='resultrow';d.innerHTML='<span><i class="mp-dot" style="background:#3A6C93"></i>เงินได้หลังภาษี</span><b id="taxAfter">—</b>';rows.appendChild(d)}
+  var rows=tax.querySelector('.results');if(rows&&!$('taxAfter')){var d=document.createElement('div');d.className='resultrow';d.innerHTML='<span><i class="mp-dot" style="background:var(--primary-light)"></i>เงินได้หลังภาษี</span><b id="taxAfter">—</b>';rows.appendChild(d)}
   btn(tax,'คำนวณภาษี','calcTax');btn(sso,'คำนวณเงินสมทบ','calcSSO');
   [['taxDue',updTax],['ssoMonthly',updSso],['homeMonthly',updHome],['dcaFuture',updDca]].forEach(function(p){var el=$(p[0]);new MutationObserver(p[1]).observe(el,{childList:true,characterData:true,subtree:true})});
   updTax();updSso();updHome();updDca();if(window.calcTax)calcTax();if(window.calcSSO)calcSSO();if(window.calcHome)calcHome();if(window.calcDCA)calcDCA()}
@@ -928,51 +927,51 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 <style id="mp-v3">
 /* My Plan v3: overview, emergency, debt, family, compare, charts, sync */
-.mp3-card{background:#fff;border:1px solid #E1E6EA;border-radius:20px;padding:14px;box-shadow:0 4px 14px #0723400b;margin-top:14px;min-width:0}
-.mp3-card h3{margin:0 0 6px;font:600 15px Prompt,sans-serif;color:#072340}
-.mp3-card .hint{font-size:11.5px;color:#5C6B74}
+.mp3-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:14px;box-shadow:0 4px 14px color-mix(in srgb,var(--primary) 4%,transparent);margin-top:14px;min-width:0}
+.mp3-card h3{margin:0 0 6px;font:600 15px Prompt,sans-serif;color:var(--primary)}
+.mp3-card .hint{font-size:11.5px;color:var(--muted)}
 .mp3-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.mp3-kpi{background:#F3F7FA;border-radius:14px;padding:10px 12px;min-width:0}
-.mp3-kpi small{display:block;color:#5C6B74;font-size:11px;line-height:1.35}
-.mp3-kpi b{display:block;font:600 16px Prompt,sans-serif;color:#072340;margin-top:2px;overflow-wrap:anywhere}
-.mp3-kpi em{display:block;font-style:normal;font-size:10.5px;color:#7C8DA0;margin-top:2px}
-.mp3-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid #EEF1F4;font-size:13px;color:#2E3A42}
+.mp3-kpi{background:var(--bg);border-radius:14px;padding:10px 12px;min-width:0}
+.mp3-kpi small{display:block;color:var(--muted);font-size:11px;line-height:1.35}
+.mp3-kpi b{display:block;font:600 16px Prompt,sans-serif;color:var(--primary);margin-top:2px;overflow-wrap:anywhere}
+.mp3-kpi em{display:block;font-style:normal;font-size:10.5px;color:var(--ink-faint);margin-top:2px}
+.mp3-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--bg);font-size:13px;color:var(--ink)}
 .mp3-row:first-of-type{border-top:0}
 .mp3-row span{flex:1;min-width:0}
-.mp3-row b{color:#072340;white-space:nowrap}
-.mp3-row input[type=checkbox],.ret-field input[type=checkbox]{width:18px;height:18px;min-height:0;flex:none;margin:0 8px 0 0;accent-color:#3A6C93}
-.ret-field label b{color:#3A6C93;font-weight:600}
-.mp3-meter{position:relative;height:16px;border-radius:99px;background:#E3EBF1;margin:18px 0 6px}
+.mp3-row b{color:var(--primary);white-space:nowrap}
+.mp3-row input[type=checkbox],.ret-field input[type=checkbox]{width:18px;height:18px;min-height:0;flex:none;margin:0 8px 0 0;accent-color:var(--primary-light)}
+.ret-field label b{color:var(--primary-light);font-weight:600}
+.mp3-meter{position:relative;height:16px;border-radius:99px;background:var(--primary-soft);margin:18px 0 6px}
 .mp3-meter i{display:block;height:100%;border-radius:99px;background:#1F9D6C;transition:width .3s,background .3s}
-.mp3-meter u{position:absolute;top:-5px;bottom:-5px;width:2px;background:#072340;text-decoration:none}
-.mp3-scale{display:flex;justify-content:space-between;font-size:10.5px;color:#7C8DA0}
+.mp3-meter u{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--primary);text-decoration:none}
+.mp3-scale{display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-faint)}
 .mp3-alert{border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.65;margin-top:10px}
-.mp3-ok{background:#E8F5EE;color:#1F7A55}.mp3-warn{background:#FFF4DC;color:#8A6410}.mp3-bad{background:#FDECE8;color:#B23A22}.mp3-info{background:#E3EBF1;color:#072340}
+.mp3-ok{background:#E8F5EE;color:#1F7A55}.mp3-warn{background:#FFF4DC;color:#8A6410}.mp3-bad{background:#FDECE8;color:#B23A22}.mp3-info{background:var(--primary-soft);color:var(--primary)}
 .mp3-tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
-.mp3-tbl th,.mp3-tbl td{padding:8px 6px;border-top:1px solid #EEF1F4;text-align:right;vertical-align:top}
+.mp3-tbl th,.mp3-tbl td{padding:8px 6px;border-top:1px solid var(--bg);text-align:right;vertical-align:top}
 .mp3-tbl th:first-child,.mp3-tbl td:first-child{text-align:left}
-.mp3-tbl th{color:#5C6B74;font-weight:600;border-top:0;font-size:11.5px}
+.mp3-tbl th{color:var(--muted);font-weight:600;border-top:0;font-size:11.5px}
 .mp3-tbl td.win{color:#1F7A55;font-weight:700}
-.mp3-tbl td.dif{color:#5C6B74;font-size:11.5px}
+.mp3-tbl td.dif{color:var(--muted);font-size:11.5px}
 .mp3-chart canvas{width:100%;height:210px;display:block}
-.mp3-bar{height:12px;border-radius:99px;background:#E3EBF1;overflow:hidden;margin:6px 0 2px}
-.mp3-bar i{display:block;height:100%;background:#3A6C93;border-radius:99px}
+.mp3-bar{height:12px;border-radius:99px;background:var(--primary-soft);overflow:hidden;margin:6px 0 2px}
+.mp3-bar i{display:block;height:100%;background:var(--primary-light);border-radius:99px}
 .mp3-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-.mp3-btns button{flex:1;min-width:120px;border:0;border-radius:14px;background:#3A6C93;color:#fff;font:600 13px "Noto Sans Thai",sans-serif;padding:12px}
-.mp3-btns button.alt{background:#fff;color:#3A6C93;border:1.5px solid #3A6C93}
-.mp3-sync{margin:10px 0 0;text-align:center;font-size:11px;color:#7C8DA0}
-.mp3-sync a{color:#3A6C93}
-.mp3-sec{font:600 14px Prompt,sans-serif;color:#072340;margin:18px 0 6px}
+.mp3-btns button{flex:1;min-width:120px;border:0;border-radius:14px;background:var(--primary-light);color:#fff;font:600 13px "Noto Sans Thai",sans-serif;padding:12px}
+.mp3-btns button.alt{background:var(--surface);color:var(--primary-light);border:1.5px solid var(--primary-light)}
+.mp3-sync{margin:10px 0 0;text-align:center;font-size:11px;color:var(--ink-faint)}
+.mp3-sync a{color:var(--primary-light)}
+.mp3-sec{font:600 14px Prompt,sans-serif;color:var(--primary);margin:18px 0 6px}
 #debt .fund-table input,#family .fund-table input{width:100%;min-width:70px}
 #debt .fund-table td:first-child input,#family .fund-table td:first-child input{min-width:100px}
-#emergency .fields,#debt>.fields,#family .fields,#overview>.fields{background:#fff;border:1px solid #E1E6EA;border-radius:20px;padding:10px 14px}
+#emergency .fields,#debt>.fields,#family .fields,#overview>.fields{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:10px 14px}
 #emergency .layout,#family .layout{display:flex;flex-direction:column;gap:14px}
-#emergency .results,#family .results{order:-1;border-radius:20px;padding:16px;background:linear-gradient(145deg,#E3EBF1,#F3F7FA);border:1px solid #d3dde5;color:#072340}
-#emergency .results .result-label,#family .results .result-label{color:#5C6B74}
-#emergency .results .big,#family .results .big{color:#072340}
-#emergency .results .resultrow,#family .results .resultrow{background:#fff;border-radius:12px;margin-top:6px;padding:10px 12px;border-top:0}
+#emergency .results,#family .results{order:-1;border-radius:20px;padding:16px;background:linear-gradient(145deg,var(--primary-soft),var(--bg));border:1px solid var(--line);color:var(--primary)}
+#emergency .results .result-label,#family .results .result-label{color:var(--muted)}
+#emergency .results .big,#family .results .big{color:var(--primary)}
+#emergency .results .resultrow,#family .results .resultrow{background:var(--surface);border-radius:12px;margin-top:6px;padding:10px 12px;border-top:0}
 @media print{
-  body{background:#fff!important}
+  body{background:var(--surface)!important}
   header.hero,nav.menu,#myPlanBack,.footer,.mp3-btns,.mp3-sync,.bn,.bottom-nav,.mpf-chips{display:none!important}
   main>.panel:not(#overview){display:none!important}
   #overview{display:block!important;box-shadow:none!important}
@@ -996,7 +995,7 @@ const daysIn=k=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth()
 const short=v=>{const a=Math.abs(v);if(a>=1e6)return (v/1e6).toFixed(a>=1e7?0:1).replace(/\.0$/,'')+'M';if(a>=1e3)return Math.round(v/1e3)+'K';return String(Math.round(v))};
 const monthsTxt=m=>{const y=Math.floor(m/12),r=m%12;return m>=600?'เกิน 50 ปี':(y?y+' ปี ':'')+((r||!y)?r+' เดือน':'')};
 function toast(t){try{if(typeof showToast==='function'){showToast(t);return}}catch(e){}
-  let d=g('mp3Toast');if(!d){d=document.createElement('div');d.id='mp3Toast';d.style.cssText='position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#072340;color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;z-index:99;max-width:86%;text-align:center';document.body.appendChild(d)}
+  let d=g('mp3Toast');if(!d){d=document.createElement('div');d.id='mp3Toast';d.style.cssText='position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--primary);color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;z-index:99;max-width:86%;text-align:center';document.body.appendChild(d)}
   d.textContent=t;d.style.display='block';clearTimeout(d._t);d._t=setTimeout(()=>d.style.display='none',2200)}
 
 /* ---------- แหล่งข้อมูลจากเครื่องมือต่าง ๆ (อ่านจากช่องกรอก ไม่ต้องกรอกซ้ำ) ---------- */
@@ -1032,11 +1031,11 @@ function drawLines(c,series,o){o=o||{};if(!c)return;const dpr=window.devicePixel
   const mag=Math.pow(10,Math.floor(Math.log10(mx||1))),q=mag/2,nice=Math.max(q,Math.ceil((mx||1)/q)*q);
   const rows=series.length>3?2:1,L=44*dpr,R=14*dpr,T=(24+rows*16)*dpr,B=26*dpr,iw=w-L-R,ih=h-T-B;
   ctx.font=10*dpr+'px sans-serif';ctx.textBaseline='middle';
-  for(let i=0;i<=4;i++){const y=T+ih*(1-i/4);ctx.strokeStyle='#e5edf3';ctx.lineWidth=dpr;ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(w-R,y);ctx.stroke();ctx.fillStyle='#7C8DA0';ctx.textAlign='right';ctx.fillText(short(nice*i/4),L-6*dpr,y)}
+  for(let i=0;i<=4;i++){const y=T+ih*(1-i/4);ctx.strokeStyle=TC('--line','#E1E6EA');ctx.lineWidth=dpr;ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(w-R,y);ctx.stroke();ctx.fillStyle=TC('--ink-faint','#8B9AA3');ctx.textAlign='right';ctx.fillText(short(nice*i/4),L-6*dpr,y)}
   ctx.textAlign='center';ctx.textBaseline='top';const ticks=Math.min(5,n-1);
-  for(let t=0;t<=ticks;t++){const i=Math.round((n-1)*t/ticks),x=L+iw*i/(n-1);ctx.fillStyle='#7C8DA0';ctx.fillText(o.xFmt?o.xFmt(i):String(i),x,h-B+8*dpr)}
+  for(let t=0;t<=ticks;t++){const i=Math.round((n-1)*t/ticks),x=L+iw*i/(n-1);ctx.fillStyle=TC('--ink-faint','#8B9AA3');ctx.fillText(o.xFmt?o.xFmt(i):String(i),x,h-B+8*dpr)}
   ctx.textAlign='left';ctx.textBaseline='middle';ctx.font='600 '+10.5*dpr+'px sans-serif';let lx=L,ly=14*dpr;
-  series.forEach(s=>{const wd=ctx.measureText(s.name).width+30*dpr;if(lx+wd>w-R&&lx>L){lx=L;ly+=16*dpr}ctx.fillStyle=s.color;ctx.beginPath();ctx.arc(lx+5*dpr,ly,4.5*dpr,0,7);ctx.fill();ctx.fillStyle='#5C6B74';ctx.fillText(s.name,lx+14*dpr,ly);lx+=wd});
+  series.forEach(s=>{const wd=ctx.measureText(s.name).width+30*dpr;if(lx+wd>w-R&&lx>L){lx=L;ly+=16*dpr}ctx.fillStyle=s.color;ctx.beginPath();ctx.arc(lx+5*dpr,ly,4.5*dpr,0,7);ctx.fill();ctx.fillStyle=TC('--muted','#5C6B74');ctx.fillText(s.name,lx+14*dpr,ly);lx+=wd});
   series.forEach(s=>{ctx.strokeStyle=s.color;ctx.lineWidth=2.4*dpr;ctx.lineJoin='round';ctx.setLineDash(s.dash?[6*dpr,5*dpr]:[]);ctx.beginPath();
     s.vals.forEach((v,i)=>{const x=L+iw*i/(n-1),y=T+ih*(1-(nice?Math.min(v,nice)/nice:0));i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();ctx.setLineDash([])});
   series.forEach((s,k)=>{if(s.noEnd)return;const last=s.vals[s.vals.length-1],x=L+iw*(s.vals.length-1)/(n-1),y=T+ih*(1-(nice?Math.min(last,nice)/nice:0));
@@ -1057,7 +1056,7 @@ function tvmVals(pv,pmt,rate,years,infl){const n=Math.round(years*12),r=rate/120
 function tvmExtra(){if(!g('tvCmpOut'))return;const pv=nv('tvPV'),infl=nv('tvInfl');
   const A=tvmVals(pv,nv('tvPMT'),nv('tvRate'),Math.max(1,nv('tvYears')),infl),B=tvmVals(pv,nv('tvbPmt'),nv('tvbRate'),Math.max(1,nv('tvbYears')),infl);
   g('tvCmpOut').innerHTML=cmpTbl([['มูลค่าในอนาคต',A.fv,B.fv,false],['เงินต้นที่ลงไป',A.principal,B.principal,true],['กำไรจากทบต้น',A.fv-A.principal,B.fv-B.principal,false],['เทียบเงินวันนี้',A.real,B.real,false]],'A (ด้านบน)','B (ลองดู)');
-  drawLines(g('tvChart'),[{name:'A มูลค่า',color:'#1F9D6C',vals:A.path},{name:'B มูลค่า',color:'#C89B3C',vals:B.path},{name:'A เงินต้นสะสม',color:'#3A6C93',vals:A.put,dash:true,noEnd:true}],{xFmt:yrFmt})}
+  drawLines(g('tvChart'),[{name:'A มูลค่า',color:'#1F9D6C',vals:A.path},{name:'B มูลค่า',color:'#C89B3C',vals:B.path},{name:'A เงินต้นสะสม',color:TC('--primary-light','#3A6C93'),vals:A.put,dash:true,noEnd:true}],{xFmt:yrFmt})}
 /* ---------- เทียบสถานการณ์: สินเชื่อบ้าน / รถ ---------- */
 function mortExtra(){if(!g('mcOut'))return;const p=nv('homePrice'),rA=nv('homeRate'),yA=Math.max(1,nv('homeYears')),rB=nv('mcRate'),yB=Math.max(1,nv('mcYears'));
   const f=(r,y)=>{const m=pmtF(p,r,y),n=Math.round(y*12);return{m,i:m*n-p,t:m*n}};const A=f(rA,yA),B=f(rB,yB);
@@ -1065,18 +1064,18 @@ function mortExtra(){if(!g('mcOut'))return;const p=nv('homePrice'),rA=nv('homeRa
 function carExtra(){if(!g('crcOut'))return;const yA=Math.max(1,nv('carYears')),yB=Math.max(1,nv('crcYears')),A=carCalc(yA),B=carCalc(yB);
   g('crcOut').innerHTML=cmpTbl([['ค่างวด/เดือน',A.monthly,B.monthly,true],['ดอกเบี้ยรวม',A.interest,B.interest,true],['ยอดชำระรวม',A.total,B.total,true]],'A ('+yA+' ปี)','B ('+yB+' ปี)')}
 /* ---------- กราฟ PVD / เงินปันผล ---------- */
-function pvdExtra(){if(!g('pvChart'))return;const r=pvdCalc();drawLines(g('pvChart'),[{name:'ยอดกองทุน',color:'#1F9D6C',vals:r.path},{name:'เงินที่ใส่เข้าไปสะสม',color:'#3A6C93',vals:r.put}],{xFmt:yrFmt})}
+function pvdExtra(){if(!g('pvChart'))return;const r=pvdCalc();drawLines(g('pvChart'),[{name:'ยอดกองทุน',color:'#1F9D6C',vals:r.path},{name:'เงินที่ใส่เข้าไปสะสม',color:TC('--primary-light','#3A6C93'),vals:r.put}],{xFmt:yrFmt})}
 function divExtra(){if(!g('dvChart'))return;const wh=g('dvWh')&&g('dvWh').value==='10'?.1:0,yld=Math.max(.1,nv('dvYield'))*(1-wh)/100,target=nv('dvSpend')*12/yld,lump=nv('dvLump'),ret=nv('dvRet'),years=Math.max(1,Math.floor(nv('dvYears'))),r=ret/1200;
   const m=(()=>{const n=years*12,f=r===0?n:(Math.pow(1+r,n)-1)/r;return Math.max(0,(target-lump*Math.pow(1+r,n))/f)})();
   const path=[lump],div=[lump*yld/12];let bal=lump;for(let mo=1;mo<=years*12;mo++){bal=bal*(1+r)+m;if(mo%12===0){path.push(bal);div.push(bal*yld/12)}}
-  drawLines(g('dvChart'),[{name:'มูลค่าพอร์ตตามแผน',color:'#3A6C93',vals:path},{name:'เป้าเงินก้อน',color:'#C89B3C',vals:path.map(()=>target),dash:true,noEnd:true}],{xFmt:yrFmt});
+  drawLines(g('dvChart'),[{name:'มูลค่าพอร์ตตามแผน',color:TC('--primary-light','#3A6C93'),vals:path},{name:'เป้าเงินก้อน',color:'#C89B3C',vals:path.map(()=>target),dash:true,noEnd:true}],{xFmt:yrFmt});
   const el=g('dvChartNote');if(el)el.textContent='ปีที่ '+years+': ปันผลโดยประมาณ '+baht(div[div.length-1])+'/เดือน (ปีที่ '+Math.max(1,Math.round(years/2))+': '+baht(div[Math.min(div.length-1,Math.round(years/2))])+'/เดือน)'}
 
 /* ---------- เงินสำรองฉุกเฉิน ---------- */
 function emRender(){if(!g('emTarget'))return;const exp=nv('emExpense'),mo=nv('emMonths')||6,have=nv('emHave'),save=nv('emSave'),target=exp*mo,gap=Math.max(0,target-have),cover=exp>0?have/exp:0;
   g('emTarget').textContent=baht(target);g('emHaveOut').textContent=baht(have);g('emGap').textContent=gap>0?baht(gap):'ครบแล้ว ✓';g('emCover').textContent=cover.toLocaleString('th-TH',{maximumFractionDigits:1})+' เดือน';
   g('emFill').textContent=gap<=0?'—':save>0?monthsTxt(Math.ceil(gap/save)):'ยังไม่ได้ตั้งเงินเก็บ';
-  g('emBars').innerHTML=[3,6,12].map(k=>{const t=exp*k,p=t>0?Math.min(100,have/t*100):0;return'<div class="mp3-row" style="display:block;border-top:0;padding:6px 0"><div style="display:flex;justify-content:space-between"><span>เป้า '+k+' เดือน · '+baht(t)+'</span><b>'+(p>=100?'ครบ ✓':p.toFixed(0)+'%')+'</b></div><div class="mp3-bar"><i style="width:'+p.toFixed(1)+'%;background:'+(p>=100?'#1F9D6C':'#3A6C93')+'"></i></div></div>'}).join('')}
+  g('emBars').innerHTML=[3,6,12].map(k=>{const t=exp*k,p=t>0?Math.min(100,have/t*100):0;return'<div class="mp3-row" style="display:block;border-top:0;padding:6px 0"><div style="display:flex;justify-content:space-between"><span>เป้า '+k+' เดือน · '+baht(t)+'</span><b>'+(p>=100?'ครบ ✓':p.toFixed(0)+'%')+'</b></div><div class="mp3-bar"><i style="width:'+p.toFixed(1)+'%;background:'+(p>=100?'#1F9D6C':TC('--primary-light','#3A6C93'))+'"></i></div></div>'}).join('')}
 
 /* ---------- ปลดหนี้หลายก้อน ---------- */
 const DEF_DEBTS=[{name:'บัตรเครดิต A',bal:45000,rate:16,min:2500},{name:'สินเชื่อส่วนบุคคล',bal:80000,rate:25,min:3500},{name:'ผ่อนมือถือ',bal:15000,rate:0,min:1500}];
@@ -1094,7 +1093,7 @@ function simDebt(list,extra,strategy,daily){const ds=list.filter(d=>d.bal>0).map
     series.push(ds.reduce((a,d)=>a+Math.max(0,d.bal),0))}
   return{months:month,interest:totalInt,paid:totalPaid,series,order,unfinished:ds.some(d=>d.bal>0.005)}}
 function dbRender(){if(!g('dbResult'))return;const extra=nv('dbExtra'),daily=g('dbBasis').value==='daily',live=debts.filter(d=>d.bal>0);
-  if(!live.length){g('dbResult').innerHTML='<div class="mp3-alert mp3-info">กรอกรายการหนี้อย่างน้อยหนึ่งก้อน</div>';drawLines(g('dbChart'),[{name:'—',color:'#3A6C93',vals:[0,0]}]);return}
+  if(!live.length){g('dbResult').innerHTML='<div class="mp3-alert mp3-info">กรอกรายการหนี้อย่างน้อยหนึ่งก้อน</div>';drawLines(g('dbChart'),[{name:'—',color:TC('--primary-light','#3A6C93'),vals:[0,0]}]);return}
   const S=simDebt(debts,extra,'snow',daily),A=simDebt(debts,extra,'aval',daily),M=simDebt(debts,0,'min',daily);
   const mt=r=>r.unfinished?'ไม่จบใน 50 ปี':monthsTxt(r.months),it=r=>r.unfinished?'—':baht(r.interest);
   let msg='';
@@ -1111,7 +1110,7 @@ function dbRender(){if(!g('dbResult'))return;const extra=nv('dbExtra'),daily=g('
    +'<tr><td>ลำดับที่ปลดหนี้</td><td style="font-size:11.5px">'+ord(S)+'</td><td style="font-size:11.5px">'+ord(A)+'</td></tr></tbody></table>'
    +'<p class="hint" style="margin-top:8px">เทียบกับจ่ายขั้นต่ำอย่างเดียว ('+baht(debtMin())+'/เดือน): ใช้เวลา '+mini+(M.unfinished?'':' · ดอกเบี้ย '+baht(M.interest))+'</p>';
   const nmax=Math.max(S.series.length,A.series.length,M.series.length),pad=a=>{const o=a.slice();while(o.length<nmax)o.push(0);return o};
-  drawLines(g('dbChart'),[{name:'Snowball',color:'#C89B3C',vals:pad(S.series)},{name:'Avalanche',color:'#1F9D6C',vals:pad(A.series)},{name:'ขั้นต่ำอย่างเดียว',color:'#8B9AA3',vals:pad(M.series.slice(0,nmax)),dash:true,noEnd:true}],{xFmt:i=>i>=24?Math.round(i/12)+' ปี':i+' ด.'})}
+  drawLines(g('dbChart'),[{name:'Snowball',color:'#C89B3C',vals:pad(S.series)},{name:'Avalanche',color:'#1F9D6C',vals:pad(A.series)},{name:'ขั้นต่ำอย่างเดียว',color:TC('--ink-faint','#8B9AA3'),vals:pad(M.series.slice(0,nmax)),dash:true,noEnd:true}],{xFmt:i=>i>=24?Math.round(i/12)+' ปี':i+' ด.'})}
 function dbAddRow(d){const tr=document.createElement('tr');
   tr.innerHTML='<td><input class="dn" aria-label="ชื่อหนี้" value="'+esc(d.name)+'"></td><td><input class="db" type="number" min="0" step="1000" inputmode="decimal" aria-label="ยอดคงค้าง" value="'+(+d.bal||0)+'"></td><td><input class="dr" type="number" min="0" max="100" step="0.1" inputmode="decimal" aria-label="ดอกเบี้ยต่อปี" value="'+(+d.rate||0)+'"></td><td><input class="dm" type="number" min="0" step="100" inputmode="decimal" aria-label="ขั้นต่ำต่อเดือน" value="'+(+d.min||0)+'"></td><td><button type="button" aria-label="ลบหนี้">×</button></td>';
   g('dbRows').appendChild(tr);
@@ -1133,9 +1132,9 @@ function eduCalc(){const infl=nv('edInfl')/100,ret=nv('edRet')/100,yearly={},res
   const nAll=Math.max(1,Math.round(maxT*12)),rm=Math.pow(1+ret,1/12)-1,mAll=res.reduce((a,x)=>a+x.monthly,0);
   return{res,pv:pvAll,nominal:nomAll,monthly:mAll,yearly,maxT}}
 function edRender(){if(!g('edPV'))return;const r=eduCalc();g('edPV').textContent=baht(r.pv);g('edNominal').textContent=baht(r.nominal);g('edMonthly').textContent=baht(r.monthly);
-  g('edKids').innerHTML=r.res.length?'<div class="mp3-card"><h3>แยกรายบุตร</h3>'+r.res.map(x=>'<div class="mp3-row" style="display:block"><div style="display:flex;justify-content:space-between"><span><b>'+esc(x.name||'บุตร')+'</b> · อายุ '+x.age+' ปี</span></div><div class="hint">ค่าเล่าเรียนรวม '+baht(x.nom)+' · เงินก้อนวันนี้ '+baht(x.pv)+' · ออมเดือนละ <b style="color:#072340">'+baht(x.monthly)+'</b></div></div>').join('')+'</div>':'';
+  g('edKids').innerHTML=r.res.length?'<div class="mp3-card"><h3>แยกรายบุตร</h3>'+r.res.map(x=>'<div class="mp3-row" style="display:block"><div style="display:flex;justify-content:space-between"><span><b>'+esc(x.name||'บุตร')+'</b> · อายุ '+x.age+' ปี</span></div><div class="hint">ค่าเล่าเรียนรวม '+baht(x.nom)+' · เงินก้อนวันนี้ '+baht(x.pv)+' · ออมเดือนละ <b style="color:var(--primary)">'+baht(x.monthly)+'</b></div></div>').join('')+'</div>':'';
   const N=Math.max(2,Math.ceil(r.maxT)+1),vals=[];for(let i=0;i<N;i++)vals.push(r.yearly[i]||0);
-  drawLines(g('edChart'),[{name:'ค่าเล่าเรียนปีนั้น (รวมทุกคน)',color:'#3A6C93',vals:vals}],{xFmt:i=>'+'+i+' ปี'});insRender()}
+  drawLines(g('edChart'),[{name:'ค่าเล่าเรียนปีนั้น (รวมทุกคน)',color:TC('--primary-light','#3A6C93'),vals:vals}],{xFmt:i=>'+'+i+' ปี'});insRender()}
 function kidAddRow(k){const tr=document.createElement('tr');
   tr.innerHTML='<td><input class="kn" aria-label="ชื่อบุตร" value="'+esc(k.name)+'"></td><td><input class="ka" type="number" min="0" max="40" step="1" inputmode="numeric" aria-label="อายุ" value="'+(+k.age||0)+'"></td><td><button type="button" aria-label="ลบ">×</button></td>';
   g('kidRows').appendChild(tr);
@@ -1160,7 +1159,7 @@ function ovCollect(){const inc=nv('ovIncome'),limit=nv('ovLimit')||40,h=homeCalc
   const ins=insCalc(),edu=eduCalc(),save=dca+pvd.eeMonth,left=inc>0?inc-debtTotal-save-sso.monthly-tax/12:null;
   return{inc,limit,items,debtTotal,ratio,dca,pvd,sso,tax,em,ret,ins,edu,save,left}}
 function ovRender(){if(!g('ovBody'))return;const d=ovCollect();let cls='mp3-ok',txt='',fill='#1F9D6C',w=0;
-  if(d.ratio==null){cls='mp3-info';txt='กรอกรายได้ต่อเดือนด้านบน (หรือกด “ดึง”) เพื่อดูสัดส่วนภาระผ่อนต่อรายได้';fill='#8B9AA3'}
+  if(d.ratio==null){cls='mp3-info';txt='กรอกรายได้ต่อเดือนด้านบน (หรือกด “ดึง”) เพื่อดูสัดส่วนภาระผ่อนต่อรายได้';fill=TC('--ink-faint','#8B9AA3')}
   else{w=Math.min(100,d.ratio/(d.limit*1.5)*100);const over=d.debtTotal-d.limit/100*d.inc;
     if(d.ratio>d.limit){cls='mp3-bad';fill='#E0654B';txt='⚠️ ภาระผ่อนเกิน '+d.limit+'% ของรายได้ (อยู่ที่ '+d.ratio.toFixed(1)+'%) ควรลดภาระลงอย่างน้อย '+baht(over)+'/เดือน เช่น ปลดหนี้ดอกเบี้ยสูงก่อน หรือรีไฟแนนซ์ ดูเครื่องมือ “ปลดหนี้หลายก้อน”'}
     else if(d.ratio>d.limit*.8){cls='mp3-warn';fill='#C89B3C';txt='ใกล้เกณฑ์แล้ว ('+d.ratio.toFixed(1)+'% จากเกณฑ์ '+d.limit+'%) ระวังการก่อหนี้เพิ่ม เหลือพื้นที่อีก '+baht(-over)+'/เดือน'}
@@ -1168,7 +1167,7 @@ function ovRender(){if(!g('ovBody'))return;const d=ovCollect();let cls='mp3-ok',
   const rows=d.items.map(i=>'<label class="mp3-row"><input type="checkbox" id="'+i.id+'"'+(i.on?' checked':'')+'><span>'+i.label+'</span><b>'+baht(i.v)+'</b></label>').join('');
   const kpi=(l,v,s)=>'<div class="mp3-kpi"><small>'+l+'</small><b>'+v+'</b>'+(s?'<em>'+s+'</em>':'')+'</div>';
   const r=d.ret,pr=r&&r.target>0?Math.min(100,r.projected/r.target*100):null;
-  g('ovBody').innerHTML='<div class="mp3-card"><h3>ภาระผ่อนต่อเดือน เทียบรายได้</h3><div style="display:flex;justify-content:space-between;align-items:baseline"><b style="font:700 26px Prompt,sans-serif;color:#072340">'+baht(d.debtTotal)+'</b><span style="font-size:13px;color:#5C6B74">'+(d.ratio==null?'—':d.ratio.toFixed(1)+'% ของรายได้')+'</span></div>'
+  g('ovBody').innerHTML='<div class="mp3-card"><h3>ภาระผ่อนต่อเดือน เทียบรายได้</h3><div style="display:flex;justify-content:space-between;align-items:baseline"><b style="font:700 26px Prompt,sans-serif;color:var(--primary)">'+baht(d.debtTotal)+'</b><span style="font-size:13px;color:var(--muted)">'+(d.ratio==null?'—':d.ratio.toFixed(1)+'% ของรายได้')+'</span></div>'
    +'<div class="mp3-meter"><i style="width:'+w.toFixed(1)+'%;background:'+fill+'"></i><u style="left:'+(100/1.5).toFixed(2)+'%"></u></div><div class="mp3-scale" style="position:relative;height:16px"><span style="position:absolute;left:0">0%</span><span style="position:absolute;left:'+(100/1.5).toFixed(2)+'%;transform:translateX(-50%)">เกณฑ์ '+d.limit+'%</span><span style="position:absolute;right:0">'+Math.round(d.limit*1.5)+'%+</span></div>'
    +'<div class="mp3-alert '+cls+'">'+txt+'</div><div style="margin-top:10px">'+rows+'</div></div>'
    +'<div class="mp3-card"><h3>กระแสเงินสดต่อเดือน (โดยประมาณ)</h3>'
@@ -1193,11 +1192,11 @@ function ovPng(){const d=ovCollect(),W=1080,P=48,cv=document.createElement('canv
   add('h','ตัวเลขสำคัญ');add('row','ภาษีทั้งปี',baht(d.tax));add('row','PVD เมื่อครบกำหนด',baht(d.pvd.bal));add('row','เงินสำรองฉุกเฉิน',d.em.cover.toFixed(1)+' เดือน (เป้า '+baht(d.em.target)+')');
   add('row','แผนเกษียณ',d.ret&&d.ret.target>0?Math.min(100,d.ret.projected/d.ret.target*100).toFixed(0)+'% (ขาด '+baht(d.ret.gap)+')':'—');add('row','ทุนประกันที่ควรเพิ่ม',d.ins.gap>0?baht(d.ins.gap):'เพียงพอ');add('row','ทุนการศึกษาบุตร (เงินก้อนวันนี้)',baht(d.edu.pv));
   let H=170+P;lines.forEach(l=>H+=l.t==='h'?64:l.t==='big'?96:54);H+=90;cv.height=H;const x=cv.getContext('2d');
-  x.fillStyle='#F2F4F6';x.fillRect(0,0,W,H);x.fillStyle='#072340';x.fillRect(0,0,W,150);x.fillStyle='#fff';x.font='700 44px '+F;x.textBaseline='alphabetic';x.fillText('สรุปแผนการเงินครอบครัว',P,78);x.font='400 26px '+F;x.fillStyle='#C8D6E2';x.fillText('My Family Funds · '+new Date().toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'}),P,120);
-  let y=150+P;lines.forEach(l=>{if(l.t==='h'){x.fillStyle='#072340';x.font='700 32px '+F;x.fillText(l.a,P,y+36);y+=64}
-    else if(l.t==='big'){x.fillStyle=l.c;x.font='700 64px '+F;x.fillText(l.a,P,y+56);x.fillStyle='#5C6B74';x.font='400 26px '+F;x.fillText(l.b,P,y+90);y+=96}
-    else{x.fillStyle='#fff';x.fillRect(P,y,W-2*P,46);x.fillStyle='#5C6B74';x.font='400 26px '+F;x.textAlign='left';x.fillText(l.a,P+16,y+32);x.fillStyle='#072340';x.font='600 26px '+F;x.textAlign='right';x.fillText(l.b,W-P-16,y+32);x.textAlign='left';y+=54}});
-  x.fillStyle='#7C8DA0';x.font='400 22px '+F;x.fillText('ประมาณการเพื่อวางแผน ไม่ใช่คำแนะนำทางการเงิน',P,H-40);
+  x.fillStyle=TC('--bg','#F2F4F6');x.fillRect(0,0,W,H);x.fillStyle=TC('--primary','#072340');x.fillRect(0,0,W,150);x.fillStyle='#fff';x.font='700 44px '+F;x.textBaseline='alphabetic';x.fillText('สรุปแผนการเงินครอบครัว',P,78);x.font='400 26px '+F;x.fillStyle='#C8D6E2';x.fillText('My Family Funds · '+new Date().toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'}),P,120);
+  let y=150+P;lines.forEach(l=>{if(l.t==='h'){x.fillStyle=TC('--primary','#072340');x.font='700 32px '+F;x.fillText(l.a,P,y+36);y+=64}
+    else if(l.t==='big'){x.fillStyle=l.c;x.font='700 64px '+F;x.fillText(l.a,P,y+56);x.fillStyle=TC('--muted','#5C6B74');x.font='400 26px '+F;x.fillText(l.b,P,y+90);y+=96}
+    else{x.fillStyle='#fff';x.fillRect(P,y,W-2*P,46);x.fillStyle=TC('--muted','#5C6B74');x.font='400 26px '+F;x.textAlign='left';x.fillText(l.a,P+16,y+32);x.fillStyle=TC('--primary','#072340');x.font='600 26px '+F;x.textAlign='right';x.fillText(l.b,W-P-16,y+32);x.textAlign='left';y+=54}});
+  x.fillStyle=TC('--ink-faint','#8B9AA3');x.font='400 22px '+F;x.fillText('ประมาณการเพื่อวางแผน ไม่ใช่คำแนะนำทางการเงิน',P,H-40);
   cv.toBlob(b=>{if(!b){toast('สร้างภาพไม่สำเร็จ');return}const f=new File([b],'my-plan-summary.png',{type:'image/png'});
     if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:'สรุปแผนการเงิน'}).catch(()=>{})}
     else{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='my-plan-summary.png';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);toast('บันทึกภาพแล้ว')}},'image/png')}

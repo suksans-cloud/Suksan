@@ -1,4 +1,4 @@
-const CACHE='mff-shell-v59-myplan-v3';
+const CACHE='mff-shell-v60-theme-fix';
 const SHELL=[
   './index.html','./shell.css','./config.js','./data-safety.js','./admin-login.js','./settings-store.js','./themes.js','./reminders.js','./privacy-eye.js',
   './money/index.html','./money/daily.html','./money/monthly.html',
