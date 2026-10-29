@@ -2363,6 +2363,7 @@ function renderHero(){
     const pct=total?((x.amount/total)*100):0;
     return `<div class="asset-legend-item">\n      <div class="asset-legend-dot" style="background:${x.color}"></div>\n      <div class="asset-legend-name">${escapeHtml(x.label)}${x.note?`<small>${escapeHtml(x.note)}</small>`:''}</div>\n      <div class="asset-legend-money">${fmtInt(x.amount)}</div>\n      <div class="asset-legend-pct">${pct.toFixed(1)}%</div>\n    </div>`;
   }).join('') || '<div class="asset-empty">ยังไม่มีข้อมูลการลงทุนจริง</div>';
+  try{ localStorage.setItem('mff_reserve_v1',JSON.stringify({value:Math.round((totals.reserve&&totals.reserve.amount)||0),at:Date.now()})); }catch(e){}
   try{ renderAllocTargets(total,totals); renderTaxTracker(); }catch(e){ console.warn('[alloc/tax]',e); }
 }
 function renderAllocation(){
@@ -3342,7 +3343,7 @@ const FINANCE_SORT_LABELS={
  'change|desc':'เปลี่ยนแปลง (บวกมากสุด)','change|asc':'เปลี่ยนแปลง (ลบมากสุด)'
 };
 function financeSortValue(a,key){
- if(key==='name')return String(a.name||a.ticker||'').toLowerCase();
+ if(key==='name')return financeTab==='fund'?String(a.name||a.ticker||'').toLowerCase():String(a.ticker||a.name||'').toLowerCase(); /* ETF/Stock: by ticker symbol; My funds: by fund name */
  if(key==='price'){
   if(financeTab==='fund'){const n=FUND_NAV[a.ticker]||{};return (n.nav==null||n.nav==='')?-Infinity:Number(n.nav);}
   const d=GF_DATA[a.ticker]||{};return (d.price===''||d.price==null||isNaN(Number(d.price)))?-Infinity:Number(d.price);
@@ -3364,7 +3365,11 @@ function sortFinanceList(list){
 }
 function updateFinanceSortUI(){
  const label=document.getElementById('financeSortLabel');
- if(label)label.textContent='เรียงตาม: '+(FINANCE_SORT_LABELS[financeSort.key+'|'+financeSort.dir]||'ค่าเริ่มต้น');
+ const nameWord=financeTab==='fund'?'Fund name':'Ticker';
+ let txt=FINANCE_SORT_LABELS[financeSort.key+'|'+financeSort.dir]||'ค่าเริ่มต้น';
+ if(financeSort.key==='name')txt=nameWord+(financeSort.dir==='asc'?' (A → Z)':' (Z → A)');
+ if(label)label.textContent='เรียงตาม: '+txt;
+ document.querySelectorAll('.finance-sort-menu button[data-sort="name"]').forEach(b=>{b.textContent=nameWord+(b.dataset.dir==='asc'?' (A → Z)':' (Z → A)');});
  document.querySelectorAll('.finance-sort-menu button').forEach(b=>{
   b.classList.toggle('active', b.dataset.sort===financeSort.key && b.dataset.dir===financeSort.dir);
  });
