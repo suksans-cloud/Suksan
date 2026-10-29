@@ -34,7 +34,7 @@
 .gl-modal{position:fixed;inset:0;z-index:80;background:rgba(10,20,30,.5);display:none;align-items:flex-end;justify-content:center}
 .gl-modal.on{display:flex}
 .gl-sheet{width:100%;max-width:480px;max-height:92vh;overflow:auto;background:var(--bg);color:var(--ink);border-radius:22px 22px 0 0;padding:16px 16px calc(16px + var(--safe-b))}
-.gl-sheet input[type=text],.gl-sheet input[type=number],.gl-sheet select,.gl-sheet textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:11px 12px;font-size:16px;font-family:inherit;margin-bottom:8px}
+.gl-sheet input[type=text],.gl-sheet input[type=number],.gl-sheet input[type=date],.gl-sheet select,.gl-sheet textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:11px 12px;font-size:16px;font-family:inherit;margin-bottom:8px}
 .gl-sheet label.l{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin:6px 0 3px}
 .gl-row{display:flex;gap:8px;align-items:center;margin:8px 0}
 .gl-btn{height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:700 13px inherit;cursor:pointer}
@@ -71,6 +71,7 @@
 <div class="gl-modal" id="modal"><div class="gl-sheet" id="sheet"></div></div>
 <div class="gl-toast" id="toast"></div>
 <script src="../themes.js"></script>
+<script src="../goals-core.js"></script>
 <script>
 (function(){
 'use strict';
@@ -79,42 +80,16 @@ var CATS=['การเงิน','สุขภาพ','การเรียน
 var QS=['ไตรมาส 1 (ม.ค.–มี.ค.)','ไตรมาส 2 (เม.ย.–มิ.ย.)','ไตรมาส 3 (ก.ค.–ก.ย.)','ไตรมาส 4 (ต.ค.–ธ.ค.)'];
 var QEND=['03-31','06-30','09-30','12-31'];
 var goals=[], year=new Date().getFullYear(), ed=null, scope='month';
-var INV=/กองทุน|ลงทุน|RMF|SSF|SCBAM|WelthX|Small bank|หุ้น|ทอง|คริปโต/i;
-var TPL={invest:{t:'เงินลงทุนสะสมต่อปี',c:'การเงิน',link:'invest',period:'year',unit:'บาท'},saveY:{t:'เงินออมต่อปี',c:'การเงิน',link:'saving',period:'year',unit:'บาท'},saveM:{t:'เงินออมต่อเดือน',c:'การเงิน',link:'saving',period:'month',unit:'บาท'},reserve:{t:'เงินสำรองฉุกเฉิน',c:'การเงิน',link:'reserve',period:'year',unit:'บาท'},books:{t:'อ่านหนังสือให้ครบ',c:'การเรียนรู้',link:'books',period:'year',unit:'เล่ม'},other:{t:'',c:'อื่น ๆ',link:'',period:'year',unit:'ครั้ง'}};
+var TPL={invest:{t:'เงินลงทุนสะสมต่อปี',c:'การเงิน',link:'invest',period:'year',unit:'บาท'},saveY:{t:'เงินออมต่อปี',c:'การเงิน',link:'saving',period:'year',unit:'บาท'},saveM:{t:'เงินออมต่อเดือน',c:'การเงิน',link:'saving',period:'month',unit:'บาท'},reserve:{t:'เงินสำรองฉุกเฉิน',c:'การเงิน',link:'reserve',period:'year',unit:'บาท'},books:{t:'อ่านหนังสือให้ครบ',c:'การเรียนรู้',link:'books',period:'year',unit:'เล่ม'},diary:{t:'เขียนไดอารี่ให้สม่ำเสมอ',c:'อื่น ๆ',kind:'habit',freq:'month',times:20,link:'diary',period:'year',unit:'ครั้ง'},habit:{t:'',c:'สุขภาพ',kind:'habit',freq:'week',times:3,link:'',period:'year',unit:'ครั้ง'},other:{t:'',c:'อื่น ๆ',link:'',period:'year',unit:'ครั้ง'}};
 var $=function(i){return document.getElementById(i)};
 function esc(s){return String(s==null?'':s).replace(/[&<>'"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]})}
 function uid(){return 'g_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8)}
 function now(){return new Date().toISOString()}
 function toast(m){var t=$('toast');t.textContent=m;t.style.opacity='1';clearTimeout(toast._t);toast._t=setTimeout(function(){t.style.opacity='0'},2600)}
 function num(n){return Math.round(Number(n)||0).toLocaleString('th-TH')}
-function load(){try{var a=JSON.parse(localStorage.getItem(CK)||'[]');goals=Array.isArray(a)?a:[]}catch(e){goals=[]}goals.forEach(function(g){g.steps=Array.isArray(g.steps)?g.steps:[];g.year=Number(g.year)||year;g.kind=g.kind==='amount'?'amount':'steps';g.link=g.link||'';g.done=g.done?1:0;g.target=Number(g.target)||0;g.current=Number(g.current)||0;g.unit=g.unit||'บาท';g.period=g.period==='month'?'month':'year'})}
+function load(){try{var a=JSON.parse(localStorage.getItem(CK)||'[]');goals=Array.isArray(a)?a:[]}catch(e){goals=[]}goals.forEach(function(g){C.norm(g,year)})}
 function save(){try{localStorage.setItem(CK,JSON.stringify(goals));localStorage.setItem(DIRTY,'1')}catch(e){toast('บันทึกในเครื่องไม่สำเร็จ')}}
-function rj(k){try{var a=JSON.parse(localStorage.getItem(k)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
-function mm(y,m){return String(y)+(m?'-'+('0'+m).slice(-2):'')}
-/* เงินออม = รายรับ − รายจ่ายประจำ − แปรผัน ต่อเดือน (ไม่ติดลบ) · m=0 รวมทั้งปี */
-function savedFrom(y,m){var by={};rj('mff_money_cache_v3').forEach(function(t){if(String(t.month||'').slice(0,4)!==String(y))return;var o=by[t.month]||(by[t.month]={i:0,e:0}),a=Number(t.amount)||0;if(t.type==='income')o.i+=a;else if(t.type==='fixed'||t.type==='variable')o.e+=a});
-  return Object.keys(by).filter(function(k){return !m||k===mm(y,m)}).reduce(function(s,k){return s+Math.max(0,by[k].i-by[k].e)},0)}
-function investFrom(y,m){return rj('mff_money_cache_v3').reduce(function(s,t){return String(t.month||'').indexOf(mm(y,m))===0&&t.type!=='income'&&INV.test(t.category||'')?s+(Number(t.amount)||0):s},0)}
-/* เงินสำรองฉุกเฉิน = ยอดสะสมทุกปีของกองทุน/บัญชีที่เป็น E-Saving (เงินสำรอง) ใน My Portfolio */
-function reserveFrom(){
-  var d;try{d=JSON.parse(localStorage.getItem('khlangthun_portfolio_oldui_latest_v4')||'null')}catch(e){d=null}
-  var funds=d&&Array.isArray(d.funds)?d.funds:[],RE=/e\s*[- ]?saving|esaving|เงินสำรอง/i,seen={},sum=0;
-  funds.forEach(function(f){
-    if(!f||!(f.assetCategoryKey==='reserve'||RE.test(String(f.owner||''))||RE.test(String(f.name||''))))return;
-    var k=String(f.owner||'').trim().toLowerCase()+'|'+String(f.name||'').trim().toLowerCase().replace(/\s+/g,' ');
-    if(seen[k])return;seen[k]=1;
-    var ys=f.years||{};
-    Object.keys(ys).forEach(function(y){
-      var yd=ys[y]||{},pm=yd.planMonths||yd.months||{};
-      var t=Object.keys(pm).reduce(function(a,m){return a+(Number(pm[m])||0)},0);
-      if(!(t>0)&&yd.masterActual!==undefined)t=Number(yd.masterActual)||0;
-      sum+=t;
-    });
-  });
-  return sum;
-}
-function booksFrom(y,m){return rj('mff_bookshelf_cache_v1').filter(function(b){return b.status==='finished'&&String(b.finishedAt||'').indexOf(mm(y,m))===0}).length}
-function mval(g,m){return g.link==='reserve'?reserveFrom():g.link==='saving'?savedFrom(g.year,m):g.link==='invest'?investFrom(g.year,m):g.link==='books'?booksFrom(g.year,m):0}
+var C=window.MFFGoalsCore, rj=C.rj, mm=C.mm, savedFrom=C.savedFrom, investFrom=C.investFrom, reserveFrom=C.reserveFrom, booksFrom=C.booksFrom, mval=C.mval;
 function ref(){var n=new Date();return year===n.getFullYear()?n.getMonth()+1:(year<n.getFullYear()?12:0)}
 function frac(){var n=new Date();if(year<n.getFullYear())return 1;if(year>n.getFullYear())return 0;return (n.getMonth()+n.getDate()/new Date(year,n.getMonth()+1,0).getDate())/12}
 function cur(g){if(!g.link)return g.current;return mval(g,g.period==='month'?(ref()||1):0)}
@@ -122,7 +97,12 @@ function fm(g,n){return num(n)+' '+g.unit}
 /* ประเมิน: st = done / ok / late */
 function evalG(g){
   var p=pct(g),f=frac(),n=new Date(),R=ref();
+  if(g.kind==='habit'){
+    if(year!==n.getFullYear())return{st:'ok',tx:'เป้านิสัยประจำคำนวณเฉพาะปีปัจจุบัน'};
+    var h=C.hEval(g,n);return{st:h.st,tx:h.tx};
+  }
   if(g.kind==='steps'){
+    if(g.due&&!g.done&&p<100&&g.due<C.dstr(n))return{st:'late',tx:'เลยกำหนด '+C.fd(C.pd(g.due))+' · ทำแล้ว '+p+'%'};
     var q=year<n.getFullYear()?4:year>n.getFullYear()?0:Math.floor(n.getMonth()/3)+1;
     var due=g.steps.filter(function(s){return (s.q||1)<=q}),dd=due.filter(function(s){return s.d}).length;
     if(g.done||p>=100)return{st:'done',tx:'สำเร็จครบทุกก้าวแล้ว 🎉'};
@@ -130,6 +110,7 @@ function evalG(g){
     return{st:dd/due.length>=.8?'ok':'late',tx:'ก้าวที่ถึงกำหนด ทำแล้ว '+dd+' / '+due.length};
   }
   var v=cur(g),t=g.target;if(!t)return{st:'ok',tx:'ยังไม่ได้ตั้งตัวเลขเป้าหมาย'};
+  if(g.due&&g.period!=='month'){var de=C.dueEval(g,v,n);if(de)return de}
   if(g.period==='month'){
     if(scope==='month'){var dayF=year===n.getFullYear()?n.getDate()/new Date(year,n.getMonth()+1,0).getDate():1;
       if(v>=t)return{st:'done',tx:'เดือนนี้ผ่านเป้าแล้ว '+fm(g,v)+' / '+fm(g,t)};
@@ -144,9 +125,20 @@ function evalG(g){
 }
 function pct(g){
   if(g.done) return 100;
+  if(g.kind==='habit') return C.pctOf(g,ref()||1);
   if(g.kind==='amount'){return g.target>0?Math.min(100,Math.round(cur(g)/g.target*100)):0}
   if(!g.steps.length) return 0;
   return Math.round(g.steps.filter(function(s){return s.d}).length/g.steps.length*100);
+}
+function hBlock(g){
+  var set={};C.hdates(g).forEach(function(s){set[s]=1});
+  var d=new Date(),dots='',i,x,on;
+  for(i=6;i>=0;i--){x=new Date(d.getFullYear(),d.getMonth(),d.getDate()-i);on=!!set[C.dstr(x)];
+    dots+='<span title="'+C.dstr(x)+'" style="width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;background:'+(on?'var(--primary)':'var(--primary-soft)')+';color:'+(on?'#fff':'var(--ink-soft)')+'">'+x.getDate()+'</span>'}
+  var h='<div style="display:flex;gap:6px;margin-top:8px;justify-content:space-between">'+dots+'</div>';
+  if(g.link==='diary') h+='<div class="gl-row"><a class="gl-btn" href="../diary/index.html" style="display:flex;align-items:center;justify-content:center;flex:1;text-decoration:none">✍️ เขียนไดอารี่วันนี้</a></div>';
+  else{on=!!set[C.dstr(d)];h+='<div class="gl-row"><button type="button" class="gl-btn'+(on?'':' p')+'" data-ck="'+esc(g.id)+'" style="flex:1">'+(on?'✓ เช็กอินวันนี้แล้ว (แตะเพื่อยกเลิก)':'✓ เช็กอินวันนี้')+'</button></div>'}
+  return h;
 }
 function render(){
   $('yLbl').textContent='ปี '+(year+543)+' ('+year+')';
@@ -159,8 +151,9 @@ function render(){
   $('sum').innerHTML='<div class="gl-sum"><div style="font-size:12px;color:var(--ink-soft)">สรุปและประเมิน'+(scope==='month'?' เดือน'+(ref()?mn[ref()-1]:'')+' '+(year+543):'ประจำปี '+(year+543))+'</div><div class="gl-seg"><button type="button" data-sc="month" class="'+(scope==='month'?'on':'')+'">รายเดือน</button><button type="button" data-sc="year" class="'+(scope==='year'?'on':'')+'">รายปี</button></div><div class="gl-sumrow" style="margin-top:8px"><div class="big">'+avg+'%</div><div class="gl-chips" style="margin:0;justify-content:flex-end"><span>✅ '+cnt.done+'</span><span>🔵 '+cnt.ok+'</span><span>🔴 '+cnt.late+'</span></div></div><div class="gl-bar"><span style="width:'+avg+'%"></span></div>'+(grade?'<div style="font-size:12px;font-weight:700;margin-top:6px">'+grade+'</div>':'')+'</div>';
   if(!list.length){$('list').innerHTML='<div class="gl-empty">ยังไม่มีเป้าหมายในปีนี้<br>กดปุ่ม + เพื่อตั้งเป้าหมายแรก<br>เช่น เก็บเงิน 100,000 บาท หรืออ่านหนังสือ 12 เล่ม</div>';return}
   $('list').innerHTML=list.map(function(g,gi){
-    var p=pct(g), h='<div class="gl-card"><div class="gl-top"><h3>'+esc(g.title)+'</h3><span class="r"><span class="gl-tag">'+esc(g.category||'อื่น ๆ')+'</span><button type="button" class="gl-edit" data-edit="'+esc(g.id)+'">แก้ไข</button></span></div>';
-    h+='<div class="gl-bar"><span style="width:'+p+'%"></span></div><div class="gl-pct"><span>'+(g.kind==='amount'?num(cur(g))+' / '+num(g.target)+' '+esc(g.unit)+(g.link?' · '+(g.period==='month'?'เดือนนี้':'ปีนี้')+' · อัตโนมัติ':''):g.steps.filter(function(s){return s.d}).length+' / '+g.steps.length+' ก้าว')+'</span><b>'+p+'%</b></div><div class="gl-ev '+ev[gi].st+'">'+(ev[gi].st==='done'?'✅ ':ev[gi].st==='ok'?'🔵 ตามแผน · ':'🔴 ล่าช้า · ')+esc(ev[gi].tx)+'</div>';
+    var p=pct(g), h='<div class="gl-card"><div class="gl-top"><h3>'+esc(g.title)+'</h3><span class="r"><span class="gl-tag">'+esc(g.category||'อื่น ๆ')+'</span>'+(g.due?'<span class="gl-tag">⏰ '+esc(C.fd(C.pd(g.due)))+'</span>':'')+'<button type="button" class="gl-edit" data-edit="'+esc(g.id)+'">แก้ไข</button></span></div>';
+    h+='<div class="gl-bar"><span style="width:'+p+'%"></span></div><div class="gl-pct"><span>'+(g.kind==='habit'?esc(C.hLabel(g))+' '+C.hcount(g)+' / '+C.hTimes(g)+' ครั้ง'+(g.link==='diary'?' · อัตโนมัติ':''):g.kind==='amount'?num(cur(g))+' / '+num(g.target)+' '+esc(g.unit)+(g.link?' · '+(g.period==='month'?'เดือนนี้':'ปีนี้')+' · อัตโนมัติ':''):g.steps.filter(function(s){return s.d}).length+' / '+g.steps.length+' ก้าว')+'</span><b>'+p+'%</b></div><div class="gl-ev '+ev[gi].st+'">'+(ev[gi].st==='done'?'✅ ':ev[gi].st==='ok'?'🔵 ตามแผน · ':'🔴 ล่าช้า · ')+esc(ev[gi].tx)+'</div>';
+    if(g.kind==='habit') h+=hBlock(g);
     for(var q=1;q<=4;q++){
       var st=g.steps.map(function(s,i){return{s:s,i:i}}).filter(function(x){return (x.s.q||1)===q});
       if(!st.length) continue;
@@ -172,20 +165,27 @@ function render(){
 /* ---------- editor ---------- */
 function openEd(id){
   var g=goals.filter(function(x){return x.id===id})[0];
-  ed=g?JSON.parse(JSON.stringify(g)):{id:uid(),title:'',category:'การเงิน',year:year,kind:'steps',period:'year',target:0,current:0,unit:'บาท',link:'',steps:[],done:0,createdAt:now(),updatedAt:now(),_new:1};
+  ed=g?JSON.parse(JSON.stringify(g)):{id:uid(),title:'',category:'การเงิน',year:year,kind:'steps',period:'year',target:0,current:0,unit:'บาท',link:'',due:'',freq:'week',times:0,checkins:[],steps:[],done:0,createdAt:now(),updatedAt:now(),_new:1};
   paint(); $('modal').classList.add('on');
 }
 function paint(){
   var g=ed, h='';
-  if(g._new&&!g.title&&!g._tpl) h+='<label class="l" for="gTpl">เริ่มจากแม่แบบ</label><select id="gTpl"><option value="">— เลือกประเภทเป้าหมาย —</option><option value="invest">📈 เงินลงทุนสะสมต่อปี</option><option value="saveY">💰 เงินออมต่อปี</option><option value="saveM">🐷 เงินออมต่อเดือน</option><option value="reserve">🛟 เงินสำรองฉุกเฉิน (นับจาก E-Saving เงินสำรอง)</option><option value="books">📚 อ่านหนังสือ (นับจาก My Bookshelf)</option><option value="other">✨ เป้าหมายอื่น ๆ (ตั้งเอง)</option></select>';
+  if(g._new&&!g.title&&!g._tpl) h+='<label class="l" for="gTpl">เริ่มจากแม่แบบ</label><select id="gTpl"><option value="">— เลือกประเภทเป้าหมาย —</option><option value="invest">📈 เงินลงทุนสะสมต่อปี</option><option value="saveY">💰 เงินออมต่อปี</option><option value="saveM">🐷 เงินออมต่อเดือน</option><option value="reserve">🛟 เงินสำรองฉุกเฉิน (นับจาก E-Saving เงินสำรอง)</option><option value="books">📚 อ่านหนังสือ (นับจาก My Bookshelf)</option><option value="diary">✍️ เขียนไดอารี่ (นับจาก My Diary)</option><option value="habit">🏃 นิสัยประจำ (เช็กอินเอง เช่น ออกกำลังกาย)</option><option value="other">✨ เป้าหมายอื่น ๆ (ตั้งเอง)</option></select>';
   h+='<label class="l" for="gT">ชื่อเป้าหมาย</label><input type="text" id="gT" value="'+esc(g.title)+'" placeholder="เช่น เก็บเงินฉุกเฉิน">';
   h+='<label class="l" for="gC">หมวด</label><select id="gC">'+CATS.map(function(c){return '<option'+(c===g.category?' selected':'')+'>'+c+'</option>'}).join('')+'</select>';
-  h+='<label class="l" for="gK">วัดความคืบหน้าแบบ</label><select id="gK"><option value="steps"'+(g.kind==='steps'?' selected':'')+'>ตามก้าวย่อยที่ทำเสร็จ</option><option value="amount"'+(g.kind==='amount'?' selected':'')+'>ตามตัวเลข (เงิน/จำนวน)</option></select>';
+  h+='<label class="l" for="gK">วัดความคืบหน้าแบบ</label><select id="gK"><option value="steps"'+(g.kind==='steps'?' selected':'')+'>ตามก้าวย่อยที่ทำเสร็จ</option><option value="amount"'+(g.kind==='amount'?' selected':'')+'>ตามตัวเลข (เงิน/จำนวน)</option><option value="habit"'+(g.kind==='habit'?' selected':'')+'>นิสัยประจำ (เช็กอินซ้ำ ๆ เช่น ทุกสัปดาห์)</option></select>';
   if(g.kind==='amount'){
     h+='<label class="l" for="gTg">เป้าหมาย</label><input type="number" inputmode="decimal" id="gTg" value="'+(g.target||'')+'"><label class="l" for="gU">หน่วย</label><input type="text" id="gU" value="'+esc(g.unit)+'">';
     h+='<label class="l" for="gL">ตัวเลขปัจจุบัน</label><select id="gL"><option value=""'+(!g.link?' selected':'')+'>กรอกเอง</option><option value="saving"'+(g.link==='saving'?' selected':'')+'>ดึงเงินออมจาก My Money อัตโนมัติ</option><option value="invest"'+(g.link==='invest'?' selected':'')+'>ดึงเงินลงทุนจาก My Money อัตโนมัติ</option><option value="reserve"'+(g.link==='reserve'?' selected':'')+'>ดึงเงินสำรองจาก E-Saving (My Portfolio)</option><option value="books"'+(g.link==='books'?' selected':'')+'>นับหนังสืออ่านจบจาก My Bookshelf</option></select>';
     if(g.link!=='reserve') h+='<label class="l" for="gP">รอบเป้าหมาย</label><select id="gP"><option value="year"'+(g.period!=='month'?' selected':'')+'>ต่อปี (ยอดรวมทั้งปี)</option><option value="month"'+(g.period==='month'?' selected':'')+'>ต่อเดือน (ต้องถึงเป้าทุกเดือน)</option></select>';
     if(!g.link) h+='<input type="number" inputmode="decimal" id="gCu" value="'+(g.current||'')+'" aria-label="ตัวเลขปัจจุบัน">';
+  }
+  if(g.kind==='habit'){
+    h+='<label class="l" for="gFr">ความถี่</label><select id="gFr"><option value="day"'+(g.freq==='day'?' selected':'')+'>ทุกวัน</option><option value="week"'+(g.freq==='week'?' selected':'')+'>ต่อสัปดาห์</option><option value="month"'+(g.freq==='month'?' selected':'')+'>ต่อเดือน</option></select>';
+    if(g.freq!=='day') h+='<label class="l" for="gTm">เป้าหมายกี่ครั้ง'+(g.freq==='month'?'ต่อเดือน':'ต่อสัปดาห์')+'</label><input type="number" inputmode="numeric" id="gTm" min="1" value="'+(g.times||'')+'">';
+    h+='<label class="l" for="gHL">วิธีนับ</label><select id="gHL"><option value=""'+(g.link!=='diary'?' selected':'')+'>เช็กอินเองในหน้านี้</option><option value="diary"'+(g.link==='diary'?' selected':'')+'>นับอัตโนมัติจาก My Diary (วันที่มีบันทึก)</option></select>';
+  }else{
+    h+='<label class="l" for="gDu">กำหนดเสร็จ (ไม่ใส่ก็ได้)</label><input type="date" id="gDu" value="'+esc(g.due||'')+'">';
   }
   h+='<label class="l">ก้าวย่อยรายไตรมาส</label>'+g.steps.map(function(s,i){return '<div class="gl-sr"><input type="text" data-st="'+i+'" value="'+esc(s.t)+'" aria-label="ก้าวย่อย"><select data-sq="'+i+'" aria-label="ไตรมาส">'+[1,2,3,4].map(function(q){return '<option value="'+q+'"'+((s.q||1)===q?' selected':'')+'>Q'+q+'</option>'}).join('')+'</select><button type="button" class="gl-btn" data-todo="'+i+'" aria-label="เพิ่มเป็น To-do" title="เพิ่มเป็น To-do" style="padding:0 10px">To-do</button><button type="button" class="gl-btn" data-rm="'+i+'" aria-label="ลบ" style="width:44px;padding:0">×</button></div>'}).join('');
   h+='<div class="gl-row"><button type="button" class="gl-btn" id="gAdd">+ เพิ่มก้าวย่อย</button></div>';
@@ -197,6 +197,9 @@ function pull(){
   if(!$('gT')) return; var g=ed;
   g.title=$('gT').value.trim(); g.category=$('gC').value; g.kind=$('gK').value; g.done=$('gD').checked?1:0;
   if(g.kind==='amount'){g.target=Number($('gTg').value)||0;g.unit=$('gU').value.trim()||'บาท';g.link=$('gL').value;g.period=$('gP')?$('gP').value:'year';if($('gCu'))g.current=Number($('gCu').value)||0}
+  if($('gDu'))g.due=$('gDu').value||'';
+  if(g.kind==='habit'&&$('gFr')){g.freq=$('gFr').value;g.times=$('gTm')?Math.max(1,Number($('gTm').value)||1):Math.max(1,g.times||1);g.link=$('gHL').value==='diary'?'diary':''}
+  if(g.kind==='steps'&&g.link==='diary')g.link='';
   Array.prototype.forEach.call(document.querySelectorAll('[data-st]'),function(el){var i=+el.getAttribute('data-st');if(g.steps[i])g.steps[i].t=el.value});
   Array.prototype.forEach.call(document.querySelectorAll('[data-sq]'),function(el){var i=+el.getAttribute('data-sq');if(g.steps[i])g.steps[i].q=+el.value});
 }
@@ -218,17 +221,24 @@ $('sheet').addEventListener('click',function(ev){
   if(t.id==='gDel'){if(confirm('ลบเป้าหมายนี้?')){goals=goals.filter(function(x){return x.id!==g.id});save();close();render()}return}
   if(t.id==='gS'){pull();
     if(!g.title){toast('ใส่ชื่อเป้าหมายก่อน');return}
-    g.steps=g.steps.filter(function(s){return (s.t||'').trim()}); g.updatedAt=now(); delete g._new;
+    g.steps=g.steps.filter(function(s){return (s.t||'').trim()}); g.updatedAt=now(); delete g._new; delete g._tpl; C.norm(g,year);
     var ix=goals.findIndex(function(x){return x.id===g.id}); if(ix>=0) goals[ix]=g; else goals.push(g);
     save(); close(); render(); toast('บันทึกแล้ว — ซิงก์ขึ้น Sheets ได้ที่ Setting');
   }
 });
-$('sheet').addEventListener('change',function(ev){var t=ev.target,g;if(t.id==='gTpl'){var T=TPL[t.value];if(T){g=ed;g.title=T.t;g.category=T.c;g.kind='amount';g.link=T.link;g.period=T.period;g.unit=T.unit;g._tpl=1;paint();$('gT').focus()}return}
-  if(t.id==='gK'||t.id==='gL'||t.id==='gP'){pull();paint()}});
+$('sheet').addEventListener('change',function(ev){var t=ev.target,g;if(t.id==='gTpl'){var T=TPL[t.value];if(T){g=ed;g.title=T.t;g.category=T.c;g.kind=T.kind||'amount';g.link=T.link;g.period=T.period;g.unit=T.unit;if(T.freq){g.freq=T.freq;g.times=T.times}g._tpl=1;paint();$('gT').focus()}return}
+  if(t.id==='gK'||t.id==='gL'||t.id==='gP'||t.id==='gFr'){pull();paint()}});
 function close(){$('modal').classList.remove('on');ed=null}
 $('modal').addEventListener('click',function(e){if(e.target===$('modal'))close()});
 $('sum').addEventListener('click',function(e){var b=e.target.getAttribute('data-sc');if(b){scope=b;render()}});
-$('list').addEventListener('click',function(e){var b=e.target.getAttribute('data-edit');if(b)openEd(b)});
+$('list').addEventListener('click',function(e){
+  var t=e.target.closest?e.target.closest('[data-ck],[data-edit]'):null;if(!t)return;
+  var ck=t.getAttribute('data-ck');
+  if(ck){var g=goals.filter(function(x){return x.id===ck})[0];if(!g)return;
+    var td=C.dstr(new Date()),i=g.checkins.indexOf(td);if(i>=0)g.checkins.splice(i,1);else g.checkins.push(td);
+    g.checkins.sort();g.updatedAt=now();save();render();return}
+  var b=t.getAttribute('data-edit');if(b)openEd(b);
+});
 $('list').addEventListener('change',function(e){
   var t=e.target, id=t.getAttribute('data-g'); if(!id) return;
   var g=goals.filter(function(x){return x.id===id})[0]; if(!g) return;

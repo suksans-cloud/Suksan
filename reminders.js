@@ -1,9 +1,27 @@
-/* ตั้งเตือนชำระรายเดือน + DCA — เก็บในเครื่อง (localStorage) */
+/* ตั้งเตือนชำระรายเดือน + DCA
+ * เก็บเป็นรายการ id='reminders' ในแคชตั้งค่า (mff_settings_cache_v1) เพื่อให้ Smart Sync ซิงก์ไปเครื่องอื่นได้
+ * (รูปแบบเดียวกับ settings-store.js) ; คีย์เดิม mff_reminders_v1 ยังคงไว้เป็นสำเนาและใช้ย้ายข้อมูลเก่าครั้งแรก */
 (function(){
 'use strict';
-var KEY='mff_reminders_v1';
-function load(){try{var a=JSON.parse(localStorage.getItem(KEY));return Array.isArray(a)?a:[]}catch(e){return []}}
-function save(l){try{localStorage.setItem(KEY,JSON.stringify(l))}catch(e){}}
+var KEY='mff_reminders_v1', SKEY='mff_settings_cache_v1', DIRTY='mff_sync_dirty_v1_settings', SID='reminders';
+function cache(){try{var a=JSON.parse(localStorage.getItem(SKEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function legacy(){try{var a=JSON.parse(localStorage.getItem(KEY));return Array.isArray(a)?a:[]}catch(e){return[]}}
+function write(l){
+  try{
+    var c=cache().filter(function(x){return x.id!==SID});
+    c.push({id:SID,value:JSON.stringify(l),updatedAt:new Date().toISOString()});
+    localStorage.setItem(SKEY,JSON.stringify(c)); localStorage.setItem(DIRTY,'1');
+  }catch(e){}
+  try{localStorage.setItem(KEY,JSON.stringify(l))}catch(e){}
+}
+function load(){
+  var rec=cache().filter(function(x){return x.id===SID})[0];
+  if(rec){try{var a=JSON.parse(rec.value);return Array.isArray(a)?a:[]}catch(e){return[]}}
+  var old=legacy();
+  if(old.length) write(old); /* ย้ายรายการเดิมในเครื่องขึ้นระบบซิงก์ครั้งแรก */
+  return old;
+}
+function save(l){write(Array.isArray(l)?l:[])}
 function day0(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate())}
 function nextDue(r,from){
   var t=day0(from||new Date());

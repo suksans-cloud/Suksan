@@ -17,8 +17,6 @@
 /* ===== หน้าแรกแบบใหม่ (เลื่อนได้) ===== */
 .mff-home .mff-app{height:auto;min-height:100svh;display:block}
 .mff-home .mff-hero-wrap{padding-bottom:48px}
-.mff-home .mff-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:none;grid-auto-rows:auto;margin-top:0;padding-bottom:4px;gap:12px}
-.mff-home .mff-card{min-height:118px}
 .hm-sum{margin:-30px 16px 0;position:relative;z-index:3}
 .hm-card{padding:16px 16px 14px;border-radius:22px;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;box-shadow:var(--shadow-hero)}
 .hm-head{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;opacity:.92}
@@ -33,9 +31,17 @@
 .hm-row b{white-space:nowrap;overflow:visible;font-size:clamp(11px,3.7vw,14.5px)}
 .hm-row b.sm{font-size:clamp(9.5px,3.1vw,12.5px)}
 .hm-hide .hm-money{filter:blur(9px);user-select:none}
-.hm-act{display:flex;gap:8px;margin-top:10px}
-.hm-btn{flex:1;min-height:46px;border-radius:15px;background:var(--surface);color:var(--primary);display:flex;align-items:center;justify-content:center;text-align:center;font:700 12.5px 'Noto Sans Thai',sans-serif;text-decoration:none;box-shadow:var(--shadow-card);padding:0 6px}
-.hm-btn.gold{flex:1.4;background:var(--gold);color:#072340}
+.hm-menu{margin:14px 16px 0;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:16px 10px 12px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 4px;box-shadow:var(--shadow-card)}
+.hm-mt{grid-column:1/-1;margin:0 8px 2px;font:700 17px Prompt,sans-serif;color:var(--primary)}
+.hm-mt small{display:block;font:400 11.5px 'Noto Sans Thai',sans-serif;color:var(--ink-soft);margin-top:2px}
+.hm-menu a{display:flex;flex-direction:column;align-items:center;text-align:center;text-decoration:none;color:var(--ink);border-radius:16px;padding:4px 2px 6px}
+.hm-menu a:active{background:var(--bg)}
+.hm-ico{width:64px;height:64px;border-radius:50%;margin:0 0 8px;background:radial-gradient(circle at 30% 25%,var(--bg),var(--primary-soft) 70%);box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center}
+.hm-ico svg{width:36px;height:36px;stroke:var(--primary);stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.hm-ico svg .ac{stroke:var(--primary-light)}
+.hm-ico svg .fl{fill:color-mix(in srgb,var(--primary-light) 20%,transparent);stroke:var(--primary-light)}
+.hm-menu strong{font:600 12.5px/1.35 Prompt,sans-serif}
+.hm-menu small.s{font-size:9.5px;color:var(--ink-faint);margin-top:2px}
 .hm-h{margin:18px 20px 8px;font-size:13px;font-weight:700;color:var(--primary)}
 .hm-up{margin:0 16px 20px;display:flex;flex-direction:column;gap:8px}
 .hm-it{display:flex;justify-content:space-between;gap:10px;align-items:center;min-height:52px;padding:10px 14px;border-radius:16px;background:var(--surface);color:var(--ink);text-decoration:none;box-shadow:var(--shadow-card)}
@@ -81,74 +87,19 @@
         <div><small>รายจ่าย/เดือน</small><b class="hm-money" id="hmExp">—</b></div>
       </div>
     </div>
-    <div class="hm-act">
-      <a class="hm-btn gold" href="money/daily.html">+ จดรายจ่าย</a>
-      <a class="hm-btn" href="notes/index.html?new=1">จดโน้ต</a>
-      <a class="hm-btn" href="calendar/index.html?todo=1">เพิ่ม To-do</a>
-    </div>
   </section>
-  <h2 class="hm-h">การเงิน</h2>
-  <div class="mff-grid">
-    <a class="mff-card" href="money/index.html">
-      <span class="icon-wrap">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><circle cx="7" cy="14.2" r="1.1" fill="currentColor" stroke="none"/></svg>
-      </span>
-      <h3>My Money</h3>
-      <p>สรุปรายรับรายจ่าย</p>
-    </a>
-    <a class="mff-card" href="portfolio/index.html">
-      <span class="icon-wrap">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10"/><path d="M10 19V5"/><path d="M16 19v-8"/><path d="M4 19h16"/><path d="M13 6l4.5-2.5L21 6"/><path d="M17.5 3.5V7h3.5"/></svg>
-      </span>
-      <h3>My Portfolio</h3>
-      <p>พอร์ตกองทุนครอบครัว กราฟและแดชบอร์ด</p>
-    </a>
-    <a class="mff-card" href="my-plan/index.html">
-      <span class="icon-wrap">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4.5h6M9 12.5l2 2 4-4.5M9 18h6"/></svg>
-      </span>
-      <h3>My Plan</h3>
-      <p>แผนภาษี ประกันสังคม บ้าน การลงทุน และเกษียณ</p>
-    </a>
-    <a class="mff-card" href="goals/index.html">
-      <span class="icon-wrap">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
-      </span>
-      <h3>My Goals</h3>
-      <p>เป้าหมายและแผนประจำปี</p>
-    </a>
-  </div>
-  <h2 class="hm-h">ชีวิตและการจัดการ</h2>
-  <div class="mff-grid">
-    <a class="mff-card" href="profile/index.html">
-      <span class="avatar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-6 8-6s8 2 8 6"/></svg>
-      </span>
-      <h3>My Profile</h3>
-      <p>ข้อมูลสมาชิกในครอบครัว รูปถ่ายและรายละเอียดส่วนตัว</p>
-    </a>
-    <a class="mff-card" href="bookshelf/index.html">
-      <span class="icon-wrap">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5C4 4 4.6 3.6 5.3 3.6H10a2 2 0 0 1 2 2V20a2 2 0 0 0-2-1.6H4z"/><path d="M20 4.5c0-.5-.6-.9-1.3-.9H14a2 2 0 0 0-2 2V20a2 2 0 0 1 2-1.6h6z"/></svg>
-      </span>
-      <h3>My Bookshelf</h3>
-      <p>คลังหนังสือครอบครัว ค้นหาและยืมอ่านได้</p>
-    </a>
-    <a class="mff-card" href="calendar/index.html">
-      <span class="icon-wrap">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle cx="8.5" cy="14.5" r="1" fill="currentColor"/><circle cx="12" cy="14.5" r="1" fill="currentColor"/></svg>
-      </span>
-      <h3>My Calendar</h3>
-      <p>ปฏิทิน · Google Calendar</p>
-    </a>
-    <a class="mff-card" href="notes/index.html">
-      <span class="icon-wrap">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h9l3.5 3.5V20a.5.5 0 0 1-.5.5H6a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5z"/><path d="M14.5 3.5V7.5h4M9 12h6M9 15.5h4"/></svg>
-      </span>
-      <h3>My Notes</h3>
-      <p>โน้ต และสิ่งที่ต้องทำ</p>
-    </a>
-  </div>
+  <nav class="hm-menu" aria-label="เมนูหลัก">
+    <div class="hm-mt">เมนูหลัก<small>เลือกฟังก์ชันที่ต้องการใช้งาน</small></div>
+    <a href="bookshelf/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><path class="fl" d="M4 4.5c0-.5.6-.9 1.3-.9H10a2 2 0 0 1 2 2V20a2 2 0 0 0-2-1.6H4z"/><path d="M20 4.5c0-.5-.6-.9-1.3-.9H14a2 2 0 0 0-2 2V20a2 2 0 0 1 2-1.6h6z"/><path class="ac" d="M7 8h2.5M7 11h2.5"/></svg></span><strong>My Bookshelf</strong><small class="s">คลังหนังสือ</small></a>
+    <a href="calendar/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><rect class="fl" x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path class="ac" d="M8.5 14.5h.01M12 14.5h.01M15.5 14.5h.01M8.5 17h.01M12 17h.01"/></svg></span><strong>My Calendar</strong><small class="s">ปฏิทิน</small></a>
+    <a href="diary/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><path class="fl" d="M6.5 3.5h11a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z"/><path d="M9 3.5v17"/><path class="ac" d="M12.5 8.5H16M12.5 12H16"/></svg></span><strong>My Diary</strong><small class="s">บันทึกประจำวัน</small></a>
+    <a href="goals/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle class="ac" cx="12" cy="12" r="4.5"/><circle class="fl" cx="12" cy="12" r="1"/></svg></span><strong>My Goals</strong><small class="s" id="hmGoalSub">เป้าหมายประจำปี</small></a>
+    <a href="money/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><rect class="fl" x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><circle class="ac" cx="16.5" cy="14.5" r="1.3"/></svg></span><strong>My Money</strong><small class="s">สรุปรายรับรายจ่าย</small></a>
+    <a href="notes/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><path class="fl" d="M6 3.5h9l3.5 3.5V20a.5.5 0 0 1-.5.5H6a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5z"/><path d="M14.5 3.5V7.5h4"/><path class="ac" d="M9 12h6M9 15.5h4"/></svg></span><strong>My Notes</strong><small class="s">โน้ต · To-do</small></a>
+    <a href="my-plan/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><rect class="fl" x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4.5h6"/><path class="ac" d="M9 12.5l2 2 4-4.5M9 18h6"/></svg></span><strong>My Plan</strong><small class="s">ภาษี · เกษียณ</small></a>
+    <a href="portfolio/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><path d="M4 19V11M10 19V6M16 19v-6"/><path d="M3.5 19.5h17"/><path class="ac" d="M13 7l4-3 4 2.5M17 4v3.5h3.5"/></svg></span><strong>My Portfolio</strong><small class="s">พอร์ตกองทุน</small></a>
+    <a href="profile/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><circle class="fl" cx="12" cy="8" r="4"/><path class="ac" d="M4.5 20c0-3.8 3.4-6 7.5-6s7.5 2.2 7.5 6"/></svg></span><strong>My Profile</strong><small class="s">สมาชิกครอบครัว</small></a>
+  </nav>
   <h2 class="hm-h">วันนี้และใกล้ถึงกำหนด</h2>
   <div class="hm-up" id="hmUp"></div>
 </div>
@@ -176,6 +127,7 @@
 </nav>
 
 <script src="reminders.js"></script>
+<script src="goals-core.js"></script>
 <script src="config.js"></script>
 <script src="admin-login.js"></script>
 <script src="settings-store.js"></script>
@@ -518,11 +470,18 @@ if('serviceWorker' in navigator){
   var up=notes.filter(function(n){return n.due&&n.due<=ls&&!(n.kind==='check'&&n.items.length&&n.items.every(function(i){return i.d}))})
     .sort(function(a,b){return a.due.localeCompare(b.due)}).slice(0,4);
   var mo=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-  el('hmUp').innerHTML=up.length?up.map(function(n){
+  var rows=up.map(function(n){
     var p=n.due.split('-'), late=n.due<td, isToday=n.due===td;
     var sub=n.kind==='check'?(n.items.filter(function(i){return !i.d}).length+' รายการที่ยังไม่เสร็จ'):(n.body||'').slice(0,40);
-    return '<a class="hm-it" href="notes/index.html"><div><b>'+esc(n.title||sub||'โน้ต')+'</b><small>'+esc(sub)+'</small></div><em class="'+(late?'late':'')+'">'+(late?'เลยกำหนด ':isToday?'วันนี้ ':'')+(+p[2])+' '+mo[+p[1]-1]+'</em></a>';
-  }).join(''):'<div class="hm-none">ไม่มีรายการใกล้ถึงกำหนด</div>';
+    return {k:n.due,h:'<a class="hm-it" href="notes/index.html"><div><b>'+esc(n.title||sub||'โน้ต')+'</b><small>'+esc(sub)+'</small></div><em class="'+(late?'late':'')+'">'+(late?'เลยกำหนด ':isToday?'วันนี้ ':'')+(+p[2])+' '+mo[+p[1]-1]+'</em></a>'};
+  });
+  /* เป้าหมาย (My Goals): นิสัยประจำที่ยังไม่ทำ · เป้าใกล้ครบกำหนด · เป้าตัวเลขที่ช้ากว่าแผน — รวมในรายการเดียวกับโน้ต */
+  try{ if(window.MFFGoalsCore) MFFGoalsCore.upcoming(d).forEach(function(r){
+    rows.push({k:r.k,h:'<a class="hm-it" href="goals/index.html"><div><b>🎯 '+esc(r.title||'เป้าหมาย')+'</b><small>'+esc(r.sub)+'</small></div><em class="'+(r.late?'late':'')+'">'+esc(r.em)+'</em></a>'});
+  }); }catch(e){}
+  rows.sort(function(a,b){return String(a.k).localeCompare(String(b.k))});
+  el('hmUp').innerHTML=rows.length?rows.slice(0,6).map(function(r){return r.h}).join(''):'<div class="hm-none">ไม่มีรายการใกล้ถึงกำหนด</div>';
+  try{ var gs=window.MFFGoalsCore&&MFFGoalsCore.summary(d), gp=document.getElementById('hmGoalSub'); if(gs&&gs.n&&gp) gp.textContent='เป้าหมายปีนี้ คืบหน้า '+gs.avg+'%'; }catch(e){}
   /* ซ่อน/แสดงตัวเลขเงิน */
   var card=document.querySelector('.hm-card');
   var hid=false;try{hid=localStorage.getItem('mff_home_hide')==='1'}catch(e){}

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My Diary — My Family Funds</title>
+<meta name="theme-color" content="#072340">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shell.css">
+<script src="../data-safety.js"></script>
+<style>
+.dr-stats{display:flex;gap:8px;padding:12px 16px 0}
+.dr-stat{flex:1;min-width:0;background:var(--surface,#fff);border:1px solid var(--line,#E1E6EA);border-radius:14px;padding:10px 12px}
+.dr-stat b{display:block;font-size:19px;color:var(--primary,#072340);line-height:1.2}
+.dr-stat span{font-size:11.5px;color:var(--ink-soft,#5C6B74)}
+.dr-bar{padding:12px 16px 0}
+.dr-bar input{width:100%;height:44px;border-radius:14px;border:1px solid var(--line,#E1E6EA);background:var(--surface,#fff);color:var(--ink,#2E3A42);padding:0 14px;font-size:16px;font-family:inherit;box-sizing:border-box}
+.dr-chips{display:flex;gap:8px;overflow-x:auto;padding:10px 16px 4px;scrollbar-width:none}
+.dr-chip{flex:none;height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line,#E1E6EA);background:var(--surface,#fff);color:var(--ink-soft,#5C6B74);font:600 12.5px inherit;font-family:inherit;cursor:pointer}
+.dr-chip.on{background:var(--primary,#072340);color:#fff;border-color:var(--primary,#072340)}
+.dr-list{padding:6px 16px 110px}
+.dr-card{display:block;width:100%;text-align:left;font:inherit;margin-bottom:10px;padding:12px 14px;border-radius:16px;border:1px solid var(--line,#E1E6EA);background:var(--surface,#fff);color:var(--ink,#2E3A42);cursor:pointer;box-sizing:border-box}
+.dr-card .top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
+.dr-card .dt{font-size:12px;font-weight:700;color:var(--ink-soft,#5C6B74)}
+.dr-card .mo{font-size:20px;line-height:1}
+.dr-card h4{margin:0 0 3px;font-size:14.5px;line-height:1.35}
+.dr-card p{margin:0;font-size:13px;line-height:1.55;color:var(--ink-soft,#5C6B74);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap;word-break:break-word}
+.dr-empty{text-align:center;color:var(--ink-soft,#5C6B74);font-size:13.5px;line-height:1.7;padding:36px 20px}
+.dr-fab{position:fixed;right:18px;bottom:calc(22px + env(safe-area-inset-bottom,0px));width:58px;height:58px;border-radius:50%;border:0;background:var(--primary,#072340);color:#fff;font-size:30px;box-shadow:0 8px 22px -8px rgba(0,0,0,.45);cursor:pointer;z-index:60}
+.dr-modal{position:fixed;inset:0;background:rgba(10,20,30,.5);display:none;align-items:flex-end;justify-content:center;z-index:100}
+.dr-modal.on{display:flex}
+.dr-sheet{width:100%;max-width:560px;max-height:94vh;overflow:auto;background:var(--surface,#fff);color:var(--ink,#2E3A42);border-radius:22px 22px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px));box-sizing:border-box}
+.dr-row{display:flex;gap:8px;margin-top:10px}
+.dr-row>*{flex:1}
+.dr-sheet input[type=text],.dr-sheet input[type=date],.dr-sheet textarea{width:100%;box-sizing:border-box;border-radius:12px;border:1px solid var(--line,#E1E6EA);background:var(--bg,#F2F4F6);color:var(--ink,#2E3A42);padding:10px 12px;font-size:16px;font-family:inherit;margin-top:10px}
+.dr-sheet textarea{min-height:46vh;line-height:1.7;resize:vertical}
+.dr-moods{display:flex;gap:6px;margin-top:12px}
+.dr-mood{flex:1;height:46px;border-radius:12px;border:1px solid var(--line,#E1E6EA);background:var(--bg,#F2F4F6);font-size:23px;cursor:pointer}
+.dr-mood.on{border-color:var(--primary,#072340);background:var(--primary-soft,#E3EBF1);box-shadow:0 0 0 2px var(--primary,#072340) inset}
+.dr-btn{height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line,#E1E6EA);background:var(--surface,#fff);color:var(--ink,#2E3A42);font:700 13px inherit;font-family:inherit;cursor:pointer}
+.dr-btn.p{background:var(--primary,#072340);color:#fff;border-color:var(--primary,#072340)}
+.dr-btn.d{color:#B5422B}
+.dr-saved{font-size:11.5px;color:var(--ink-soft,#5C6B74);min-height:16px;margin-top:6px}
+.dr-lock{position:fixed;inset:0;z-index:200;background:var(--bg,#F2F4F6);color:var(--ink,#2E3A42);display:none;align-items:center;justify-content:center;padding:24px}
+.dr-lock.on{display:flex}
+.dr-lock .box{width:100%;max-width:320px;text-align:center}
+.dr-lock input{width:100%;box-sizing:border-box;height:52px;text-align:center;letter-spacing:8px;font-size:22px;border-radius:14px;border:1px solid var(--line,#E1E6EA);background:var(--surface,#fff);color:var(--ink,#2E3A42);margin:14px 0 10px}
+.dr-toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#14211D;color:#fff;padding:10px 16px;border-radius:999px;font-size:12.5px;z-index:300;opacity:0;transition:opacity .2s;max-width:86vw;text-align:center}
+</style>
+</head>
+<body>
+<div class="mff-app">
+  <div class="mff-hero-wrap" style="padding-bottom:20px;border-radius:0 0 28px 28px">
+    <div class="mff-topbar">
+      <a class="back" href="../index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 5 8 12l7 7"/></svg>หน้าแรก</a>
+      <button type="button" id="menuBtn" aria-label="เมนู" style="background:none;border:0;color:var(--primary);font-size:26px;font-weight:700;width:44px;height:44px;cursor:pointer">⋯</button>
+    </div>
+    <div class="mff-hero" style="padding-top:0">
+      <p class="eyebrow" style="margin-bottom:2px">My Diary</p>
+      <h1 style="font-size:19px;white-space:nowrap">บันทึกประจำวัน</h1>
+    </div>
+  </div>
+  <div class="dr-stats" id="stats"></div>
+  <div class="dr-bar"><input id="q" type="search" placeholder="ค้นหาในบันทึก" aria-label="ค้นหาในบันทึก"></div>
+  <div class="dr-chips" id="chips"></div>
+  <div class="dr-list" id="list"></div>
+</div>
+<button class="dr-fab" id="fab" type="button" aria-label="เขียนบันทึก">✎</button>
+
+<div class="dr-modal" id="modal"><div class="dr-sheet" id="sheet"></div></div>
+<div class="dr-modal" id="menuModal"><div class="dr-sheet">
+  <div class="dr-row"><button class="dr-btn" id="mPin" type="button"></button></div>
+  <div class="dr-row" id="mPinOffRow"><button class="dr-btn" id="mPinOff" type="button">ปิดล็อก PIN</button></div>
+  <div class="dr-row"><button class="dr-btn" id="mExport" type="button">ส่งออกเป็นไฟล์ข้อความ (.txt)</button></div>
+  <div class="dr-row"><button class="dr-btn" id="mClose" type="button">ปิด</button></div>
+  <p style="font-size:11.5px;color:var(--ink-soft,#5C6B74);line-height:1.6;margin:10px 0 0">PIN เป็นแค่การล็อกหน้าจอของแอปบนเครื่องนี้ ไม่ใช่การเข้ารหัสข้อมูล ข้อมูลยังซิงก์ขึ้น Google Sheets ของคุณตามปกติ (แท็บ Diary)</p>
+</div></div>
+
+<div class="dr-lock" id="lock"><div class="box">
+  <div style="font-size:38px">🔒</div>
+  <h2 style="margin:8px 0 0;font-size:18px">My Diary</h2>
+  <p style="margin:6px 0 0;font-size:13px;color:var(--ink-soft,#5C6B74)">ใส่ PIN เพื่อเปิดบันทึก</p>
+  <input id="lockIn" type="password" inputmode="numeric" autocomplete="off" maxlength="6" aria-label="PIN">
+  <button class="dr-btn p" id="lockGo" type="button" style="width:100%">เปิด</button>
+  <p id="lockMsg" style="font-size:12.5px;color:#B5422B;min-height:18px;margin:8px 0 0"></p>
+  <button class="dr-btn" id="lockForgot" type="button" style="width:100%;margin-top:6px;font-weight:600">ลืม PIN</button>
+</div></div>
+<div class="dr-toast" id="toast"></div>
+
+<script src="../themes.js"></script>
+<script>
+(function(){
+'use strict';
+var CK='mff_diary_cache_v1', DIRTY='mff_sync_dirty_v1_diary', PK='mff_diary_pin_v1', UK='mff_diary_unlocked_v1';
+var MOODS=['','😞','😕','😐','🙂','😄'];
+var MNAME=['','แย่มาก','ไม่ค่อยดี','เฉย ๆ','ดี','ดีมาก'];
+var items=[], q='', month='all', ed=null, saveT=null, unlocked=false;
+var $=function(i){return document.getElementById(i)};
+function esc(s){return String(s==null?'':s).replace(/[&<>'"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]})}
+function pad(n){return String(n).padStart(2,'0')}
+function ymd(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function today(){return ymd(new Date())}
+function now(){return new Date().toISOString()}
+function parse(s){var p=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||'');return p?new Date(+p[1],+p[2]-1,+p[3]):null}
+function thDate(s,long){var d=parse(s);if(!d)return s||'';return d.toLocaleDateString('th-TH',long?{weekday:'long',day:'numeric',month:'long',year:'numeric'}:{weekday:'short',day:'numeric',month:'short',year:'numeric'})}
+function thMonth(m){var d=parse(m+'-01');return d?d.toLocaleDateString('th-TH',{month:'short',year:'2-digit'}):m}
+function toast(m){var t=$('toast');t.textContent=m;t.style.opacity='1';clearTimeout(toast._t);toast._t=setTimeout(function(){t.style.opacity='0'},2400)}
+function norm(e){
+  if(!e.date&&/^dy_\d{4}-\d{2}-\d{2}$/.test(e.id||'')) e.date=e.id.slice(3);
+  e.title=e.title||''; e.body=e.body||''; e.mood=Math.max(0,Math.min(5,Number(e.mood)||0));
+  return e;
+}
+function load(){
+  var a=[];try{a=JSON.parse(localStorage.getItem(CK)||'[]')}catch(e){}
+  items=(Array.isArray(a)?a:[]).filter(function(x){return x&&x.id}).map(norm).filter(function(x){return parse(x.date)});
+  items.sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:0});
+}
+function save(){try{localStorage.setItem(CK,JSON.stringify(items));localStorage.setItem(DIRTY,'1')}catch(e){toast('บันทึกในเครื่องไม่สำเร็จ')}}
+function byDate(d){return items.filter(function(e){return e.date===d})[0]}
+
+/* ---------- สถิติ ---------- */
+function streak(){
+  var set={};items.forEach(function(e){if((e.body||e.title))set[e.date]=1});
+  var d=new Date(); if(!set[ymd(d)]) d.setDate(d.getDate()-1);
+  var n=0; while(set[ymd(d)]){n++;d.setDate(d.getDate()-1)} return n;
+}
+function renderStats(){
+  var mo=today().slice(0,7), cm=items.filter(function(e){return e.date.slice(0,7)===mo}).length;
+  $('stats').innerHTML='<div class="dr-stat"><b>'+items.length+'</b><span>บันทึกทั้งหมด</span></div>'+
+    '<div class="dr-stat"><b>'+cm+'</b><span>เดือนนี้</span></div>'+
+    '<div class="dr-stat"><b>'+streak()+'</b><span>วันต่อเนื่อง</span></div>';
+}
+
+/* ---------- รายการ ---------- */
+function visible(){
+  var k=q.trim().toLowerCase();
+  return items.filter(function(e){
+    if(month!=='all'&&e.date.slice(0,7)!==month) return false;
+    if(!k) return true;
+    return (e.title+' '+e.body).toLowerCase().indexOf(k)>=0;
+  });
+}
+function renderChips(){
+  var ms=[];items.forEach(function(e){var m=e.date.slice(0,7);if(ms.indexOf(m)<0)ms.push(m)});
+  if(month!=='all'&&ms.indexOf(month)<0) month='all';
+  $('chips').innerHTML=ms.length?['all'].concat(ms).map(function(m){
+    return '<button type="button" class="dr-chip'+(m===month?' on':'')+'" data-m="'+m+'">'+(m==='all'?'ทั้งหมด':esc(thMonth(m)))+'</button>';
+  }).join(''):'';
+}
+function render(){
+  renderStats();renderChips();
+  var v=visible(), h='';
+  if(!v.length){
+    h='<div class="dr-empty">'+(items.length?'ไม่พบบันทึกที่ค้นหา':'ยังไม่มีบันทึก<br>แตะปุ่ม ✎ เพื่อเขียนบันทึกของวันนี้')+'</div>';
+  }else{
+    v.forEach(function(e){
+      h+='<button type="button" class="dr-card" data-d="'+e.date+'"><div class="top"><span class="dt">'+esc(thDate(e.date))+'</span><span class="mo">'+(MOODS[e.mood]||'')+'</span></div>'+
+        (e.title?'<h4>'+esc(e.title)+'</h4>':'')+(e.body?'<p>'+esc(e.body)+'</p>':'')+'</button>';
+    });
+  }
+  $('list').innerHTML=h;
+}
+
+/* ---------- ตัวแก้ไข ---------- */
+function openEditor(date){
+  date=date||today();
+  var ex=byDate(date);
+  ed={date:date,mood:ex?ex.mood:0};
+  $('sheet').innerHTML=
+    '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><b style="font-size:15px">เขียนบันทึก</b><span class="dr-saved" id="drSaved"></span></div>'+
+    '<input type="date" id="eDate" value="'+date+'" aria-label="วันที่">'+
+    '<div class="dr-moods" id="eMoods">'+[1,2,3,4,5].map(function(i){return '<button type="button" class="dr-mood'+(ed.mood===i?' on':'')+'" data-m="'+i+'" aria-label="'+MNAME[i]+'">'+MOODS[i]+'</button>'}).join('')+'</div>'+
+    '<input type="text" id="eTitle" placeholder="หัวข้อ (ไม่ใส่ก็ได้)" maxlength="120" value="'+esc(ex?ex.title:'')+'">'+
+    '<textarea id="eBody" placeholder="วันนี้เป็นอย่างไรบ้าง...">'+esc(ex?ex.body:'')+'</textarea>'+
+    '<div class="dr-row">'+(ex?'<button type="button" class="dr-btn d" id="eDel">ลบ</button>':'')+'<button type="button" class="dr-btn p" id="eDone">เสร็จ</button></div>';
+  $('modal').classList.add('on');
+  if(!ex) setTimeout(function(){var b=$('eBody');if(b)b.focus()},60);
+}
+function commit(quiet){
+  if(!ed) return;
+  var title=($('eTitle').value||'').trim(), body=($('eBody').value||'').replace(/\s+$/,''), ex=byDate(ed.date);
+  if(!title&&!body&&!ed.mood) return; /* ไม่สร้างบันทึกว่าง */
+  if(ex&&ex.title===title&&ex.body===body&&ex.mood===ed.mood) return;
+  var t=now();
+  if(ex){ex.title=title;ex.body=body;ex.mood=ed.mood;ex.updatedAt=t}
+  else items.push({id:'dy_'+ed.date,date:ed.date,title:title,body:body,mood:ed.mood,createdAt:t,updatedAt:t});
+  items.sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:0});
+  save();
+  if(!quiet){var s=$('drSaved');if(s)s.textContent='บันทึกในเครื่องแล้ว'}
+}
+function schedule(){clearTimeout(saveT);saveT=setTimeout(function(){commit();render()},700)}
+function closeEditor(){clearTimeout(saveT);commit(true);ed=null;$('modal').classList.remove('on');render()}
+
+$('sheet').addEventListener('input',function(e){if(e.target.id==='eTitle'||e.target.id==='eBody')schedule()});
+$('sheet').addEventListener('change',function(e){
+  if(e.target.id==='eDate'){
+    var nd=e.target.value; if(!parse(nd)){e.target.value=ed.date;return}
+    clearTimeout(saveT);commit(true);openEditor(nd);render();
+  }
+});
+$('sheet').addEventListener('click',function(e){
+  var m=e.target.closest('.dr-mood');
+  if(m){var v=+m.dataset.m;ed.mood=(ed.mood===v)?0:v;
+    Array.prototype.forEach.call($('eMoods').children,function(b){b.classList.toggle('on',+b.dataset.m===ed.mood)});
+    commit();render();return}
+  if(e.target.id==='eDone'){closeEditor();return}
+  if(e.target.id==='eDel'){
+    if(!confirm('ลบบันทึกของวันที่นี้ใช่ไหม? ลบแล้วกู้คืนไม่ได้'))return;
+    clearTimeout(saveT);items=items.filter(function(x){return x.date!==ed.date});save();ed=null;
+    $('modal').classList.remove('on');render();toast('ลบแล้ว');
+  }
+});
+$('modal').addEventListener('click',function(e){if(e.target===$('modal'))closeEditor()});
+$('fab').onclick=function(){openEditor(today())};
+$('list').addEventListener('click',function(e){var c=e.target.closest('.dr-card');if(c)openEditor(c.dataset.d)});
+$('chips').addEventListener('click',function(e){var c=e.target.closest('.dr-chip');if(!c)return;month=c.dataset.m;render()});
+$('q').addEventListener('input',function(){q=this.value;render()});
+
+/* ---------- PIN ---------- */
+function sha(s){
+  if(window.crypto&&crypto.subtle&&window.TextEncoder){
+    return crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)).then(function(b){return Array.prototype.map.call(new Uint8Array(b),function(x){return pad(x.toString(16))}).join('')});
+  }
+  var h=5381;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return Promise.resolve('d'+h);
+}
+function pinRec(){try{return JSON.parse(localStorage.getItem(PK)||'null')}catch(e){return null}}
+function hasPin(){var r=pinRec();return !!(r&&r.h)}
+function setPin(){
+  var a=prompt('ตั้ง PIN ตัวเลข 4-6 หลัก');if(a==null)return;
+  if(!/^\d{4,6}$/.test(a)){toast('PIN ต้องเป็นตัวเลข 4-6 หลัก');return}
+  var b=prompt('ใส่ PIN อีกครั้งเพื่อยืนยัน');if(b==null)return;
+  if(a!==b){toast('PIN ไม่ตรงกัน');return}
+  var salt=Math.random().toString(36).slice(2,10);
+  sha(salt+a).then(function(h){localStorage.setItem(PK,JSON.stringify({s:salt,h:h}));try{sessionStorage.setItem(UK,'1')}catch(e){}toast('ตั้ง PIN แล้ว');menuPaint()});
+}
+function showLock(){$('lock').classList.add('on');$('lockMsg').textContent='';$('lockIn').value='';setTimeout(function(){$('lockIn').focus()},80)}
+function tryUnlock(){
+  var r=pinRec(),v=$('lockIn').value;if(!r)return unlock();
+  sha(r.s+v).then(function(h){
+    if(h===r.h){try{sessionStorage.setItem(UK,'1')}catch(e){}unlock()}
+    else{$('lockMsg').textContent='PIN ไม่ถูกต้อง';$('lockIn').value=''}
+  });
+}
+function unlock(){unlocked=true;$('lock').classList.remove('on');load();render()}
+$('lockGo').onclick=tryUnlock;
+$('lockIn').addEventListener('keydown',function(e){if(e.key==='Enter')tryUnlock()});
+$('lockForgot').onclick=function(){
+  if(!confirm('รีเซ็ต PIN? บันทึกของคุณจะไม่ถูกลบ แต่ล็อกจะถูกปิด (PIN เป็นแค่ล็อกหน้าจอบนเครื่องนี้)'))return;
+  localStorage.removeItem(PK);unlock();toast('ปิดล็อกแล้ว ตั้ง PIN ใหม่ได้จากเมนู ⋯');
+};
+
+/* ---------- เมนู ---------- */
+function menuPaint(){$('mPin').textContent=hasPin()?'เปลี่ยน PIN':'ตั้ง PIN ล็อกหน้านี้';$('mPinOffRow').style.display=hasPin()?'':'none'}
+$('menuBtn').onclick=function(){menuPaint();$('menuModal').classList.add('on')};
+$('mClose').onclick=function(){$('menuModal').classList.remove('on')};
+$('menuModal').addEventListener('click',function(e){if(e.target===$('menuModal'))$('menuModal').classList.remove('on')});
+$('mPin').onclick=function(){$('menuModal').classList.remove('on');setPin()};
+$('mPinOff').onclick=function(){
+  if(!confirm('ปิดล็อก PIN ของ My Diary?'))return;
+  localStorage.removeItem(PK);$('menuModal').classList.remove('on');toast('ปิดล็อกแล้ว');
+};
+$('mExport').onclick=function(){
+  $('menuModal').classList.remove('on');
+  if(!items.length){toast('ยังไม่มีบันทึกให้ส่งออก');return}
+  var out=items.slice().sort(function(a,b){return a.date<b.date?-1:1}).map(function(e){
+    return '=== '+thDate(e.date,true)+(e.mood?'  '+MOODS[e.mood]:'')+' ===\n'+(e.title?e.title+'\n':'')+(e.body||'')+'\n';
+  }).join('\n');
+  try{
+    var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([out],{type:'text/plain;charset=utf-8'}));
+    a.download='my-diary-'+today()+'.txt';document.body.appendChild(a);a.click();
+    setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500);
+  }catch(e){toast('ส่งออกไม่สำเร็จ')}
+};
+
+window.addEventListener('storage',function(e){if(e.key===CK&&unlocked&&!ed){load();render()}});
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&unlocked&&!ed){load();render()}});
+
+/* เริ่มต้น */
+var needLock=hasPin()&&(function(){try{return sessionStorage.getItem(UK)!=='1'}catch(e){return true}})();
+if(needLock) showLock(); else unlock();
+var np=new URLSearchParams(location.search).get('new');
+if(np&&!needLock) openEditor(today());
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('../sw.js').catch(function(){})})}
+})();
+</script>
+</body>
+</html>

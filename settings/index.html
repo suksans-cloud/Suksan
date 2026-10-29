@@ -343,6 +343,7 @@
       return '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #e6ebf2"><div style="min-width:0"><b style="font-size:13px">'+(r.type==='dca'?'📈 ':'🧾 ')+esc(r.name)+'</b><br><small style="color:var(--ink-soft)">'+w+(r.amount?' · ฿'+Number(r.amount).toLocaleString('th-TH'):'')+' · เตือนก่อน '+r.lead+' วัน'+(d?' · ครั้งถัดไป '+d.toLocaleDateString('th-TH',{day:'numeric',month:'short'}):'')+'</small></div><button type="button" data-i="'+i+'" aria-label="ลบ" style="border:0;background:none;font-size:20px;min-width:40px;min-height:40px">×</button></div>';
     }).join(''):'<div style="font-size:12.5px;color:var(--ink-soft);padding:6px 0">ยังไม่มีรายการ</div>';
   }
+  window.addEventListener('mff-local-updated',function(){try{paint()}catch(e){}});
   $('remMode').onchange=function(){var e=this.value==='every';$('remDay').style.display=e?'none':'';$('remEveryBox').style.display=e?'flex':'none'};
   $('remList').onclick=function(e){var b=e.target.closest('button');if(!b)return;var l=MFFRem.load();l.splice(+b.dataset.i,1);MFFRem.save(l);paint()};
   $('remAdd').onclick=function(){
@@ -440,6 +441,9 @@ document.getElementById('btnSaveSheets').addEventListener('click',()=>{
 renderSheetsStatus();
 
 /* ---------- Smart Sync: three-way merge with conflict protection ---------- */
+const glD=v=>/^\d{4}-\d{2}-\d{2}$/.test(String(v||''))?String(v):'';
+const glX=g=>Object.assign({},g,{due:glD(g.due),freq:(g.freq==='day'||g.freq==='month')?g.freq:'week',times:Math.max(0,Number(g.times)||0),checkins:Array.from(new Set((Array.isArray(g.checkins)?g.checkins:[]).map(String).filter(glD))).sort()});
+const drGuard=v=>{v=String(v==null?'':v);return /^[=+\-@]/.test(v)?"'"+v:v;};
 const SYNC_TARGETS = [
   { key:'daily', name:'📆 ค่าใช้จ่ายรายวัน', cacheKey:'mff_daily_cache_v1', tab:'DailyExpenses', range:'A:G',
     headers:['ID','Date','Category','Amount','Note','CreatedAt','UpdatedAt'],
@@ -461,14 +465,18 @@ const SYNC_TARGETS = [
     headers:['ID','Title','Body','Kind','Items','Color','Pinned','Due','CalEventId','Archived','CreatedAt','UpdatedAt','DueTime'],
     toRow:n=>[n.id,n.title||'',n.body||'',n.kind||'note',JSON.stringify(n.items||[]),n.color||'default',n.pinned?1:0,n.due||'',n.calId||'',n.archived?1:0,n.createdAt||'',n.updatedAt||'',(n.dueTime?("'"+n.dueTime):'')],
     fromRow:r=>{ let it=[]; try{const a=JSON.parse(r[4]||'[]');if(Array.isArray(a))it=a;}catch(e){} return {id:r[0],title:r[1]||'',body:r[2]||'',kind:r[3]||'note',items:it,color:r[5]||'default',pinned:Number(r[6])?1:0,due:r[7]||'',calId:r[8]||'',archived:Number(r[9])?1:0,createdAt:r[10]||'',updatedAt:r[11]||'',...(/^\d{1,2}:\d{2}/.test(String(r[12]||''))?{dueTime:String(r[12]).replace(/^(\d{1,2}):(\d{2}).*$/,(m,h,mi)=>String(h).padStart(2,'0')+':'+mi)}:{})}; }, lastSyncKey:'sheet_last_sync_notes' },
-  { key:'goals', name:'🎯 My Goals', cacheKey:'mff_goals_cache_v1', tab:'Goals', range:'A:N',
-    headers:['ID','Title','Category','Year','Kind','Target','Current','Unit','Link','Steps','Done','CreatedAt','UpdatedAt','Period'],
-    toRow:g=>[g.id,g.title||'',g.category||'',g.year||'',g.kind||'steps',g.target||0,g.current||0,g.unit||'',g.link||'',JSON.stringify(g.steps||[]),g.done?1:0,g.createdAt||'',g.updatedAt||'',g.period||'year'],
-    fromRow:r=>{ let st=[]; try{const a=JSON.parse(r[9]||'[]');if(Array.isArray(a))st=a;}catch(e){} return {id:r[0],title:r[1]||'',category:r[2]||'',year:Number(r[3])||new Date().getFullYear(),kind:r[4]||'steps',target:Number(r[5])||0,current:Number(r[6])||0,unit:r[7]||'บาท',link:r[8]||'',steps:st,done:Number(r[10])?1:0,createdAt:r[11]||'',updatedAt:r[12]||'',period:r[13]==='month'?'month':'year'}; }, lastSyncKey:'sheet_last_sync_goals' },
+  { key:'goals', name:'🎯 My Goals', cacheKey:'mff_goals_cache_v1', tab:'Goals', range:'A:R', norm:glX,
+    headers:['ID','Title','Category','Year','Kind','Target','Current','Unit','Link','Steps','Done','CreatedAt','UpdatedAt','Period','Due','Freq','Times','Checkins'],
+    toRow:g=>[g.id,g.title||'',g.category||'',g.year||'',g.kind||'steps',g.target||0,g.current||0,g.unit||'',g.link||'',JSON.stringify(g.steps||[]),g.done?1:0,g.createdAt||'',g.updatedAt||'',g.period||'year',g.due?"'"+g.due:'',g.freq||'week',g.times||0,JSON.stringify(g.checkins||[])],
+    fromRow:r=>{ let st=[]; try{const a=JSON.parse(r[9]||'[]');if(Array.isArray(a))st=a;}catch(e){} return {id:r[0],title:r[1]||'',category:r[2]||'',year:Number(r[3])||new Date().getFullYear(),kind:r[4]||'steps',target:Number(r[5])||0,current:Number(r[6])||0,unit:r[7]||'บาท',link:r[8]||'',steps:st,done:Number(r[10])?1:0,createdAt:r[11]||'',updatedAt:r[12]||'',period:r[13]==='month'?'month':'year',...(()=>{let ck=[];try{const a=JSON.parse(r[17]||'[]');if(Array.isArray(a))ck=a;}catch(e){} return glX({due:r[14]||'',freq:r[15]||'week',times:Number(r[16])||0,checkins:ck});})()}; }, lastSyncKey:'sheet_last_sync_goals' },
   { key:'wishlist', name:'🛒 Wish List หนังสือ', cacheKey:'mff_wishlist_cache_v1', tab:'Wishlist', range:'A:H',
     headers:['ID','Title','Author','Year','Status','BoughtAt','CreatedAt','UpdatedAt'],
     toRow:w=>[w.id,w.title||'',w.author||'',w.year||'',w.status==='bought'?'bought':'want',w.boughtAt||'',w.createdAt||'',w.updatedAt||''],
     fromRow:r=>({id:r[0],title:r[1]||'',author:r[2]||'',year:Number(r[3])||new Date().getFullYear(),status:r[4]==='bought'?'bought':'want',boughtAt:r[5]||'',createdAt:r[6]||'',updatedAt:r[7]||''}), lastSyncKey:'sheet_last_sync_wishlist' },
+  { key:'diary', name:'📔 My Diary', cacheKey:'mff_diary_cache_v1', tab:'Diary', range:'A:G',
+    headers:['ID','Date','Title','Body','Mood','CreatedAt','UpdatedAt'],
+    toRow:e=>[e.id,"'"+(e.date||''),drGuard(e.title),drGuard(e.body),e.mood||0,e.createdAt||'',e.updatedAt||''],
+    fromRow:r=>({id:r[0],date:String(r[0]||'').replace(/^dy_/,''),title:r[2]||'',body:r[3]||'',mood:Number(r[4])||0,createdAt:r[5]||'',updatedAt:r[6]||''}), lastSyncKey:'sheet_last_sync_diary' },
   { key:'settings', name:'⚙️ งบและรายการประจำ', cacheKey:'mff_settings_cache_v1', tab:'AppSettings', range:'A:C',
     headers:['ID','Value','UpdatedAt'],
     toRow:s=>[s.id,s.value,s.updatedAt],
@@ -512,10 +520,10 @@ function same(a,b){return JSON.stringify(stable(a))===JSON.stringify(stable(b));
 function listMap(list){const m=new Map();(list||[]).filter(x=>x&&x.id).forEach(x=>m.set(String(x.id),x));return m;}
 const SYNC_BACKUP_KEY='mff_sync_backup_v2';
 const SYNC_HISTORY_KEY='mff_sync_history_v2';
-function getBase(t){try{return JSON.parse(localStorage.getItem(SYNC_BASE_PREFIX+t.key)||'[]')||[];}catch(e){return [];}}
+function getBase(t){try{const l=JSON.parse(localStorage.getItem(SYNC_BASE_PREFIX+t.key)||'[]')||[];return t.norm?l.map(t.norm):l;}catch(e){return [];}}
 function setBase(t,list){localStorage.setItem(SYNC_BASE_PREFIX+t.key,JSON.stringify(list||[]));localStorage.setItem(t.lastSyncKey,new Date().toLocaleString('th-TH',{hour:'2-digit',minute:'2-digit'}));}
-function getLocal(t){try{return JSON.parse(localStorage.getItem(t.cacheKey)||'[]')||[];}catch(e){return [];}}
-function setLocal(t,list){localStorage.setItem(t.cacheKey,JSON.stringify(list||[]));localStorage.removeItem(SYNC_DIRTY_PREFIX+t.key);}
+function getLocal(t){try{const l=JSON.parse(localStorage.getItem(t.cacheKey)||'[]')||[];return t.norm?l.map(t.norm):l;}catch(e){return [];}}
+function setLocal(t,list){localStorage.setItem(t.cacheKey,JSON.stringify(list||[]));localStorage.removeItem(SYNC_DIRTY_PREFIX+t.key);try{window.dispatchEvent(new Event('mff-local-updated'))}catch(e){}}
 function markDirty(t){localStorage.setItem(SYNC_DIRTY_PREFIX+t.key,'1');}
 function isDirty(t){return localStorage.getItem(SYNC_DIRTY_PREFIX+t.key)==='1';}
 function createBackup(label,remoteByKey){
