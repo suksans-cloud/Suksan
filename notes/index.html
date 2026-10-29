@@ -6,7 +6,7 @@
 <title>My Notes — My Family Funds</title>
 <meta name="theme-color" content="#072340">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&family=Noto+Serif+Thai:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../shell.css">
 <script src="../data-safety.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -49,6 +49,22 @@
 .nt-at .ic{width:56px;height:56px;border-radius:10px;background:#fff;display:grid;place-items:center;font-size:24px;flex:none;cursor:pointer}
 .nt-at span.n{flex:1;min-width:0;font-size:12.5px;word-break:break-all;cursor:pointer}.nt-at small{display:block;color:var(--ink-soft);font-size:11px}
 .nt-at button{width:40px;height:40px;border:0;background:none;font-size:20px;color:#B5422B}
+.nt-reader{position:fixed;inset:0;z-index:70;background:#FAF6EC;color:#3B2F22;display:none;flex-direction:column}
+.nt-reader.on{display:flex}
+.nt-rtop{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:calc(10px + env(safe-area-inset-top,0px)) 12px 10px}
+.nt-rtop button{height:42px;min-width:42px;padding:0 14px;border-radius:999px;border:1px solid rgba(59,47,34,.18);background:rgba(255,255,255,.55);color:#3B2F22;font:700 13px inherit;font-family:inherit;cursor:pointer}
+.nt-rpage{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:8px 26px 40px}
+.nt-rinner{max-width:620px;margin:0 auto}
+.nt-rtitle{font-family:'Noto Serif Thai','Prompt',serif;font-size:25px;line-height:1.4;font-weight:600;margin:6px 0 0;word-break:break-word}
+.nt-rtags{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.nt-rrule{width:44px;height:2px;background:rgba(59,47,34,.28);border:0;margin:18px 0}
+.nt-rbody{font-family:'Noto Serif Thai','Noto Sans Thai',serif;font-size:17px;line-height:2;white-space:pre-wrap;word-break:break-word;margin:0}
+.nt-rli{display:flex;gap:12px;align-items:flex-start;padding:9px 0;font-size:17px;line-height:1.6;border-bottom:1px dashed rgba(59,47,34,.14);cursor:pointer;word-break:break-word}
+.nt-rli input{width:22px;height:22px;flex:none;margin-top:3px;accent-color:#072340}
+.nt-rli.done span{text-decoration:line-through;opacity:.5}
+.nt-rimg{display:block;width:100%;border-radius:12px;margin:14px 0 0;cursor:pointer;background:rgba(0,0,0,.06)}
+.nt-rfile{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.55);font-size:13.5px;cursor:pointer;word-break:break-all}
+.nt-rfoot{margin-top:26px;font-size:11.5px;color:#8A7458}
 .nt-th{width:100%;max-height:130px;object-fit:cover;border-radius:10px;margin-bottom:6px;display:block}
 </style>
 </head>
@@ -70,6 +86,10 @@
 </div>
 <button class="nt-fab" id="fab" type="button" aria-label="เพิ่มโน้ต">+</button>
 
+<div class="nt-reader" id="reader">
+  <div class="nt-rtop"><button type="button" id="rBack">← กลับ</button><button type="button" id="rEdit">✎ แก้ไข</button></div>
+  <div class="nt-rpage" id="rPage"></div>
+</div>
 <div class="nt-modal" id="modal"><div class="nt-sheet" id="sheet"></div></div>
 <div class="nt-modal" id="menuModal"><div class="nt-sheet">
   <div class="nt-row"><button class="nt-btn" id="mImport" type="button">นำเข้าจาก Google Keep (ไฟล์ .json)</button></div>
@@ -87,7 +107,7 @@
 var CK='mff_notes_cache_v1', DIRTY='mff_sync_dirty_v1_notes', TK='mff_cal_token';
 var COLORS={default:'#FFFFFF',yellow:'#FFF3C4',green:'#DDF1DE',blue:'#D9E9F8',pink:'#F9DDE5',purple:'#E6DFF6'};
 var CNAME={default:'ขาว',yellow:'เหลือง',green:'เขียว',blue:'ฟ้า',pink:'ชมพู',purple:'ม่วง'};
-var notes=[], filter='all', showArch=false, editing=null;
+var notes=[], filter='all', showArch=false, editing=null, rd=null;
 var $=function(i){return document.getElementById(i)};
 function esc(s){return String(s==null?'':s).replace(/[&<>'"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]})}
 function uid(){return 'n_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8)}
@@ -112,7 +132,7 @@ function compress(f){return new Promise(function(res){
   im.onload=function(){try{var k=Math.min(1,1280/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(function(b){res(b&&b.size<f.size?b:f)},'image/jpeg',.78)}catch(e){res(f)}};
   im.onerror=function(){URL.revokeObjectURL(u);res(f)};im.src=u})}
 function hydrate(root){Array.prototype.forEach.call(root.querySelectorAll('[data-aimg]'),function(im){bget(im.getAttribute('data-aimg')).then(function(b){if(b)im.src=URL.createObjectURL(b)}).catch(function(){})})}
-function openAtt(id){var a=(editing&&editing._att||[]).filter(function(x){return x.id===id})[0];if(!a)return;bget(id).then(function(b){if(!b){toast('ไม่พบไฟล์ในเครื่องนี้');return}var u=URL.createObjectURL(b);if(a.k==='img'){window.open(u,'_blank')}else{var l=document.createElement('a');l.href=u;l.download=a.name;document.body.appendChild(l);l.click();l.remove()}})}
+function openAtt(id){var a=(editing&&editing._att||AM[rd]||[]).filter(function(x){return x.id===id})[0];if(!a)return;bget(id).then(function(b){if(!b){toast('ไม่พบไฟล์ในเครื่องนี้');return}var u=URL.createObjectURL(b);if(a.k==='img'){window.open(u,'_blank')}else{var l=document.createElement('a');l.href=u;l.download=a.name;document.body.appendChild(l);l.click();l.remove()}})}
 async function addFiles(files,kind){
   var e=editing;if(!e)return;pull();
   for(var i=0;i<files.length;i++){var f=files[i];
@@ -170,6 +190,44 @@ function render(){
   else h+='<div class="nt-grid" style="margin-top:10px">'+v.map(cardHtml).join('')+'</div>';
   root.innerHTML=h;hydrate(root)+'<div style="height:90px"></div>';
 }
+
+/* ---------- reader (หน้าอ่านโน้ต) ---------- */
+function thFull(iso){var d=new Date(iso);if(isNaN(d))return '';return d.toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'})}
+function openReader(id){
+  var n=notes.filter(function(x){return x.id===id})[0]; if(!n){closeReader();return}
+  rd=id; AM=attMap();
+  var at=AM[id]||[], h='<div class="nt-rinner">';
+  if(n.title) h+='<h2 class="nt-rtitle">'+esc(n.title)+'</h2>';
+  var tg='';
+  if(n.due){var late=n.due<today();tg+='<span class="nt-tag'+(late?' late':'')+'">'+(late?'เลยกำหนด ':'')+fmt(n.due)+(n.dueTime?' · '+esc(n.dueTime)+' น.':'')+'</span>'}
+  if(n.calId) tg+='<span class="nt-tag">ใน Calendar</span>';
+  if(n.pinned) tg+='<span class="nt-tag">ปักหมุด</span>';
+  if(tg) h+='<div class="nt-rtags">'+tg+'</div>';
+  var hasText=n.kind==='check'?n.items.length:!!n.body;
+  if((n.title||tg)&&hasText) h+='<hr class="nt-rrule">';
+  if(n.kind==='check'){
+    h+=n.items.map(function(i,ix){return '<label class="nt-rli'+(i.d?' done':'')+'"><input type="checkbox" data-rix="'+ix+'" '+(i.d?'checked':'')+'><span>'+esc(i.t)+'</span></label>'}).join('');
+  } else if(n.body){ h+='<p class="nt-rbody">'+esc(n.body)+'</p>'; }
+  at.filter(function(a){return a.k==='img'}).forEach(function(a){h+='<img class="nt-rimg" data-aimg="'+esc(a.id)+'" data-aopen="'+esc(a.id)+'" alt="'+esc(a.name)+'">'});
+  at.filter(function(a){return a.k!=='img'}).forEach(function(a){h+='<div class="nt-rfile" data-aopen="'+esc(a.id)+'"><span>📄</span><span>'+esc(a.name)+' <small>('+szt(a.size||0)+')</small></span></div>'});
+  if(n.updatedAt) h+='<div class="nt-rfoot">แก้ไขล่าสุด '+esc(thFull(n.updatedAt))+'</div>';
+  h+='</div>';
+  var rp=$('rPage'); rp.innerHTML=h; rp.scrollTop=0; hydrate(rp);
+  $('reader').style.background=n.color==='default'?'#FAF6EC':COLORS[n.color];
+  $('reader').classList.add('on');
+}
+function closeReader(){rd=null;$('reader').classList.remove('on');render()}
+$('rBack').onclick=closeReader;
+$('rEdit').onclick=function(){var id=rd;rd=null;$('reader').classList.remove('on');openEditor(id)};
+$('rPage').addEventListener('click',function(ev){
+  var a=ev.target.closest('[data-aopen]'); if(a){openAtt(a.getAttribute('data-aopen'));return}
+});
+$('rPage').addEventListener('change',function(ev){
+  var t=ev.target, ix=t.getAttribute&&t.getAttribute('data-rix'); if(ix===null||ix===undefined) return;
+  var n=notes.filter(function(x){return x.id===rd})[0]; if(!n||!n.items[+ix]) return;
+  n.items[+ix].d=t.checked?1:0; n.updatedAt=now(); save();
+  var row=t.closest('.nt-rli'); if(row) row.classList.toggle('done',t.checked);
+});
 
 /* ---------- editor ---------- */
 function openEditor(id){
@@ -229,7 +287,8 @@ $('sheet').addEventListener('click',function(ev){
   if(t.id==='eSave'){pull();commit(false)}
 });
 $('sheet').addEventListener('change',function(ev){var t=ev.target;if(t.id==='fImg'||t.id==='fAny'){var fl=Array.prototype.slice.call(t.files);t.value='';addFiles(fl,t.id==='fImg'?'img':'file')}});
-function closeEd(saved){var e=editing;if(e&&!saved&&e._added)e._added.forEach(bdel);$('modal').classList.remove('on');editing=null}
+function closeEd(saved){var e=editing;if(e&&!saved&&e._added)e._added.forEach(bdel);$('modal').classList.remove('on');editing=null;
+  if(!saved&&e&&!e._new&&notes.some(function(x){return x.id===e.id})) openReader(e.id)}
 async function commit(closeAfter){
   var e=editing; pull();
   e.items=e.items.filter(function(i){return (i.t||'').trim()||false});
@@ -246,6 +305,7 @@ async function commit(closeAfter){
   var ix=notes.findIndex(function(x){return x.id===e.id});
   if(ix>=0) notes[ix]=e; else notes.push(e);
   save(); closeEd(1); render();
+  if(!closeAfter&&!e.archived) openReader(e.id); /* บันทึกเสร็จ → เปิดอ่านเป็นหน้าโน้ต */
   toast(calMsg||'บันทึกแล้ว — ซิงก์ขึ้น Sheets ได้ที่ Setting');
 }
 function delNote(e){
@@ -335,7 +395,7 @@ async function importFiles(files){
 $('fab').onclick=function(){openEditor()};
 $('q').oninput=render;
 $('chips').addEventListener('click',function(e){var f=e.target.getAttribute('data-f');if(f){filter=f;render()}});
-$('list').addEventListener('click',function(e){var c=e.target.closest('.nt-card');if(c)openEditor(c.getAttribute('data-id'))});
+$('list').addEventListener('click',function(e){var c=e.target.closest('.nt-card');if(c)openReader(c.getAttribute('data-id'))});
 $('modal').addEventListener('click',function(e){if(e.target===$('modal'))closeEd()});
 $('menuBtn').onclick=function(){$('mArch').textContent=showArch?'กลับไปดูโน้ตปกติ':'ดูโน้ตที่เก็บถาวร';$('menuModal').classList.add('on')};
 $('mClose').onclick=function(){$('menuModal').classList.remove('on')};
@@ -343,7 +403,7 @@ $('menuModal').addEventListener('click',function(e){if(e.target===$('menuModal')
 $('mArch').onclick=function(){showArch=!showArch;$('menuModal').classList.remove('on');render()};
 $('mImport').onclick=function(){$('menuModal').classList.remove('on');$('file').click()};
 $('file').onchange=function(){if(this.files.length)importFiles(Array.prototype.slice.call(this.files));this.value=''};
-window.addEventListener('storage',function(e){if(e.key===CK){load();render()}});
+window.addEventListener('storage',function(e){if(e.key===CK&&!rd&&!editing){load();render()}});
 load(); render();
 if(new URLSearchParams(location.search).get('new')==='check'){openEditor();editing.kind='check';editing.items=[{t:'',d:0}];var _d=new URLSearchParams(location.search).get('due');if(_d)editing.due=_d;paintEditor()}
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('../sw.js').catch(function(){})})}

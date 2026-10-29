@@ -17,21 +17,7 @@
 /* ===== หน้าแรกแบบใหม่ (เลื่อนได้) ===== */
 .mff-home .mff-app{height:auto;min-height:100svh;display:block}
 .mff-home .mff-hero-wrap{padding-bottom:48px}
-.hm-sum{margin:-30px 16px 0;position:relative;z-index:3}
-.hm-card{padding:16px 16px 14px;border-radius:22px;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;box-shadow:var(--shadow-hero)}
-.hm-head{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;opacity:.92}
-.hm-eye{width:44px;height:44px;margin:-10px -10px -10px 0;border:0;background:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.hm-big{font:700 32px 'Prompt','Noto Sans Thai',sans-serif;margin:0 0 10px}
-.hm-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.hm-row>div{background:rgba(255,255,255,.15);border-radius:14px;padding:9px 10px;min-width:0}
-.hm-row small{display:block;font-size:10.5px;opacity:.88}
-.hm-row b{font-size:14.5px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hm-row>div{display:flex;flex-direction:column;justify-content:space-between;gap:3px;min-height:58px}
-.hm-row small{font-size:10.5px;line-height:1.25}
-.hm-row b{white-space:nowrap;overflow:visible;font-size:clamp(11px,3.7vw,14.5px)}
-.hm-row b.sm{font-size:clamp(9.5px,3.1vw,12.5px)}
-.hm-hide .hm-money{filter:blur(9px);user-select:none}
-.hm-menu{margin:14px 16px 0;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:16px 10px 12px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 4px;box-shadow:var(--shadow-card)}
+.hm-menu{margin:-30px 16px 20px;position:relative;z-index:3;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:16px 10px 12px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 4px;box-shadow:var(--shadow-card)}
 .hm-mt{grid-column:1/-1;margin:0 8px 2px;font:700 17px Prompt,sans-serif;color:var(--primary)}
 .hm-mt small{display:block;font:400 11.5px 'Noto Sans Thai',sans-serif;color:var(--ink-soft);margin-top:2px}
 .hm-menu a{display:flex;flex-direction:column;align-items:center;text-align:center;text-decoration:none;color:var(--ink);border-radius:16px;padding:4px 2px 6px}
@@ -42,14 +28,6 @@
 .hm-ico svg .fl{fill:color-mix(in srgb,var(--primary-light) 20%,transparent);stroke:var(--primary-light)}
 .hm-menu strong{font:600 12.5px/1.35 Prompt,sans-serif}
 .hm-menu small.s{font-size:9.5px;color:var(--ink-faint);margin-top:2px}
-.hm-h{margin:18px 20px 8px;font-size:13px;font-weight:700;color:var(--primary)}
-.hm-up{margin:0 16px 20px;display:flex;flex-direction:column;gap:8px}
-.hm-it{display:flex;justify-content:space-between;gap:10px;align-items:center;min-height:52px;padding:10px 14px;border-radius:16px;background:var(--surface);color:var(--ink);text-decoration:none;box-shadow:var(--shadow-card)}
-.hm-it b{font-size:13px;display:block}
-.hm-it small{font-size:11px;color:var(--ink-soft)}
-.hm-it em{font-style:normal;font-size:11.5px;font-weight:700;color:var(--primary-light);white-space:nowrap}
-.hm-it em.late{color:#B5422B}
-.hm-none{padding:16px;text-align:center;font-size:12.5px;color:var(--ink-faint)}
 </style>
 </head>
 <body class="mff-home">
@@ -77,17 +55,6 @@
 
 
 
-    <section class="hm-sum" aria-label="สรุปวันนี้">
-    <div class="hm-card">
-      <div class="hm-head"><span>ยอดเงินคงเหลือเดือนนี้</span><button type="button" id="hmEye" aria-label="ซ่อนหรือแสดงตัวเลข" class="hm-eye"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
-      <div class="hm-big hm-money" id="hmBal">—</div>
-      <div class="hm-row">
-        <div><small>รายจ่าย/วัน</small><b class="hm-money" id="hmToday">—</b></div>
-        <div><small>รายจ่าย/สัปดาห์</small><b class="hm-money" id="hmWeek">—</b></div>
-        <div><small>รายจ่าย/เดือน</small><b class="hm-money" id="hmExp">—</b></div>
-      </div>
-    </div>
-  </section>
   <nav class="hm-menu" aria-label="เมนูหลัก">
     <div class="hm-mt">เมนูหลัก<small>เลือกฟังก์ชันที่ต้องการใช้งาน</small></div>
     <a href="bookshelf/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><path class="fl" d="M4 4.5c0-.5.6-.9 1.3-.9H10a2 2 0 0 1 2 2V20a2 2 0 0 0-2-1.6H4z"/><path d="M20 4.5c0-.5-.6-.9-1.3-.9H14a2 2 0 0 0-2 2V20a2 2 0 0 1 2-1.6h6z"/><path class="ac" d="M7 8h2.5M7 11h2.5"/></svg></span><strong>My Bookshelf</strong><small class="s">คลังหนังสือ</small></a>
@@ -100,8 +67,6 @@
     <a href="portfolio/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><path d="M4 19V11M10 19V6M16 19v-6"/><path d="M3.5 19.5h17"/><path class="ac" d="M13 7l4-3 4 2.5M17 4v3.5h3.5"/></svg></span><strong>My Portfolio</strong><small class="s">พอร์ตกองทุน</small></a>
     <a href="profile/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><circle class="fl" cx="12" cy="8" r="4"/><path class="ac" d="M4.5 20c0-3.8 3.4-6 7.5-6s7.5 2.2 7.5 6"/></svg></span><strong>My Profile</strong><small class="s">สมาชิกครอบครัว</small></a>
   </nav>
-  <h2 class="hm-h">วันนี้และใกล้ถึงกำหนด</h2>
-  <div class="hm-up" id="hmUp"></div>
 </div>
 
 </div>
@@ -437,56 +402,8 @@ if('serviceWorker' in navigator){
 <script>
 (function(){
   'use strict';
-  function rj(k,f){try{var r=localStorage.getItem(k);return r?JSON.parse(r):f}catch(e){return f}}
-  function pad(n){return String(n).padStart(2,'0')}
-  var d=new Date(), ym=d.getFullYear()+'-'+pad(d.getMonth()+1), td=ym+'-'+pad(d.getDate());
-  function fmt(n){return '฿ '+Math.round(n).toLocaleString('th-TH')}
-  function el(i){return document.getElementById(i)}
-  function esc(s){return String(s==null?'':s).replace(/[&<>'"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]})}
-  /* คงเหลือเดือนนี้ = รายรับ − รายจ่ายประจำ − รายจ่ายแปรผัน (My Money) */
-  var money=rj('mff_money_cache_v3',null);
-  if(Array.isArray(money)){
-    var inc=0,exp=0,has=false;
-    money.forEach(function(t){if(t.month!==ym)return;has=true;var a=Number(t.amount)||0;if(t.type==='income')inc+=a;else if(t.type==='fixed'||t.type==='variable')exp+=a});
-  }
-  var dly=rj('mff_daily_cache_v1',null), dayMonth=0, dayWeek=0;
-  /* สัปดาห์ จันทร์–อาทิตย์ เหมือนหน้า ค่าใช้จ่ายรายวัน */
-  function dk(x){return x.getFullYear()+'-'+pad(x.getMonth()+1)+'-'+pad(x.getDate())}
-  var wd=new Date(d.getFullYear(),d.getMonth(),d.getDate()); wd.setDate(wd.getDate()+(wd.getDay()===0?-6:1-wd.getDay()));
-  var wStart=dk(wd); wd.setDate(wd.getDate()+6); var wEnd=dk(wd);
-  var dayToday=0;
-  if(Array.isArray(dly)){dly.forEach(function(e){var a=Number(e.amount)||0,dt=String(e.date||'');if(dt===td)dayToday+=a;if(dt>=wStart&&dt<=wEnd)dayWeek+=a;if(dt.slice(0,7)===ym)dayMonth+=a})}
-  el('hmToday').textContent=fmt(dayToday);
-  el('hmWeek').textContent=fmt(dayWeek);
-  /* คงเหลือ = รายรับ − (ประจำ + แปรผัน + รายวัน) ให้ตรงกับหน้า My Money รายเดือน */
-  if(has) el('hmBal').textContent=fmt(inc-exp-dayMonth);
-  /* รายจ่าย/วัน · สัปดาห์ · เดือน = เฉพาะค่าใช้จ่ายรายวัน (ไม่รวมรายจ่ายประจำ/แปรผัน) */
-  el('hmExp').textContent=fmt(dayMonth);
-  ['hmToday','hmWeek','hmExp'].forEach(function(i){if(el(i).textContent.length>10)el(i).classList.add('sm')});
-  var notes=rj('mff_notes_cache_v1',[]); if(!Array.isArray(notes))notes=[];
-  notes=notes.filter(function(n){return !n.archived});
-  /* รายการใกล้ถึงกำหนด: โน้ตที่มีวันที่ภายใน 7 วัน หรือเลยกำหนด */
-  var lim=new Date(d.getTime()+7*86400000), ls=lim.getFullYear()+'-'+pad(lim.getMonth()+1)+'-'+pad(lim.getDate());
-  var up=notes.filter(function(n){return n.due&&n.due<=ls&&!(n.kind==='check'&&n.items.length&&n.items.every(function(i){return i.d}))})
-    .sort(function(a,b){return a.due.localeCompare(b.due)}).slice(0,4);
-  var mo=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-  var rows=up.map(function(n){
-    var p=n.due.split('-'), late=n.due<td, isToday=n.due===td;
-    var sub=n.kind==='check'?(n.items.filter(function(i){return !i.d}).length+' รายการที่ยังไม่เสร็จ'):(n.body||'').slice(0,40);
-    return {k:n.due,h:'<a class="hm-it" href="notes/index.html"><div><b>'+esc(n.title||sub||'โน้ต')+'</b><small>'+esc(sub)+'</small></div><em class="'+(late?'late':'')+'">'+(late?'เลยกำหนด ':isToday?'วันนี้ ':'')+(+p[2])+' '+mo[+p[1]-1]+'</em></a>'};
-  });
-  /* เป้าหมาย (My Goals): นิสัยประจำที่ยังไม่ทำ · เป้าใกล้ครบกำหนด · เป้าตัวเลขที่ช้ากว่าแผน — รวมในรายการเดียวกับโน้ต */
-  try{ if(window.MFFGoalsCore) MFFGoalsCore.upcoming(d).forEach(function(r){
-    rows.push({k:r.k,h:'<a class="hm-it" href="goals/index.html"><div><b>🎯 '+esc(r.title||'เป้าหมาย')+'</b><small>'+esc(r.sub)+'</small></div><em class="'+(r.late?'late':'')+'">'+esc(r.em)+'</em></a>'});
-  }); }catch(e){}
-  rows.sort(function(a,b){return String(a.k).localeCompare(String(b.k))});
-  el('hmUp').innerHTML=rows.length?rows.slice(0,6).map(function(r){return r.h}).join(''):'<div class="hm-none">ไม่มีรายการใกล้ถึงกำหนด</div>';
-  try{ var gs=window.MFFGoalsCore&&MFFGoalsCore.summary(d), gp=document.getElementById('hmGoalSub'); if(gs&&gs.n&&gp) gp.textContent='เป้าหมายปีนี้ คืบหน้า '+gs.avg+'%'; }catch(e){}
-  /* ซ่อน/แสดงตัวเลขเงิน */
-  var card=document.querySelector('.hm-card');
-  var hid=false;try{hid=localStorage.getItem('mff_home_hide')==='1'}catch(e){}
-  document.querySelector('.hm-sum').classList.toggle('hm-hide',hid);
-  el('hmEye').onclick=function(){hid=!hid;document.querySelector('.hm-sum').classList.toggle('hm-hide',hid);try{localStorage.setItem('mff_home_hide',hid?'1':'0')}catch(e){}};
+  /* ข้อความใต้ปุ่ม My Goals */
+  try{ var gs=window.MFFGoalsCore&&MFFGoalsCore.summary(new Date()), gp=document.getElementById('hmGoalSub'); if(gs&&gs.n&&gp) gp.textContent='เป้าหมายปีนี้ คืบหน้า '+gs.avg+'%'; }catch(e){}
 })();
 </script>
 </body>

@@ -485,19 +485,24 @@ const SYNC_TARGETS = [
 const SYNC_BASE_PREFIX='mff_sync_base_v1_';
 const SYNC_DIRTY_PREFIX='mff_sync_dirty_v1_';
 
+/* เร็วขึ้น: จำว่าแท็บไหนมีแล้ว (ต่อรอบซิงก์) จะได้ไม่ต้องถาม Google ซ้ำทุกครั้งที่อ่าน/เขียน */
+const _tabsOK=new Set();
+function syncResetCache(){_tabsOK.clear();}
 async function syncAllSheetsApi(token,url,opts){
   const r=await fetch(url,Object.assign({headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'}},opts||{}));
   if(r.status===401||r.status===403) throw new Error('สิทธิ์ Google หมดอายุ กรุณาเชื่อมต่อใหม่');
-  if(!r.ok) throw new Error(await r.text());
+  if(!r.ok){const tx=await r.text();if(/Unable to parse range|not found/i.test(tx))_tabsOK.clear();throw new Error(tx);}
   return r.status===204?{}:r.json();
 }
 async function syncAllEnsureTab(token,sid,tab,headers){
+  const ck=sid+'|'+tab;if(_tabsOK.has(ck))return;
   const meta=await syncAllSheetsApi(token,`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sid)}?fields=sheets.properties`);
   const titles=(meta.sheets||[]).map(x=>x.properties.title);
   if(!titles.includes(tab)){
     await syncAllSheetsApi(token,`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sid)}:batchUpdate`,{method:'POST',body:JSON.stringify({requests:[{addSheet:{properties:{title:tab}}}]})});
     await syncAllSheetsApi(token,`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sid)}/values/${tab}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${tab}!A1`,majorDimension:'ROWS',values:[headers]})});
   }
+  _tabsOK.add(ck);
 }
 async function ensureSheetsTokenForSyncAll(cid){
   const cached=window.MFFGoogleSession?.getSheetsToken();
@@ -550,6 +555,25 @@ function renderSyncHistory(){
 }
 function recordLabel(t,r){if(!r)return '(ลบรายการ)';return r.title||r.name||r.category||r.date||r.month||r.firstName||r.id||'';}
 
+/* อ่านทุกแท็บในคำขอเดียว (1 ครั้งเช็คแท็บ + 1 ครั้ง batchGet) แทนที่จะอ่านทีละแท็บ */
+function sameById(a,b){
+  const A=listMap(a),B=listMap(b);if(A.size!==B.size)return false;
+  for(const [id,v] of A){if(!B.has(id)||!same(v,B.get(id)))return false;}
+  return true;
+}
+async function readAllRemote(token,sid,targets){
+  const base=`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sid)}`;
+  const meta=await syncAllSheetsApi(token,base+'?fields=sheets.properties');
+  const have=new Set((meta.sheets||[]).map(x=>x.properties.title));
+  for(const t of targets){ if(have.has(t.tab))_tabsOK.add(sid+'|'+t.tab); else await syncAllEnsureTab(token,sid,t.tab,t.headers); }
+  const qs=targets.map(t=>'ranges='+encodeURIComponent(t.tab+'!'+t.range)).join('&');
+  const got=await syncAllSheetsApi(token,`${base}/values:batchGet?${qs}`);
+  const vr=got.valueRanges||[];
+  if(vr.length!==targets.length) throw new Error('batchGet ตอบกลับไม่ครบ');
+  const out={};
+  targets.forEach((t,i)=>{out[t.key]=(vr[i].values||[]).slice(1).filter(r=>r[0]).map(t.fromRow);});
+  return out;
+}
 async function readRemote(token,sid,t){
   await syncAllEnsureTab(token,sid,t.tab,t.headers);
   const got=await syncAllSheetsApi(token,`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sid)}/values/${t.tab}!${t.range}`);
@@ -602,8 +626,8 @@ async function safeWriteRemote(token,sid,t,list,expectedRemote){
   throw lastErr||new Error('ยืนยันข้อมูลหลัง Sync ไม่สำเร็จ');
 }
 
-async function smartSyncOne(token,sid,t){
-  const local=getLocal(t), base=getBase(t), remote=await readRemote(token,sid,t);
+async function smartSyncOne(token,sid,t,prefetched){
+  const local=getLocal(t), base=getBase(t), remote=Array.isArray(prefetched)?prefetched:await readRemote(token,sid,t);
   const L=listMap(local),R=listMap(remote),B=listMap(base);
   const merged=[];const conflicts=[];const ids=new Set([...L.keys(),...R.keys(),...B.keys()]);
   for(const id of ids){
@@ -628,7 +652,7 @@ async function smartSyncOne(token,sid,t){
       merged.length=0; byId.forEach(x=>merged.push(x));
       await safeWriteRemote(token,sid,t,merged,remote);setLocal(t,merged);setBase(t,merged);
       addSyncHistory('Conflict → เครื่อง',`${t.name}: ${conflicts.length} รายการ (เก็บรายการที่ไม่ชนกันไว้)`);
-      return {status:'resolved-local',count:merged.length,conflicts:conflicts.length,remote};
+      return {status:'resolved-local',count:merged.length,conflicts:conflicts.length,remote,wrote:true};
     }
     if(choice==='remote'){
       // Keep all non-conflicting three-way merges. Resolve only the conflicting IDs with remote values.
@@ -640,9 +664,13 @@ async function smartSyncOne(token,sid,t){
       return {status:'resolved-remote',count:merged.length,conflicts:conflicts.length,remote};
     }
   }
+  if(sameById(merged,remote)){ /* บน Sheet ตรงกับที่จะเขียนอยู่แล้ว → ไม่ต้องเขียน/อ่านตรวจซ้ำ */
+    setLocal(t,merged);setBase(t,merged);
+    return {status:'synced',count:merged.length,remote,wrote:false};
+  }
   await safeWriteRemote(token,sid,t,merged,remote);setLocal(t,merged);setBase(t,merged);
   addSyncHistory('Smart Sync',`${t.name}: ${merged.length} รายการ`);
-  return {status:'synced',count:merged.length,remote};
+  return {status:'synced',count:merged.length,remote,wrote:true};
 }
 
 
@@ -695,20 +723,27 @@ async function runSmartSync(opts){
   const preSyncQueueIds=(window.MFFDataSafety?.exportQueue?.()||[]).map(x=>x.qid);
   try{
     const token=await ensureSheetsTokenForSyncAll(cid);if(!token)throw new Error('ขอสิทธิ์ Google Sheets ไม่สำเร็จ');localStorage.setItem('google_sheets_connected','1');
-    const remoteBackup={};
-    for(const t of SYNC_TARGETS){try{remoteBackup[t.key]=await readRemote(token,sid,t);}catch(e){remoteBackup[t.key]=null;}}
-    createBackup('ก่อน Smart Sync',remoteBackup);
-    addSyncHistory('Backup','สร้าง Snapshot ก่อน Smart Sync');
-    for(const t of SYNC_TARGETS){updateSyncAllProgress(done,total,'🔄 ตรวจ '+t.name);try{const r=await smartSyncOne(token,sid,t);if(r.status==='conflict')conf+=r.conflicts||0;}catch(e){conf++;fail++;toast(t.name+' ซิงก์ไม่สำเร็จ: '+e.message);}done++;updateSyncAllProgress(done,total,t.name+' ✓');renderSyncModuleRows();renderModuleStatus();}
-    updateSyncAllProgress(done,total,'🔄 📊 My Portfolio');
-    try{await runPortfolioSmartSync();done++;updateSyncAllProgress(done,total,'📊 My Portfolio ✓');}catch(e){conf++;fail++;done++;toast('My Portfolio Smart Sync ไม่สำเร็จ: '+e.message);}
+    syncResetCache();
+    /* อ่านทุกแท็บครั้งเดียว (ใช้ทั้งเป็น Snapshot และเป็นข้อมูลฝั่ง Sheet ของแต่ละโมดูล) */
+    let remoteBackup={};
+    try{remoteBackup=await readAllRemote(token,sid,SYNC_TARGETS);}
+    catch(e){remoteBackup={};for(const t of SYNC_TARGETS){try{remoteBackup[t.key]=await readRemote(token,sid,t);}catch(e2){remoteBackup[t.key]=null;}}}
+    /* ถ้าทุกโมดูลตรงกับ Sheet แล้ว ไม่ต้องสำรอง/เขียนอะไร */
+    const needBackup=SYNC_TARGETS.some(t=>!Array.isArray(remoteBackup[t.key])||!sameById(getLocal(t),remoteBackup[t.key]));
+    if(needBackup){createBackup('ก่อน Smart Sync',remoteBackup);addSyncHistory('Backup','สร้าง Snapshot ก่อน Smart Sync');}
+    const written=[];
+    for(const t of SYNC_TARGETS){updateSyncAllProgress(done,total,'🔄 ตรวจ '+t.name);try{const r=await smartSyncOne(token,sid,t,remoteBackup[t.key]);if(r.status==='conflict')conf+=r.conflicts||0;if(r.wrote)written.push(t);}catch(e){conf++;fail++;toast(t.name+' ซิงก์ไม่สำเร็จ: '+e.message);}done++;updateSyncAllProgress(done,total,t.name+' ✓');}
+    renderSyncModuleRows();renderModuleStatus();
+    /* My Portfolio โหลดทั้งหน้าใน iframe → ซิงก์อัตโนมัติทำไม่เกินทุก 10 นาที (กดซิงก์เองทำทุกครั้ง) */
+    const PK_AT='mff_portfolio_smart_at',skipPf=opts.auto&&(Date.now()-Number(localStorage.getItem(PK_AT)||0)<600000);
+    if(skipPf){done++;updateSyncAllProgress(done,total,'📊 My Portfolio (ข้าม: เพิ่งซิงก์)');}
+    else{
+      updateSyncAllProgress(done,total,'🔄 📊 My Portfolio');
+      try{await runPortfolioSmartSync();localStorage.setItem(PK_AT,String(Date.now()));done++;updateSyncAllProgress(done,total,'📊 My Portfolio ✓');}catch(e){conf++;fail++;done++;toast('My Portfolio Smart Sync ไม่สำเร็จ: '+e.message);}
+    }
     if(!conf){
-      // One final read-only verification makes the first Sync authoritative before we show success.
-      for(const t of SYNC_TARGETS){
-        const verify=await readRemote(token,sid,t);
-        if(!same(verify,getLocal(t))) throw new Error(t.name+' ยังยืนยันข้อมูลหลัง Sync ไม่สำเร็จ');
-      }
-      addSyncHistory('Verified Sync','ตรวจสอบข้อมูลหลัง Sync ครบทุกโมดูล');
+      /* ไม่ต้องอ่านตรวจซ้ำอีกรอบ: safeWriteRemote อ่านกลับมาเทียบแล้วว่าตรงกับที่เขียน (verified) ก่อนจะ setLocal ทุกโมดูลที่เขียน */
+      addSyncHistory('Verified Sync',written.length?('ตรวจสอบหลังเขียน '+written.length+' โมดูล'):'ข้อมูลตรงกับ Google Sheets แล้ว ไม่มีอะไรต้องเขียน');
     }
     statusEl.innerHTML=conf?`<span class="warn">⚠️ ซิงก์เสร็จแล้ว แต่มี ${conf} จุดที่ต้องตรวจสอบ</span>`:'<span class="ok">✅ ซิงก์สำเร็จและตรวจสอบข้อมูลล่าสุดแล้ว</span>';
     // Queue Safety: clear exactly the items that were already queued when this sync began.
@@ -739,7 +774,7 @@ async function runSyncAll(dir){
   if(!cid||!sid){toast('กรุณากรอก Client ID / Sheet ID ก่อน');return;}
   const actionText=dir==='pull'?'บังคับดึงจาก Google Sheets จะทับข้อมูลในเครื่อง':'บังคับส่งจากเครื่องจะทับข้อมูลใน Google Sheets';
   if(!confirm(actionText+'\n\nควรใช้เฉพาะเมื่อแน่ใจว่าต้องการทับข้อมูล ต้องการดำเนินการต่อหรือไม่?'))return;
-  setSyncAllBusy(true);const statusEl=document.getElementById('statusSyncAll');let done=0;const total=SYNC_TARGETS.length+1;
+  setSyncAllBusy(true);syncResetCache();const statusEl=document.getElementById('statusSyncAll');let done=0;const total=SYNC_TARGETS.length+1;
   const preSyncQueueIds=(window.MFFDataSafety?.exportQueue?.()||[]).map(x=>x.qid);
   try{const token=await ensureSheetsTokenForSyncAll(cid);if(!token)throw new Error('ขอสิทธิ์ Google Sheets ไม่สำเร็จ');
     const remoteBackup={};for(const t of SYNC_TARGETS){try{remoteBackup[t.key]=await readRemote(token,sid,t);}catch(e){remoteBackup[t.key]=null;}}

@@ -28,6 +28,17 @@
 
 body.mff-hide-money .mff-money-summary-wrap .amt{filter:blur(7px);user-select:none}
 </style>
+<style>
+.hm-sum{margin:14px 16px 0}
+.hm-card{padding:16px 16px 14px;border-radius:22px;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;box-shadow:var(--shadow-hero)}
+.hm-head{font-size:12.5px;opacity:.92;margin-bottom:2px}
+.hm-big{font:700 32px 'Prompt','Noto Sans Thai',sans-serif;margin:0 0 10px}
+.hm-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.hm-row>div{background:rgba(255,255,255,.15);border-radius:14px;padding:9px 10px;min-width:0;display:flex;flex-direction:column;justify-content:space-between;gap:3px;min-height:58px}
+.hm-row small{display:block;font-size:10.5px;line-height:1.25;opacity:.88}
+.hm-row b{display:block;white-space:nowrap;font-size:clamp(11px,3.7vw,14.5px)}
+.hm-row b.sm{font-size:clamp(9.5px,3.1vw,12.5px)}
+</style>
 <script src="../themes.js"></script>
 </head>
 <body>
@@ -49,6 +60,19 @@ body.mff-hide-money .mff-money-summary-wrap .amt{filter:blur(7px);user-select:no
       <h1 style="font-size:19px;white-space:nowrap">รายรับ-รายจ่ายครอบครัว</h1>
     </div>
   </div>
+
+  <!-- ยอดเงินคงเหลือเดือนนี้ (ย้ายมาจากหน้าแรก) -->
+  <section class="hm-sum" aria-label="ยอดเงินคงเหลือเดือนนี้">
+    <div class="hm-card">
+      <div class="hm-head">ยอดเงินคงเหลือเดือนนี้</div>
+      <div class="hm-big" id="hmBal">—</div>
+      <div class="hm-row">
+        <div><small>รายจ่าย/วัน</small><b id="hmToday">—</b></div>
+        <div><small>รายจ่าย/สัปดาห์</small><b id="hmWeek">—</b></div>
+        <div><small>รายจ่าย/เดือน</small><b id="hmExp">—</b></div>
+      </div>
+    </div>
+  </section>
 
   <!-- 1 & 2: ค่าใช้จ่ายรายวัน / ค่าใช้จ่ายรายเดือน -->
   <div class="mff-money-hub-grid">
@@ -145,6 +169,22 @@ document.getElementById('sumMonth').textContent = '฿'+fmtBaht(totalExpense);
 const balEl=document.getElementById('sumBalance');
 balEl.textContent = (balance<0?'-':'')+'฿'+fmtBaht(Math.abs(balance));
 balEl.className = 'amt '+(balance>=0?'pos':'neg');
+
+/* ---- การ์ดยอดคงเหลือ (สูตรเดียวกับที่เคยอยู่หน้าแรก) ---- */
+(function(){
+  const fm=n=>'฿ '+Math.round(n).toLocaleString('th-TH');
+  let inc=0, exp=0, has=false;
+  monthItems.forEach(t=>{
+    if(t.month!==thisMonthKey) return; has=true;
+    const a=Number(t.amount)||0;
+    if(t.type==='income') inc+=a; else if(t.type==='fixed'||t.type==='variable') exp+=a;
+  });
+  document.getElementById('hmToday').textContent=fm(dailyToday);
+  document.getElementById('hmWeek').textContent=fm(dailyWeek);
+  document.getElementById('hmExp').textContent=fm(dailyMonthTotal);
+  if(has) document.getElementById('hmBal').textContent=fm(inc-exp-dailyMonthTotal);
+  ['hmToday','hmWeek','hmExp'].forEach(i=>{const e=document.getElementById(i); if(e.textContent.length>10) e.classList.add('sm');});
+})();
 })();
 </script>
 
