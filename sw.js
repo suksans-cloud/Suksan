@@ -1,4 +1,4 @@
-const CACHE='mff-shell-v65-sync-faster';
+const CACHE='mff-shell-v66-diary-multi';
 const SHELL=[
   './index.html','./shell.css','./config.js','./data-safety.js','./admin-login.js','./settings-store.js','./themes.js','./reminders.js','./goals-core.js','./privacy-eye.js',
   './money/index.html','./money/daily.html','./money/monthly.html',

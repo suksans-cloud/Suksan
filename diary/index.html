@@ -134,10 +134,13 @@ function norm(e){
 function load(){
   var a=[];try{a=JSON.parse(localStorage.getItem(CK)||'[]')}catch(e){}
   items=(Array.isArray(a)?a:[]).filter(function(x){return x&&x.id}).map(norm).filter(function(x){return parse(x.date)});
-  items.sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:0});
+  sortItems();
 }
 function save(){try{localStorage.setItem(CK,JSON.stringify(items));localStorage.setItem(DIRTY,'1')}catch(e){toast('บันทึกในเครื่องไม่สำเร็จ')}}
-function byDate(d){return items.filter(function(e){return e.date===d})[0]}
+function byId(i){return items.filter(function(e){return e.id===i})[0]}
+function sortItems(){items.sort(function(a,b){if(a.date!==b.date)return a.date<b.date?1:-1;var x=a.createdAt||'',y=b.createdAt||'';return x<y?1:x>y?-1:0})}
+function newId(date){var id='dy_'+date;if(!byId(id))return id;do{id='dy_'+date+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5)}while(byId(id));return id}
+function tm(e){var d=new Date(e.createdAt);return isNaN(d)?'':pad(d.getHours())+':'+pad(d.getMinutes())+' น.'}
 
 /* ---------- สถิติ ---------- */
 function streak(){
@@ -172,10 +175,10 @@ function render(){
   renderStats();renderChips();
   var v=visible(), h='';
   if(!v.length){
-    h='<div class="dr-empty">'+(items.length?'ไม่พบบันทึกที่ค้นหา':'ยังไม่มีบันทึก<br>แตะปุ่ม ✎ เพื่อเขียนบันทึกของวันนี้')+'</div>';
+    h='<div class="dr-empty">'+(items.length?'ไม่พบบันทึกที่ค้นหา':'ยังไม่มีบันทึก<br>แตะปุ่ม ✎ เพื่อเขียนบันทึกใหม่')+'</div>';
   }else{
     v.forEach(function(e){
-      h+='<button type="button" class="dr-card" data-d="'+e.date+'"><div class="top"><span class="dt">'+esc(thDate(e.date))+'</span><span class="mo">'+(MOODS[e.mood]||'')+'</span></div>'+
+      h+='<button type="button" class="dr-card" data-id="'+esc(e.id)+'"><div class="top"><span class="dt">'+esc(thDate(e.date))+(tm(e)?' · '+tm(e):'')+'</span><span class="mo">'+(MOODS[e.mood]||'')+'</span></div>'+
         (e.title?'<h4>'+esc(e.title)+'</h4>':'')+(e.body?'<p>'+esc(e.body)+'</p>':'')+'</button>';
     });
   }
@@ -183,10 +186,9 @@ function render(){
 }
 
 /* ---------- ตัวแก้ไข ---------- */
-function openEditor(date){
-  date=date||today();
-  var ex=byDate(date);
-  ed={date:date,mood:ex?ex.mood:0};
+function openEditor(id){
+  var ex=id?byId(id):null, date=ex?ex.date:today();
+  ed={id:ex?ex.id:null,date:date,mood:ex?ex.mood:0};
   $('sheet').innerHTML=
     '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><b style="font-size:15px">เขียนบันทึก</b><span class="dr-saved" id="drSaved"></span></div>'+
     '<input type="date" id="eDate" value="'+date+'" aria-label="วันที่">'+
@@ -200,34 +202,34 @@ function openEditor(date){
 }
 function commit(quiet){
   if(!ed) return;
-  var title=($('eTitle').value||'').trim(), body=($('eBody').value||'').replace(/\s+$/,''), ex=byDate(ed.date);
+  var title=($('eTitle').value||'').trim(), body=($('eBody').value||'').replace(/\s+$/,''), ex=ed.id?byId(ed.id):null;
   if(!title&&!body&&!ed.mood) return; /* ไม่สร้างบันทึกว่าง */
-  if(ex&&ex.title===title&&ex.body===body&&ex.mood===ed.mood) return;
+  if(ex&&ex.title===title&&ex.body===body&&ex.mood===ed.mood&&ex.date===ed.date) return;
   var t=now();
-  if(ex){ex.title=title;ex.body=body;ex.mood=ed.mood;ex.updatedAt=t}
-  else items.push({id:'dy_'+ed.date,date:ed.date,title:title,body:body,mood:ed.mood,createdAt:t,updatedAt:t});
-  items.sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:0});
+  if(ex){ex.title=title;ex.body=body;ex.mood=ed.mood;ex.date=ed.date;ex.updatedAt=t}
+  else{ed.id=newId(ed.date);items.push({id:ed.id,date:ed.date,title:title,body:body,mood:ed.mood,createdAt:t,updatedAt:t})}
+  sortItems();
   save();
   if(!quiet){var s=$('drSaved');if(s)s.textContent='บันทึกในเครื่องแล้ว'}
 }
 function schedule(){clearTimeout(saveT);saveT=setTimeout(function(){commit();render()},700)}
 function closeEditor(){
   clearTimeout(saveT);
-  var d=ed&&ed.date;
   try{commit(true)}catch(e){}
+  var d=ed&&ed.id;
   ed=null;$('modal').classList.remove('on');
   try{render()}catch(e){}
-  if(d&&byDate(d)) openReader(d); /* เขียนเสร็จ → เปิดอ่านเป็นหน้าหนังสือ */
+  if(d&&byId(d)) openReader(d); /* เขียนเสร็จ → เปิดอ่านเป็นหน้าหนังสือ */
 }
 
 /* ---------- โหมดอ่าน (เหมือนเปิดอ่านสมุดไดอารี่) ---------- */
-function openReader(date){
-  var e=byDate(date); if(!e){closeReader();return}
-  rd=date;
+function openReader(id){
+  var e=byId(id); if(!e){closeReader();return}
+  rd=id;
   var i=items.indexOf(e); /* items เรียงใหม่→เก่า */
   $('rPrev').disabled=!(i<items.length-1);
   $('rNext').disabled=!(i>0);
-  $('rPage').innerHTML='<div class="dr-rinner"><div class="dr-rdate">'+esc(thDate(e.date,true))+'</div>'+
+  $('rPage').innerHTML='<div class="dr-rinner"><div class="dr-rdate">'+esc(thDate(e.date,true))+(tm(e)?' · '+esc(tm(e)):'')+'</div>'+
     (e.mood?'<div class="dr-rmood" title="'+esc(MNAME[e.mood])+'">'+MOODS[e.mood]+'</div>':'')+
     (e.title?'<h2 class="dr-rtitle">'+esc(e.title)+'</h2>':'')+
     ((e.title||e.mood)&&e.body?'<hr class="dr-rrule">':'')+
@@ -237,8 +239,8 @@ function openReader(date){
 }
 function closeReader(){rd=null;$('reader').classList.remove('on');render()}
 function stepReader(dir){
-  var e=byDate(rd); if(!e) return;
-  var n=items[items.indexOf(e)+dir]; if(n) openReader(n.date);
+  var e=byId(rd); if(!e) return;
+  var n=items[items.indexOf(e)+dir]; if(n) openReader(n.id);
 }
 $('rBack').onclick=closeReader;
 $('rEdit').onclick=function(){var d=rd;rd=null;$('reader').classList.remove('on');openEditor(d)};
@@ -253,7 +255,7 @@ $('sheet').addEventListener('input',function(e){if(e.target.id==='eTitle'||e.tar
 $('sheet').addEventListener('change',function(e){
   if(e.target.id==='eDate'){
     var nd=e.target.value; if(!parse(nd)){e.target.value=ed.date;return}
-    clearTimeout(saveT);commit(true);openEditor(nd);render();
+    ed.date=nd;clearTimeout(saveT);commit(true);render();
   }
 });
 $('sheet').addEventListener('click',function(e){
@@ -263,8 +265,8 @@ $('sheet').addEventListener('click',function(e){
     commit();render();return}
   if(e.target.id==='eDone'){closeEditor();return}
   if(e.target.id==='eDel'){
-    if(!confirm('ลบบันทึกของวันที่นี้ใช่ไหม? ลบแล้วกู้คืนไม่ได้'))return;
-    clearTimeout(saveT);items=items.filter(function(x){return x.date!==ed.date});save();ed=null;
+    if(!confirm('ลบบันทึกนี้ใช่ไหม? ลบแล้วกู้คืนไม่ได้'))return;
+    clearTimeout(saveT);items=items.filter(function(x){return x.id!==ed.id});save();ed=null;
     $('modal').classList.remove('on');render();toast('ลบแล้ว');
   }
 });
@@ -274,8 +276,8 @@ $('modal').addEventListener('click',function(e){
   downOnBackdrop=false;
   if(ok)closeEditor();
 });
-$('fab').onclick=function(){openEditor(today())};
-$('list').addEventListener('click',function(e){var c=e.target.closest('.dr-card');if(c)openReader(c.dataset.d)});
+$('fab').onclick=function(){openEditor(null)};
+$('list').addEventListener('click',function(e){var c=e.target.closest('.dr-card');if(c)openReader(c.dataset.id)});
 $('chips').addEventListener('click',function(e){var c=e.target.closest('.dr-chip');if(!c)return;month=c.dataset.m;render()});
 $('q').addEventListener('input',function(){q=this.value;render()});
 

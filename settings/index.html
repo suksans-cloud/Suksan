@@ -476,7 +476,7 @@ const SYNC_TARGETS = [
   { key:'diary', name:'📔 My Diary', cacheKey:'mff_diary_cache_v1', tab:'Diary', range:'A:G',
     headers:['ID','Date','Title','Body','Mood','CreatedAt','UpdatedAt'],
     toRow:e=>[e.id,"'"+(e.date||''),drGuard(e.title),drGuard(e.body),e.mood||0,e.createdAt||'',e.updatedAt||''],
-    fromRow:r=>({id:r[0],date:String(r[0]||'').replace(/^dy_/,''),title:r[2]||'',body:r[3]||'',mood:Number(r[4])||0,createdAt:r[5]||'',updatedAt:r[6]||''}), lastSyncKey:'sheet_last_sync_diary' },
+    fromRow:r=>({id:r[0],date:((String(r[1]||'').replace(/^'/,'').match(/^\d{4}-\d{2}-\d{2}$/)||[])[0])||String(r[0]||'').replace(/^dy_/,'').slice(0,10),title:r[2]||'',body:r[3]||'',mood:Number(r[4])||0,createdAt:r[5]||'',updatedAt:r[6]||''}), lastSyncKey:'sheet_last_sync_diary' },
   { key:'settings', name:'⚙️ งบและรายการประจำ', cacheKey:'mff_settings_cache_v1', tab:'AppSettings', range:'A:C',
     headers:['ID','Value','UpdatedAt'],
     toRow:s=>[s.id,s.value,s.updatedAt],
