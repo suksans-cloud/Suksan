@@ -60,7 +60,7 @@
     <a href="bookshelf/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><path class="fl" d="M4 4.5c0-.5.6-.9 1.3-.9H10a2 2 0 0 1 2 2V20a2 2 0 0 0-2-1.6H4z"/><path d="M20 4.5c0-.5-.6-.9-1.3-.9H14a2 2 0 0 0-2 2V20a2 2 0 0 1 2-1.6h6z"/><path class="ac" d="M7 8h2.5M7 11h2.5"/></svg></span><strong>My Bookshelf</strong><small class="s">คลังหนังสือ</small></a>
     <a href="calendar/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><rect class="fl" x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path class="ac" d="M8.5 14.5h.01M12 14.5h.01M15.5 14.5h.01M8.5 17h.01M12 17h.01"/></svg></span><strong>My Calendar</strong><small class="s">ปฏิทิน</small></a>
     <a href="diary/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><path class="fl" d="M6.5 3.5h11a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z"/><path d="M9 3.5v17"/><path class="ac" d="M12.5 8.5H16M12.5 12H16"/></svg></span><strong>My Diary</strong><small class="s">บันทึกประจำวัน</small></a>
-    <a href="goals/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle class="ac" cx="12" cy="12" r="4.5"/><circle class="fl" cx="12" cy="12" r="1"/></svg></span><strong>My Goals</strong><small class="s" id="hmGoalSub">เป้าหมายประจำปี</small></a>
+    <a href="tools/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><path class="fl" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/><path class="ac" d="M6.5 18.5h.01"/></svg></span><strong>My Tools</strong><small class="s">คำนวณ · สุขภาพ</small></a>
     <a href="money/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><rect class="fl" x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><circle class="ac" cx="16.5" cy="14.5" r="1.3"/></svg></span><strong>My Money</strong><small class="s">สรุปรายรับรายจ่าย</small></a>
     <a href="notes/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><path class="fl" d="M6 3.5h9l3.5 3.5V20a.5.5 0 0 1-.5.5H6a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5z"/><path d="M14.5 3.5V7.5h4"/><path class="ac" d="M9 12h6M9 15.5h4"/></svg></span><strong>My Notes</strong><small class="s">โน้ต · To-do</small></a>
     <a href="my-plan/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><rect class="fl" x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4.5h6"/><path class="ac" d="M9 12.5l2 2 4-4.5M9 18h6"/></svg></span><strong>My Plan</strong><small class="s">ภาษี · เกษียณ</small></a>
@@ -402,8 +402,6 @@ if('serviceWorker' in navigator){
 <script>
 (function(){
   'use strict';
-  /* ข้อความใต้ปุ่ม My Goals */
-  try{ var gs=window.MFFGoalsCore&&MFFGoalsCore.summary(new Date()), gp=document.getElementById('hmGoalSub'); if(gs&&gs.n&&gp) gp.textContent='เป้าหมายปีนี้ คืบหน้า '+gs.avg+'%'; }catch(e){}
 })();
 </script>
 </body>

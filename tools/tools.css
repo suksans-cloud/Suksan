@@ -1,0 +1,87 @@
+/* My Plan — เครื่องคิดเลข / แปลงสกุลเงิน / ราคาทองคำ  (ใช้ตัวแปรสีของหน้า My Plan จึงรองรับโหมดมืดอัตโนมัติ) */
+.mpt-sub{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 0 12px;padding:2px 0}
+.mpt-sub button,.mpt-chip{flex:1 0 auto;min-height:40px;padding:8px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font:600 12.5px 'Noto Sans Thai',sans-serif;white-space:nowrap}
+.mpt-sub button.active,.mpt-chip.active{background:var(--primary-soft);border-color:var(--primary-light);color:var(--primary)}
+.mpt-card{background:var(--surface);border:1px solid var(--line);border-radius:17px;padding:14px;margin-bottom:12px}
+.mpt-card h3{margin:0 0 2px;font-size:15px;color:var(--ink)}
+.mpt-card .mpt-hint{margin:0 0 10px;font-size:11.5px;line-height:1.5;color:var(--ink-faint)}
+.mpt-note{font-size:11px;line-height:1.6;color:var(--ink-faint);margin:8px 0 0}
+.mpt-status{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--muted);margin:0 0 10px;line-height:1.5}
+.mpt-btn{min-height:40px;padding:8px 14px;border-radius:11px;border:1px solid var(--line);background:var(--surface);color:var(--primary);font:700 12px 'Noto Sans Thai',sans-serif}
+.mpt-btn.p{background:var(--primary);border-color:var(--primary);color:#fff}
+.mpt-btn:disabled{opacity:.55}
+.mpt-in,.mpt-sel{width:100%;min-height:46px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);padding:10px 12px;font:600 16px 'Noto Sans Thai',sans-serif;min-width:0}
+.mpt-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:8px;margin-bottom:8px}
+.mpt-swap{display:grid;place-items:center;margin:2px 0 8px}
+.mpt-swap button{width:42px;height:42px;border-radius:50%;border:0;background:var(--primary-soft);color:var(--primary);font-size:20px;min-height:0}
+.mpt-out{font:700 26px/1.2 Prompt,'Noto Sans Thai',sans-serif;color:var(--primary);word-break:break-all;margin:2px 0}
+.mpt-sub-out{font-size:12px;color:var(--muted)}
+
+/* calculator */
+.mpt-disp{background:var(--primary-soft);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:10px;text-align:right;min-height:96px;display:flex;flex-direction:column;justify-content:flex-end}
+.mpt-expr{font-size:13px;color:var(--muted);min-height:20px;word-break:break-all;line-height:1.4}
+.mpt-res{font:700 34px/1.2 Prompt,'Noto Sans Thai',sans-serif;color:var(--primary);word-break:break-all}
+.mpt-res.err{font-size:18px;color:var(--red)}
+.mpt-mem{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:6px}
+.mpt-mem button{min-height:34px;border:0;border-radius:9px;background:transparent;color:var(--muted);font:700 12px Prompt,sans-serif}
+.mpt-mem button:active{background:var(--primary-soft)}
+.mpt-pad{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.mpt-pad.sci{grid-template-columns:repeat(5,1fr);margin-bottom:7px}
+.mpt-k{min-height:50px;border:1px solid var(--line);border-radius:13px;background:var(--surface);color:var(--ink);font:600 18px Prompt,'Noto Sans Thai',sans-serif;padding:0;touch-action:manipulation}
+.mpt-k:active{background:var(--primary-soft)}
+.mpt-k.op{background:var(--bg);color:var(--primary)}
+.mpt-k.fn{background:var(--bg);color:var(--muted);font-size:14px}
+.mpt-k.eq{background:var(--primary);border-color:var(--primary);color:#fff}
+.mpt-k.on{background:var(--primary-soft);color:var(--primary);border-color:var(--primary-light)}
+.mpt-hist{margin-top:10px}
+.mpt-hist button[data-h]{display:block;width:100%;text-align:right;border:0;border-bottom:1px solid var(--line);background:transparent;padding:8px 2px;color:var(--ink);min-height:0}
+.mpt-hist small{display:block;color:var(--ink-faint);font-size:11.5px;word-break:break-all}
+.mpt-hist b{font-size:15px;word-break:break-all}
+
+/* converter */
+.mpt-chips{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:2px 0 10px}
+.mpt-all{margin-top:10px;display:grid;gap:0}
+.mpt-all button{display:flex;justify-content:space-between;gap:10px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);padding:9px 2px;min-height:0;text-align:left;font-size:13px}
+.mpt-all button span:last-child{font-weight:700;text-align:right;word-break:break-all}
+.mpt-all button.cur{color:var(--primary)}
+
+/* fx list */
+.mpt-list{display:grid;gap:0}
+.mpt-li{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 2px;border-bottom:1px solid var(--line);background:transparent;border-left:0;border-right:0;border-top:0;border-radius:0;color:var(--ink);text-align:left;min-height:0;width:100%}
+.mpt-li .fl{font-size:24px;text-align:center}
+.mpt-li b{display:block;font-size:14px}
+.mpt-li small{display:block;color:var(--ink-faint);font-size:11px}
+.mpt-li .v{text-align:right;font-weight:700;font-size:14px}
+.mpt-li .v small{font-weight:500}
+
+/* gold */
+.mpt-g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mpt-box{background:var(--bg);border:1px solid var(--line);border-radius:13px;padding:10px 11px;min-width:0}
+.mpt-box .k{font-size:11px;color:var(--muted)}
+.mpt-box .v{font:700 17px/1.25 Prompt,'Noto Sans Thai',sans-serif;color:var(--ink);margin-top:2px;word-break:break-all}
+.mpt-box .v.buy{color:var(--green)}.mpt-box .v.sell{color:var(--red)}
+.mpt-tag{display:inline-block;font:700 10.5px 'Noto Sans Thai',sans-serif;padding:3px 8px;border-radius:999px;background:var(--primary-soft);color:var(--primary);margin-left:6px;vertical-align:middle}
+.mpt-tag.bad{background:#FBE8E3;color:#B5422B}
+.mpt-tag.est{background:#FFF3D6;color:#8C6A20}
+.mpt-src{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.mpt-src a{font-size:11.5px;color:var(--primary);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 10px}
+@media(max-width:380px){.mpt-g2{grid-template-columns:1fr}.mpt-k{min-height:46px;font-size:17px}}
+
+/* My Tools: ไอคอนตัวสุดท้ายอยู่ในตารางปกติ ไม่ขยายเต็มแถว */
+.menu.menu-grid button:last-child:nth-child(odd){grid-column:auto!important;min-height:0!important}
+
+/* แก้เมนูแปลงหน่วยล้นจอ: ให้เนื้อหาในแผงหดตามความกว้างหน้าจอ และเลื่อนแนวนอนเฉพาะแถบหมวด */
+main > .panel{min-width:0;max-width:100%;overflow:hidden}
+main > .panel > *,[data-mpt]{min-width:0;max-width:100%}
+.mpt-card,.mpt-all,.mpt-row,.mpt-row>*,.mpt-chips,.mpt-sub{min-width:0;max-width:100%;box-sizing:border-box}
+.mpt-row{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}
+.mpt-chips,.mpt-sub{overflow-x:auto;overscroll-behavior-x:contain}
+.mpt-chip{flex:0 0 auto}
+.mpt-sub button{flex:1 0 auto}
+.mpt-in,.mpt-sel{max-width:100%}
+.mpt-out{overflow-wrap:anywhere;word-break:break-word;font-size:clamp(20px,6.5vw,26px)}
+.mpt-all button{min-width:0}
+.mpt-all button span:first-child{flex:0 1 auto;min-width:0}
+.mpt-all button span:last-child{min-width:0;overflow-wrap:anywhere;word-break:break-word}
+/* body เป็น flex column: ต้องให้ main หดได้ ไม่ขยายตามเนื้อหา */
+main.wrap{min-width:0;width:100%;box-sizing:border-box}

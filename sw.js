@@ -1,8 +1,8 @@
-const CACHE='mff-shell-v66-diary-multi';
+const CACHE='mff-shell-v71-unit-fit';
 const SHELL=[
   './index.html','./shell.css','./config.js','./data-safety.js','./admin-login.js','./settings-store.js','./themes.js','./reminders.js','./goals-core.js','./privacy-eye.js',
   './money/index.html','./money/daily.html','./money/monthly.html',
-  './calendar/index.html','./my-plan/index.html','./bookshelf/index.html','./profile/index.html','./settings/index.html','./notes/index.html','./diary/index.html','./goals/index.html',
+  './calendar/index.html','./my-plan/index.html','./tools/index.html','./tools/tools.css','./tools/tools.js','./tools/health.js','./bookshelf/index.html','./profile/index.html','./settings/index.html','./notes/index.html','./diary/index.html','./goals/index.html',
   './portfolio/index.html','./portfolio/dashboard.html','./portfolio/auth-open.js',
   './portfolio/manifest.json','./manifest.json'
 ];

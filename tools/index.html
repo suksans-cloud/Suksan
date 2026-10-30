@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="var(--bg)"><title>My Tools — เครื่องมือช่วยคำนวณ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#072340;--primary-light:#3A6C93;--primary-soft:#E3EBF1;--surface:#fff;--ink:#2E3A42;--ink-soft:#5C6B74;--ink-faint:#8B9AA3;--navy:#072340;--blue:#3A6C93;--cyan:#E3EBF1;--bg:#F2F4F6;--line:#E1E6EA;--muted:#5C6B74;--green:#1F9D6C;--red:#E0654B;--white:#fff}*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:'Noto Sans Thai',sans-serif;color:var(--ink)}button,input,select{font:inherit}button{cursor:pointer}.hero{background:linear-gradient(130deg,var(--primary),var(--primary-light));color:white;padding:22px max(18px,calc((100vw - 1100px)/2)) 28px}.top{display:flex;align-items:center;gap:12px}.back{width:40px;height:40px;border:1px solid #ffffff55;border-radius:13px;background:#ffffff12;color:#fff;font-size:22px}.eyebrow{font-size:12px;opacity:.75;letter-spacing:.08em;margin:0 0 4px}.hero h1{font:700 27px Prompt,sans-serif;margin:0}.hero p:last-child{font-size:13px;opacity:.82;margin:6px 0 0}.wrap{max-width:1100px;margin:-12px auto 40px;padding:0 16px}.menu{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:18px}.menu button{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px 12px;text-align:left;color:var(--ink);box-shadow:0 5px 18px #163f5a08;transition:.15s}.menu button.active{border-color:var(--primary-light);box-shadow:0 0 0 2px var(--primary-soft);background:var(--bg)}.ico{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:var(--cyan);font-size:21px;margin-bottom:10px}.menu strong{display:block;font:600 14px Prompt,sans-serif}.menu small{display:block;color:var(--muted);font-size:11px;margin-top:4px}.panel{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 10px 28px #19384d08}.panelhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:20px}.panel h2{font:600 21px Prompt,sans-serif;margin:0}.panelhead p{margin:4px 0 0;color:var(--muted);font-size:13px}.pill{border-radius:99px;background:var(--primary-soft);color:var(--primary-light);padding:6px 10px;font-size:11px;white-space:nowrap}.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.78fr);gap:22px}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{min-width:0}.field.full{grid-column:1/-1}label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:0 0 6px}.inputwrap{position:relative}input,select{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px 13px;background:var(--bg);color:var(--ink);outline:none;min-width:0}input:focus,select:focus{border-color:var(--primary-light);box-shadow:0 0 0 3px var(--primary-soft)}input[type=range]{padding:0;accent-color:var(--blue);box-shadow:none;border:0;background:transparent}.hint{font-size:11px;color:var(--muted);margin-top:5px}.results{border-radius:18px;padding:20px;background:linear-gradient(145deg,var(--primary),var(--primary-light));color:white;align-self:start}.result-label{font-size:12px;opacity:.75}.big{font:700 clamp(25px,4vw,34px) Prompt,sans-serif;margin:5px 0 16px;overflow-wrap:anywhere}.resultrow{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #ffffff28;padding:11px 0;font-size:12px}.resultrow b{font-size:13px;text-align:right}.resultrow:last-child{padding-bottom:0}.note{font-size:11px;color:var(--muted);line-height:1.7;margin:16px 0 0}.positive{color:#7FD1AE}.negative{color:#F3B5A8}.hidden{display:none!important}.fund-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}.fund-table th{text-align:left;color:var(--muted);font-weight:600;padding:9px 5px;border-bottom:1px solid var(--line)}.fund-table td{padding:7px 4px;border-bottom:1px solid var(--line)}.fund-table input{padding:9px 8px;border-radius:9px}.fund-table .pct{width:78px}.fund-table .fundname{min-width:95px}.fund-table button{border:0;background:#F3DFDA;color:#E0654B;border-radius:8px;padding:8px}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.secondary,.primary{border-radius:11px;padding:10px 14px;font-size:12px;font-weight:600}.secondary{background:var(--surface);border:1px solid var(--line);color:var(--muted)}.primary{background:var(--blue);border:0;color:white}.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin:10px 0}.bar span{display:block;height:100%;background:linear-gradient(90deg,var(--primary-light),var(--primary-light));border-radius:99px}.chartgrid{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-top:16px}.chartcard{border:1px solid var(--line);border-radius:16px;padding:14px;min-width:0}.chartcard h3{font:600 14px Prompt,sans-serif;margin:0 0 10px}.chartcard canvas{width:100%;height:220px;display:block}.sso-subnav{display:flex;gap:8px;flex-wrap:wrap;margin:-4px 0 18px}.sso-subnav button{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:9px 12px;color:var(--ink);font-size:12px}.sso-subnav button.active{background:var(--primary-soft);border-color:var(--primary-light);color:var(--primary-light)}.tablewrap{overflow:auto;max-height:320px;border:1px solid var(--line);border-radius:12px;margin-top:12px}.amort{border-collapse:collapse;width:100%;font-size:11px;white-space:nowrap}.amort th,.amort td{padding:8px;border-bottom:1px solid var(--line);text-align:right}.amort th:first-child,.amort td:first-child{text-align:left}.footer{text-align:center;font-size:11px;color:var(--ink-faint);padding:18px 0 0}.error{color:var(--red);font-size:12px;margin-top:8px}.subhead{font:600 14px Prompt,sans-serif;margin:20px 0 8px}@media(max-width:760px){.chartgrid{grid-template-columns:1fr}.menu{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.menu button{padding:13px}.layout{grid-template-columns:1fr}.panel{padding:17px}.hero h1{font-size:24px}.results{order:-1}.fields{gap:12px}}@media(max-width:390px){.fields{grid-template-columns:1fr}.field.full{grid-column:auto}.panelhead{display:block}.pill{display:inline-block;margin-top:10px}}
+
+/* Mobile-first finance dashboard polish */
+body{background:linear-gradient(180deg,var(--bg) 0%,var(--bg) 100%);-webkit-text-size-adjust:100%}
+.hero{background:linear-gradient(135deg,var(--primary),var(--primary-light));padding-top:max(18px,env(safe-area-inset-top));border-radius:0 0 26px 26px}
+.wrap{margin-top:-14px}
+.menu button{border-radius:17px;min-height:112px;position:relative;overflow:hidden}
+.menu button.active{background:linear-gradient(150deg,#fff,var(--bg));border-color:var(--primary-light);box-shadow:0 6px 18px color-mix(in srgb,var(--primary-light) 9%,transparent)}
+.ico{border-radius:14px;background:linear-gradient(145deg,var(--primary-soft),var(--primary-soft));color:var(--primary-light)}
+.panel{border-radius:22px;border-color:var(--line);box-shadow:0 8px 24px color-mix(in srgb,var(--primary) 4%,transparent)}
+.panelhead{margin-bottom:16px}
+.results{background:linear-gradient(145deg,var(--primary-soft),var(--primary-soft));color:var(--primary);border:1px solid var(--line);box-shadow:inset 0 1px var(--surface)}
+.result-label{color:var(--muted);opacity:1}.resultrow{border-top-color:var(--line)}.big{color:var(--primary-light)}.positive{color:#1F9D6C}.negative{color:#E0654B}
+input,select{border-radius:10px;background:var(--bg);min-height:44px;font-size:16px}
+input[type=number],input[inputmode=decimal]{font-variant-numeric:tabular-nums}
+button,.secondary,.primary{touch-action:manipulation;min-height:42px}
+.primary{background:linear-gradient(90deg,var(--primary-light),var(--primary-light))}
+.chartcard{border-radius:17px;background:var(--surface)}
+.tablewrap{-webkit-overflow-scrolling:touch}
+.fund-table-wrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:12px}.fund-table{width:100%;min-width:0;table-layout:fixed}.fund-table th,.fund-table td{overflow-wrap:anywhere}.fund-table th:nth-child(1){width:31%}.fund-table th:nth-child(2){width:32%}.fund-table th:nth-child(3){width:22%}.fund-table th:nth-child(4){width:15%}.fund-table input{width:100%;min-width:0;font-size:14px;min-height:40px;padding:8px 7px}.fund-table .pct{width:100%;background:var(--line);color:var(--muted);text-align:right}.fund-table .fundname{width:100%;min-width:0}.fund-table .fundamount{width:100%;min-width:0}
+/* Avoid page overflow on phones; keep wide data tables swipeable */
+html,body{max-width:100%;overflow-x:hidden}
+@media(max-width:760px){
+ .hero{padding-left:16px;padding-right:16px;padding-bottom:26px}.hero h1{font-size:23px;line-height:1.35}.hero p:last-child{line-height:1.6}
+ .wrap{padding:0 12px;margin-bottom:24px}.menu{gap:8px}.menu button{padding:12px 11px;min-height:108px}.menu strong{font-size:13px;line-height:1.45}.menu small{font-size:10px}
+ .panel{padding:14px;border-radius:19px}.panelhead{display:flex;gap:8px;align-items:flex-start}.panel h2{font-size:18px;line-height:1.4}.panelhead p{font-size:12px;line-height:1.5}.pill{font-size:10px;padding:5px 8px}
+ .layout{gap:14px}.results{order:-1;padding:16px;border-radius:18px}.big{font-size:29px;margin-bottom:10px}.resultrow{padding:9px 0;font-size:12px}.fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.field.full{grid-column:1/-1}
+ .chartgrid{gap:10px}.chartcard{padding:12px}.chartcard canvas{height:190px}.sso-subnav{display:grid;grid-template-columns:1fr 1fr;gap:7px}.sso-subnav button{font-size:12px;padding:10px 8px}
+ .actions>*{flex:1 1 auto}.fund-table{font-size:11px}.fund-table th{white-space:nowrap}.note{line-height:1.75}
+}
+@media(max-width:390px){.panelhead{display:flex}.panelhead .pill{max-width:104px;white-space:normal;text-align:center}.fields{grid-template-columns:1fr}.field.full{grid-column:auto}.menu button{min-height:100px}.big{font-size:26px}.results{padding:14px}.chartcard canvas{height:175px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+  /* ---------- RETIREMENT PLANNER — uses the same Portfolio/Jitta visual system ---------- */
+  .ret-wrap{padding:0 0 18px;}
+  .ret-hero{
+    background:radial-gradient(120% 140% at 15% 0%, var(--primary-light) 0%, var(--primary) 46%, var(--primary) 100%);
+    border-radius:var(--radius-l); padding:24px 20px 22px; color:#fff;
+    box-shadow:var(--shadow-hero); position:relative; overflow:hidden; margin-top:6px;
+  }
+  .ret-hero:after{
+    content:""; position:absolute; right:-40px; top:-60px; width:220px; height:220px;
+    border-radius:50%; background:radial-gradient(circle,rgba(255,255,255,.14),rgba(255,255,255,0) 70%);
+  }
+  .ret-kicker{font-size:11px;letter-spacing:.12em;font-weight:700;color:rgba(255,255,255,.72);margin:0 0 5px;}
+  .ret-title{font-family:'Prompt','Noto Sans Thai',sans-serif;font-size:24px;line-height:1.15;margin:0;font-weight:700;}
+  .ret-sub{font-size:12.5px;line-height:1.55;color:rgba(255,255,255,.82);margin:7px 0 0;max-width:330px;}
+  .ret-hero-stat{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;}
+  .ret-stat{flex:1;min-width:96px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:9px 12px;position:relative;overflow:hidden;}
+  .ret-stat .k{font-size:11px;line-height:1.45;color:rgba(255,255,255,.7);min-height:32px;display:flex;align-items:flex-start;}
+  .ret-stat .v{font-size:16px;line-height:1.2;font-weight:700;margin-top:2px;}
+  .ret-stat:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;}
+  .ret-stat:nth-child(1):before{background:var(--gold);}.ret-stat:nth-child(2):before{background:var(--mint);}.ret-stat:nth-child(3):before{background:var(--coral);}
+  .ret-tabs{
+    display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;
+    margin:12px 0;
+    background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:5px;
+    box-shadow:var(--shadow-card);
+  }
+  .ret-tab{
+    border:0;background:transparent;color:var(--ink-soft);border-radius:11px;
+    padding:8px 3px;font:700 10px/1.15 'Noto Sans Thai','Prompt',sans-serif;cursor:pointer;
+  }
+  .ret-tab.active{background:var(--primary-soft);color:var(--primary);}
+  .ret-panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);box-shadow:var(--shadow-card);padding:15px;margin-bottom:12px;}
+  .ret-panel h3{margin:0;font-size:16px;}
+  .ret-panel .sub{margin:3px 0 13px;color:var(--ink-soft);font-size:12px;line-height:1.5;}
+  .ret-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .ret-field label{display:block;font-size:11.5px;font-weight:700;color:var(--ink-soft);margin:0 0 5px;}
+  .ret-field input,.ret-field select{
+    width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+    border-radius:11px;padding:10px 11px;font:600 13px 'Noto Sans Thai','Prompt',sans-serif;outline:none;
+  }
+  .ret-field input:focus,.ret-field select:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft);}
+  .ret-field.full{grid-column:1/-1;}
+  .ret-help{font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:10px;}
+  .ret-actions{display:flex;gap:8px;margin-top:12px;}
+  .ret-btn{border:0;border-radius:11px;padding:10px 14px;font:700 12px 'Noto Sans Thai','Prompt',sans-serif;cursor:pointer;}
+  .ret-btn.primary{background:var(--primary);color:#fff;}
+  .ret-btn.ghost{background:var(--primary-soft);color:var(--primary);}
+  .ret-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px;}
+  .ret-result{background:var(--bg);border:1px solid var(--line);border-radius:13px;padding:11px;}
+  .ret-result .k{font-size:10.5px;color:var(--ink-soft);}
+  .ret-result .v{font-size:17px;font-weight:700;margin-top:2px;}
+  .ret-result.emph{background:var(--primary-soft);border-color:#DCEFE4;}
+  .ret-result.emph .v{color:var(--primary-light);}
+  .ret-progress{height:9px;border-radius:999px;background:var(--line);overflow:hidden;margin-top:8px;}
+  .ret-progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--primary-light),var(--primary));border-radius:inherit;transition:width .25s ease;}
+  .ret-note{font-size:10px;color:var(--ink-faint);line-height:1.5;margin-top:11px;}
+  .ret-sim-list{display:grid;gap:9px;margin-top:12px;}
+  .ret-sim-row{display:grid;grid-template-columns:66px 1fr auto;align-items:center;gap:9px;}
+  .ret-sim-label{font-size:11px;font-weight:700;color:var(--ink-soft);}
+  .ret-sim-bar{height:10px;border-radius:999px;background:var(--line);overflow:hidden;}
+  .ret-sim-bar i{display:block;height:100%;border-radius:inherit;background:var(--primary);}
+  .ret-sim-value{font-size:11px;font-weight:700;min-width:68px;text-align:right;}
+  .ret-plan-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:999px;background:var(--primary-soft);color:var(--primary);font-size:10.5px;font-weight:700;}
+  .ret-warning{background:var(--warning-soft);color:#8C6A20;border:1px solid #EBDDBA;border-radius:12px;padding:10px;font-size:11px;line-height:1.5;margin-top:10px;}
+  @media(max-width:380px){
+    .ret-grid,.ret-result-grid{grid-template-columns:1fr;}
+    .ret-field.full{grid-column:auto;}
+    .ret-tabs{gap:2px;padding:4px;}
+    .ret-tab{font-size:9px;padding-left:1px;padding-right:1px;}
+    .ret-hero{padding:20px 15px;}
+  }
+
+
+/* My Plan integration: use the latest Suksan mobile visual system */
+#retirement .ret-wrap{--radius-l:20px;--shadow-hero:0 8px 24px color-mix(in srgb,var(--primary) 7%,transparent);--ink-soft:var(--muted);color:var(--ink);font-family:'Noto Sans Thai',sans-serif}
+#retirement .ret-hero{background:linear-gradient(135deg,var(--primary),var(--primary-light));border-radius:20px;padding:20px 16px;color:#fff}
+#retirement .ret-panel{background:var(--surface);border:1px solid var(--line);border-radius:17px;padding:16px;box-shadow:0 5px 18px color-mix(in srgb,var(--primary) 3%,transparent)}
+#retirement .ret-field input{width:100%;min-width:0;min-height:44px;font-size:16px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--bg)}
+#retirement .ret-tabs{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:12px 0;padding:4px}
+#retirement .ret-tab{flex:1 0 auto;min-height:42px;border-radius:11px;padding:9px 12px;border:1px solid var(--line);background:var(--surface);color:var(--muted)}
+#retirement .ret-tab.active{background:var(--primary-soft);border-color:var(--primary-light);color:var(--primary-light)}
+#retirement .ret-btn{min-height:42px;border-radius:11px;padding:10px 13px}
+#retirement .ret-result-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#retirement .ret-result{min-width:0;overflow-wrap:anywhere;border-radius:13px;padding:12px;background:var(--bg)}
+#retirement .ret-hero-stat{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#retirement .ret-stat{min-width:0;overflow-wrap:anywhere}
+#retirement .ret-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media(max-width:600px){#retirement .ret-hero-stat{grid-template-columns:1fr}#retirement .ret-grid,#retirement .ret-result-grid{grid-template-columns:1fr}#retirement .ret-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible}#retirement .ret-tab{min-width:0}#retirement .ret-panel{padding:13px}#retirement .ret-title{font-size:22px;line-height:1.4}}
+
+</style><style id="mff-theme">
+/* match the main app (shell.css): grey page, white header, navy primary, slate text */
+body{background:var(--bg);color:var(--ink)}
+.hero{background:var(--bg);color:var(--ink);box-shadow:0 8px 24px color-mix(in srgb,var(--primary) 7%,transparent);border-radius:0 0 28px 28px;padding:calc(18px + env(safe-area-inset-top,0px)) 20px 22px}
+.hero .top{display:block}
+.hero .back{all:unset;display:inline-flex;align-items:center;gap:6px;color:var(--ink);font:600 15px 'Noto Sans Thai',sans-serif;opacity:.85;cursor:pointer;margin-bottom:6px;padding:4px 0}
+.hero .back::after{content:"หน้าแรก"}
+.hero .eyebrow{color:var(--primary);font:700 13px 'Noto Sans Thai',sans-serif;letter-spacing:0;text-transform:none;margin:0 0 4px;opacity:1}
+.hero h1{color:var(--ink);font:700 26px/1.25 'Prompt','Noto Sans Thai',sans-serif;margin:0}
+.hero p:last-child{color:var(--muted);font-size:13px;line-height:1.55;margin:6px 0 0}
+.wrap{margin-top:16px;padding:0 20px !important}
+.menu{gap:14px !important}
+.menu button{background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 4px 14px color-mix(in srgb,var(--primary) 5%,transparent);padding:16px !important;min-height:128px !important;text-align:left}
+.menu button{display:flex !important;flex-direction:column;align-items:flex-start;justify-content:flex-start !important;gap:6px}
+.menu button:last-child:nth-child(odd){grid-column:1/-1;min-height:104px !important}
+.menu button.active{background:var(--surface);border-color:var(--primary-light);box-shadow:0 6px 18px color-mix(in srgb,var(--primary-light) 13%,transparent)}
+.menu strong{color:var(--ink);font-size:15px !important}.menu small{color:var(--muted);font-size:11.5px !important}
+.ico{background:var(--primary-soft);color:var(--primary);border-radius:16px}
+.panel,.chartcard{border-color:var(--line);border-radius:22px;box-shadow:0 4px 14px color-mix(in srgb,var(--primary) 4%,transparent);background:var(--surface)}
+.results{background:var(--primary-soft);color:var(--primary);border:1px solid var(--line)}
+.result-label{color:var(--muted)}.resultrow{border-top-color:var(--line)}.big{color:var(--primary)}.positive{color:#1F9D6C}.negative{color:#E0654B}
+input,select{background:var(--bg);border-color:var(--line)}
+.primary{background:var(--primary);color:#fff}
+.footer{color:var(--ink-faint)}
+#retirement.panel{background:none;border:0;box-shadow:none;padding:0}
+#retirement .ret-tabs>*:last-child:nth-child(odd){grid-column:1/-1}
+body{display:flex;flex-direction:column;min-height:100vh}.footer{order:99;margin-top:auto}
+/* ===== My Plan v2: icon-circle menu (app palette) + new calculators ===== */
+.menu.menu-grid{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:16px 10px 12px;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 4px;box-shadow:0 8px 24px color-mix(in srgb,var(--primary) 4%,transparent)}
+.menu.menu-grid .menu-title{grid-column:1/-1;margin:0 8px 2px;font:700 17px Prompt,sans-serif;color:var(--navy)}
+.menu.menu-grid .menu-title small{display:block;font:400 11.5px 'Noto Sans Thai',sans-serif;color:var(--muted);margin-top:2px}
+.menu.menu-grid button{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:16px;min-height:0!important;padding:4px 2px 6px!important;display:flex;flex-direction:column;align-items:center;text-align:center;gap:0}
+.menu.menu-grid button:active{background:var(--bg)!important}
+.menu.menu-grid .ico{width:64px;height:64px;border-radius:50%;margin:0 0 8px;background:radial-gradient(circle at 30% 25%,var(--bg),var(--primary-soft) 70%);box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center;font-size:0}
+.menu.menu-grid .ico svg{width:36px;height:36px;stroke:var(--primary);stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.menu.menu-grid .ico svg .ac{stroke:var(--primary-light)}
+.menu.menu-grid .ico svg .fl{fill:color-mix(in srgb,var(--primary-light) 20%,transparent);stroke:var(--primary-light)}
+.menu.menu-grid strong{font:600 12.5px/1.35 Prompt,sans-serif;color:var(--ink)}
+.menu.menu-grid small{font-size:9.5px;color:var(--ink-faint);margin-top:2px}
+.menu.menu-grid .ico{position:relative}.menu.menu-grid button.tag-new .ico:after{content:"ใหม่";position:absolute;top:-3px;right:-8px;font:600 8.5px 'Noto Sans Thai',sans-serif;color:#fff;background:var(--primary-light);border-radius:99px;padding:1px 6px;line-height:1.5;box-shadow:0 0 0 2px var(--surface)}
+@media(min-width:900px){.menu.menu-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+.matrix-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:14px;margin-top:8px}
+.matrix{width:100%;border-collapse:collapse;font-size:11.5px;min-width:0;font-variant-numeric:tabular-nums}
+.matrix th{background:var(--bg);color:var(--muted);font-weight:600;padding:8px 4px;text-align:center;border-bottom:1px solid var(--line)}
+.matrix td{padding:9px 3px;text-align:center;border-bottom:1px solid var(--surface);font-weight:600}
+.matrix td.rowh{background:var(--bg);color:var(--muted);font-weight:600}
+.legend-bar{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);margin-top:8px}
+.legend-bar i{flex:1;height:8px;border-radius:99px;background:linear-gradient(90deg,var(--primary-soft),var(--primary-light))}
+.goalbox{background:linear-gradient(145deg,var(--bg),var(--primary-soft));border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:14px}
+.goalbox b{display:block;font:700 24px Prompt,sans-serif;color:var(--primary)}
+.goalbox span{font-size:12px;color:var(--muted)}
+.warn-box{background:#FCEFEA;border:1px solid #F3D0C6;color:#B5472F;border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.6;margin-top:10px}
+.info-box{background:var(--primary-soft);border:1px solid var(--line);color:var(--primary);border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.7;margin-top:10px}
+.rate-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}.rate-table th{text-align:left;color:var(--muted);font-weight:600;padding:7px 4px;border-bottom:1px solid var(--line)}.rate-table td{padding:7px 4px;border-bottom:1px solid var(--line)}.rate-table tr.cur td{background:var(--primary-soft);font-weight:700}
+html[data-theme="dark"] .primary,html[data-theme="dark"] .menu.menu-grid button.tag-new .ico:after{color:#12151C}
+html[data-theme="dark"] .hero{box-shadow:0 8px 24px #0006}
+</style><script src="../themes.js"></script><script>window.TC=function(n,f){try{return getComputedStyle(document.documentElement).getPropertyValue(n).trim()||f}catch(e){return f}};</script>
+<link rel="stylesheet" href="tools.css"></head><body>
+<header class="hero"><div class="top"><button class="back" onclick="location.href='../index.html'" aria-label="กลับหน้าหลัก">‹</button><div><p class="eyebrow">My Tools</p><h1>เครื่องมือช่วยคำนวณ</h1><p>เครื่องคิดเลข แปลงสกุลเงิน ราคาทองคำ และเครื่องมือสุขภาพในที่เดียว</p></div></div></header>
+<main class="wrap"><button type="button" id="myPlanBack" class="secondary hidden" style="margin:0 0 14px;min-height:44px" aria-label="กลับไปหน้า My Tools">‹ กลับไปหน้า My Tools</button><nav class="menu menu-grid" aria-label="เลือกเครื่องมือ"><div class="menu-title">เครื่องมือ<small>เลือกเครื่องมือที่ต้องการใช้งาน</small></div>
+<button data-tab="calc" class="tag-new"><span class="ico"><svg viewBox="0 0 24 24"><rect x="4.5" y="3.5" width="15" height="17" rx="2.6"/><rect class="ac" x="7.5" y="6.5" width="9" height="3.4" rx=".8"/><path class="ac" d="M8 13.5h.01M12 13.5h.01M16 13.5h.01M8 17h.01M12 17h.01M16 17h.01"/></svg></span><strong>เครื่องคิดเลข</strong><small>แปลงหน่วย</small></button>
+<button data-tab="fx" class="tag-new"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path class="ac" d="M8 10.2h8l-2.2-2.2M16 13.8H8l2.2 2.2"/></svg></span><strong>แปลงสกุลเงิน</strong><small>อ้างอิงบาท</small></button>
+<button data-tab="gold" class="tag-new"><span class="ico"><svg viewBox="0 0 24 24"><path d="M3.5 17.5l2.2-5h6.6l2.2 5z"/><path class="fl" d="M9 12.5l2-4.6h6.4l2.1 4.6z"/><path class="ac" d="M3.5 17.5h11"/></svg></span><strong>ราคาทองคำ</strong><small>ไทย · โลก</small></button>
+<button data-tab="health" class="tag-new"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.4a4.3 4.3 0 0 1 7.5 2.4C19.5 15.4 12 20 12 20z"/><path class="ac" d="M5.5 12.5h3.2l1.6-3 2.4 5 1.6-2h4.2"/></svg></span><strong>My Health</strong><small>สุขภาพ</small></button>
+</nav>
+<nav class="menu menu-grid hidden" id="healthMenu" aria-label="My Health"><div class="menu-title">My Health<small>เครื่องมือดูแลสุขภาพ เลือกโมดูลที่ต้องการ</small></div>
+<button data-tab="bmi" class="tag-new"><span class="ico"><svg viewBox="0 0 24 24"><rect x="4" y="4.5" width="16" height="15" rx="3.2"/><path class="ac" d="M8.2 10a5 5 0 0 1 7.6 0"/><path class="fl" d="M12 14.2l2-3"/></svg></span><strong>ดัชนีมวลกาย</strong><small>BMI</small></button>
+<button data-tab="cal" class="tag-new"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3.5c1 3.2 4.5 5 4.5 9a4.5 4.5 0 0 1-9 0c0-2 .9-3.3 2-4.4.2 1.1.8 1.8 1.6 2 .1-2.4.2-4 .9-6.6z"/><path class="fl" d="M12 20a2 2 0 0 1-2-2c0-1.2 1-2 2-3 1 1 2 1.8 2 3a2 2 0 0 1-2 2z"/></svg></span><strong>แคลอรี่ต่อวัน</strong><small>Calorie</small></button>
+<button data-tab="macro" class="tag-new"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path class="ac" d="M12 3.5V12l6 6"/><path class="fl" d="M12 12H3.5"/></svg></span><strong>สัดส่วนอาหาร</strong><small>Macros</small></button>
+<button data-tab="water" class="tag-new"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3.5c3 3.8 5.5 6.6 5.5 10a5.5 5.5 0 0 1-11 0c0-3.4 2.5-6.2 5.5-10z"/><path class="ac" d="M9.5 14.5a2.6 2.6 0 0 0 2.2 2.2"/></svg></span><strong>น้ำดื่มต่อวัน</strong><small>Water</small></button>
+<button data-tab="wlog" class="tag-new"><span class="ico"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.6"/><path class="ac" d="M7 15.5l3-3.5 2.5 2 4-5"/><path class="fl" d="M7 8h3"/></svg></span><strong>บันทึกน้ำหนัก</strong><small>Weight Log</small></button>
+</nav>
+<section class="panel hidden" id="calc"><div class="panelhead"><div><h2>เครื่องคิดเลข &amp; แปลงหน่วย</h2><p>คิดเลขแบบ Windows พร้อมโหมดวิทยาศาสตร์ และแปลงหน่วย 13 หมวด รวมหน่วยไทย (ไร่ งาน วา บาททองคำ)</p></div><span class="pill">Calculator</span></div><div class="mpt-sub" data-mpt="calc-sub"><button type="button" data-sub="std">มาตรฐาน</button><button type="button" data-sub="sci">วิทยาศาสตร์</button><button type="button" data-sub="unit">แปลงหน่วย</button></div><div data-mpt="calc-body"></div></section>
+<section class="panel hidden" id="fx"><div class="panelhead"><div><h2>แปลงสกุลเงิน</h2><p>อ้างอิงบาทไทย แปลงได้ทุกสกุลหลัก เก็บเรทล่าสุดไว้ใช้ตอนไม่มีอินเทอร์เน็ต</p></div><span class="pill">FX Rates</span></div><div data-mpt="fx-body"></div></section>
+<section class="panel hidden" id="gold"><div class="panelhead"><div><h2>ราคาทองคำ</h2><p>ทองคำไทย 96.5% จากสมาคมค้าทองคำ ฮั่วเซ่งเฮง (96.5% และ 99.99%) และทองคำโลก</p></div><span class="pill">Gold</span></div><div data-mpt="gold-body"></div></section>
+<section class="panel hidden" id="bmi"><div class="panelhead"><div><h2>ดัชนีมวลกาย (BMI)</h2><p>เกณฑ์สำหรับคนเอเชีย (WHO Asia-Pacific) พร้อมช่วงน้ำหนักที่เหมาะสม</p></div><span class="pill">BMI</span></div><div class="layout"><div class="fields"><div class="field"><label>เพศ</label><select data-h="sex"><option value="m">ชาย</option><option value="f">หญิง</option></select></div><div class="field"><label>ส่วนสูง (ซม.)</label><input data-h="h" type="number" inputmode="decimal" min="0" step="1" placeholder=""></div><div class="field"><label>น้ำหนัก (กก.)</label><input data-h="w" type="number" inputmode="decimal" min="0" step="0.1" placeholder=""></div><div class="field"><label>รอบเอว (ซม.) ไม่บังคับ</label><input data-h="waist" type="number" inputmode="decimal" min="0" step="1" placeholder=""><div class=hint>วัดระดับสะดือ</div></div></div><aside class="results"><div class="result-label">ค่า BMI</div><div class="big" id="hBmi">—</div><div id="hBmiCat" style="font:600 14px Prompt,sans-serif;margin:2px 0 4px">—</div><div id="hBmiBar"></div><div class="resultrow"><span>น้ำหนักที่เหมาะสม</span><b id="hBmiRange">—</b></div><div class="resultrow"><span>ส่วนต่างถึงช่วงปกติ</span><b id="hBmiDiff">—</b></div><div class="resultrow"><span>รอบเอว</span><b id="hWaistOut">—</b></div></aside></div><p class="note">เกณฑ์คนเอเชีย: ต่ำกว่า 18.5 น้ำหนักต่ำ · 18.5–22.9 ปกติ · 23–24.9 ท้วม · 25–29.9 อ้วนระดับ 1 · ตั้งแต่ 30 อ้วนระดับ 2 เกณฑ์รอบเอวเสี่ยง: ชายตั้งแต่ 90 ซม. หญิงตั้งแต่ 80 ซม. BMI ไม่แยกมวลกล้ามเนื้อ นักกีฬาหรือผู้สูงอายุอาจแปลผลต่างออกไป</p><div class="info-box">ผลที่ได้เป็นค่าประมาณเพื่อใช้วางแผนเบื้องต้น ไม่ใช่คำแนะนำทางการแพทย์ หากมีโรคประจำตัว ตั้งครรภ์ หรือต้องการควบคุมอาหารอย่างจริงจัง ควรปรึกษาแพทย์หรือนักกำหนดอาหาร ข้อมูลที่กรอกเก็บในเครื่องนี้เท่านั้น</div></section>
+<section class="panel hidden" id="cal"><div class="panelhead"><div><h2>แคลอรี่ต่อวัน</h2><p>พลังงานที่ร่างกายใช้ (BMR/TDEE) และแคลอรี่เป้าหมายตามน้ำหนักที่ต้องการ</p></div><span class="pill">Calorie</span></div><div class="layout"><div class="fields"><div class="field"><label>เพศ</label><select data-h="sex"><option value="m">ชาย</option><option value="f">หญิง</option></select></div><div class="field"><label>อายุ (ปี)</label><input data-h="age" type="number" inputmode="decimal" min="0" step="1" placeholder=""></div><div class="field"><label>ส่วนสูง (ซม.)</label><input data-h="h" type="number" inputmode="decimal" min="0" step="1" placeholder=""></div><div class="field"><label>น้ำหนัก (กก.)</label><input data-h="w" type="number" inputmode="decimal" min="0" step="0.1" placeholder=""></div><div class="field"><label>ระดับกิจกรรม</label><select data-h="act"><option value="1.2">นั่งทำงาน แทบไม่ออกกำลัง</option><option value="1.375">ออกกำลังเบาๆ 1–3 วัน/สัปดาห์</option><option value="1.55">ออกกำลังปานกลาง 3–5 วัน/สัปดาห์</option><option value="1.725">ออกกำลังหนัก 6–7 วัน/สัปดาห์</option><option value="1.9">หนักมาก / งานใช้แรงทั้งวัน</option></select></div><div class="field"><label>เป้าหมาย</label><select data-h="goal"><option value="lose">ลดน้ำหนัก</option><option value="keep">คงน้ำหนัก</option><option value="gain">เพิ่มน้ำหนัก</option></select></div></div><aside class="results"><div class="result-label">แคลอรี่เป้าหมายต่อวัน (kcal)</div><div class="big" id="hTarget">—</div><div class="resultrow"><span>พลังงานพื้นฐาน (BMR)</span><b id="hBmr">—</b></div><div class="resultrow"><span>ใช้จริงต่อวัน (TDEE)</span><b id="hTdee">—</b></div><div class="resultrow"><span>คาดว่าน้ำหนักเปลี่ยน</span><b id="hCalChange">—</b></div><p class="note" id="hCalNote" style="margin-top:10px"></p></aside></div><p class="note">คำนวณด้วยสูตร Mifflin-St Jeor แล้วคูณระดับกิจกรรม การลดน้ำหนักตั้งค่าขั้นต่ำไว้ที่ 1,500 kcal (ชาย) และ 1,200 kcal (หญิง) เพื่อความปลอดภัย</p><div class="info-box">ผลที่ได้เป็นค่าประมาณเพื่อใช้วางแผนเบื้องต้น ไม่ใช่คำแนะนำทางการแพทย์ หากมีโรคประจำตัว ตั้งครรภ์ หรือต้องการควบคุมอาหารอย่างจริงจัง ควรปรึกษาแพทย์หรือนักกำหนดอาหาร ข้อมูลที่กรอกเก็บในเครื่องนี้เท่านั้น</div></section>
+<section class="panel hidden" id="macro"><div class="panelhead"><div><h2>สัดส่วนอาหาร</h2><p>แบ่งแคลอรี่เป้าหมายเป็นคาร์โบไฮเดรต โปรตีน และไขมัน (กรัมต่อวัน)</p></div><span class="pill">Macros</span></div><div class="layout"><div class="fields"><div class="field"><label>เพศ</label><select data-h="sex"><option value="m">ชาย</option><option value="f">หญิง</option></select></div><div class="field"><label>อายุ (ปี)</label><input data-h="age" type="number" inputmode="decimal" min="0" step="1" placeholder=""></div><div class="field"><label>ส่วนสูง (ซม.)</label><input data-h="h" type="number" inputmode="decimal" min="0" step="1" placeholder=""></div><div class="field"><label>น้ำหนัก (กก.)</label><input data-h="w" type="number" inputmode="decimal" min="0" step="0.1" placeholder=""></div><div class="field"><label>ระดับกิจกรรม</label><select data-h="act"><option value="1.2">นั่งทำงาน แทบไม่ออกกำลัง</option><option value="1.375">ออกกำลังเบาๆ 1–3 วัน/สัปดาห์</option><option value="1.55">ออกกำลังปานกลาง 3–5 วัน/สัปดาห์</option><option value="1.725">ออกกำลังหนัก 6–7 วัน/สัปดาห์</option><option value="1.9">หนักมาก / งานใช้แรงทั้งวัน</option></select></div><div class="field"><label>เป้าหมาย</label><select data-h="goal"><option value="lose">ลดน้ำหนัก</option><option value="keep">คงน้ำหนัก</option><option value="gain">เพิ่มน้ำหนัก</option></select></div><div class="field"><label>สัดส่วน</label><select data-h="preset"><option value="bal">สมดุล (คาร์บ 50 / โปรตีน 20 / ไขมัน 30)</option><option value="high">โปรตีนสูง (40 / 30 / 30)</option><option value="low">คาร์บต่ำ (25 / 30 / 45)</option></select></div></div><aside class="results"><div class="result-label">แคลอรี่เป้าหมายต่อวัน (kcal)</div><div class="big" id="hMt">—</div><div id="hMbar" style="margin:6px 0 4px"></div><div class="resultrow"><span>คาร์โบไฮเดรต</span><b id="hMc">—</b></div><div class="resultrow"><span>โปรตีน</span><b id="hMp">—</b></div><div class="resultrow"><span>ไขมัน</span><b id="hMf">—</b></div><div class="resultrow"><span>โปรตีนต่อน้ำหนักตัว</span><b id="hMkg">—</b></div></aside></div><p class="note">ข้อมูลส่วนตัวใช้ร่วมกับหน้าแคลอรี่ แก้ที่ไหนก็อัปเดตทุกหน้า คาร์บและโปรตีน 1 กรัม = 4 kcal ไขมัน 1 กรัม = 9 kcal</p><div class="info-box">ผลที่ได้เป็นค่าประมาณเพื่อใช้วางแผนเบื้องต้น ไม่ใช่คำแนะนำทางการแพทย์ หากมีโรคประจำตัว ตั้งครรภ์ หรือต้องการควบคุมอาหารอย่างจริงจัง ควรปรึกษาแพทย์หรือนักกำหนดอาหาร ข้อมูลที่กรอกเก็บในเครื่องนี้เท่านั้น</div></section>
+<section class="panel hidden" id="water"><div class="panelhead"><div><h2>น้ำดื่มต่อวัน</h2><p>ปริมาณน้ำที่ควรดื่มจากน้ำหนักตัวและเวลาออกกำลังกาย</p></div><span class="pill">Water</span></div><div class="layout"><div class="fields"><div class="field"><label>น้ำหนัก (กก.)</label><input data-h="w" type="number" inputmode="decimal" min="0" step="0.1" placeholder=""></div><div class="field"><label>ออกกำลังกายวันละ (นาที)</label><input data-h="ex" type="number" inputmode="decimal" min="0" step="5" placeholder=""></div></div><aside class="results"><div class="result-label">น้ำที่ควรดื่ม (มล./วัน)</div><div class="big" id="hWater">—</div><div class="resultrow"><span>คิดเป็นแก้ว</span><b id="hGlass">—</b></div><div class="resultrow"><span>คิดเป็นขวด</span><b id="hBottle">—</b></div></aside></div><p class="note">คำนวณคร่าวๆ จากน้ำหนัก × 35 มล. บวกอีก 350 มล. ต่อการออกกำลังกาย 30 นาที ปริมาณนี้รวมน้ำจากอาหารบางส่วนแล้ว อากาศร้อน ป่วย หรือมีโรคไต/หัวใจ ควรปรึกษาแพทย์</p><div class="info-box">ผลที่ได้เป็นค่าประมาณเพื่อใช้วางแผนเบื้องต้น ไม่ใช่คำแนะนำทางการแพทย์ หากมีโรคประจำตัว ตั้งครรภ์ หรือต้องการควบคุมอาหารอย่างจริงจัง ควรปรึกษาแพทย์หรือนักกำหนดอาหาร ข้อมูลที่กรอกเก็บในเครื่องนี้เท่านั้น</div></section>
+<section class="panel hidden" id="wlog"><div class="panelhead"><div><h2>บันทึกน้ำหนัก</h2><p>จดน้ำหนักเป็นประจำ ดูแนวโน้มจากกราฟ และติดตามเป้าหมาย</p></div><span class="pill">Weight Log</span></div><div class="layout"><div class="fields"><div class="field"><label>วันที่</label><input id="hLogDate" type="date"></div><div class="field"><label>น้ำหนัก (กก.)</label><input id="hLogW" type="number" inputmode="decimal" min="0" step="0.1" placeholder="เช่น 68.5"></div><div class="field"><button type="button" id="hLogAdd" class="primary" style="width:100%;min-height:46px">บันทึกน้ำหนัก</button></div><div class="field"><label>น้ำหนักเป้าหมาย (กก.)</label><input data-h="wgoal" type="number" inputmode="decimal" min="0" step="0.1" placeholder=""></div></div><aside class="results"><div class="result-label">น้ำหนักล่าสุด (กก.)</div><div class="big" id="hLast">—</div><div class="resultrow"><span>เริ่มต้น</span><b id="hLogStart">—</b></div><div class="resultrow"><span>เปลี่ยนแปลงรวม</span><b id="hLogChg">—</b></div><div class="resultrow"><span>เทียบเป้าหมาย</span><b id="hLogGoal">—</b></div></aside></div><div class="mp3-card"><h3>กราฟน้ำหนัก</h3><div id="hChart"></div></div><div class="mp3-card"><h3>ประวัติ (30 รายการล่าสุด)</h3><div id="hLogList"></div></div><p class="note">บันทึกวันเดิมซ้ำจะเขียนทับค่าเดิม น้ำหนักล่าสุดจะอัปเดตไปยังหน้า BMI แคลอรี่ และน้ำดื่มให้อัตโนมัติ ข้อมูลเก็บในเครื่องนี้เท่านั้น ถ้าล้างข้อมูลเบราว์เซอร์ประวัติจะหาย</p></section>
+<div class="footer">My Tools · My Family Funds</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const HEALTH=['bmi','cal','macro','water','wlog'];
+let cur=null;
+function hideAll(){document.querySelectorAll('main > .menu').forEach(x=>x.classList.add('hidden'));document.querySelectorAll('main > .panel').forEach(x=>x.classList.add('hidden'));}
+function setBack(label){const b=$('myPlanBack');b.textContent='‹ '+label;b.classList.remove('hidden');}
+function toTop(){window.scrollTo({top:0,behavior:'auto'});}
+function showMenu(){cur=null;hideAll();document.querySelector('main > .menu:not(#healthMenu)').classList.remove('hidden');document.querySelectorAll('[data-tab]').forEach(x=>x.classList.remove('active'));$('myPlanBack').classList.add('hidden');toTop();}
+function showHealth(){cur='health';hideAll();$('healthMenu').classList.remove('hidden');document.querySelectorAll('[data-tab]').forEach(x=>x.classList.remove('active'));setBack('กลับไปหน้า My Tools');toTop();}
+function showTab(t){if(t==='health')return showHealth();cur=t;hideAll();document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===t));const p=$(t);if(p)p.classList.remove('hidden');setBack(HEALTH.includes(t)?'กลับไปหน้า My Health':'กลับไปหน้า My Tools');toTop();}
+document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+$('myPlanBack').addEventListener('click',()=>{HEALTH.includes(cur)?showHealth():showMenu();});
+</script>
+<script src="tools.js"></script>
+<script src="health.js"></script>
+</body></html>
