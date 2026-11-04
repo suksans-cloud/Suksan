@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>My Information — ตู้เซฟข้อมูลส่วนตัว</title>
+<meta name="theme-color" content="#072340">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shell.css">
+<script src="../themes.js"></script>
+<style>
+:root{--vp:#072340;--vpl:#3A6C93;--vps:#E3EBF1;--vbg:#F2F4F6;--vsf:#fff;--vink:#2E3A42;--vsoft:#5C6B74;--vfaint:#8B9AA3;--vline:#E1E6EA;--vred:#E0654B;--vgreen:#1F9D6C}
+*{box-sizing:border-box}
+.vt{padding:0 16px 120px;max-width:560px;margin:0 auto}
+.vt button,.vt input,.vt select,.vt textarea{font:inherit}
+.v-card{background:var(--surface,var(--vsf));border:1px solid var(--line,var(--vline));border-radius:18px;padding:16px;margin:12px 0}
+.v-card h3{margin:0 0 6px;font:700 16px Prompt,sans-serif;color:var(--primary,var(--vp))}
+.v-card p,.v-note{font-size:12.5px;line-height:1.7;color:var(--ink-soft,var(--vsoft));margin:6px 0}
+.v-warn{background:#FFF3D6;border:1px solid #F0D9A0;color:#6F5413;border-radius:14px;padding:11px 13px;font-size:12.5px;line-height:1.7;margin:12px 0}
+.v-lab{display:block;font-size:12px;font-weight:600;color:var(--ink-soft,var(--vsoft));margin:12px 0 4px}
+.v-in{width:100%;min-height:46px;padding:10px 12px;border:1px solid var(--line,var(--vline));border-radius:12px;background:var(--bg,var(--vbg));color:var(--ink,var(--vink));font-size:16px}
+.v-btn{min-height:46px;padding:10px 16px;border:0;border-radius:13px;font-weight:700;font-size:14.5px;cursor:pointer;background:var(--primary,var(--vp));color:#fff;width:100%;margin-top:12px}
+.v-btn.g{background:var(--primary-soft,var(--vps));color:var(--primary,var(--vp))}
+.v-btn.d{background:#FBE8E3;color:#B5422B}
+.v-btn:disabled{opacity:.55}
+.v-row{display:flex;gap:8px}.v-row>*{flex:1;min-width:0}
+.v-err{color:#B5422B;font-size:12.5px;margin-top:8px;min-height:18px}
+.v-chk{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.6;margin:12px 0 0;color:var(--ink,var(--vink))}.v-chk input{width:20px;height:20px;margin-top:2px;flex:none;accent-color:var(--primary,var(--vp))}
+.v-top{display:flex;gap:8px;align-items:center;margin:14px 0 4px}.v-top .v-in{flex:1}
+.v-item{display:flex;align-items:center;gap:12px;background:var(--surface,var(--vsf));border:1px solid var(--line,var(--vline));border-radius:16px;padding:12px 14px;margin:10px 0;cursor:pointer;width:100%;text-align:left;color:inherit}
+.v-ico{width:42px;height:42px;border-radius:13px;background:var(--primary-soft,var(--vps));display:grid;place-items:center;font-size:20px;flex:none}
+.v-item b{display:block;font-size:14.5px;color:var(--ink,var(--vink));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.v-item small{display:block;font-size:12px;color:var(--ink-faint,var(--vfaint));margin-top:2px;letter-spacing:.04em}
+.v-item>div{min-width:0;flex:1}
+.v-fab{position:fixed;right:18px;bottom:calc(86px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:0;background:var(--primary,var(--vp));color:#fff;font-size:28px;box-shadow:0 8px 20px #0004;cursor:pointer;z-index:20}
+.v-sheet{position:fixed;inset:0;z-index:3000;background:var(--bg,var(--vbg));overflow-y:auto;-webkit-overflow-scrolling:touch}
+.v-sheet .in{max-width:560px;margin:0 auto;padding:14px 16px calc(40px + env(safe-area-inset-bottom,0px))}
+.v-sh-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.v-sh-top button{border:0;background:none;color:var(--primary,var(--vp));font-weight:700;font-size:14.5px;padding:10px 4px;cursor:pointer}
+.v-f{padding:12px 0;border-bottom:1px solid var(--line,var(--vline))}.v-f:last-child{border:0}
+.v-f .k{font-size:11.5px;color:var(--ink-faint,var(--vfaint))}.v-f .v{font:600 16px Prompt,'Noto Sans Thai',sans-serif;color:var(--ink,var(--vink));word-break:break-all;margin-top:2px;letter-spacing:.02em}
+.v-f .a{display:flex;gap:8px;margin-top:8px}.v-f .a button{flex:none;min-height:36px;padding:6px 14px;border-radius:10px;border:1px solid var(--line,var(--vline));background:var(--surface,var(--vsf));color:var(--primary,var(--vp));font-weight:600;font-size:12.5px;cursor:pointer}
+.v-er{display:grid;grid-template-columns:1fr 1.4fr 40px 34px;gap:6px;margin:8px 0;align-items:center}
+.v-er .v-in{min-height:42px;font-size:14.5px;padding:8px 10px}
+.v-er button{height:42px;border:1px solid var(--line,var(--vline));border-radius:10px;background:var(--surface,var(--vsf));cursor:pointer;font-size:15px}
+.v-er button.on{background:var(--primary-soft,var(--vps))}
+.v-lockbadge{display:inline-flex;gap:6px;align-items:center;font-size:12px;color:var(--ink-soft,var(--vsoft))}
+.v-empty{text-align:center;color:var(--ink-faint,var(--vfaint));font-size:13.5px;padding:34px 10px;line-height:1.8}
+.v-toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#14211d;color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;z-index:4000;max-width:86vw;text-align:center}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="mff-app">
+  <div class="mff-hero-wrap" style="padding-bottom:20px;border-radius:0 0 28px 28px">
+    <div class="mff-topbar">
+      <a class="back" href="../profile/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 5 8 12l7 7"/></svg>My Profile</a>
+      <button type="button" id="lockNow" class="hidden" aria-label="ล็อกทันที" style="background:none;border:0;color:var(--primary);font-size:22px;width:44px;height:44px;cursor:pointer">🔒</button>
+    </div>
+    <div class="mff-hero" style="padding-top:0">
+      <p class="eyebrow" style="margin-bottom:2px">My Information</p>
+      <h1 style="font-size:19px;white-space:nowrap">ตู้เซฟข้อมูลส่วนตัว</h1>
+    </div>
+  </div>
+  <main class="vt" id="root"></main>
+</div>
+<div id="sheetHost"></div>
+<script src="../settings-store.js"></script>
+<script src="vault-sync.js"></script>
+<script>
+(function(){
+'use strict';
+var KEY='mff_vault_v1', FAILK='mff_vault_fail_v1', ITER=600000, IDLE_MS=90*1000, HIDE_MS=20*1000;
+var enc=new TextEncoder(), dec=new TextDecoder();
+var cryptoKey=null, salt=null, iter=ITER, items=[], timers={idle:null,hide:null,reveal:{},clip:null};
+var root=document.getElementById('root'), host=document.getElementById('sheetHost');
+
+/* ---------- ตัวช่วย ---------- */
+function $(s,r){return (r||document).querySelector(s)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function b64(buf){var a=new Uint8Array(buf),s='';for(var i=0;i<a.length;i++)s+=String.fromCharCode(a[i]);return btoa(s)}
+function ub64(s){var b=atob(s),a=new Uint8Array(b.length);for(var i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a}
+function uid(){var a=new Uint8Array(8);crypto.getRandomValues(a);return Array.prototype.map.call(a,function(x){return('0'+x.toString(16)).slice(-2)}).join('')}
+function toast(t){var d=document.createElement('div');d.className='v-toast';d.textContent=t;document.body.appendChild(d);setTimeout(function(){d.remove()},2200)}
+function stored(){try{var j=JSON.parse(localStorage.getItem(KEY)||'null');return j&&j.v===1&&j.salt&&j.iv&&j.ct?j:null}catch(e){return null}}
+function today(){var d=new Date();return d.getFullYear()+('0'+(d.getMonth()+1)).slice(-2)+('0'+d.getDate()).slice(-2)}
+
+/* ---------- เข้ารหัส: PBKDF2(SHA-256) → AES-GCM 256 ---------- */
+async function derive(pw,saltBytes,it){
+  var base=await crypto.subtle.importKey('raw',enc.encode(pw),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt:saltBytes,iterations:it,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])
+}
+async function seal(){
+  var iv=crypto.getRandomValues(new Uint8Array(12));
+  var ct=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},cryptoKey,enc.encode(JSON.stringify({items:items})));
+  localStorage.setItem(KEY,JSON.stringify({v:1,kdf:'PBKDF2-SHA256',iter:iter,salt:b64(salt),iv:b64(iv),ct:b64(ct)}));try{window.MFFVaultSync&&MFFVaultSync.push()}catch(e){}
+}
+async function open(pw){
+  var s=stored(); if(!s)throw new Error('none');
+  var k=await derive(pw,ub64(s.salt),s.iter||ITER);
+  var pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:ub64(s.iv)},k,ub64(s.ct));
+  var d=JSON.parse(dec.decode(pt));
+  cryptoKey=k;salt=ub64(s.salt);iter=s.iter||ITER;items=Array.isArray(d.items)?d.items:[]
+}
+async function create(pw){
+  salt=crypto.getRandomValues(new Uint8Array(16));iter=ITER;cryptoKey=await derive(pw,salt,iter);items=[];await seal()
+}
+function lock(msg){
+  cryptoKey=null;items=[];salt=null;clearTimeout(timers.idle);clearTimeout(timers.hide);
+  Object.keys(timers.reveal).forEach(function(k){clearTimeout(timers.reveal[k])});timers.reveal={};
+  host.innerHTML='';$('#lockNow').classList.add('hidden');render();if(msg)toast(msg)
+}
+function bump(){if(!cryptoKey)return;clearTimeout(timers.idle);timers.idle=setTimeout(function(){lock('ล็อกอัตโนมัติ (ไม่มีการใช้งาน)')},IDLE_MS)}
+['click','keydown','touchstart','scroll'].forEach(function(ev){document.addEventListener(ev,bump,{passive:true,capture:true})});
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden){clearTimeout(timers.hide);timers.hide=setTimeout(function(){if(cryptoKey)lock('ล็อกอัตโนมัติ')},HIDE_MS)}
+  else clearTimeout(timers.hide)});
+window.addEventListener('pagehide',function(){if(cryptoKey)lock()});
+
+/* ---------- กันเดารหัส (หน่วงเวลาเมื่อใส่ผิดซ้ำ) ---------- */
+function failState(){try{return JSON.parse(localStorage.getItem(FAILK)||'{"n":0,"until":0}')}catch(e){return{n:0,until:0}}}
+function failAdd(){var f=failState();f.n++;if(f.n>=3)f.until=Date.now()+Math.min(60,Math.pow(2,f.n-2))*1000;try{localStorage.setItem(FAILK,JSON.stringify(f))}catch(e){}}
+function failReset(){try{localStorage.removeItem(FAILK)}catch(e){}}
+
+/* ---------- ประเภทข้อมูล ---------- */
+var TYPES={
+  id:{n:'บัตรประชาชน',i:'🪪',f:[['เลขบัตรประชาชน',1],['ชื่อ-นามสกุล',0],['วันเกิด',0],['วันหมดอายุ',0]],main:0},
+  bank:{n:'บัญชีธนาคาร',i:'🏦',f:[['ธนาคาร',0],['ชื่อบัญชี',0],['เลขบัญชี',1],['สาขา',0]],main:2},
+  pass:{n:'หนังสือเดินทาง',i:'🛂',f:[['เลขพาสปอร์ต',1],['ชื่อ-นามสกุล',0],['วันหมดอายุ',0]],main:0},
+  other:{n:'อื่น ๆ',i:'🔑',f:[['รายละเอียด',1]],main:0}
+};
+function maskVal(v){v=String(v||'');if(!v)return '—';var n=v.replace(/\s/g,'');return n.length>5?'•••••• '+n.slice(-4):'••••••'}
+function preview(it){var t=TYPES[it.type]||TYPES.other,f=it.fields[t.main]||it.fields[0];if(!f)return '';return f.s?maskVal(f.v):String(f.v||'')}
+
+/* ---------- หน้าจอ ---------- */
+function render(){
+  var s=stored();
+  if(!s)return viewSetup();
+  if(!cryptoKey)return viewLock();
+  viewList();
+}
+function viewSetup(){
+  root.innerHTML='<div class="v-card"><h3>ตั้งรหัสผ่านหลักของตู้เซฟ</h3><p>ข้อมูลจะถูกเข้ารหัส (AES-256) ด้วยรหัสผ่านนี้ ก่อนบันทึกในเครื่อง ไม่ส่งขึ้นอินเทอร์เน็ต ไม่ซิงก์ขึ้น Google Sheets</p>'
+   +'<label class="v-lab" for="p1">รหัสผ่านหลัก (อย่างน้อย 8 ตัวอักษร)</label><input class="v-in" id="p1" type="password" autocomplete="new-password">'
+   +'<label class="v-lab" for="p2">ยืนยันรหัสผ่าน</label><input class="v-in" id="p2" type="password" autocomplete="new-password">'
+   +'<label class="v-chk"><input type="checkbox" id="ack"> <span>เข้าใจว่า <b>ถ้าลืมรหัสผ่านหลัก จะกู้ข้อมูลไม่ได้เลย</b> ไม่มีใครช่วยได้ รวมถึงผู้พัฒนาแอป</span></label>'
+   +'<div class="v-err" id="err"></div><button class="v-btn" id="go">สร้างตู้เซฟ</button></div>'
+   +'<div class="v-warn">แนะนำให้ใช้ประโยคยาว ๆ ที่จำได้ เช่น 4 คำขึ้นไป ไม่ใช้รหัสเดียวกับบัญชีอื่น และไม่ควรเก็บ PIN, CVV หรือรหัสผ่านแอปธนาคารไว้ที่นี่</div>';
+  $('#go').onclick=async function(){
+    var a=$('#p1').value,b=$('#p2').value,e=$('#err');e.textContent='';
+    if(a.length<8){e.textContent='รหัสผ่านสั้นเกินไป (อย่างน้อย 8 ตัวอักษร)';return}
+    if(a!==b){e.textContent='รหัสผ่านทั้งสองช่องไม่ตรงกัน';return}
+    if(!$('#ack').checked){e.textContent='กรุณาติ๊กรับทราบเรื่องการกู้รหัสผ่านก่อน';return}
+    this.disabled=true;this.textContent='กำลังสร้าง...';
+    try{await create(a);$('#lockNow').classList.remove('hidden');bump();render();toast('สร้างตู้เซฟแล้ว')}catch(x){e.textContent='สร้างไม่สำเร็จ: เบราว์เซอร์นี้ไม่รองรับการเข้ารหัส';this.disabled=false;this.textContent='สร้างตู้เซฟ'}
+  }
+}
+function viewLock(){
+  root.innerHTML='<div class="v-card" style="text-align:center"><div style="font-size:42px">🔒</div><h3>ตู้เซฟถูกล็อกอยู่</h3><p>ใส่รหัสผ่านหลักเพื่อเปิด</p>'
+   +'<input class="v-in" id="pw" type="password" autocomplete="current-password" placeholder="รหัสผ่านหลัก" style="text-align:center">'
+   +'<div class="v-err" id="err"></div><button class="v-btn" id="go">ปลดล็อก</button>'
+   +'<button class="v-btn g" id="more">สำรอง / กู้คืน / ลบตู้เซฟ</button></div>';
+  var pw=$('#pw');
+  function tick(){var f=failState(),w=Math.ceil((f.until-Date.now())/1000);if(w>0){$('#err').textContent='ใส่ผิดหลายครั้ง รอ '+w+' วินาที';$('#go').disabled=true;setTimeout(tick,500)}else if($('#go')){$('#go').disabled=false;if(failState().n>=3)$('#err').textContent=''}}
+  tick();
+  async function go(){
+    var f=failState();if(f.until>Date.now())return;
+    var e=$('#err'),b=$('#go');e.textContent='';b.disabled=true;b.textContent='กำลังตรวจสอบ...';
+    try{await open(pw.value);failReset();pw.value='';$('#lockNow').classList.remove('hidden');bump();render()}
+    catch(x){failAdd();b.textContent='ปลดล็อก';e.textContent='รหัสผ่านไม่ถูกต้อง';tick();b.disabled=failState().until>Date.now();pw.select()}
+  }
+  $('#go').onclick=go;pw.onkeydown=function(e){if(e.key==='Enter')go()};
+  $('#more').onclick=function(){sheetTools(false)};
+}
+function viewList(){
+  if(location.hash==='#migrate'&&!viewList._m){viewList._m=1;setTimeout(sheetMigrate,0)}
+  var q=($('#q')&&$('#q').value||'').toLowerCase();
+  var list=items.filter(function(it){return !q||String(it.title).toLowerCase().indexOf(q)>-1});
+  root.innerHTML='<div class="v-top"><input class="v-in" id="q" type="search" placeholder="ค้นหาชื่อรายการ" value="'+esc(q)+'"><button class="v-btn g" id="tools" style="width:auto;margin:0;min-height:46px">⚙</button></div>'
+   +(legacyList().length?'<button class="v-btn" id="mgb" style="background:#FFF3D6;color:#6B5413;border:1px solid #E9D49A;margin-bottom:10px">⚠️ พบเลขบัตร/บัญชีใน My Profile ('+legacyList().length+' รายการ) กดเพื่อย้ายเข้าตู้เซฟ</button>':'')
+   +'<div class="v-lockbadge">🔐 เข้ารหัสในเครื่อง · ล็อกอัตโนมัติเมื่อไม่ใช้งาน 90 วินาที</div>'
+   +(list.length?list.map(function(it){var t=TYPES[it.type]||TYPES.other;return '<button class="v-item" data-id="'+esc(it.id)+'"><span class="v-ico">'+t.i+'</span><div><b>'+esc(it.title||t.n)+'</b><small>'+esc(t.n)+' · '+esc(preview(it))+'</small></div><span style="color:var(--vfaint)">›</span></button>'}).join(''):'<div class="v-empty">'+(items.length?'ไม่พบรายการที่ค้นหา':'ยังไม่มีข้อมูล<br>กดปุ่ม + เพื่อเพิ่มบัตรหรือบัญชี')+'</div>')
+   +'<button class="v-fab" id="add" aria-label="เพิ่มรายการ">+</button>';
+  var qi=$('#q');qi.oninput=function(){var p=qi.selectionStart;viewList();var n=$('#q');n.focus();try{n.setSelectionRange(p,p)}catch(e){}};
+  $('#add').onclick=function(){sheetEdit(null)};
+  if($('#mgb'))$('#mgb').onclick=sheetMigrate;
+  $('#tools').onclick=function(){sheetTools(true)};
+  Array.prototype.forEach.call(document.querySelectorAll('.v-item'),function(b){b.onclick=function(){sheetView(b.getAttribute('data-id'))}})
+}
+function sheet(inner){host.innerHTML='<div class="v-sheet"><div class="in">'+inner+'</div></div>';host.firstChild.scrollTop=0;return host.firstChild}
+function closeSheet(){host.innerHTML='';Object.keys(timers.reveal).forEach(function(k){clearTimeout(timers.reveal[k])});timers.reveal={}}
+
+/* ---------- ดูรายการ ---------- */
+function sheetView(id){
+  var it=items.filter(function(x){return x.id===id})[0];if(!it)return;
+  var t=TYPES[it.type]||TYPES.other, shown={};
+  function draw(){
+    sheet('<div class="v-sh-top"><button id="x">← กลับ</button><button id="ed">✎ แก้ไข</button></div>'
+     +'<div class="v-card"><div style="display:flex;gap:12px;align-items:center"><span class="v-ico">'+t.i+'</span><div><h3 style="margin:0">'+esc(it.title||t.n)+'</h3><div class="v-note" style="margin:0">'+esc(t.n)+'</div></div></div>'
+     +it.fields.map(function(f,i){var sec=!!f.s,on=!!shown[i];
+        return '<div class="v-f"><div class="k">'+esc(f.k)+'</div><div class="v">'+(sec&&!on?esc(maskVal(f.v)):esc(f.v||'—'))+'</div><div class="a">'+(sec?'<button data-r="'+i+'">'+(on?'ซ่อน':'👁 แสดง')+'</button>':'')+'<button data-c="'+i+'">คัดลอก</button></div></div>'}).join('')
+     +(it.note?'<div class="v-f"><div class="k">หมายเหตุ</div><div class="v" style="font-weight:500;font-size:14px;white-space:pre-wrap">'+esc(it.note)+'</div></div>':'')+'</div>'
+     +'<button class="v-btn d" id="del">ลบรายการนี้</button>');
+    $('#x').onclick=closeSheet;$('#ed').onclick=function(){sheetEdit(id)};
+    Array.prototype.forEach.call(document.querySelectorAll('[data-r]'),function(b){b.onclick=function(){var i=b.getAttribute('data-r');shown[i]=!shown[i];clearTimeout(timers.reveal[i]);if(shown[i])timers.reveal[i]=setTimeout(function(){shown[i]=false;if(cryptoKey&&$('#x'))draw()},10000);draw()}});
+    Array.prototype.forEach.call(document.querySelectorAll('[data-c]'),function(b){b.onclick=function(){copy(it.fields[b.getAttribute('data-c')].v)}});
+    $('#del').onclick=function(){if(confirm('ลบ “'+(it.title||t.n)+'” ถาวร? กู้คืนไม่ได้')){items=items.filter(function(x){return x.id!==id});seal().then(function(){closeSheet();viewList();toast('ลบแล้ว')})}}
+  }
+  draw()
+}
+function copy(v){
+  v=String(v||'');var done=function(){toast('คัดลอกแล้ว (ล้างคลิปบอร์ดใน 30 วินาที)');clearTimeout(timers.clip);timers.clip=setTimeout(function(){try{navigator.clipboard.writeText(' ')}catch(e){}},30000)};
+  try{navigator.clipboard.writeText(v).then(done,fb)}catch(e){fb()}
+  function fb(){var a=document.createElement('textarea');a.value=v;a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();try{document.execCommand('copy');done()}catch(e){toast('คัดลอกไม่สำเร็จ')}a.remove()}
+}
+
+/* ---------- เพิ่ม/แก้ไข ---------- */
+function sheetEdit(id){
+  var it=id?items.filter(function(x){return x.id===id})[0]:null;
+  var type=it?it.type:'id', rows=it?it.fields.map(function(f){return{k:f.k,v:f.v,s:!!f.s}}):tplRows('id');
+  function tplRows(t){return TYPES[t].f.map(function(f){return{k:f[0],v:'',s:!!f[1]}})}
+  function collect(){var r=[];Array.prototype.forEach.call(document.querySelectorAll('.v-er'),function(el,i){rows[i].k=$('[data-k]',el).value;rows[i].v=$('[data-v]',el).value})}
+  function draw(title,note){
+    sheet('<div class="v-sh-top"><button id="x">ยกเลิก</button><button id="sv">บันทึก</button></div><div class="v-card">'
+     +'<label class="v-lab" for="ty">ประเภท</label><select class="v-in" id="ty"'+(it?' disabled':'')+'>'+Object.keys(TYPES).map(function(k){return '<option value="'+k+'"'+(k===type?' selected':'')+'>'+TYPES[k].i+' '+TYPES[k].n+'</option>'}).join('')+'</select>'
+     +'<label class="v-lab" for="tt">ชื่อรายการ</label><input class="v-in" id="tt" autocomplete="off" placeholder="เช่น บัตรของฉัน / กสิกร ออมทรัพย์" value="'+esc(title)+'">'
+     +'<label class="v-lab">ข้อมูล <span style="font-weight:400;color:var(--vfaint)">(กดกุญแจ = ซ่อนเป็น •••• ตอนแสดง)</span></label>'
+     +rows.map(function(r,i){return '<div class="v-er"><input class="v-in" data-k value="'+esc(r.k)+'" placeholder="หัวข้อ" autocomplete="off"><input class="v-in" data-v value="'+esc(r.v)+'" placeholder="ค่า" autocomplete="off" autocapitalize="off" spellcheck="false"><button type="button" data-s="'+i+'" class="'+(r.s?'on':'')+'" aria-label="ซ่อนค่า">🔑</button><button type="button" data-d="'+i+'" aria-label="ลบช่อง">×</button></div>'}).join('')
+     +'<button class="v-btn g" id="addf" style="margin-top:6px">+ เพิ่มช่อง</button>'
+     +'<label class="v-lab" for="nt">หมายเหตุ (ไม่บังคับ)</label><textarea class="v-in" id="nt" rows="3">'+esc(note)+'</textarea></div>'
+     +'<div class="v-warn">ไม่แนะนำให้เก็บ PIN, CVV หรือรหัสผ่านแอปธนาคาร เก็บแค่ข้อมูลที่จำเป็นต้องใช้อ้างอิง</div>');
+    $('#x').onclick=function(){it?sheetView(id):closeSheet()};
+    $('#ty').onchange=function(){type=this.value;rows=tplRows(type);draw($('#tt').value,$('#nt').value)};
+    $('#addf').onclick=function(){collect();rows.push({k:'',v:'',s:false});draw($('#tt').value,$('#nt').value)};
+    Array.prototype.forEach.call(document.querySelectorAll('[data-s]'),function(b){b.onclick=function(){collect();var i=+b.getAttribute('data-s');rows[i].s=!rows[i].s;draw($('#tt').value,$('#nt').value)}});
+    Array.prototype.forEach.call(document.querySelectorAll('[data-d]'),function(b){b.onclick=function(){collect();rows.splice(+b.getAttribute('data-d'),1);draw($('#tt').value,$('#nt').value)}});
+    $('#sv').onclick=async function(){
+      collect();var f=rows.filter(function(r){return String(r.k).trim()||String(r.v).trim()}).map(function(r){return{k:String(r.k).trim(),v:String(r.v).trim(),s:!!r.s}});
+      if(!f.length){toast('กรอกข้อมูลอย่างน้อย 1 ช่อง');return}
+      var obj={id:it?it.id:uid(),type:type,title:$('#tt').value.trim(),fields:f,note:$('#nt').value.trim(),updatedAt:new Date().toISOString()};
+      if(it)items=items.map(function(x){return x.id===it.id?obj:x});else items.unshift(obj);
+      try{await seal()}catch(e){toast('บันทึกไม่สำเร็จ');return}
+      toast('บันทึกแล้ว (เข้ารหัส)');closeSheet();viewList()
+    }
+  }
+  draw(it?it.title:'',it?it.note:'')
+}
+
+
+/* ---------- ย้ายข้อมูลสำคัญจาก My Profile เข้าตู้เซฟ ---------- */
+var PKEY='mff_profiles_cache_v1';
+function readProfiles(){try{var a=JSON.parse(localStorage.getItem(PKEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function legacyList(){
+  var out=[];
+  readProfiles().forEach(function(p){
+    var nm=((p.firstName||'')+' '+(p.lastName||'')).trim()||'สมาชิก';
+    if(p.idCard)out.push({src:'profile:'+p.id+':id',type:'id',title:'บัตรประชาชน '+nm,fields:[{k:'เลขบัตรประชาชน',v:String(p.idCard),s:true},{k:'ชื่อ-นามสกุล',v:nm,s:false}]});
+    (p.bankAccounts||[]).forEach(function(b,i){if(b&&(b.bank||b.number))out.push({src:'profile:'+p.id+':bank:'+i,type:'bank',title:'บัญชี '+(b.bank||'ธนาคาร')+' '+nm,fields:[{k:'ธนาคาร',v:String(b.bank||''),s:false},{k:'ชื่อบัญชี',v:nm,s:false},{k:'เลขบัญชี',v:String(b.number||''),s:true}]}) });
+    (p.documents||[]).forEach(function(d,i){if(d&&d.number){var pas=/พาสปอร์ต|passport|หนังสือเดินทาง/i.test(d.type||'');
+      out.push({src:'profile:'+p.id+':doc:'+i,type:pas?'pass':'other',title:(d.type||'เอกสาร')+' '+nm,fields:pas?[{k:'เลขพาสปอร์ต',v:String(d.number),s:true},{k:'ชื่อ-นามสกุล',v:nm,s:false},{k:'วันหมดอายุ',v:String(d.expiry||''),s:false}]:[{k:'รายละเอียด',v:String(d.number),s:true},{k:'วันหมดอายุ',v:String(d.expiry||''),s:false}]})}});
+  });
+  return out;
+}
+function legacyPending(){var have={};items.forEach(function(x){if(x.src)have[x.src]=1});return legacyList().filter(function(l){return !have[l.src]})}
+function sheetMigrate(){
+  var all=legacyList(), pend=legacyPending(), done=all.length-pend.length;
+  sheet('<div class="v-sh-top"><button id="x">← กลับ</button><span></span></div><div class="v-card"><h3>ย้ายข้อมูลจาก My Profile</h3>'
+   +'<p>พบข้อมูลสำคัญในโปรไฟล์ <b>'+all.length+'</b> รายการ (ย้ายแล้ว '+done+', รอย้าย '+pend.length+') ซึ่งตอนนี้เก็บแบบไม่เข้ารหัสและซิงก์ขึ้น Google Sheets</p>'
+   +all.map(function(l){var t=TYPES[l.type]||TYPES.other;return '<div class="v-f"><div class="v">'+t.i+' '+esc(l.title)+'</div><div class="k">'+(pend.some(function(q){return q.src===l.src})?'รอย้าย':'ย้ายแล้ว ✓')+'</div></div>'}).join('')
+   +(pend.length?'<button class="v-btn" id="mg">ย้ายเข้าตู้เซฟ ('+pend.length+' รายการ)</button>':'')
+   +'</div>'
+   +'<div class="v-card"><h3>ลบข้อมูลเดิมออกจากโปรไฟล์</h3><p>ลบเลขบัตร เลขบัญชี และเลขเอกสารออกจากโปรไฟล์ในเครื่องนี้ (เก็บชื่อธนาคารไม่ได้ เก็บเฉพาะประเภท/วันหมดอายุของเอกสารไว้ใช้แจ้งเตือน) จากนั้นกดซิงก์ที่ Settings เพื่อล้างใน Google Sheets ด้วย</p>'
+   +(all.length&&!pend.length?'<button class="v-btn d" id="wp">ลบออกจากโปรไฟล์</button>':'<p class="v-note">ปุ่มนี้จะใช้ได้หลังย้ายครบทุกรายการ</p>')+'</div>'
+   +'<div class="v-warn">ประวัติเวอร์ชันของ Google Sheets อาจยังเก็บข้อมูลเก่าไว้ ควรเปิด ไฟล์ › ประวัติเวอร์ชัน ในชีตแล้วลบเวอร์ชันเก่า หรือเปลี่ยนรหัสผ่านบัญชี Google หากกังวล</div>');
+  $('#x').onclick=function(){closeSheet();viewList()};
+  if($('#mg'))$('#mg').onclick=async function(){
+    var now=new Date().toISOString();
+    pend.forEach(function(l){items.unshift({id:uid(),type:l.type,title:l.title,fields:l.fields,note:'ย้ายมาจาก My Profile',src:l.src,updatedAt:now})});
+    try{await seal()}catch(e){toast('บันทึกไม่สำเร็จ');return}
+    toast('ย้ายเข้าตู้เซฟแล้ว (เข้ารหัส)');sheetMigrate()
+  };
+  if($('#wp'))$('#wp').onclick=function(){
+    if(legacyPending().length){toast('ยังย้ายไม่ครบ');return}
+    if(!confirm('ลบเลขบัตร เลขบัญชี และเลขเอกสารออกจากโปรไฟล์ในเครื่องนี้?\n(ข้อมูลอยู่ในตู้เซฟแล้ว)')) return;
+    var now=new Date().toISOString(), ps=readProfiles();
+    ps.forEach(function(p){if(p.idCard)p.idCard='';if(Array.isArray(p.bankAccounts)&&p.bankAccounts.length)p.bankAccounts=[];(p.documents||[]).forEach(function(d){if(d)d.number=''});p.updatedAt=now});
+    try{localStorage.setItem(PKEY,JSON.stringify(ps));localStorage.setItem('mff_sync_dirty_v1_profile','1')}catch(e){toast('ลบไม่สำเร็จ');return}
+    toast('ลบออกจากโปรไฟล์แล้ว กดซิงก์ที่ Settings เพื่อล้างในชีต');sheetMigrate()
+  };
+}
+/* ---------- เครื่องมือ: สำรอง / กู้คืน / เปลี่ยนรหัส / ลบ ---------- */
+function sheetTools(unlocked){
+  sheet('<div class="v-sh-top"><button id="x">← กลับ</button><span></span></div>'
+   +'<div class="v-card"><h3>สำรองข้อมูล (ไฟล์เข้ารหัส)</h3><p>ดาวน์โหลดไฟล์สำรองที่ถูกเข้ารหัสแล้ว เปิดอ่านไม่ได้ถ้าไม่มีรหัสผ่านหลัก เก็บไว้หลายที่ได้ เพราะตู้เซฟนี้ไม่ซิงก์ข้ามเครื่อง</p><button class="v-btn" id="bk"'+(stored()?'':' disabled')+'>ดาวน์โหลดไฟล์สำรอง</button></div>'
+   +'<div class="v-card"><h3>กู้คืนจากไฟล์สำรอง</h3><p>จะแทนที่ข้อมูลในตู้เซฟเครื่องนี้ทั้งหมด และต้องใช้รหัสผ่านหลักของไฟล์นั้นในการเปิด</p><input type="file" id="rf" accept="application/json,.json" class="hidden"><button class="v-btn g" id="rs">เลือกไฟล์สำรอง</button></div>'
+   +(unlocked?'<div class="v-card"><h3>เปลี่ยนรหัสผ่านหลัก</h3><label class="v-lab" for="np1">รหัสใหม่ (อย่างน้อย 8 ตัวอักษร)</label><input class="v-in" id="np1" type="password" autocomplete="new-password"><label class="v-lab" for="np2">ยืนยันรหัสใหม่</label><input class="v-in" id="np2" type="password" autocomplete="new-password"><div class="v-err" id="err"></div><button class="v-btn g" id="cp">เปลี่ยนรหัสผ่าน</button></div>':'')
+   +'<div class="v-card"><h3>ลบตู้เซฟทั้งหมด</h3><p>ลบข้อมูลที่เข้ารหัสออกจากเครื่องนี้ถาวร (ไฟล์สำรองที่ดาวน์โหลดไว้ไม่ถูกลบ)</p><button class="v-btn d" id="wipe">ลบตู้เซฟในเครื่องนี้</button></div>');
+  $('#x').onclick=closeSheet;
+  $('#bk').onclick=function(){var s=localStorage.getItem(KEY);if(!s)return;var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:'application/json'}));a.download='mff-vault-backup-'+today()+'.json';document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500);toast('ดาวน์โหลดไฟล์สำรองแล้ว')};
+  $('#rs').onclick=function(){$('#rf').click()};
+  $('#rf').onchange=function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){
+    try{var j=JSON.parse(r.result);if(!(j&&j.v===1&&j.salt&&j.iv&&j.ct&&j.iter))throw 0;
+      if(!confirm('กู้คืนจากไฟล์นี้? ข้อมูลในตู้เซฟเครื่องนี้จะถูกแทนที่'))return;
+      localStorage.setItem(KEY,JSON.stringify({v:1,kdf:j.kdf||'PBKDF2-SHA256',iter:j.iter,salt:j.salt,iv:j.iv,ct:j.ct}));try{window.MFFVaultSync&&MFFVaultSync.push()}catch(e){}failReset();closeSheet();lock('กู้คืนแล้ว ใส่รหัสผ่านของไฟล์นี้เพื่อเปิด')
+    }catch(e){toast('ไฟล์สำรองไม่ถูกต้อง')}};r.readAsText(f)};
+  if(unlocked)$('#cp').onclick=async function(){
+    var a=$('#np1').value,b=$('#np2').value,e=$('#err');e.textContent='';
+    if(a.length<8){e.textContent='รหัสสั้นเกินไป (อย่างน้อย 8 ตัวอักษร)';return}
+    if(a!==b){e.textContent='รหัสทั้งสองช่องไม่ตรงกัน';return}
+    this.disabled=true;this.textContent='กำลังเปลี่ยน...';
+    try{salt=crypto.getRandomValues(new Uint8Array(16));iter=ITER;cryptoKey=await derive(a,salt,iter);await seal();toast('เปลี่ยนรหัสผ่านแล้ว');closeSheet()}catch(x){e.textContent='เปลี่ยนไม่สำเร็จ';this.disabled=false;this.textContent='เปลี่ยนรหัสผ่าน'}
+  };
+  $('#wipe').onclick=function(){
+    if(!confirm('ลบตู้เซฟในเครื่องนี้ถาวร? ถ้าไม่มีไฟล์สำรองจะกู้คืนไม่ได้'))return;
+    if(prompt('พิมพ์คำว่า ลบ เพื่อยืนยัน')!=='ลบ')return;
+    localStorage.removeItem(KEY);failReset();closeSheet();lock('ลบตู้เซฟแล้ว')}
+}
+
+$('#lockNow').onclick=function(){lock('ล็อกแล้ว')};
+if(!window.crypto||!crypto.subtle){root.innerHTML='<div class="v-warn">เบราว์เซอร์นี้ไม่รองรับการเข้ารหัส (ต้องเปิดผ่าน https) จึงใช้ตู้เซฟไม่ได้</div>'}
+else render();
+})();
+</script>
+<script src="../icon-system.js"></script>
+</body>
+</html>

@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ค่าใช้จ่ายรายวัน — My Money — My Family Funds</title>
+<meta name="theme-color" content="#072340">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shell.css">
+<script src="../data-safety.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+/* extra bits for the daily page's note field inside the edit popup —
+   everything else reuses shell.css classes shared with monthly.html */
+.mff-modal-row-daily{padding:8px 0;border-bottom:1px solid var(--line)}
+.mff-modal-row-daily .top{display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:0}
+.mff-modal-row-daily .nm{flex:1;min-width:0;font-size:12.5px;color:var(--ink);line-height:1.4}
+.mff-modal-row-daily input.edit-amt{
+  width:104px;text-align:right;border:1px solid var(--line);border-radius:10px;padding:7px 10px;
+  font-size:16px;font-family:inherit;background:var(--surface);color:var(--ink);flex:none;
+}
+.mff-modal-row-daily input.edit-note{
+  width:100%;margin-top:6px;border:1px solid var(--line);border-radius:10px;padding:7px 10px;
+  font-size:16px;font-family:inherit;background:var(--surface);color:var(--ink-soft);
+}
+.mff-sheet-row.has-note{flex-direction:column;align-items:flex-start;gap:2px}
+.mff-sheet-row.has-note .top{display:flex;justify-content:space-between;width:100%}
+.mff-sheet-row.has-note .note{font-size:11px;color:var(--ink-faint)}
+</style>
+<style>body.mff-hide-money .t-amt,body.mff-hide-money .mff-sheet-row .amt,body.mff-hide-money #liveBalance,body.mff-hide-money .money-amount,body.mff-hide-money .amount-value{filter:blur(7px);user-select:none}</style>
+<script src="../themes.js"></script>
+</head>
+<body>
+<button id="privacyEye" type="button" aria-label="ซ่อนหรือแสดงตัวเลข" title="ซ่อนหรือแสดงตัวเลข">👁</button>
+<script src="../privacy-eye.js"></script>
+
+<div class="mff-app" style="padding-bottom:20px">
+
+  <div class="mff-hero-wrap" style="padding-bottom:20px;border-radius:0 0 28px 28px">
+    <div class="mff-topbar">
+      <a class="back" href="index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 5 8 12l7 7"/></svg>
+        My Money
+      </a>
+      <span></span>
+    </div>
+    <div class="mff-hero" style="padding-top:0">
+      <p class="eyebrow" style="margin-bottom:2px">My Money</p>
+      <h1 style="font-size:19px;white-space:nowrap">ค่าใช้จ่ายรายวัน</h1>
+    </div>
+  </div>
+
+  <div id="connectBanner"></div>
+
+  <div id="viewRoot"></div>
+
+</div>
+
+<script src="../config.js"></script>
+<script src="../admin-login.js"></script>
+<script src="../settings-store.js"></script>
+<script src="../portfolio/auth-open.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ===================== หมวดรายจ่ายรายวัน (ค่าเริ่มต้น) ===================== */
+const DAILY_OPTIONS=['อาหารเช้า','อาหารเที่ยง','อาหารเย็น','อื่นๆ'];
+const SEC={key:'daily', title:'รายจ่ายรายวัน', cls:'fixed', opts:DAILY_OPTIONS};
+
+/* ===================== Google Sheets sync — แท็บแยกต่างหาก "DailyExpenses"
+   (สคีมาเดิม ไม่เปลี่ยน เพื่อไม่ให้กระทบข้อมูลที่ซิงก์ไว้แล้ว) ===================== */
+const SHEETS_SCOPE='https://www.googleapis.com/auth/spreadsheets';
+const CACHE_KEY='mff_daily_cache_v1';
+const MONEY_CACHE_KEY='mff_money_cache_v3'; // อ่านอย่างเดียว เพื่อคำนวณยอดคงเหลือร่วมกับรายเดือน
+const TAB='DailyExpenses';
+const HEADERS=['ID','Date','Category','Amount','Note','CreatedAt','UpdatedAt'];
+
+let sheetsToken=null, sheetsTokenExpiresAt=0;
+let sheetId=localStorage.getItem('google_sheet_id')||'';
+let sheetsClient=null;
+let entries=[]; // {id,date(YYYY-MM-DD),category,amount,note,createdAt,updatedAt}
+let currentDate=dateKey(new Date());
+
+function dateKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function monthOf(dkey){ return dkey.slice(0,7); }
+function shiftDate(key,delta){
+  const [y,m,dd]=key.split('-').map(Number);
+  const d=new Date(y, m-1, dd+delta);
+  return dateKey(d);
+}
+function dateLabel(key){
+  const THAI_MONTHS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const [y,m,dd]=key.split('-').map(Number);
+  const today=dateKey(new Date());
+  const yest=shiftDate(today,-1);
+  if(key===today) return 'วันนี้ • '+dd+' '+THAI_MONTHS[m-1]+' '+(y+543);
+  if(key===yest) return 'เมื่อวาน • '+dd+' '+THAI_MONTHS[m-1]+' '+(y+543);
+  return dd+' '+THAI_MONTHS[m-1]+' '+(y+543);
+}
+function monthLabel(key){
+  const THAI_MONTHS=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  const [y,m]=key.split('-').map(Number);
+  return THAI_MONTHS[m-1]+' '+(y+543);
+}
+/* สัปดาห์แบบ จันทร์-อาทิตย์ */
+function startOfWeek(dkey){
+  const [y,m,dd]=dkey.split('-').map(Number);
+  const d=new Date(y,m-1,dd);
+  const dow=d.getDay(); // 0=อาทิตย์
+  const diffToMon = dow===0 ? -6 : 1-dow;
+  d.setDate(d.getDate()+diffToMon);
+  return dateKey(d);
+}
+function endOfWeek(dkey){ return shiftDate(startOfWeek(dkey), 6); }
+function weekLabel(dkey){
+  const s=startOfWeek(dkey), e=endOfWeek(dkey);
+  const [,sm,sd]=s.split('-').map(Number);
+  const [,em,ed]=e.split('-').map(Number);
+  const THAI_MONTHS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  return sd+' '+THAI_MONTHS[sm-1]+' – '+ed+' '+THAI_MONTHS[em-1];
+}
+function fmtBaht(n){ return (Number(n)||0).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+
+function getGoogleClientId(){return localStorage.getItem('google_client_id')||'';}
+function sheetHeaders(extra){return Object.assign({'Authorization':'Bearer '+sheetsToken},extra||{});}
+
+function ensureSheetsClient(cid){
+  if(!window.google?.accounts?.oauth2){toast('Google API ยังโหลดไม่เสร็จ ลองใหม่อีกครั้ง');return null;}
+  if(!sheetsClient||sheetsClient._cid!==cid){
+    sheetsClient=google.accounts.oauth2.initTokenClient({client_id:cid,scope:SHEETS_SCOPE,callback:async r=>{
+      if(r.error){toast('เชื่อมต่อ Google Sheets ไม่สำเร็จ');return;}if(!google.accounts.oauth2.hasGrantedAllScopes(r,'https://www.googleapis.com/auth/spreadsheets')){toast('ยังไม่ได้ติ๊กสิทธิ์ Google Sheets — กรุณาเชื่อมต่อใหม่และอนุญาตทุกช่อง');return;}
+      sheetsToken=r.access_token;
+      sheetsTokenExpiresAt=Date.now()+Math.max(60,(Number(r.expires_in)||3600)-60)*1000;
+      window.MFFGoogleSession?.saveSheetsToken(sheetsToken,sheetsTokenExpiresAt);
+      localStorage.setItem('google_sheets_connected','1');
+      renderConnectBanner();
+      if(sheetsClient._mffResolve){const rr=sheetsClient._mffResolve;sheetsClient._mffResolve=null;rr(true);}
+      render();
+      toast('เชื่อมต่อ Google Sheets แล้ว • ยังไม่ดึงข้อมูลอัตโนมัติ');
+    }});
+    sheetsClient._cid=cid;
+  }
+  return sheetsClient;
+}
+
+async function ensureSheetsAccess(interactive=true){
+  if(sheetsToken && Date.now()<sheetsTokenExpiresAt) return true;
+  const cached=window.MFFGoogleSession?.getSheetsToken();
+  if(cached?.token){ sheetsToken=cached.token; sheetsTokenExpiresAt=cached.expiresAt; return true; }
+  if(!interactive) return false;
+  const cid=getGoogleClientId(); if(!cid||!sheetId) return false;
+  const c=ensureSheetsClient(cid); if(!c) return false;
+  // No silent OAuth here: navigation/module load must never trigger Google authorization.
+  // If the session token is absent/expired, the user must explicitly reconnect from Settings.
+  return false;
+}
+
+async function sheetsApi(url,opts={}){
+  if(!sheetsToken) throw new Error('Google Sheets ยังไม่ได้รับสิทธิ์');
+  const r=await fetch(url,Object.assign({headers:sheetHeaders({'Content-Type':'application/json'})},opts));
+  if(r.status===401||r.status===403){localStorage.removeItem('google_sheets_connected');window.MFFGoogleSession?.clearSheetsToken();sheetsToken=null;throw new Error('สิทธิ์หมดอายุ กรุณาเชื่อมต่อใหม่');}
+  if(!r.ok)throw new Error(await r.text());
+  return r.json();
+}
+
+async function ensureDailyTab(){
+  const meta=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}?fields=sheets.properties`);
+  const titles=(meta.sheets||[]).map(s=>s.properties.title);
+  if(!titles.includes(TAB)){
+    await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}:batchUpdate`,{method:'POST',body:JSON.stringify({requests:[{addSheet:{properties:{title:TAB}}}]})});
+    await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${TAB}!A1`,majorDimension:'ROWS',values:[HEADERS]})});
+  }
+}
+
+function mergeById(localList, remoteList){
+  const map=new Map();
+  remoteList.forEach(r=>map.set(r.id, r));
+  localList.forEach(l=>{
+    const r=map.get(l.id);
+    if(!r){ map.set(l.id, l); return; }
+    const lt=Date.parse(l.updatedAt)||0, rt=Date.parse(r.updatedAt)||0;
+    map.set(l.id, lt>rt ? l : r);
+  });
+  return Array.from(map.values());
+}
+async function pullEntries(force){
+  const j=await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:G`);
+  const rows=(j.values||[]).slice(1);
+  const remote=rows.filter(r=>r[0]).map(r=>({id:r[0], date:r[1]||'', category:r[2]||'', amount:Number(r[3])||0, note:r[4]||'', createdAt:r[5]||'', updatedAt:r[6]||''}));
+  if(force){ entries=remote; saveCache(); return; }
+  const merged=mergeById(entries, remote);
+  const needsPushBack = JSON.stringify(merged.slice().sort((a,b)=>a.id<b.id?-1:1)) !== JSON.stringify(remote.slice().sort((a,b)=>a.id<b.id?-1:1));
+  entries=merged;
+  saveCache();
+  if(needsPushBack) await pushEntries();
+}
+
+async function pushEntries(){
+  const values=[HEADERS].concat(entries.map(t=>[t.id,t.date,t.category,t.amount,t.note,t.createdAt,t.updatedAt]));
+  await ensureDailyTab();
+  await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A:G:clear`,{method:'POST',body:'{}'});
+  await sheetsApi(`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${TAB}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${TAB}!A1`,majorDimension:'ROWS',values})});
+}
+
+async function syncSave(){
+  saveCache();
+  try{ localStorage.setItem('mff_sync_dirty_v1_daily','1'); }catch(e){}
+  toast('บันทึกในเครื่องแล้ว • กด Smart Sync ที่ Settings เพื่อซิงก์ Google Sheets');
+}
+
+/* ===================== local cache ===================== */
+function saveCache(){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify(entries)); }catch(e){} }
+function loadCache(){ try{ const raw=localStorage.getItem(CACHE_KEY); if(raw) entries=JSON.parse(raw); }catch(e){} }
+
+/* อ่านยอดรายรับ/รายจ่ายประจำเดือน (คนละแคช คนละแท็บกับหน้านี้ — อ่านอย่างเดียว) เพื่อคำนวณยอดคงเหลือ */
+function monthlyIncomeExpense(monthKey){
+  try{
+    const raw=localStorage.getItem(MONEY_CACHE_KEY);
+    const list=raw?JSON.parse(raw):[];
+    let income=0, otherExpense=0;
+    list.filter(t=>t.month===monthKey).forEach(t=>{
+      const amt=Number(t.amount)||0;
+      if(t.type==='income') income+=amt; else otherExpense+=amt;
+    });
+    return {income, otherExpense};
+  }catch(e){ return {income:0, otherExpense:0}; }
+}
+
+/* ===================== connect banner (เหมือนโมดูลอื่น) ===================== */
+function renderConnectBanner(){
+  const el=document.getElementById('connectBanner');
+  const connected = sheetsToken || (localStorage.getItem('google_sheets_connected')==='1' && sheetId);
+  if(!connected){
+    el.innerHTML=`
+      <div class="mff-banner">
+        <div><b>ยังไม่เชื่อมต่อ Google Sheets</b>ข้อมูลจะบันทึกในเครื่องนี้เท่านั้นจนกว่าจะเชื่อมต่อ</div>
+        <button id="connectBtn" type="button">เชื่อมต่อ</button>
+      </div>`;
+    document.getElementById('connectBtn').onclick=openConnectForm;
+    return;
+  }
+  const lastSync=localStorage.getItem('sheet_last_sync_daily');
+  el.innerHTML=`
+    <div class="mff-sync-bar">
+      <div class="mff-sync-bar-status">☁️ เชื่อมต่อ Google Sheets แล้ว${lastSync?(' • ซิงก์ล่าสุด '+esc(lastSync)):''}</div>
+      <div class="mff-sync-bar-actions">
+        <a href="../settings/index.html" class="mff-sync-bar-btn" style="text-decoration:none;display:inline-block">จัดการซิงก์ที่ Setting</a>
+      </div>
+    </div>`;
+}
+function openConnectForm(){
+  const cid=localStorage.getItem('google_client_id')||'';
+  const sid=sheetId||'';
+  const html=`
+    <div class="mff-field-row"><div class="lbl">Client ID</div><input id="cfCid" value="${esc(cid)}" placeholder="วาง Google OAuth Client ID"></div>
+    <div class="mff-field-row"><div class="lbl">Sheet ID</div><input id="cfSid" value="${esc(sid)}" placeholder="ใช้ Spreadsheet ID เดียวกับโมดูลอื่น"></div>
+    <p style="font-size:11.5px;color:var(--ink-soft);padding:0 0 6px">ใช้ Client ID / Sheet ID ชุดเดียวกับที่ตั้งค่าไว้ในโมดูลอื่นได้เลย ข้อมูลจะไปอยู่คนละแท็บ (DailyExpenses) ไม่ทับข้อมูลเดิม</p>
+  `;
+  modal('เชื่อมต่อ Google Sheets', html, [
+    {label:'ยกเลิก', ghost:true, onClick:closeModal},
+    {label:'เชื่อมต่อ', onClick:async()=>{
+      const cid=document.getElementById('cfCid').value.trim();
+      const sid=document.getElementById('cfSid').value.trim();
+      if(!cid||!sid){ toast('กรุณากรอกให้ครบ'); return; }
+      localStorage.setItem('google_client_id',cid);
+      sheetId=sid; localStorage.setItem('google_sheet_id',sid);
+      closeModal();
+      const c=ensureSheetsClient(cid);
+      if(c) c.requestAccessToken({prompt:'consent'});
+    }}
+  ]);
+}
+
+/* ===================== tiny modal + toast helpers ===================== */
+function modal(title, bodyHtml, buttons, opts){
+  closeModal();
+  const d=document.createElement('div');
+  d.id='mffModal';
+  d.style.cssText='position:fixed;inset:0;z-index:5000;background:rgba(20,33,29,.45);display:flex;align-items:flex-end;justify-content:center';
+  d.innerHTML=`<div style="width:100%;max-width:460px;background:var(--bg);box-shadow:var(--shadow-hero);border-radius:22px 22px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));max-height:88vh;display:flex;flex-direction:column">
+    <h3 style="margin:0 0 12px;font-size:17px;flex:none">${esc(title)}</h3>
+    <div id="mffModalBody" style="flex:1;min-height:0">${bodyHtml}</div>
+    <div style="display:flex;gap:10px;margin-top:14px;flex:none" id="mffModalBtns"></div>
+  </div>`;
+  document.body.appendChild(d);
+  const btnWrap=document.getElementById('mffModalBtns');
+  buttons.forEach(b=>{
+    const btn=document.createElement('button');
+    btn.className='mff-btn '+(b.ghost?'mff-btn-ghost':'mff-btn-primary');
+    btn.textContent=b.label;
+    btn.onclick=b.onClick;
+    btnWrap.appendChild(btn);
+  });
+  if(!opts||!opts.persistent){
+    d.addEventListener('click',e=>{ if(e.target===d) closeModal(); });
+  }
+}
+function closeModal(){ document.getElementById('mffModal')?.remove(); }
+function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function uuid(){return 'd_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,9);}
+function toast(msg){
+  let t=document.getElementById('mffToast');
+  if(!t){ t=document.createElement('div'); t.id='mffToast';
+    t.style.cssText='position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#14211D;color:#fff;padding:10px 16px;border-radius:999px;font-size:12.5px;z-index:6500;opacity:0;transition:opacity .2s;max-width:85vw;text-align:center';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(toast._tm); toast._tm=setTimeout(()=>{t.style.opacity='0';},2600);
+}
+
+/* ===================== derived data ===================== */
+function entriesFor(date){ return entries.filter(e=>e.date===date); }
+function sumOf(arr){ return arr.reduce((s,e)=>s+(Number(e.amount)||0),0); }
+function amountOf(date,category){
+  const hit=entries.find(e=>e.date===date && e.category===category);
+  return hit?Number(hit.amount)||0:0;
+}
+function noteOf(date,category){
+  const hit=entries.find(e=>e.date===date && e.category===category);
+  return hit?(hit.note||''):'';
+}
+function allCategoriesFor(date){
+  const saved=entriesFor(date).map(e=>e.category);
+  const extras=saved.filter(c=>!SEC.opts.includes(c));
+  return SEC.opts.concat(extras.filter((c,i)=>extras.indexOf(c)===i));
+}
+function dayTotal(date){ return sumOf(entriesFor(date)); }
+function weekTotal(date){
+  const s=startOfWeek(date), e=endOfWeek(date);
+  return sumOf(entries.filter(t=>t.date>=s && t.date<=e));
+}
+function monthTotal(date){
+  const mk=monthOf(date);
+  return sumOf(entries.filter(t=>monthOf(t.date)===mk));
+}
+
+
+/* ===================== rendering (main page) ===================== */
+function render(){
+  const root=document.getElementById('viewRoot');
+  const dToday=dayTotal(currentDate);
+  const wTotal=weekTotal(currentDate);
+  const mTotal=monthTotal(currentDate);
+  const {income, otherExpense}=monthlyIncomeExpense(monthOf(currentDate));
+  const balance=income-(otherExpense+mTotal);
+  const cats=allCategoriesFor(currentDate);
+  const shown=cats.filter(c=>amountOf(currentDate,c)>0);
+
+  root.innerHTML=`
+    <div class="mff-month-nav">
+      <button id="prevDay" aria-label="วันก่อนหน้า"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 5 8 12l7 7"/></svg></button>
+      <div class="label">${dateLabel(currentDate)}</div>
+      <button id="nextDay" aria-label="วันถัดไป"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m9 5 7 7-7 7"/></svg></button>
+    </div>
+
+    <div class="mff-money-tabs">
+      <div class="mff-money-tab expense"><div class="t-lbl">รายวัน</div><div class="t-amt">฿${fmtBaht(dToday)}</div></div>
+      <div class="mff-money-tab expense"><div class="t-lbl">รายสัปดาห์</div><div class="t-amt">฿${fmtBaht(wTotal)}</div></div>
+      <div class="mff-money-tab expense"><div class="t-lbl">รายเดือน</div><div class="t-amt">฿${fmtBaht(mTotal)}</div></div>
+    </div>
+
+    <button class="mff-edit-trigger" id="editBtn">แก้ไข</button>
+
+    <div class="mff-sheet">
+      <div class="mff-sheet-head ${SEC.cls}">${SEC.title} • ${esc(dateLabel(currentDate))}</div>
+      ${shown.length? shown.map(c=>{
+          const note=noteOf(currentDate,c);
+          return note
+            ? `<div class="mff-sheet-row has-note"><div class="top"><span class="nm">${esc(c)}</span><span class="amt">฿${fmtBaht(amountOf(currentDate,c))}</span></div><div class="note">${esc(note)}</div></div>`
+            : `<div class="mff-sheet-row"><span class="nm">${esc(c)}</span><span class="amt">฿${fmtBaht(amountOf(currentDate,c))}</span></div>`;
+        }).join('')
+        : `<div class="mff-sheet-row"><span class="nm" style="color:var(--ink-faint)">ยังไม่มีรายการวันนี้ — กด "แก้ไข" เพื่อกรอกข้อมูล</span></div>`}
+      <div class="mff-sheet-row total"><span class="nm">รวม</span><span class="amt">฿${fmtBaht(dToday)}</span></div>
+    </div>
+
+    <div class="mff-sheet">
+      <div class="mff-sheet-head summary">สรุป</div>
+      <div class="mff-sheet-row total"><span class="nm">รายจ่ายรายวัน</span><span class="amt">฿${fmtBaht(dToday)}</span></div>
+      <div class="mff-sheet-row total"><span class="nm">รายจ่ายรายสัปดาห์ (${esc(weekLabel(currentDate))})</span><span class="amt">฿${fmtBaht(wTotal)}</span></div>
+      <div class="mff-sheet-row total"><span class="nm">รายจ่ายรายเดือน (${esc(monthLabel(monthOf(currentDate)))})</span><span class="amt">฿${fmtBaht(mTotal)}</span></div>
+      <div class="mff-sheet-row total"><span class="nm">ยอดคงเหลือ</span><span class="amt ${balance>=0?'pos':'neg'}">${balance<0?'-':''}฿${fmtBaht(Math.abs(balance))}</span></div>
+    </div>
+  `;
+
+  document.getElementById('prevDay').onclick=()=>{ currentDate=shiftDate(currentDate,-1); render(); };
+  document.getElementById('nextDay').onclick=()=>{ currentDate=shiftDate(currentDate,1); render(); };
+  document.getElementById('editBtn').onclick=openEditPopup;
+}
+
+/* ===================== edit popup (ป้อนรายจ่ายของวันที่กำลังดู + โน้ต + เพิ่มรายการอื่นได้) ===================== */
+function openEditPopup(){
+  closeModal();
+  const d=document.createElement('div');
+  d.id='mffModal';
+  d.style.cssText='position:fixed;inset:0;z-index:5000;background:rgba(20,33,29,.45);display:flex;align-items:flex-end;justify-content:center';
+  d.innerHTML=`
+    <div style="width:100%;max-width:460px;max-height:86vh;background:var(--bg);border-radius:22px 22px 0 0;display:flex;flex-direction:column;overflow:hidden">
+      <h3 style="margin:0;padding:18px 20px 12px;font-size:16px;flex:none;border-bottom:1px solid var(--line)">แก้ไขข้อมูลวันที่ ${esc(dateLabel(currentDate))}</h3>
+      <div id="mffModalBody" style="flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 20px">
+        ${editSectionHtml()}
+        <div style="height:8px"></div>
+      </div>
+      <div class="mff-modal-live-summary" style="flex:none;padding:10px 20px 0;margin:0">
+        <span>รวมรายจ่ายวันนี้ (คำนวณสด)</span>
+        <span id="liveTotal">฿0</span>
+      </div>
+      <div style="display:flex;gap:10px;flex:none;padding:12px 20px calc(14px + env(safe-area-inset-bottom,0px))">
+        <button class="mff-btn mff-btn-ghost" id="popupCancel">ยกเลิก</button>
+        <button class="mff-btn mff-btn-primary" id="popupSave">บันทึกข้อมูล</button>
+      </div>
+    </div>`;
+  document.body.appendChild(d);
+  d.addEventListener('click',e=>{ if(e.target===d) closeModal(); });
+  document.getElementById('popupCancel').onclick=closeModal;
+  document.getElementById('popupSave').onclick=saveEditPopup;
+
+  wireLiveSummary();
+}
+
+function editSectionHtml(){
+  const cats=allCategoriesFor(currentDate);
+  return `
+    <div class="mff-modal-section-head ${SEC.cls}">${SEC.title}</div>
+    <div class="edit-rows" data-type="${SEC.key}">
+      ${cats.map(c=>`
+        <div class="mff-modal-row-daily" data-cat="${esc(c)}">
+          <div class="top">
+            <span class="nm">${esc(c)}</span>
+            <input type="number" inputmode="decimal" class="edit-amt" placeholder="0" value="${amountOf(currentDate,c)||''}">
+          </div>
+          <input type="text" class="edit-note" placeholder="โน้ต (ไม่บังคับ) เช่น ร้านอะไร กับใคร" value="${esc(noteOf(currentDate,c))}">
+        </div>`).join('')}
+    </div>
+    <button type="button" class="mff-modal-add-row" data-addcustom="${SEC.key}">+ เพิ่มรายการอื่นในหมวดนี้</button>
+  `;
+}
+
+function wireLiveSummary(){
+  const root=document.getElementById('mffModalBody');
+  function recalc(){
+    let total=0;
+    root.querySelectorAll('.edit-rows[data-type="daily"] .edit-amt').forEach(i=>total+=parseFloat(i.value)||0);
+    const el=document.getElementById('liveTotal');
+    if(el){ el.textContent='฿'+fmtBaht(total); el.style.color=getCss('--expense'); }
+  }
+  root.addEventListener('input', e=>{ if(e.target.classList.contains('edit-amt')) recalc(); });
+  root.querySelectorAll('[data-addcustom]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const name=prompt('ตั้งชื่อรายการใหม่:');
+      if(!name||!name.trim()) return;
+      const rowsWrap=root.querySelector(`.edit-rows[data-type="daily"]`);
+      const row=document.createElement('div');
+      row.className='mff-modal-row-daily';
+      row.dataset.cat=name.trim();
+      row.innerHTML=`<div class="top"><span class="nm">${esc(name.trim())}</span><input type="number" inputmode="decimal" class="edit-amt" placeholder="0"></div><input type="text" class="edit-note" placeholder="โน้ต (ไม่บังคับ) เช่น ร้านอะไร กับใคร">`;
+      rowsWrap.appendChild(row);
+    });
+  });
+  recalc();
+}
+function getCss(varName){ return getComputedStyle(document.documentElement).getPropertyValue(varName).trim(); }
+
+async function saveEditPopup(){
+  const root=document.getElementById('mffModalBody');
+  const now=new Date().toISOString();
+  const newRowsForDay=[];
+  root.querySelectorAll(`.edit-rows[data-type="daily"] .mff-modal-row-daily`).forEach(rowEl=>{
+    const category=rowEl.dataset.cat;
+    const amount=parseFloat(rowEl.querySelector('.edit-amt').value)||0;
+    const note=(rowEl.querySelector('.edit-note').value||'').trim();
+    if(!category || !amount) return;
+    const existing=entries.find(t=>t.date===currentDate && t.category===category);
+    newRowsForDay.push({
+      id: existing?existing.id:uuid(), date:currentDate, category, amount, note,
+      createdAt: existing?existing.createdAt:now, updatedAt: now
+    });
+  });
+  entries = entries.filter(t=>t.date!==currentDate).concat(newRowsForDay);
+  closeModal();
+  render();
+  await syncSave();
+}
+
+/* ===================== boot ===================== */
+loadCache();
+renderConnectBanner();
+render();
+
+window.addEventListener('load', async ()=>{
+  // Google is not contacted automatically when opening a module. Use Smart Sync in Settings.
+});
+
+})();
+</script>
+
+
+<script id="mff-module-ready-v14">
+(function(){const p=new URLSearchParams(location.search);if(p.get('audit')!=='1')return;setTimeout(function(){if(!window.parent||window.parent===window)return;try{window.parent.postMessage({type:'MFF_MODULE_READY',module:'ค่าใช้จ่ายรายวัน',version:'V14',detail:'ระบบโมดูลและ Google Sheets adapter พร้อม'},window.location.origin)}catch(e){}},80)})();
+</script>
+
+<script src="../icon-system.js"></script>
+</body>
+</html>

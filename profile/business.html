@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My Business — My Family Funds</title>
+<meta name="theme-color" content="#072340">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shell.css">
+<script src="../themes.js"></script>
+<style>
+.bz{padding:0 14px 110px}
+.bz-sum{margin:14px 0;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:14px;box-shadow:var(--shadow-card)}
+.bz-net{text-align:center;padding-bottom:10px;border-bottom:1px dashed var(--line)}
+.bz-net small{display:block;font-size:11.5px;color:var(--ink-soft)}
+.bz-net b{font:700 26px Prompt,sans-serif;color:var(--primary)}
+.bz-net b.neg{color:#B5422B}
+.bz-two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.bz-two div{background:var(--bg);border-radius:13px;padding:8px 10px}
+.bz-two small{display:block;font-size:10.5px;color:var(--ink-soft)}
+.bz-two b{font:600 15px Prompt,sans-serif}
+.bz-two .d b{color:#B5422B}
+.bz-tabs{display:flex;gap:6px;background:var(--primary-soft);border-radius:14px;padding:4px;margin-bottom:12px}
+.bz-tabs button{flex:1;border:0;background:none;padding:9px;border-radius:11px;font:600 13.5px Prompt,sans-serif;color:var(--primary);cursor:pointer}
+.bz-tabs button.on{background:var(--surface);box-shadow:0 1px 4px #0002}
+.bz-h{font:600 12px Prompt,sans-serif;color:var(--ink-soft);margin:14px 4px 6px;display:flex;justify-content:space-between}
+.bz-card{display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:11px 12px;margin-bottom:8px;width:100%;text-align:left;color:inherit;font:inherit;cursor:pointer;text-decoration:none}
+.bz-card .ic{width:42px;height:42px;border-radius:13px;background:var(--primary-soft);display:grid;place-items:center;font-size:21px;flex:none}
+.bz-card .tx{flex:1;min-width:0}
+.bz-card .tx b{display:block;font:600 13.5px Prompt,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bz-card .tx span{display:block;font-size:11px;color:var(--ink-soft);margin-top:1px}
+.bz-card .am{font:600 14px Prompt,sans-serif;text-align:right;white-space:nowrap}
+.bz-card .am.d{color:#B5422B}
+.bz-card.auto{border-style:dashed;background:var(--bg)}
+.bz-bar{height:6px;border-radius:99px;background:var(--primary-soft);margin-top:6px;overflow:hidden}
+.bz-bar i{display:block;height:100%;background:var(--primary-light)}
+.bz-empty{text-align:center;color:var(--ink-faint);font-size:12.5px;padding:18px 0}
+.bz-fab{position:fixed;right:18px;bottom:calc(24px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:0;background:var(--primary);color:#fff;font-size:28px;box-shadow:0 8px 20px #0004;cursor:pointer;z-index:20}
+.bz-sheet{position:fixed;inset:0;z-index:3000;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 14px 40px}
+.bz-sheet .hd{display:flex;align-items:center;justify-content:space-between;padding:16px 2px 8px}
+.bz-sheet .hd h3{font:700 17px Prompt,sans-serif;margin:0}
+.bz-sheet .hd button{border:0;background:var(--primary-soft);color:var(--primary);width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer}
+.bz-f{margin:10px 0}
+.bz-f label{display:block;font-size:11.5px;font-weight:600;color:var(--ink-soft);margin-bottom:4px}
+.bz-f input,.bz-f select,.bz-f textarea{width:100%;min-height:44px;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font-size:16px;font-family:inherit;box-sizing:border-box}
+.bz-f textarea{min-height:76px}
+.bz-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bz-btn{width:100%;min-height:46px;border:0;border-radius:13px;font:700 14.5px Prompt,sans-serif;cursor:pointer;background:var(--primary);color:#fff;margin-top:14px}
+.bz-btn.del{background:#FBE8E3;color:#B5422B}
+.bz-note{font-size:11.5px;color:var(--ink-soft);background:var(--primary-soft);border-radius:12px;padding:9px 11px;margin:10px 0;line-height:1.6}
+.bz-toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#072340;color:#fff;padding:9px 16px;border-radius:99px;font-size:12.5px;z-index:4000}
+</style>
+</head>
+<body>
+<div class="mff-app" style="padding-bottom:20px">
+  <div class="mff-hero-wrap" style="padding-bottom:20px;border-radius:0 0 28px 28px">
+    <div class="mff-topbar">
+      <a class="back" href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 5 8 12l7 7"/></svg>My Profile</a>
+      <span></span>
+    </div>
+    <div class="mff-hero" style="padding-top:0">
+      <p class="eyebrow" style="margin-bottom:2px">My Business</p>
+      <h1 style="font-size:17.5px;white-space:nowrap">สินทรัพย์และหนี้สิน</h1>
+    </div>
+  </div>
+  <div class="bz" id="root"></div>
+</div>
+<button class="bz-fab" id="fab" type="button" aria-label="เพิ่มรายการ">+</button>
+
+<script src="../config.js"></script>
+<script>
+(function(){
+'use strict';
+var CACHE_KEY='mff_business_cache_v1';
+var ASSET_CATS=[
+ {k:'property',ic:'🏠',n:'อสังหาริมทรัพย์',h:'บ้าน ที่ดิน คอนโด'},
+ {k:'car',ic:'🚗',n:'รถยนต์',h:''},
+ {k:'moto',ic:'🏍️',n:'มอเตอร์ไซค์',h:''},
+ {k:'gold',ic:'🥇',n:'ทองคำ',h:''},
+ {k:'cash',ic:'💵',n:'เงินสด / เงินฝาก',h:''},
+ {k:'reserve',ic:'🛟',n:'เงินสำรองฉุกเฉิน',h:''},
+ {k:'fund',ic:'📈',n:'กองทุน / หุ้น (นอกพอร์ต)',h:''},
+ {k:'other',ic:'📦',n:'อื่น ๆ',h:''}
+];
+var DEBT_TYPES=[
+ {k:'home',ic:'🏠',n:'ผ่อนบ้าน'},
+ {k:'car',ic:'🚗',n:'ผ่อนรถ'},
+ {k:'credit',ic:'💳',n:'บัตรเครดิต'},
+ {k:'loan',ic:'🏦',n:'เงินกู้ธนาคาร'},
+ {k:'bank',ic:'📄',n:'หนี้ธนาคาร/สถาบันการเงิน'},
+ {k:'other',ic:'🧾',n:'หนี้อื่น ๆ'}
+];
+var items=[], tab='asset', editing=null;
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function num(v){var n=Number(String(v==null?'':v).replace(/,/g,''));return isFinite(n)?n:0;}
+function baht(n){return '฿'+Math.round(n).toLocaleString('th-TH');}
+function rj(k,f){try{var r=localStorage.getItem(k);return r?JSON.parse(r):f;}catch(e){return f;}}
+function load(){var a=rj(CACHE_KEY,[]);items=Array.isArray(a)?a:[];}
+function save(){try{localStorage.setItem(CACHE_KEY,JSON.stringify(items));localStorage.setItem('mff_sync_dirty_v1_business','1');}catch(e){}}
+function toast(m){var t=document.createElement('div');t.className='bz-toast';t.textContent=m;document.body.appendChild(t);setTimeout(function(){t.remove();},2200);}
+function catOf(k){return ASSET_CATS.filter(function(c){return c.k===k;})[0]||ASSET_CATS[ASSET_CATS.length-1];}
+function typeOf(k){return DEBT_TYPES.filter(function(c){return c.k===k;})[0]||DEBT_TYPES[DEBT_TYPES.length-1];}
+function owners(){var p=rj('mff_profiles_cache_v1',[]);return (Array.isArray(p)?p:[]).map(function(x){return (x.firstName||'').trim();}).filter(Boolean);}
+
+/* ---- ดึงค่าจาก My Portfolio (อ่านอย่างเดียว) : เงินลงทุนสะสมทุกปี แยกเงินสำรอง / กองทุนอื่น ---- */
+function portfolioTotals(){
+  var d=rj('khlangthun_portfolio_oldui_latest_v4',null);
+  var funds=d&&Array.isArray(d.funds)?d.funds:[];
+  var RE=/e\s*[- ]?saving|esaving|เงินสำรอง/i, seen={}, res={reserve:0,fund:0,count:0,has:!!(d&&funds.length)};
+  funds.forEach(function(f){
+    if(!f)return;
+    var k=String(f.owner||'').trim().toLowerCase()+'|'+String(f.name||'').trim().toLowerCase().replace(/\s+/g,' ');
+    if(seen[k])return; seen[k]=1;
+    var isRes=f.assetCategoryKey==='reserve'||RE.test(String(f.owner||''))||RE.test(String(f.name||''));
+    var sum=0, ys=f.years||{};
+    Object.keys(ys).forEach(function(y){
+      var yd=ys[y]||{}, pm=yd.planMonths||yd.months||{};
+      var t=Object.keys(pm).reduce(function(a,m){return a+(Number(pm[m])||0);},0);
+      if(!(t>0)&&yd.masterActual!==undefined)t=Number(yd.masterActual)||0;
+      sum+=t;
+    });
+    if(isRes)res.reserve+=sum; else res.fund+=sum;
+    res.count++;
+  });
+  return res;
+}
+
+function totals(){
+  var pf=portfolioTotals();
+  var a=items.filter(function(x){return x.kind==='asset';}).reduce(function(s,x){return s+num(x.value);},0)+pf.reserve+pf.fund;
+  var d=items.filter(function(x){return x.kind==='debt';}).reduce(function(s,x){return s+num(x.balance);},0);
+  return {assets:a,debts:d,net:a-d,pf:pf};
+}
+function debtsOf(assetId){return items.filter(function(x){return x.kind==='debt'&&x.linkedId===assetId;});}
+
+function render(){
+  var t=totals(), root=document.getElementById('root');
+  var h='<div class="bz-sum"><div class="bz-net"><small>ความมั่งคั่งสุทธิ (สินทรัพย์ − หนี้สิน)</small><b class="'+(t.net<0?'neg':'')+'">'+baht(t.net)+'</b></div>'+
+    '<div class="bz-two"><div><small>สินทรัพย์รวม</small><b>'+baht(t.assets)+'</b></div><div class="d"><small>หนี้สินรวม</small><b>'+baht(t.debts)+'</b></div></div></div>'+
+    '<div class="bz-tabs"><button type="button" data-tab="asset" class="'+(tab==='asset'?'on':'')+'">สินทรัพย์</button><button type="button" data-tab="debt" class="'+(tab==='debt'?'on':'')+'">หนี้สิน</button></div>';
+  h+= tab==='asset'?renderAssets(t):renderDebts();
+  root.innerHTML=h;
+}
+function renderAssets(t){
+  var h='';
+  if(t.pf.has){
+    h+='<div class="bz-h"><span>ดึงอัตโนมัติจาก My Portfolio</span></div>';
+    h+='<a class="bz-card auto" href="../portfolio/index.html"><span class="ic">📈</span><span class="tx"><b>กองทุนใน My Portfolio</b><span>เงินลงทุนสะสม · อัปเดตเองตามพอร์ต</span></span><span class="am">'+baht(t.pf.fund)+'</span></a>';
+    h+='<a class="bz-card auto" href="../portfolio/index.html"><span class="ic">🛟</span><span class="tx"><b>เงินสำรอง (E-Saving)</b><span>เงินสะสม · อัปเดตเองตามพอร์ต</span></span><span class="am">'+baht(t.pf.reserve)+'</span></a>';
+  }
+  var any=false;
+  ASSET_CATS.forEach(function(c){
+    var list=items.filter(function(x){return x.kind==='asset'&&x.category===c.k;});
+    if(!list.length)return; any=true;
+    var sub=list.reduce(function(s,x){return s+num(x.value);},0);
+    h+='<div class="bz-h"><span>'+c.ic+' '+esc(c.n)+'</span><span>'+baht(sub)+'</span></div>';
+    list.forEach(function(x){
+      var dl=debtsOf(x.id), owe=dl.reduce(function(s,d){return s+num(d.balance);},0);
+      var sub2=[x.owner?esc(x.owner):'', dl.length?('ผ่อนอยู่ · ส่วนของเรา '+baht(num(x.value)-owe)):''].filter(Boolean).join(' · ');
+      h+='<button type="button" class="bz-card" data-edit="'+esc(x.id)+'"><span class="ic">'+c.ic+'</span><span class="tx"><b>'+esc(x.name||c.n)+'</b>'+(sub2?'<span>'+sub2+'</span>':'')+'</span><span class="am">'+baht(num(x.value))+'</span></button>';
+    });
+  });
+  if(!any&&!t.pf.has)h+='<div class="bz-empty">ยังไม่มีสินทรัพย์ กด + เพื่อเพิ่มรายการแรก</div>';
+  else if(!any)h+='<div class="bz-empty">เพิ่มบ้าน รถ ทองคำ เงินสด ฯลฯ ด้วยปุ่ม +</div>';
+  return h;
+}
+function renderDebts(){
+  var list=items.filter(function(x){return x.kind==='debt';});
+  if(!list.length)return '<div class="bz-empty">ยังไม่มีหนี้สิน กด + เพื่อเพิ่มรายการ 🎉</div>';
+  var monthly=list.reduce(function(s,x){return s+num(x.monthly);},0), h='<div class="bz-h"><span>ค่างวดรวมต่อเดือน</span><span>'+baht(monthly)+'</span></div>';
+  DEBT_TYPES.forEach(function(c){
+    var l=list.filter(function(x){return x.category===c.k;});
+    if(!l.length)return;
+    h+='<div class="bz-h"><span>'+c.ic+' '+esc(c.n)+'</span><span>'+baht(l.reduce(function(s,x){return s+num(x.balance);},0))+'</span></div>';
+    l.forEach(function(x){
+      var p=num(x.principal), pct=p>0?Math.max(0,Math.min(100,Math.round((p-num(x.balance))/p*100))):0;
+      var meta=[x.creditor?esc(x.creditor):'', num(x.monthly)?('งวดละ '+baht(num(x.monthly))):'', x.dueDay?('ทุกวันที่ '+esc(x.dueDay)):''].filter(Boolean).join(' · ');
+      h+='<button type="button" class="bz-card" data-edit="'+esc(x.id)+'"><span class="ic">'+c.ic+'</span><span class="tx"><b>'+esc(x.name||c.n)+'</b>'+(meta?'<span>'+meta+'</span>':'')+(p>0?'<div class="bz-bar"><i style="width:'+pct+'%"></i></div><span>ชำระแล้ว '+pct+'%</span>':'')+'</span><span class="am d">'+baht(num(x.balance))+'</span></button>';
+    });
+  });
+  return h;
+}
+
+function openForm(kind,id){
+  var rec=id?items.filter(function(x){return x.id===id;})[0]:null;
+  editing=rec||{id:'',kind:kind,category:kind==='asset'?'property':'home'};
+  var isA=editing.kind==='asset', cats=isA?ASSET_CATS:DEBT_TYPES, ow=owners();
+  var assets=items.filter(function(x){return x.kind==='asset'&&x.id!==editing.id;});
+  var f='<div class="bz-sheet" id="sheet"><div class="hd"><h3>'+(rec?'แก้ไข':'เพิ่ม')+(isA?'สินทรัพย์':'หนี้สิน')+'</h3><button type="button" id="shClose">×</button></div>';
+  f+='<div class="bz-f"><label>หมวด</label><select id="fCat">'+cats.map(function(c){return '<option value="'+c.k+'"'+(editing.category===c.k?' selected':'')+'>'+c.ic+' '+esc(c.n)+'</option>';}).join('')+'</select></div>';
+  f+='<div class="bz-f"><label>ชื่อรายการ</label><input id="fName" value="'+esc(editing.name||'')+'" placeholder="'+(isA?'เช่น บ้านลาดพร้าว / Honda Civic':'เช่น ผ่อนบ้าน ธ.กรุงไทย')+'"></div>';
+  f+='<div class="bz-f"><label>เจ้าของ'+(isA?'':'หนี้')+'</label><select id="fOwner"><option value="">— ไม่ระบุ —</option>'+ow.map(function(o){return '<option'+(editing.owner===o?' selected':'')+'>'+esc(o)+'</option>';}).join('')+(editing.owner&&ow.indexOf(editing.owner)<0?'<option selected>'+esc(editing.owner)+'</option>':'')+'</select></div>';
+  if(isA){
+    f+='<div class="bz-2"><div class="bz-f"><label>มูลค่าปัจจุบัน (บาท)</label><input id="fValue" inputmode="decimal" value="'+esc(editing.value||'')+'"></div><div class="bz-f"><label>ราคาที่ซื้อ (บาท)</label><input id="fCost" inputmode="decimal" value="'+esc(editing.cost||'')+'"></div></div>';
+    f+='<div class="bz-f"><label>วันที่ซื้อ</label><input id="fDate" type="date" value="'+esc(editing.date||'')+'"></div>';
+  }else{
+    f+='<div class="bz-f"><label>เจ้าหนี้ (ธนาคาร/บริษัท)</label><input id="fCred" value="'+esc(editing.creditor||'')+'"></div>';
+    f+='<div class="bz-2"><div class="bz-f"><label>ยอดหนี้คงเหลือ (บาท)</label><input id="fBal" inputmode="decimal" value="'+esc(editing.balance||'')+'"></div><div class="bz-f"><label>ยอดกู้เริ่มต้น (บาท)</label><input id="fPrin" inputmode="decimal" value="'+esc(editing.principal||'')+'"></div></div>';
+    f+='<div class="bz-2"><div class="bz-f"><label>ค่างวด/เดือน (บาท)</label><input id="fMon" inputmode="decimal" value="'+esc(editing.monthly||'')+'"></div><div class="bz-f"><label>ดอกเบี้ย % ต่อปี</label><input id="fRate" inputmode="decimal" value="'+esc(editing.rate||'')+'"></div></div>';
+    f+='<div class="bz-f"><label>วันครบกำหนดชำระของทุกเดือน (1–31)</label><input id="fDue" inputmode="numeric" value="'+esc(editing.dueDay||'')+'"></div>';
+    f+='<div class="bz-f"><label>ผูกกับสินทรัพย์ (ถ้ามี)</label><select id="fLink"><option value="">— ไม่ผูก —</option>'+assets.map(function(a){return '<option value="'+esc(a.id)+'"'+(editing.linkedId===a.id?' selected':'')+'>'+catOf(a.category).ic+' '+esc(a.name||catOf(a.category).n)+'</option>';}).join('')+'</select></div>';
+    f+='<div class="bz-note">ผูกหนี้กับสินทรัพย์ เช่น บ้าน/รถ เพื่อดู “ส่วนของเรา” = มูลค่า − หนี้ที่เหลือ</div>';
+  }
+  f+='<div class="bz-f"><label>หมายเหตุ</label><textarea id="fNote" placeholder="'+(isA?'เลขทะเบียน ที่ตั้ง น้ำหนักทอง ฯลฯ':'เลขที่สัญญา เงื่อนไข ฯลฯ')+'">'+esc(editing.note||'')+'</textarea></div>';
+  f+='<button class="bz-btn" type="button" id="shSave">บันทึก</button>'+(rec?'<button class="bz-btn del" type="button" id="shDel">ลบรายการนี้</button>':'')+'</div>';
+  var w=document.createElement('div'); w.innerHTML=f; document.body.appendChild(w.firstChild);
+  document.getElementById('shClose').onclick=closeForm;
+  document.getElementById('shSave').onclick=saveForm;
+  var d=document.getElementById('shDel'); if(d)d.onclick=function(){
+    if(!confirm('ลบรายการนี้?'))return;
+    items=items.filter(function(x){return x.id!==editing.id;});
+    items.forEach(function(x){if(x.linkedId===editing.id)x.linkedId='';});
+    save(); closeForm(); render(); toast('ลบแล้ว');
+  };
+}
+function closeForm(){var s=document.getElementById('sheet');if(s)s.remove();editing=null;}
+function val(id){var e=document.getElementById(id);return e?e.value.trim():'';}
+function saveForm(){
+  var isA=editing.kind==='asset', now=new Date().toISOString();
+  var name=val('fName'); if(!name){toast('กรุณาใส่ชื่อรายการ');return;}
+  var rec={id:editing.id||('b_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),kind:editing.kind,category:val('fCat'),name:name,owner:val('fOwner'),note:val('fNote'),createdAt:editing.createdAt||now,updatedAt:now};
+  if(isA){rec.value=num(val('fValue'));rec.cost=num(val('fCost'));rec.date=val('fDate');}
+  else{
+    rec.creditor=val('fCred');rec.balance=num(val('fBal'));rec.principal=num(val('fPrin'));rec.monthly=num(val('fMon'));rec.rate=num(val('fRate'));
+    var dd=parseInt(val('fDue'),10); rec.dueDay=(dd>=1&&dd<=31)?dd:''; rec.linkedId=val('fLink');
+  }
+  var i=items.map(function(x){return x.id;}).indexOf(rec.id);
+  if(i>=0)items[i]=rec; else items.push(rec);
+  save(); closeForm(); render(); toast('บันทึกในเครื่องแล้ว • ซิงก์ได้ที่ Setting');
+}
+
+document.getElementById('root').addEventListener('click',function(e){
+  var t=e.target.closest('[data-tab]'); if(t){tab=t.getAttribute('data-tab');render();return;}
+  var b=e.target.closest('[data-edit]'); if(b){var x=items.filter(function(i){return i.id===b.getAttribute('data-edit');})[0]; if(x)openForm(x.kind,x.id);}
+});
+document.getElementById('fab').addEventListener('click',function(){openForm(tab,null);});
+window.addEventListener('storage',render);
+
+load(); render();
+(function(){var p=new URLSearchParams(location.search);if(p.get('audit')!=='1')return;setTimeout(function(){if(!window.parent||window.parent===window)return;try{window.parent.postMessage({type:'MFF_MODULE_READY',module:'My Business',version:'V1',detail:'พร้อม'},window.location.origin)}catch(e){}},80)})();
+})();
+</script>
+<script src="../icon-system.js"></script>
+</body>
+</html>

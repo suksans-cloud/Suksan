@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My Profile — My Family Funds</title>
+<meta name="theme-color" content="#072340">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shell.css">
+<script src="../themes.js"></script>
+<style>
+.pf-menu{margin:16px;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:18px 10px 14px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 4px;box-shadow:var(--shadow-card)}
+.pf-menu a{display:flex;flex-direction:column;align-items:center;text-align:center;text-decoration:none;color:var(--ink);border-radius:16px;padding:4px 2px 6px}
+.pf-menu a:active{background:var(--bg)}
+.pf-ico{width:64px;height:64px;border-radius:50%;margin:0 0 8px;background:radial-gradient(circle at 30% 25%,var(--bg),var(--primary-soft) 70%);box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center}
+.pf-ico svg{width:36px;height:36px;stroke:var(--primary);stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.pf-ico svg .ac{stroke:var(--primary-light)}
+.pf-ico svg .fl{fill:color-mix(in srgb,var(--primary-light) 20%,transparent);stroke:var(--primary-light)}
+.pf-menu strong{font:600 12.5px/1.35 Prompt,sans-serif}
+.pf-menu small{font-size:9.5px;color:var(--ink-faint);margin-top:2px}
+
+/* ===== My Profile icon refresh — match the home menu scale ===== */
+.pf-menu{gap:16px 6px}
+.pf-menu a{min-width:0}
+.pf-ico{width:64px;height:64px;flex:none;border-radius:50%;margin-bottom:9px;
+  background:linear-gradient(145deg,#FFF0F4,#F7DCE7 58%,#F2E8FF);
+  box-shadow:inset 0 0 0 1px rgba(157,35,78,.10),0 5px 14px rgba(90,35,65,.07)}
+.pf-ico svg{width:36px;height:36px;stroke-width:1.9}
+.pf-menu a:nth-child(1) .pf-ico{background:linear-gradient(145deg,#EAF1FF,#DCE7FF)}
+.pf-menu a:nth-child(1) .pf-ico svg{stroke:#3566A3}
+.pf-menu a:nth-child(1) .pf-ico svg .ac,.pf-menu a:nth-child(1) .pf-ico svg .fl{stroke:#6B91CA}
+.pf-menu a:nth-child(2) .pf-ico{background:linear-gradient(145deg,#E8F7F0,#D5EEE3)}
+.pf-menu a:nth-child(2) .pf-ico svg{stroke:#21866B}
+.pf-menu a:nth-child(2) .pf-ico svg .ac,.pf-menu a:nth-child(2) .pf-ico svg .fl{stroke:#55AE8C}
+.pf-menu a:nth-child(3) .pf-ico{background:linear-gradient(145deg,#FFF3DF,#FBE6B8)}
+.pf-menu a:nth-child(3) .pf-ico svg{stroke:#A87516}
+.pf-menu a:nth-child(3) .pf-ico svg .ac,.pf-menu a:nth-child(3) .pf-ico svg .fl{stroke:#D6A43E}
+.pf-menu strong{font-size:12.5px;line-height:1.35}
+.pf-menu small{font-size:9.5px;line-height:1.4}
+@media(max-width:360px){.pf-ico{width:60px;height:60px}.pf-ico svg{width:34px;height:34px}}
+
+</style>
+</head>
+<body>
+<div class="mff-app" style="padding-bottom:20px">
+  <div class="mff-hero-wrap" style="padding-bottom:20px;border-radius:0 0 28px 28px">
+    <div class="mff-topbar">
+      <a class="back" href="../index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 5 8 12l7 7"/></svg>
+        หน้าแรก
+      </a>
+      <span></span>
+    </div>
+    <div class="mff-hero" style="padding-top:0">
+      <p class="eyebrow" style="margin-bottom:2px">My Profile</p>
+      <h1 style="font-size:17.5px;white-space:nowrap">ข้อมูลส่วนตัวและครอบครัว</h1>
+    </div>
+  </div>
+
+  <nav class="pf-menu" aria-label="My Profile">
+    <a href="../vault/index.html"><span class="pf-ico"><svg viewBox="0 0 24 24"><rect class="fl" x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/><path class="ac" d="M12 14.5v2.5"/></svg></span><strong>My Information</strong><small>ตู้เซฟข้อมูลส่วนตัว</small></a>
+    <a href="family.html"><span class="pf-ico"><svg viewBox="0 0 24 24"><circle class="fl" cx="9" cy="8" r="3.2"/><circle class="fl" cx="17" cy="9.5" r="2.5"/><path class="ac" d="M3 19c0-3.2 2.7-5 6-5s6 1.8 6 5"/><path class="ac" d="M15.5 14.3c.5-.2 1-.3 1.5-.3 2.4 0 4 1.5 4 4"/></svg></span><strong>My Family</strong><small>รายชื่อสมาชิกครอบครัว</small></a>
+      <a href="business.html"><span class="pf-ico"><svg viewBox="0 0 24 24"><rect class="fl" x="3.5" y="7.5" width="17" height="12" rx="2.5"/><path d="M9 7.5V6a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 6v1.5"/><path class="ac" d="M3.5 12.5h17M12 11.5v2"/></svg></span><strong>My Business</strong><small>สินทรัพย์และหนี้สิน</small></a>
+  </nav>
+</div>
+<script src="../config.js"></script>
+<script>
+(function(){const p=new URLSearchParams(location.search);if(p.get('audit')!=='1')return;setTimeout(function(){if(!window.parent||window.parent===window)return;try{window.parent.postMessage({type:'MFF_MODULE_READY',module:'My Profile',version:'hub',detail:'พร้อม'},window.location.origin)}catch(e){}},80)})();
+</script>
+<script src="../icon-system.js"></script>
+</body>
+</html>

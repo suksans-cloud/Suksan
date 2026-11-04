@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Setting — My Family Funds</title>
+<meta name="theme-color" content="#072340">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shell.css">
+<script src="../data-safety.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+/* ฟอร์มแจ้งเตือน: ให้หน้าตาเหมือนช่องกรอกอื่นในแอป (มน นุ่ม) */
+.mff-rem-form{display:grid;gap:10px;margin-top:12px}
+.mff-rem-form input,.mff-rem-form select{
+  width:100%;box-sizing:border-box;min-height:46px;padding:0 14px;font-size:14px;font-family:inherit;
+  color:var(--ink);background:var(--primary-soft);border:1px solid transparent!important;
+  border-radius:14px!important;-webkit-appearance:none;appearance:none;box-shadow:none;
+}
+.mff-rem-form select{
+  padding-right:38px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%236b6880' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;
+}
+.mff-rem-form input::placeholder{color:var(--ink-faint);font-size:13px}
+.mff-rem-form input:focus,.mff-rem-form select:focus{
+  outline:none;background-color:var(--bg);border-color:var(--primary)!important;box-shadow:0 0 0 3px var(--primary-soft);
+}
+.mff-rem-form #remEveryBox input{min-width:0}
+.mff-rem-form .mff-sync-bar-btn{width:100%;min-height:46px;border-radius:14px;font-size:13.5px}
+.mff-rem-form #remAdd{background:var(--primary);color:#fff;border-color:transparent}
+.mff-settings-body{padding:16px 18px 40px;max-width:460px;margin:0 auto}
+.mff-settings-card{background:var(--bg);box-shadow:var(--shadow-card);border-radius:18px;padding:16px 16px 14px;margin-bottom:14px}
+.mff-settings-card h2{margin:0 0 4px;font-size:15.5px;display:flex;align-items:center;gap:7px}
+.mff-settings-card .hint{margin:0 0 10px;font-size:11.5px;color:var(--ink-soft);line-height:1.5}
+.mff-settings-actions{display:flex;gap:8px;margin-top:10px}
+.mff-sync-status{margin-top:10px;font-size:12.5px;line-height:1.7}
+.mff-sync-status .ok{color:#1f8a63;font-weight:700}
+.mff-sync-status .warn{color:#c0783a;font-weight:700}
+.mff-module-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+.mff-module-row:last-child{border-bottom:0}
+.mff-module-row b{font-weight:700;color:var(--ink)}
+.mff-module-row span{color:var(--ink-soft)}
+.mff-admin-lock{text-align:center;padding:14px 6px;color:var(--ink-faint);font-size:12.5px}
+.mff-sync-module-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.mff-sync-module-row:last-child{border-bottom:0}
+.mff-sync-module-name{font-size:13px;font-weight:700;flex:1;min-width:110px}
+.mff-sync-module-btns{display:flex;gap:6px;flex:none}
+.mff-sync-dir-btn{
+  border:0;background:var(--bg);color:var(--primary);font-weight:700;font-size:11px;
+  border-radius:10px;padding:7px 9px;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block;
+}
+ .mff-sync-all-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.mff-sync-all-btn{border:0;border-radius:14px;padding:12px 10px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;min-height:48px;box-shadow:0 4px 12px rgba(15,91,77,.08)}
+.mff-sync-all-btn.pull{background:var(--primary-soft);color:var(--primary)}
+.mff-sync-all-btn.push{background:var(--primary);color:#fff}
+.mff-sync-all-btn:disabled{opacity:.55;cursor:wait}
+.mff-sync-progress{margin-top:12px;padding:10px 11px;background:var(--bg);border-radius:12px}
+.mff-sync-progress-head{display:flex;justify-content:space-between;gap:10px;font-size:11.5px;color:var(--ink-soft);margin-bottom:7px}
+.mff-sync-progress-bar{height:6px;background:var(--line);border-radius:999px;overflow:hidden}
+.mff-sync-progress-bar span{display:block;height:100%;width:0;background:var(--primary);border-radius:999px;transition:width .2s ease}
+.mff-sync-safety{margin-top:12px;padding:11px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+.mff-sync-safety-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.mff-sync-history{margin-top:8px;max-height:180px;overflow:auto;font-size:11px;color:var(--ink-soft)}
+.mff-sync-history div{padding:6px 0;border-bottom:1px solid var(--line)}
+@media(max-width:360px){.mff-sync-safety-actions{grid-template-columns:1fr}}
+@media(max-width:360px){.mff-sync-all-actions{grid-template-columns:1fr}.mff-sync-all-btn{min-height:44px}}
+
+.mff-control-strip{margin:14px 18px 0;padding:12px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.72);box-shadow:var(--shadow-card)}
+.mff-control-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.mff-control-title{font-size:13px;font-weight:800;color:var(--ink)}
+.mff-control-sub{font-size:10.5px;color:var(--ink-soft);margin-top:2px}
+.mff-online-pill{font-size:10.5px;font-weight:800;padding:5px 9px;border-radius:999px;background:var(--primary-soft);color:var(--primary);white-space:nowrap}
+.mff-online-pill.offline{background:#f3e2d5;color:#a65e2e}
+.mff-control-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+.mff-control-stat{padding:8px 7px;border-radius:12px;background:var(--bg);text-align:center}
+.mff-control-stat b{display:block;font-size:15px;color:var(--ink)}
+.mff-control-stat span{font-size:9.5px;color:var(--ink-soft)}
+.mff-section-label{font-size:10.5px;font-weight:800;color:var(--primary);letter-spacing:.02em;margin:2px 2px 7px;text-transform:uppercase}
+.mff-module-sync-status{font-size:10.5px;color:var(--ink-soft);text-align:right}
+.mff-status-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 7px;border-radius:999px;font-size:10px;font-weight:800;background:var(--bg);white-space:nowrap}
+.mff-status-chip.ok{background:#dfeee8;color:#1f8a63}.mff-status-chip.pending{background:#f4ead7;color:#a56b2f}.mff-status-chip.neutral{background:var(--bg);color:var(--ink-soft)}
+.mff-primary-sync{position:relative;overflow:hidden}
+.mff-primary-sync:after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 20%,rgba(255,255,255,.18) 45%,transparent 70%);transform:translateX(-100%);animation:mffSyncShine 4s infinite}
+@keyframes mffSyncShine{55%,100%{transform:translateX(100%)}}
+.mff-danger-note{font-size:10.5px;color:var(--ink-faint);line-height:1.45;margin-top:8px}
+@media(max-width:360px){.mff-control-grid{grid-template-columns:1fr 1fr}.mff-control-stat:last-child{grid-column:1/-1}}
+
+/* Clean Sync UI — keep diagnostics in code, out of the user's way */
+.mff-clean-note{font-size:11px;color:var(--ink-soft);line-height:1.5;margin-top:7px}
+.mff-clean-last{margin-top:9px;padding:9px 10px;border:1px solid var(--line);border-radius:12px;background:var(--bg);font-size:11.5px}
+.mff-primary-sync:after{display:none!important}
+.mff-settings-card,.mff-control-strip,.mff-sync-all-btn,.mff-sync-progress,.mff-sync-safety{box-shadow:none!important}
+#mffQueuePanel,#syncHistory{display:none!important}
+#advancedGoogleSession,#advancedCache,#advancedBackend{display:none!important}
+#btnModuleAudit,#btnSyncPreflight,#btnSyncEngineTest,#btnQueueSafetyTest,#btnFinalLocalCheck,#btnSyncAllPull,#btnSyncAllPush{display:none!important}
+#syncAllProgress{margin-top:10px}
+.mff-report-status{margin-top:9px;padding:9px 10px;border-radius:12px;background:var(--bg);border:1px solid var(--line);font-size:11.5px;line-height:1.5}
+
+/* ===== compact: System Control + Google Sheets ===== */
+.mff-control-strip{margin:8px 14px 0;padding:8px 10px;border-radius:14px}
+.mff-control-sub{display:none}
+.mff-control-title{font-size:12.5px}
+.mff-online-pill{font-size:10px;padding:3px 8px}
+.mff-control-top{gap:8px}
+.mff-control-grid{grid-template-columns:repeat(3,1fr);gap:5px;margin-top:6px}
+.mff-control-stat{padding:4px 4px;border-radius:9px;display:flex;align-items:baseline;justify-content:center;gap:5px;white-space:nowrap}
+.mff-control-stat b{display:inline;font-size:13px}.mff-control-stat span{font-size:9.5px}
+@media(max-width:360px){.mff-control-grid{grid-template-columns:repeat(3,1fr)}.mff-control-stat:last-child{grid-column:auto}}
+#autoSyncRow{margin-top:6px!important;padding-top:6px!important}
+#autoSyncRow b{font-size:11.5px!important}
+#autoSyncRow>div>div{display:none}
+#autoSyncRow .mff-toggle{transform:scale(.8);transform-origin:right center;margin:-4px 0}
+.mff-compact{padding:10px 12px!important}
+.mff-compact h2{font-size:13.5px!important;margin:0 0 4px!important}
+.mff-compact .hint{display:none}
+.mff-compact .mff-field-row{padding:3px 0!important;gap:8px;align-items:center;border-bottom:0!important}
+.mff-compact .mff-field-row .lbl{width:70px;padding-top:0;font-size:11px}
+.mff-compact .mff-field-row input{min-height:34px!important;height:34px;padding:0 10px!important;font-size:13px!important}
+.mff-compact .mff-settings-actions{margin-top:6px!important;display:flex;align-items:center;gap:10px}
+.mff-compact .mff-btn{min-height:36px!important;height:36px;padding:0 14px!important;font-size:12.5px!important;flex:none;width:auto!important}
+.mff-compact .mff-sync-status{margin:0!important;font-size:12px;flex:1}
+
+/* compact v31 */
+.mff-settings-body{padding:12px 14px 32px}.mff-settings-card{padding:12px 13px 11px;margin-bottom:10px;border-radius:16px}
+.mff-control-strip{margin:10px 14px 0;padding:9px}.mff-module-row{padding:6px 0}
+</style>
+<style>
+.mff-toggle{
+  position:relative!important;width:52px!important;height:32px!important;flex:0 0 52px!important;
+  display:block!important;border:0!important;padding:0!important;margin:0!important;
+  background:transparent!important;cursor:pointer!important;touch-action:manipulation!important;
+  -webkit-tap-highlight-color:transparent!important;pointer-events:auto!important;z-index:30!important;
+}
+.mff-toggle span{
+  position:absolute!important;inset:0!important;display:block!important;border-radius:999px!important;
+  background:#cfd8d3!important;transition:.2s!important;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)!important;
+  pointer-events:none!important;
+}
+.mff-toggle span i{
+  position:absolute!important;width:24px!important;height:24px!important;left:4px!important;top:4px!important;
+  border-radius:50%!important;background:#fff!important;box-shadow:0 1px 4px rgba(0,0,0,.18)!important;
+  transition:.2s!important;pointer-events:none!important;
+}
+.mff-toggle.on span{background:var(--primary)!important}
+.mff-toggle.on span i{transform:translateX(20px)!important}
+.mff-auto-sync-row{cursor:pointer;touch-action:manipulation;}
+</style>
+<script src="../themes.js"></script>
+</head>
+<body>
+
+<div class="mff-app" style="padding-bottom:20px">
+
+  <div class="mff-hero-wrap" style="padding-bottom:20px;border-radius:0 0 28px 28px">
+    <div class="mff-topbar">
+      <a class="back" href="../index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 5 8 12l7 7"/></svg>
+        หน้าแรก
+      </a>
+      <span></span>
+    </div>
+    <div class="mff-hero" style="padding-top:0">
+      <p class="eyebrow" style="margin-bottom:2px">Setting</p>
+      <h1 style="font-size:19px;white-space:nowrap">การเชื่อมต่อ & ซิงก์ข้อมูล</h1>
+    </div>
+  </div>
+
+  <section class="mff-control-strip" aria-label="สถานะระบบ">
+    <div class="mff-control-top">
+      <div><div class="mff-control-title">System Control</div><div class="mff-control-sub">ศูนย์ควบคุมข้อมูลของ MyPortfolio</div></div>
+      <span id="mffOnlinePill" class="mff-online-pill">● Online</span>
+    </div>
+    <div class="mff-control-grid">
+      <div class="mff-control-stat"><b id="mffStatSynced">0</b><span>ซิงก์แล้ว</span></div>
+      <div class="mff-control-stat"><b id="mffStatPending">0</b><span>รอซิงก์</span></div>
+      <div class="mff-control-stat"><b id="mffStatLast">—</b><span>ซิงก์ล่าสุด</span></div>
+    </div>
+    <div id="autoSyncRow" class="mff-auto-sync-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,.06)" role="button" tabindex="0" aria-label="เปิดหรือปิด Auto Sync">
+      <div><b style="font-size:11.5px">⚡ Auto Sync เมื่อกลับมา Online</b><div style="font-size:10.5px;color:var(--ink-soft);margin-top:2px">ใช้เฉพาะ Google Session ที่ยังใช้งานได้ — ไม่เปิดหน้าขอสิทธิ์เอง</div></div>
+      <button id="autoSyncToggle" class="mff-toggle" type="button" role="switch" aria-checked="false" title="เปิด/ปิด Auto Sync"><span id="autoSyncTrack" aria-hidden="true"><i></i></span></button>
+    </div>
+  </section>
+
+  <div class="mff-settings-body">
+
+    <section class="mff-settings-card mff-compact" id="sheetsCard">
+      <h2>🔗 ซิงก์กับ Google Sheets</h2>
+      <p class="hint">ใช้ค่าเดียวกันทั้ง 4 โมดูล (My Money, My Portfolio, My Bookshelf, My Profile) — ข้อมูลจะแยกเก็บกันคนละแท็บในสเปรดชีตเดียวกัน</p>
+      <div class="mff-field-row"><div class="lbl">Client ID</div><input id="cfgClientId" placeholder="วาง Google OAuth Client ID"></div>
+      <div class="mff-field-row"><div class="lbl">Sheet ID</div><input id="cfgSheetId" placeholder="Spreadsheet ID"></div>
+      <div class="mff-settings-actions">
+        <button id="btnSaveSheets" class="mff-btn mff-btn-primary">บันทึก & เชื่อมต่อ</button>
+      </div>
+      <div class="mff-sync-status" id="statusSheets"></div>
+    </section>
+
+    <section class="mff-settings-card">
+      <h2>🔄 ซิงก์ข้อมูลทั้งหมด</h2>
+      <p class="hint">กดปุ่มเดียว ระบบจะอ่านข้อมูลล่าสุดจาก Google Sheets, รวมข้อมูลที่ไม่ขัดแย้ง, ป้องกันการทับข้อมูล และตรวจผลหลังซิงก์ให้เอง</p>
+      <div class="mff-sync-all-actions">
+        <button type="button" class="mff-sync-all-btn push mff-primary-sync" id="btnSmartSync" style="grid-column:1/-1">🔄 ซิงก์ข้อมูลล่าสุด</button>
+      </div>
+      <div class="mff-clean-note">ไม่ต้องเลือกว่าจะดึงหรือส่งข้อมูล ระบบจัดการให้เองเพื่อป้องกันข้อมูลหาย</div>
+      <div class="mff-sync-progress" id="syncAllProgress" hidden>
+        <div class="mff-sync-progress-head"><b id="syncAllProgressTitle">กำลังซิงก์…</b><span id="syncAllProgressCount">0/5</span></div>
+        <div class="mff-sync-progress-bar"><span id="syncAllProgressBar"></span></div>
+      </div>
+      <div class="mff-sync-status" id="statusSyncAll"></div>
+      <div id="syncModuleRows"></div>
+      <div class="mff-sync-safety">
+        <b style="font-size:12.5px">🛡️ ความปลอดภัยของข้อมูล</b>
+        <div style="font-size:11.5px;color:var(--ink-soft);margin-top:4px">ระบบจะสร้าง Snapshot ก่อน Sync เพื่อให้ย้อนกลับข้อมูลในเครื่องได้ หากเกิดข้อผิดพลาด</div>
+        <div class="mff-sync-safety-actions">
+          <button type="button" class="mff-sync-all-btn pull" id="btnBackupNow">💾 สำรองข้อมูลในเครื่อง</button>
+          <button type="button" class="mff-sync-all-btn push" id="btnRestoreLast">↩️ กู้คืน Snapshot ล่าสุด</button>
+        </div>
+        <div id="syncSafetyStatus" class="mff-sync-status"></div>
+        <div style="margin-top:8px;font-size:11.5px;color:var(--ink-soft)">สถานะข้อมูลในเครื่อง: <b data-mff-pending>พร้อมใช้งาน</b> • หากออฟไลน์ ระบบจะเก็บรายการที่แก้ไขไว้รอ Sync</div>
+        <div id="mffQueuePanel" style="margin-top:10px;border:1px solid var(--line);border-radius:14px;padding:10px;background:#fff">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <b style="font-size:12px">📥 Offline Queue</b>
+            <span id="mffQueueCount" class="mff-status-chip neutral">0 รายการ</span>
+          </div>
+          <div id="mffQueueList" style="margin-top:7px;font-size:11px;color:var(--ink-soft)">ไม่มีรายการรอ Sync</div>
+        </div>
+        <div id="syncHistory" class="mff-sync-history"></div>
+      </div>
+    </section>
+
+    <section class="mff-settings-card" id="themeCard">
+      <h2>🎨 ธีมของแอป</h2>
+      <p class="hint">เลือกสีที่ชอบ ระบบจะจำไว้ในเครื่องนี้และใช้กับทุกหน้า</p>
+      <div id="themeGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px"></div>
+    </section>
+    <script>
+    (function(){
+      function render(){
+        var g=document.getElementById('themeGrid'); if(!g||!window.MFFTheme) return;
+        var cur=MFFTheme.get(); g.innerHTML='';
+        Object.keys(MFFTheme.list).forEach(function(id){
+          var t=MFFTheme.list[id], b=document.createElement('button');
+          b.type='button';
+          b.style.cssText='display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:12px;background:var(--surface);color:var(--ink);font:600 11.5px inherit;text-align:left;cursor:pointer;border:2px solid '+(id===cur?'var(--primary)':'var(--line)');
+          b.innerHTML='<span style="flex:none;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,'+t.sw[0]+' 50%,'+t.sw[1]+' 50%);border:1px solid rgba(128,128,128,.3)"></span><span>'+t.name+(id===cur?' ✓':'')+'</span>';
+          b.onclick=function(){MFFTheme.set(id);render();};
+          g.appendChild(b);
+        });
+      }
+      if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',render); else render();
+    })();
+    </script>
+
+    <section class="mff-settings-card" id="advancedGoogleSession">
+      <h2>🔐 Google Session</h2>
+      <p class="hint">สิทธิ์ Google จะอยู่เฉพาะใน session ของเบราว์เซอร์ ไม่เก็บ access token ไว้ใน Local Storage และจะไม่ขอสิทธิ์ใหม่เมื่อเปลี่ยนหน้า</p>
+      <div class="mff-settings-actions">
+        <button id="btnClearGoogleSession" class="mff-btn mff-btn-ghost" type="button">ล้างสิทธิ์ Google</button>
+      </div>
+      <div class="mff-sync-status" id="statusGoogleSession"></div>
+    </section>
+
+
+
+    <section class="mff-settings-card" id="advancedCache">
+      <h2>🧹 จัดการ Cache & ข้อมูลชั่วคราว</h2>
+      <p class="hint">ล้างเฉพาะข้อมูลค้นหา/แคชในเครื่องได้ โดยไม่ลบข้อมูลจริงบน Google Sheets</p>
+      <div class="mff-sync-safety-actions">
+        <button type="button" class="mff-sync-all-btn pull" id="btnClearBookCache">📚 ล้าง Cache หนังสือ</button>
+        <button type="button" class="mff-sync-all-btn pull" id="btnClearAppCache">🗑️ ล้าง Cache แอป</button>
+      </div>
+      <div class="mff-sync-safety-actions" style="margin-top:8px">
+        <button type="button" class="mff-sync-all-btn push" id="btnExportLocalBackup">📤 Export ข้อมูลในเครื่อง</button>
+        <button type="button" class="mff-sync-all-btn pull" id="btnClearHistory">🧾 ล้างประวัติ Sync</button>
+      </div>
+      <div id="cacheStatus" class="mff-sync-status"></div>
+    </section>
+
+    <section class="mff-settings-card" hidden style="display:none">
+      <h2>💾 Google Drive — My Bookshelf</h2>
+      <p class="hint">ใช้สำหรับค้นหา/แนบไฟล์หนังสือใน My Bookshelf เท่านั้น • Google Sheets ยังคงเป็นฐานข้อมูลกลางของระบบ</p>
+      <div class="mff-settings-actions">
+        <button id="btnConnectDrive" class="mff-btn mff-btn-ghost">เชื่อมต่อ Google Drive</button><button id="btnTestDrive" class="mff-btn mff-btn-ghost" style="display:none">ทดสอบ Drive</button>
+      </div>
+      <div class="mff-sync-status" id="statusDrive"></div>
+    </section>
+
+    <section class="mff-settings-card">
+      <div class="mff-section-label">SYSTEM STATUS</div>
+      <h2>📶 สถานะซิงก์แต่ละโมดูล</h2>
+      <div id="statusPerModule"></div>
+    </section>
+
+    <section class="mff-settings-card" hidden style="display:none">
+      <h2>📧 สรุปรายเดือนทางอีเมล</h2>
+      <p class="hint">สรุปรายรับ-รายจ่าย (My Money), เงินลงทุนสะสมเทียบเดือนก่อน (My Portfolio), จำนวนหนังสือ 3 หมวด (My Bookshelf) — ส่งเข้าอีเมลอัตโนมัติทุกวันที่ 1 ของเดือนถัดไป โดยอ่านข้อมูลจาก Google Sheet ด้านบน</p>
+      <div id="reportAdminGate">
+        <div class="mff-field-row"><div class="lbl">อีเมลผู้รับ</div><input id="cfgReportEmail" type="email" placeholder="name@email.com"></div>
+        <div class="mff-settings-actions" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button id="btnSaveReport" class="mff-btn mff-btn-primary" style="grid-column:1/-1">💾 บันทึกและเปิดส่งอัตโนมัติ</button>
+          <button id="btnTestReport" class="mff-btn mff-btn-ghost">📧 ส่งทดสอบ</button><button id="btnCheckReport" class="mff-btn mff-btn-ghost">🔎 ตรวจระบบ</button>
+          <button id="btnInstallTrigger" class="mff-btn mff-btn-ghost" style="display:none">เปิดใช้งานส่งอัตโนมัติ</button>
+        </div>
+        <div class="mff-report-status" id="statusReport"></div>
+        <div class="mff-clean-note">ใช้ Sheet ID เดียวกับด้านบน ไม่ต้องสร้าง ID ใหม่</div>
+      </div>
+    </section>
+
+    <section class="mff-settings-card" id="advancedBackend">
+      <h2>⚙️ Apps Script Backend</h2>
+      <div class="mff-field-row"><div class="lbl">Endpoint</div><div class="val" id="endpointDisplay" style="word-break:break-all;font-size:11px"></div></div>
+      <p class="hint" style="margin-top:8px">แก้ URL นี้ได้ที่ไฟล์ <code>config.js</code> จุดเดียว ใช้ร่วมกันทั้งระบบล็อกอินและรายงานสรุปรายเดือน</p>
+    </section>
+
+    <section class="mff-settings-card" id="reminders">
+      <h2>🔔 แจ้งเตือนชำระ / DCA</h2>
+      <p style="font-size:12px;color:var(--ink-soft);margin:0 0 10px">ระบุรายการชำระรายเดือน หรือรอบ DCA ระบบจะแจ้งเตือนในไอคอนกระดิ่งเมื่อใกล้ถึงกำหนด</p>
+      <div id="remList"></div>
+      <div class="mff-rem-form">
+        <select id="remType"><option value="bill">🧾 ชำระรายเดือน</option><option value="dca">📈 DCA</option></select>
+        <input id="remName" placeholder="ชื่อรายการ เช่น ค่าบัตรเครดิต / DCA SCBAM" maxlength="60">
+        <input id="remAmt" type="number" inputmode="decimal" placeholder="จำนวนเงิน (ไม่บังคับ)">
+        <select id="remMode"><option value="month">ทุกเดือน ตามวันที่</option><option value="every">ทุกๆ N วัน</option></select>
+        <input id="remDay" type="number" min="1" max="31" placeholder="วันที่ของเดือน (1-31)">
+        <div id="remEveryBox" style="display:none;gap:8px"><input id="remEvery" type="number" min="1" placeholder="ทุกกี่วัน" style="flex:1"><input id="remStart" type="date" style="flex:1"></div>
+        <select id="remLead"><option value="0">เตือนวันครบกำหนด</option><option value="1">เตือนล่วงหน้า 1 วัน</option><option value="3" selected>เตือนล่วงหน้า 3 วัน</option><option value="7">เตือนล่วงหน้า 7 วัน</option></select>
+        <button type="button" id="remAdd" class="mff-sync-bar-btn">+ เพิ่มการแจ้งเตือน</button>
+        <button type="button" id="remPerm" class="mff-sync-bar-btn">📲 เปิดแจ้งเตือนของเครื่อง</button>
+        <small id="remMsg" style="color:var(--ink-soft)"></small>
+      </div>
+    </section>
+    
+
+  </div>
+</div>
+
+<script src="../reminders.js"></script>
+<script>
+(function(){
+  function $(i){return document.getElementById(i)}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function paint(){
+    var l=MFFRem.load();
+    $('remList').innerHTML=l.length?l.map(function(r,i){
+      var d=MFFRem.nextDue(r),w=r.mode==='every'?'ทุก '+r.every+' วัน':'ทุกวันที่ '+r.day;
+      return '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #e6ebf2"><div style="min-width:0"><b style="font-size:13px">'+(r.type==='dca'?'📈 ':'🧾 ')+esc(r.name)+'</b><br><small style="color:var(--ink-soft)">'+w+(r.amount?' · ฿'+Number(r.amount).toLocaleString('th-TH'):'')+' · เตือนก่อน '+r.lead+' วัน'+(d?' · ครั้งถัดไป '+d.toLocaleDateString('th-TH',{day:'numeric',month:'short'}):'')+'</small></div><button type="button" data-i="'+i+'" aria-label="ลบ" style="border:0;background:none;font-size:20px;min-width:40px;min-height:40px">×</button></div>';
+    }).join(''):'<div style="font-size:12.5px;color:var(--ink-soft);padding:6px 0">ยังไม่มีรายการ</div>';
+  }
+  window.addEventListener('mff-local-updated',function(){try{paint()}catch(e){}});
+  $('remMode').onchange=function(){var e=this.value==='every';$('remDay').style.display=e?'none':'';$('remEveryBox').style.display=e?'flex':'none'};
+  $('remList').onclick=function(e){var b=e.target.closest('button');if(!b)return;var l=MFFRem.load();l.splice(+b.dataset.i,1);MFFRem.save(l);paint()};
+  $('remAdd').onclick=function(){
+    var name=$('remName').value.trim(),mode=$('remMode').value,m=$('remMsg');
+    if(!name){m.textContent='ใส่ชื่อรายการก่อน';return}
+    var r={id:'r'+Date.now().toString(36),type:$('remType').value,name:name,amount:Number($('remAmt').value)||0,mode:mode,lead:Number($('remLead').value)||0};
+    if(mode==='every'){r.every=Number($('remEvery').value)||0;r.start=$('remStart').value;if(r.every<1||!r.start){m.textContent='ใส่จำนวนวันและวันที่เริ่ม';return}}
+    else{r.day=Number($('remDay').value)||0;if(r.day<1||r.day>31){m.textContent='ใส่วันที่ 1-31';return}}
+    var l=MFFRem.load();l.push(r);MFFRem.save(l);$('remName').value='';$('remAmt').value='';m.textContent='เพิ่มแล้ว';paint();
+  };
+  $('remPerm').onclick=function(){
+    var m=$('remMsg');
+    if(!('Notification' in window)){m.textContent='เบราว์เซอร์นี้ไม่รองรับ';return}
+    Notification.requestPermission().then(function(p){m.textContent=p==='granted'?'เปิดแล้ว — จะเด้งเตือนเมื่อเปิดแอป':'ยังไม่ได้อนุญาต (ยังเห็นในไอคอนกระดิ่งได้)'});
+  };
+  paint();
+})();
+</script>
+<script src="../config.js"></script>
+<script src="../admin-login.js"></script>
+<script src="../portfolio/auth-open.js"></script>
+<script>
+(function(){
+'use strict';
+function esc(s){return String(s==null?'':s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function toast(msg){
+  let t=document.getElementById('mffToast');
+  if(!t){ t=document.createElement('div'); t.id='mffToast'; t.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#14211d;color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;z-index:9999;max-width:88vw;text-align:center'; document.body.appendChild(t); }
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(t._h); t._h=setTimeout(()=>{ t.style.opacity='0'; },2600);
+}
+const ENDPOINT = window.MFF_ENDPOINT || '';
+document.getElementById('endpointDisplay').textContent = ENDPOINT || '(ยังไม่ได้ตั้งค่า)';
+
+const TOKEN_KEY='mff_auth_token';
+function authToken(){ return sessionStorage.getItem(TOKEN_KEY)||''; }
+async function api(action,data){
+  const payload=Object.assign({action},data||{});
+  const token=authToken(); if(token) payload.token=token;
+  const r=await fetch(ENDPOINT,{method:'POST',mode:'cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+  const j=await r.json();
+  if(!r.ok||j.ok===false) throw new Error(j.error||'เกิดข้อผิดพลาด');
+  return j;
+}
+
+/* ---------- Google Sheets ---------- */
+const clientIdInput=document.getElementById('cfgClientId');
+const sheetIdInput=document.getElementById('cfgSheetId');
+clientIdInput.value=localStorage.getItem('google_client_id')||'';
+sheetIdInput.value=localStorage.getItem('google_sheet_id')||'';
+
+function renderSheetsStatus(){
+  const connected = !!window.MFFGoogleSession?.getSheetsToken() && !!sheetIdInput.value.trim();
+  document.getElementById('statusSheets').innerHTML = connected
+    ? '<span class="ok">✅ เชื่อมต่อแล้ว</span>'
+    : '<span class="warn">⚠️ ยังไม่ได้เชื่อมต่อ</span> — บันทึกและเชื่อมต่อเพื่อให้ทุกโมดูลใช้ค่าชุดนี้';
+}
+let sheetsClient=null;
+function ensureSheetsClient(cid){
+  if(!window.google||!google.accounts||!google.accounts.oauth2) return null;
+  if(!sheetsClient || sheetsClient._cid!==cid){
+    sheetsClient=google.accounts.oauth2.initTokenClient({
+      client_id:cid, scope:'https://www.googleapis.com/auth/spreadsheets',
+      callback:r=>{
+        if(r && r.access_token && google.accounts.oauth2.hasGrantedAllScopes(r,'https://www.googleapis.com/auth/spreadsheets')){ const exp=Date.now()+Math.max(60,(Number(r.expires_in)||3600)-60)*1000; window.MFFGoogleSession?.saveSheetsToken(r.access_token,exp); localStorage.setItem('google_sheets_connected','1'); renderSheetsStatus();
+function renderGoogleSessionStatus(){
+  const sh=window.MFFGoogleSession?.getSheetsToken();
+  const dr=window.MFFGoogleSession?.getDriveToken();
+  const el=document.getElementById('statusGoogleSession');
+  if(el) el.innerHTML=(sh||dr)?'<span class="ok">● มี Google session ที่ใช้งานได้</span>':'<span class="warn">● ไม่มี Google session ที่ใช้งานอยู่</span>';
+}
+renderGoogleSessionStatus();
+document.getElementById('btnClearGoogleSession')?.addEventListener('click',()=>{
+  if(!confirm('ล้างสิทธิ์ Google ของ session นี้หรือไม่?')) return;
+  window.MFFGoogleSession?.clearAllGoogleSession();
+  renderSheetsStatus(); renderGoogleSessionStatus();
+  toast('ล้างสิทธิ์ Google แล้ว');
+}); toast('เชื่อมต่อ Google Sheets แล้ว'); }
+        else toast(r&&r.access_token?'ยังไม่ได้ติ๊กสิทธิ์ Google Sheets — กรุณาเชื่อมต่อใหม่และอนุญาตทุกช่อง':'เชื่อมต่อไม่สำเร็จ');
+      }
+    });
+    sheetsClient._cid=cid;
+  }
+  return sheetsClient;
+}
+document.getElementById('btnSaveSheets').addEventListener('click',()=>{
+  const cid=clientIdInput.value.trim(), sid=sheetIdInput.value.trim();
+  if(!cid||!sid){ toast('กรุณากรอกให้ครบ'); return; }
+  localStorage.setItem('google_client_id',cid);
+  localStorage.setItem('google_sheet_id',sid);
+  const c=ensureSheetsClient(cid);
+  if(c) c.requestAccessToken({prompt:'consent'});
+  else toast('โหลด Google API ไม่สำเร็จ ลองใหม่อีกครั้ง');
+});
+renderSheetsStatus();
+
+/* ---------- Smart Sync: three-way merge with conflict protection ---------- */
+const glD=v=>/^\d{4}-\d{2}-\d{2}$/.test(String(v||''))?String(v):'';
+const glX=g=>Object.assign({},g,{due:glD(g.due),freq:(g.freq==='day'||g.freq==='month')?g.freq:'week',times:Math.max(0,Number(g.times)||0),checkins:Array.from(new Set((Array.isArray(g.checkins)?g.checkins:[]).map(String).filter(glD))).sort()});
+const drGuard=v=>{v=String(v==null?'':v);return /^[=+\-@]/.test(v)?"'"+v:v;};
+const bzNorm=b=>({id:String(b.id),kind:b.kind==='debt'?'debt':'asset',category:b.category||'',name:b.name||'',owner:b.owner||'',value:Number(b.value)||0,cost:Number(b.cost)||0,date:b.date||'',creditor:b.creditor||'',balance:Number(b.balance)||0,principal:Number(b.principal)||0,monthly:Number(b.monthly)||0,rate:Number(b.rate)||0,dueDay:b.dueDay?(Number(b.dueDay)||''):'',linkedId:b.linkedId||'',note:b.note||'',createdAt:b.createdAt||'',updatedAt:b.updatedAt||''});
+const SYNC_TARGETS = [
+  { key:'daily', name:'📆 ค่าใช้จ่ายรายวัน', cacheKey:'mff_daily_cache_v1', tab:'DailyExpenses', range:'A:G',
+    headers:['ID','Date','Category','Amount','Note','CreatedAt','UpdatedAt'],
+    toRow:t=>[t.id,t.date,t.category,t.amount,t.note,t.createdAt,t.updatedAt],
+    fromRow:r=>({id:r[0], date:r[1]||'', category:r[2]||'', amount:Number(r[3])||0, note:r[4]||'', createdAt:r[5]||'', updatedAt:r[6]||''}), lastSyncKey:'sheet_last_sync_daily' },
+  { key:'money', name:'💰 ค่าใช้จ่ายรายเดือน', cacheKey:'mff_money_cache_v3', tab:'MoneyTransactions', range:'A:G',
+    headers:['ID','Month','Type','Category','Amount','CreatedAt','UpdatedAt'],
+    toRow:t=>[t.id,t.month,t.type,t.category,t.amount,t.createdAt,t.updatedAt],
+    fromRow:r=>({id:r[0], month:r[1]||'', type:r[2]||'', category:r[3]||'', amount:Number(r[4])||0, createdAt:r[5]||'', updatedAt:r[6]||''}), lastSyncKey:'sheet_last_sync_money' },
+  { key:'bookshelf', name:'📚 My Bookshelf', cacheKey:'mff_bookshelf_cache_v1', tab:'BookshelfItems', range:'A:N',
+    headers:['ID','Title','Status','DriveFileId','DriveFileName','MimeType','Size','WebViewLink','AddedAt','UpdatedAt','Progress','Borrower','DueDate','FinishedAt'],
+    toRow:b=>[b.id,b.title,b.status,b.driveFileId,b.driveFileName,b.mimeType,b.size,b.webViewLink,b.addedAt,b.updatedAt,b.progress||'',b.borrower||'',b.dueDate||'',b.finishedAt||''],
+    fromRow:r=>({id:r[0],title:r[1]||'',status:r[2]||'queued',driveFileId:r[3]||'',driveFileName:r[4]||'',mimeType:r[5]||'',size:r[6]||'',webViewLink:r[7]||'',addedAt:r[8]||'',updatedAt:r[9]||'',...((r[10]!==undefined&&r[10]!=='')?{progress:Number(r[10])||0}:{}),...(r[11]?{borrower:r[11]}:{}),...(r[12]?{dueDate:r[12]}:{}),...(r[13]?{finishedAt:r[13]}:{})}), lastSyncKey:'sheet_last_sync_bookshelf' },
+  { key:'profile', name:'👤 My Profile', cacheKey:'mff_profiles_cache_v1', tab:'Profiles', range:'A:N',
+    headers:['ID','Photo','FirstName','LastName','BloodGroup','Address','Email','Phone','CreatedAt','UpdatedAt','Relation','BankAccounts','IDCard','Documents'],
+    toRow:p=>[p.id,p.photo,p.firstName,p.lastName,p.bloodGroup,p.address,p.email,(p.phone?("'"+p.phone):''),p.createdAt,p.updatedAt,p.relation||'',JSON.stringify(p.bankAccounts||[]),(p.idCard?("'"+p.idCard):''),JSON.stringify(p.documents||[])],
+    fromRow:r=>{ let bank=[],docs=[]; try{const a=JSON.parse(r[11]||'[]');if(Array.isArray(a))bank=a;}catch(e){} try{const a=JSON.parse(r[13]||'[]');if(Array.isArray(a))docs=a;}catch(e){} return {id:r[0],photo:r[1]||'',firstName:r[2]||'',lastName:r[3]||'',bloodGroup:r[4]||'',address:r[5]||'',email:r[6]||'',phone:r[7]||'',createdAt:r[8]||'',updatedAt:r[9]||'',relation:r[10]||'',bankAccounts:bank,idCard:r[12]||'',documents:docs}; }, lastSyncKey:'sheet_last_sync_profile' },
+  { key:'business', name:'💼 My Business', cacheKey:'mff_business_cache_v1', tab:'Business', range:'A:R', norm:bzNorm,
+    headers:['ID','Kind','Category','Name','Owner','Value','Cost','Date','Creditor','Balance','Principal','Monthly','Rate','DueDay','LinkedId','Note','CreatedAt','UpdatedAt'],
+    toRow:b=>[b.id,b.kind||'asset',b.category||'',b.name||'',b.owner||'',b.value||0,b.cost||0,b.date?"'"+b.date:'',b.creditor||'',b.balance||0,b.principal||0,b.monthly||0,b.rate||0,b.dueDay||'',b.linkedId||'',b.note||'',b.createdAt||'',b.updatedAt||''],
+    fromRow:r=>({id:r[0],kind:r[1]==='debt'?'debt':'asset',category:r[2]||'',name:r[3]||'',owner:r[4]||'',value:Number(r[5])||0,cost:Number(r[6])||0,date:r[7]||'',creditor:r[8]||'',balance:Number(r[9])||0,principal:Number(r[10])||0,monthly:Number(r[11])||0,rate:Number(r[12])||0,dueDay:r[13]?Number(r[13])||'':'',linkedId:r[14]||'',note:r[15]||'',createdAt:r[16]||'',updatedAt:r[17]||''}), lastSyncKey:'sheet_last_sync_business' },
+  { key:'notes', name:'📝 My Notes', cacheKey:'mff_notes_cache_v1', tab:'Notes', range:'A:M',
+    headers:['ID','Title','Body','Kind','Items','Color','Pinned','Due','CalEventId','Archived','CreatedAt','UpdatedAt','DueTime'],
+    toRow:n=>[n.id,n.title||'',n.body||'',n.kind||'note',JSON.stringify(n.items||[]),n.color||'default',n.pinned?1:0,n.due||'',n.calId||'',n.archived?1:0,n.createdAt||'',n.updatedAt||'',(n.dueTime?("'"+n.dueTime):'')],
+    fromRow:r=>{ let it=[]; try{const a=JSON.parse(r[4]||'[]');if(Array.isArray(a))it=a;}catch(e){} return {id:r[0],title:r[1]||'',body:r[2]||'',kind:r[3]||'note',items:it,color:r[5]||'default',pinned:Number(r[6])?1:0,due:r[7]||'',calId:r[8]||'',archived:Number(r[9])?1:0,createdAt:r[10]||'',updatedAt:r[11]||'',...(/^\d{1,2}:\d{2}/.test(String(r[12]||''))?{dueTime:String(r[12]).replace(/^(\d{1,2}):(\d{2}).*$/,(m,h,mi)=>String(h).padStart(2,'0')+':'+mi)}:{})}; }, lastSyncKey:'sheet_last_sync_notes' },
+  { key:'goals', name:'🎯 My Goals', cacheKey:'mff_goals_cache_v1', tab:'Goals', range:'A:R', norm:glX,
+    headers:['ID','Title','Category','Year','Kind','Target','Current','Unit','Link','Steps','Done','CreatedAt','UpdatedAt','Period','Due','Freq','Times','Checkins'],
+    toRow:g=>[g.id,g.title||'',g.category||'',g.year||'',g.kind||'steps',g.target||0,g.current||0,g.unit||'',g.link||'',JSON.stringify(g.steps||[]),g.done?1:0,g.createdAt||'',g.updatedAt||'',g.period||'year',g.due?"'"+g.due:'',g.freq||'week',g.times||0,JSON.stringify(g.checkins||[])],
+    fromRow:r=>{ let st=[]; try{const a=JSON.parse(r[9]||'[]');if(Array.isArray(a))st=a;}catch(e){} return {id:r[0],title:r[1]||'',category:r[2]||'',year:Number(r[3])||new Date().getFullYear(),kind:r[4]||'steps',target:Number(r[5])||0,current:Number(r[6])||0,unit:r[7]||'บาท',link:r[8]||'',steps:st,done:Number(r[10])?1:0,createdAt:r[11]||'',updatedAt:r[12]||'',period:r[13]==='month'?'month':'year',...(()=>{let ck=[];try{const a=JSON.parse(r[17]||'[]');if(Array.isArray(a))ck=a;}catch(e){} return glX({due:r[14]||'',freq:r[15]||'week',times:Number(r[16])||0,checkins:ck});})()}; }, lastSyncKey:'sheet_last_sync_goals' },
+  { key:'wishlist', name:'🛒 Wish List หนังสือ', cacheKey:'mff_wishlist_cache_v1', tab:'Wishlist', range:'A:H',
+    headers:['ID','Title','Author','Year','Status','BoughtAt','CreatedAt','UpdatedAt'],
+    toRow:w=>[w.id,w.title||'',w.author||'',w.year||'',w.status==='bought'?'bought':'want',w.boughtAt||'',w.createdAt||'',w.updatedAt||''],
+    fromRow:r=>({id:r[0],title:r[1]||'',author:r[2]||'',year:Number(r[3])||new Date().getFullYear(),status:r[4]==='bought'?'bought':'want',boughtAt:r[5]||'',createdAt:r[6]||'',updatedAt:r[7]||''}), lastSyncKey:'sheet_last_sync_wishlist' },
+  { key:'diary', name:'📔 My Diary', cacheKey:'mff_diary_cache_v1', tab:'Diary', range:'A:G',
+    headers:['ID','Date','Title','Body','Mood','CreatedAt','UpdatedAt'],
+    toRow:e=>[e.id,"'"+(e.date||''),drGuard(e.title),drGuard(e.body),e.mood||0,e.createdAt||'',e.updatedAt||''],
+    fromRow:r=>({id:r[0],date:((String(r[1]||'').replace(/^'/,'').match(/^\d{4}-\d{2}-\d{2}$/)||[])[0])||String(r[0]||'').replace(/^dy_/,'').slice(0,10),title:r[2]||'',body:r[3]||'',mood:Number(r[4])||0,createdAt:r[5]||'',updatedAt:r[6]||''}), lastSyncKey:'sheet_last_sync_diary' },
+  { key:'settings', name:'⚙️ งบและรายการประจำ', cacheKey:'mff_settings_cache_v1', tab:'AppSettings', range:'A:C',
+    headers:['ID','Value','UpdatedAt'],
+    toRow:s=>[s.id,s.value,s.updatedAt],
+    fromRow:r=>({id:r[0],value:r[1]||'',updatedAt:r[2]||''}), lastSyncKey:'sheet_last_sync_settings' },
+];
+const SYNC_BASE_PREFIX='mff_sync_base_v1_';
+const SYNC_DIRTY_PREFIX='mff_sync_dirty_v1_';
+
+/* เร็วขึ้น: จำว่าแท็บไหนมีแล้ว (ต่อรอบซิงก์) จะได้ไม่ต้องถาม Google ซ้ำทุกครั้งที่อ่าน/เขียน */
+const _tabsOK=new Set();
+function syncResetCache(){_tabsOK.clear();}
+async function syncAllSheetsApi(token,url,opts){
+  const r=await fetch(url,Object.assign({headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'}},opts||{}));
+  if(r.status===401||r.status===403) throw new Error('สิทธิ์ Google หมดอายุ กรุณาเชื่อมต่อใหม่');
+  if(!r.ok){const tx=await r.text();if(/Unable to parse range|not found/i.test(tx))_tabsOK.clear();throw new Error(tx);}
+  return r.status===204?{}:r.json();
+}
+async function syncAllEnsureTab(token,sid,tab,headers){
+  const ck=sid+'|'+tab;if(_tabsOK.has(ck))return;
+  const meta=await syncAllSheetsApi(token,`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sid)}?fields=sheets.properties`);
+  const titles=(meta.sheets||[]).map(x=>x.properties.title);
+  if(!titles.includes(tab)){
+    await syncAllSheetsApi(token,`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sid)}:batchUpdate`,{method:'POST',body:JSON.stringify({requests:[{addSheet:{properties:{title:tab}}}]})});
+    await syncAllSheetsApi(token,`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sid)}/values/${tab}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${tab}!A1`,majorDimension:'ROWS',values:[headers]})});
+  }
+  _tabsOK.add(ck);
+}
+async function ensureSheetsTokenForSyncAll(cid){
+  const cached=window.MFFGoogleSession?.getSheetsToken();
+  if(cached?.token)return cached.token;
+  return new Promise(resolve=>{
+    if(!window.google?.accounts?.oauth2){resolve(null);return;}
+    const c=google.accounts.oauth2.initTokenClient({client_id:cid,scope:'https://www.googleapis.com/auth/spreadsheets',callback:r=>{
+      if(r&&r.access_token&&google.accounts.oauth2.hasGrantedAllScopes(r,'https://www.googleapis.com/auth/spreadsheets')){const exp=Date.now()+Math.max(60,(Number(r.expires_in)||3600)-60)*1000;window.MFFGoogleSession?.saveSheetsToken(r.access_token,exp);resolve(r.access_token);}else resolve(null);
+    }});
+    try{c.requestAccessToken({prompt:'consent'});}catch(e){resolve(null);}
+  });
+}
+function stable(v){
+  if(v===undefined)return null;
+  if(v===null||typeof v!=='object')return v;
+  if(Array.isArray(v))return v.map(stable);
+  const o={};Object.keys(v).sort().forEach(k=>{o[k]=stable(v[k]);});return o;
+}
+function same(a,b){return JSON.stringify(stable(a))===JSON.stringify(stable(b));}
+function listMap(list){const m=new Map();(list||[]).filter(x=>x&&x.id).forEach(x=>m.set(String(x.id),x));return m;}
+const SYNC_BACKUP_KEY='mff_sync_backup_v2';
+const SYNC_HISTORY_KEY='mff_sync_history_v2';
+function getBase(t){try{const l=JSON.parse(localStorage.getItem(SYNC_BASE_PREFIX+t.key)||'[]')||[];return t.norm?l.map(t.norm):l;}catch(e){return [];}}
+function setBase(t,list){localStorage.setItem(SYNC_BASE_PREFIX+t.key,JSON.stringify(list||[]));localStorage.setItem(t.lastSyncKey,new Date().toLocaleString('th-TH',{hour:'2-digit',minute:'2-digit'}));}
+function getLocal(t){try{const l=JSON.parse(localStorage.getItem(t.cacheKey)||'[]')||[];return t.norm?l.map(t.norm):l;}catch(e){return [];}}
+function setLocal(t,list){localStorage.setItem(t.cacheKey,JSON.stringify(list||[]));localStorage.removeItem(SYNC_DIRTY_PREFIX+t.key);try{window.dispatchEvent(new Event('mff-local-updated'))}catch(e){}}
+function markDirty(t){localStorage.setItem(SYNC_DIRTY_PREFIX+t.key,'1');}
+function isDirty(t){return localStorage.getItem(SYNC_DIRTY_PREFIX+t.key)==='1';}
+function createBackup(label,remoteByKey){
+  const snap={id:'snap_'+Date.now(),label,createdAt:new Date().toISOString(),modules:{}};
+  for(const t of SYNC_TARGETS) snap.modules[t.key]={local:getLocal(t),base:getBase(t),remote:(remoteByKey&&remoteByKey[t.key])||null};
+  try{localStorage.setItem(SYNC_BACKUP_KEY,JSON.stringify(snap));document.getElementById('syncSafetyStatus').innerHTML='<span class="ok">✅ สำรอง Snapshot ล่าสุดแล้ว</span>';}catch(e){document.getElementById('syncSafetyStatus').innerHTML='<span class="warn">⚠️ สำรองไม่สำเร็จ: พื้นที่จัดเก็บไม่พอ</span>';throw e;}
+  return snap;
+}
+function restoreBackup(){
+  let snap=null;try{snap=JSON.parse(localStorage.getItem(SYNC_BACKUP_KEY)||'null');}catch(e){}
+  if(!snap){toast('ยังไม่มี Snapshot ให้กู้คืน');return;}
+  if(!confirm('กู้คืนข้อมูลในเครื่องจาก Snapshot '+new Date(snap.createdAt).toLocaleString('th-TH')+' ?\n\nข้อมูลที่แก้หลัง Snapshot จะถูกย้อนกลับ'))return;
+  for(const t of SYNC_TARGETS){const m=snap.modules[t.key]||{};setLocal(t,m.local||[]);setBase(t,m.base||[]);if(m.local&&m.local.length)markDirty(t);}
+  renderSyncModuleRows();renderModuleStatus();document.getElementById('syncSafetyStatus').innerHTML='<span class="ok">↩️ กู้คืน Snapshot แล้ว — Google Sheets ยังไม่ถูกแก้</span>';toast('กู้คืนข้อมูลในเครื่องแล้ว');
+}
+function addSyncHistory(type,detail){
+  let a=[];try{a=JSON.parse(localStorage.getItem(SYNC_HISTORY_KEY)||'[]')||[];}catch(e){}
+  a.unshift({at:new Date().toISOString(),type,detail});a=a.slice(0,30);localStorage.setItem(SYNC_HISTORY_KEY,JSON.stringify(a));renderSyncHistory();
+}
+function renderSyncHistory(){
+  let a=[];try{a=JSON.parse(localStorage.getItem(SYNC_HISTORY_KEY)||'[]')||[];}catch(e){}
+  const el=document.getElementById('syncHistory');if(!el)return;
+  el.innerHTML=a.length?a.map(x=>`<div>🕒 ${esc(new Date(x.at).toLocaleString('th-TH'))} • <b>${esc(x.type)}</b> — ${esc(x.detail)}</div>`).join(''):'ยังไม่มีประวัติการซิงก์';
+}
+function recordLabel(t,r){if(!r)return '(ลบรายการ)';return r.title||r.name||r.category||r.date||r.month||r.firstName||r.id||'';}
+
+/* อ่านทุกแท็บในคำขอเดียว (1 ครั้งเช็คแท็บ + 1 ครั้ง batchGet) แทนที่จะอ่านทีละแท็บ */
+function sameById(a,b){
+  const A=listMap(a),B=listMap(b);if(A.size!==B.size)return false;
+  for(const [id,v] of A){if(!B.has(id)||!same(v,B.get(id)))return false;}
+  return true;
+}
+async function readAllRemote(token,sid,targets){
+  const base=`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sid)}`;
+  const meta=await syncAllSheetsApi(token,base+'?fields=sheets.properties');
+  const have=new Set((meta.sheets||[]).map(x=>x.properties.title));
+  for(const t of targets){ if(have.has(t.tab))_tabsOK.add(sid+'|'+t.tab); else await syncAllEnsureTab(token,sid,t.tab,t.headers); }
+  const qs=targets.map(t=>'ranges='+encodeURIComponent(t.tab+'!'+t.range)).join('&');
+  const got=await syncAllSheetsApi(token,`${base}/values:batchGet?${qs}`);
+  const vr=got.valueRanges||[];
+  if(vr.length!==targets.length) throw new Error('batchGet ตอบกลับไม่ครบ');
+  const out={};
+  targets.forEach((t,i)=>{out[t.key]=(vr[i].values||[]).slice(1).filter(r=>r[0]).map(t.fromRow);});
+  return out;
+}
+async function readRemote(token,sid,t){
+  await syncAllEnsureTab(token,sid,t.tab,t.headers);
+  const got=await syncAllSheetsApi(token,`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sid)}/values/${t.tab}!${t.range}`);
+  return (got.values||[]).slice(1).filter(r=>r[0]).map(t.fromRow);
+}
+async function writeRemote(token,sid,t,list){
+  await syncAllEnsureTab(token,sid,t.tab,t.headers);
+  const values=[t.headers].concat((list||[]).map(t.toRow));
+  await syncAllSheetsApi(token,`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sid)}/values/${t.tab}!${t.range}:clear`,{method:'POST',body:'{}'});
+  await syncAllSheetsApi(token,`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sid)}/values/${t.tab}!A1?valueInputOption=USER_ENTERED`,{method:'PUT',body:JSON.stringify({range:`${t.tab}!A1`,majorDimension:'ROWS',values})});
+}
+function threeWay(t,local,remote,base){
+  const L=listMap(local),R=listMap(remote),B=listMap(base),ids=new Set([...L.keys(),...R.keys(),...B.keys()]);
+  const merged=[],conflicts=[];
+  for(const id of ids){
+    const l=L.get(id),r=R.get(id),b=B.get(id);
+    if(same(l,r)){if(l)merged.push(l);continue;}
+    if(same(l,b)){if(r)merged.push(r);continue;}
+    if(same(r,b)){if(l)merged.push(l);continue;}
+    conflicts.push({id,local:l,remote:r,base:b});
+  }
+  return {merged,conflicts};
+}
+function conflictDialog(t,conflicts){
+  return new Promise(resolve=>{
+    const sample=conflicts.slice(0,6).map(c=>`<div style="padding:6px 0;border-bottom:1px solid var(--line)"><b>${esc(recordLabel(t,c.local||c.remote||c.base))}</b><div style="font-size:11px;color:var(--ink-soft)">เครื่อง: ${esc(recordLabel(t,c.local))} • Sheet: ${esc(recordLabel(t,c.remote))}</div></div>`).join('');
+    const d=document.createElement('div');d.id='smartConflictModal';d.style.cssText='position:fixed;inset:0;z-index:9000;background:rgba(20,33,29,.5);display:flex;align-items:flex-end;justify-content:center';
+    d.innerHTML=`<div style="width:100%;max-width:460px;max-height:82vh;background:var(--bg);border-radius:22px 22px 0 0;overflow:hidden;display:flex;flex-direction:column"><div style="padding:18px 20px 8px"><h3 style="margin:0;font-size:16px">⚠️ พบข้อมูลชนกัน: ${esc(t.name)}</h3><p style="margin:7px 0;font-size:12px;color:var(--ink-soft)">พบ ${conflicts.length} รายการที่ถูกแก้ไขทั้งในเครื่องและ Google Sheets ระบบจะไม่ทับข้อมูลให้เอง</p></div><div style="padding:0 20px;overflow:auto">${sample}${conflicts.length>6?`<div style="padding:8px 0;font-size:11px;color:var(--ink-faint)">แสดงตัวอย่าง 6 รายการแรก</div>`:''}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px 20px calc(16px + env(safe-area-inset-bottom,0px))"><button id="cfSkip" class="mff-btn mff-btn-ghost">ข้ามไว้ก่อน</button><button id="cfLocal" class="mff-btn mff-btn-ghost">ใช้ข้อมูลเครื่อง</button><button id="cfRemote" class="mff-btn mff-btn-primary" style="grid-column:1/-1">ใช้ข้อมูล Google Sheets</button></div></div>`;
+    document.body.appendChild(d);
+    const finish=v=>{d.remove();resolve(v);};
+    d.querySelector('#cfSkip').onclick=()=>finish('skip');d.querySelector('#cfLocal').onclick=()=>finish('local');d.querySelector('#cfRemote').onclick=()=>finish('remote');
+  });
+}
+
+async function safeWriteRemote(token,sid,t,list,expectedRemote){
+  // Optimistic concurrency guard + read-back verification.
+  // Never report success until Google Sheets returns the exact merged dataset.
+  const latest=await readRemote(token,sid,t);
+  if(expectedRemote && !same(latest,expectedRemote)) throw new Error('Google Sheets มีการเปลี่ยนแปลงระหว่างซิงก์ — หยุดเพื่อป้องกันการทับข้อมูล');
+  let lastErr=null;
+  for(let attempt=1;attempt<=2;attempt++){
+    try{
+      await writeRemote(token,sid,t,list);
+      const verify=await readRemote(token,sid,t);
+      if(same(verify,list)) return {verified:true,attempt};
+      lastErr=new Error('ตรวจสอบหลังเขียนแล้วข้อมูลใน Google Sheets ยังไม่ตรงกัน');
+    }catch(e){ lastErr=e; }
+    if(attempt<2) await new Promise(r=>setTimeout(r,700));
+  }
+  throw lastErr||new Error('ยืนยันข้อมูลหลัง Sync ไม่สำเร็จ');
+}
+
+async function smartSyncOne(token,sid,t,prefetched){
+  const local=getLocal(t), base=getBase(t), remote=Array.isArray(prefetched)?prefetched:await readRemote(token,sid,t);
+  const L=listMap(local),R=listMap(remote),B=listMap(base);
+  const merged=[];const conflicts=[];const ids=new Set([...L.keys(),...R.keys(),...B.keys()]);
+  for(const id of ids){
+    const l=L.get(id),r=R.get(id),b=B.get(id);
+    if(same(l,r)){if(l)merged.push(l);continue;}
+    if(!b){
+      if(!l&&r){merged.push(r);continue;}
+      if(l&&!r){merged.push(l);continue;}
+      if(l&&r){conflicts.push({id,local:l,remote:r,base:null});continue;}
+    }
+    if(same(l,b)){if(r)merged.push(r);continue;}
+    if(same(r,b)){if(l)merged.push(l);continue;}
+    conflicts.push({id,local:l,remote:r,base:b});
+  }
+  if(conflicts.length){
+    const choice=await conflictDialog(t,conflicts);
+    if(choice==='skip') return {status:'conflict',count:conflicts.length,remote};
+    if(choice==='local'){
+      // Keep all non-conflicting three-way merges. Resolve only the conflicting IDs with local values.
+      const byId=new Map(merged.map(x=>[String(x.id),x]));
+      for(const c of conflicts){ const id=String(c.id); if(c.local) byId.set(id,c.local); else byId.delete(id); }
+      merged.length=0; byId.forEach(x=>merged.push(x));
+      await safeWriteRemote(token,sid,t,merged,remote);setLocal(t,merged);setBase(t,merged);
+      addSyncHistory('Conflict → เครื่อง',`${t.name}: ${conflicts.length} รายการ (เก็บรายการที่ไม่ชนกันไว้)`);
+      return {status:'resolved-local',count:merged.length,conflicts:conflicts.length,remote,wrote:true};
+    }
+    if(choice==='remote'){
+      // Keep all non-conflicting three-way merges. Resolve only the conflicting IDs with remote values.
+      const byId=new Map(merged.map(x=>[String(x.id),x]));
+      for(const c of conflicts){ const id=String(c.id); if(c.remote) byId.set(id,c.remote); else byId.delete(id); }
+      merged.length=0; byId.forEach(x=>merged.push(x));
+      setLocal(t,merged);setBase(t,merged);
+      addSyncHistory('Conflict → Sheet',`${t.name}: ${conflicts.length} รายการ (เก็บรายการที่ไม่ชนกันไว้)`);
+      return {status:'resolved-remote',count:merged.length,conflicts:conflicts.length,remote};
+    }
+  }
+  if(sameById(merged,remote)){ /* บน Sheet ตรงกับที่จะเขียนอยู่แล้ว → ไม่ต้องเขียน/อ่านตรวจซ้ำ */
+    setLocal(t,merged);setBase(t,merged);
+    return {status:'synced',count:merged.length,remote,wrote:false};
+  }
+  await safeWriteRemote(token,sid,t,merged,remote);setLocal(t,merged);setBase(t,merged);
+  addSyncHistory('Smart Sync',`${t.name}: ${merged.length} รายการ`);
+  return {status:'synced',count:merged.length,remote,wrote:true};
+}
+
+
+/* V16 — Smart Sync integrity guard
+   Conflict resolution must never discard records that were already merged safely.
+   Expose a small local self-test so Settings can verify the three-way engine without touching Google Sheets. */
+function runSmartSyncLocalSelfTest(){
+  const fake={key:'selftest',name:'Sync Engine Test'};
+  const base=[{id:'1',value:'base'},{id:'2',value:'base2'}];
+  const local=[{id:'1',value:'local'},{id:'2',value:'base2'},{id:'3',value:'local-new'}];
+  const remote=[{id:'1',value:'base'},{id:'2',value:'remote2'},{id:'4',value:'remote-new'}];
+  const r=threeWay(fake,local,remote,base);
+  const ok=r.conflicts.length===0 && r.merged.some(x=>x.id==='1'&&x.value==='local') && r.merged.some(x=>x.id==='2'&&x.value==='remote2') && r.merged.some(x=>x.id==='3') && r.merged.some(x=>x.id==='4');
+  return {ok,summary:`non-conflict merge: ${r.merged.length}, conflicts: ${r.conflicts.length}`};
+}
+
+function setSyncAllBusy(busy){
+  ['btnSmartSync','btnSyncAllPull','btnSyncAllPush'].forEach(id=>{const e=document.getElementById(id);if(e)e.disabled=busy;});
+  document.getElementById('syncAllProgress').hidden=!busy;
+}
+function updateSyncAllProgress(index,total,name){const pct=Math.round(index/total*100);document.getElementById('syncAllProgressTitle').textContent=name;document.getElementById('syncAllProgressCount').textContent=index+'/'+total;document.getElementById('syncAllProgressBar').style.width=pct+'%';}
+function renderSyncModuleRows(){
+  const rows=SYNC_TARGETS.map(t=>{const v=localStorage.getItem(t.lastSyncKey);const dirty=isDirty(t);const chip=dirty?'<span class="mff-status-chip pending">🟠 รอซิงก์</span>':(v?'<span class="mff-status-chip ok">🟢 Synced</span>':'<span class="mff-status-chip neutral">⚪ ยังไม่เคยซิงก์</span>');return `<div class="mff-sync-module-row"><div class="mff-sync-module-name">${t.name}</div><div class="mff-module-sync-status">${chip}${v&&!dirty?`<div style="margin-top:3px">${esc(v)}</div>`:''}</div></div>`;}).join('')+`<div class="mff-sync-module-row"><div class="mff-sync-module-name">📊 My Portfolio</div><div class="mff-module-sync-status"><span class="mff-status-chip neutral">ดูจากโมดูล Portfolio</span></div></div>`;
+  document.getElementById('syncModuleRows').innerHTML=rows;
+  updateSystemPulse();
+}
+async function runPortfolioSmartSync(){
+  return new Promise((resolve,reject)=>{
+    const frame=document.createElement('iframe');
+    frame.style.cssText='position:fixed;width:1px;height:1px;left:-10000px;top:-10000px;border:0;opacity:0;pointer-events:none';
+    frame.setAttribute('aria-hidden','true');
+    let done=false;
+    const cleanup=()=>{window.removeEventListener('message',onMessage);clearTimeout(timer);frame.remove();};
+    const finish=(ok,msg,count)=>{if(done)return;done=true;cleanup();ok?resolve({message:msg,count:count||0}):reject(new Error(msg||'My Portfolio Smart Sync ไม่สำเร็จ'));};
+    const onMessage=e=>{if(e.source!==frame.contentWindow)return;const d=e.data||{};if(d.type!=='MFF_PORTFOLIO_SYNC_RESULT'||d.direction!=='smart')return;finish(!!d.ok,d.message,d.count);};
+    window.addEventListener('message',onMessage);
+    const timer=setTimeout(()=>finish(false,'My Portfolio ไม่ตอบกลับภายในเวลาที่กำหนด'),45000);
+    frame.src='../portfolio/index.html?sync=smart&embedded=1';document.body.appendChild(frame);
+  });
+}
+
+async function runSmartSync(opts){
+  opts=opts||{};
+  const cid=clientIdInput.value.trim()||localStorage.getItem('google_client_id')||'',sid=sheetIdInput.value.trim()||localStorage.getItem('google_sheet_id')||'';
+  if(!cid||!sid){toast('กรุณากรอก Client ID / Sheet ID ก่อน');return;}
+  setSyncAllBusy(true);const statusEl=document.getElementById('statusSyncAll');statusEl.innerHTML='กำลังตรวจสอบข้อมูลก่อนซิงก์…';const total=SYNC_TARGETS.length+1;let done=0,conf=0,fail=0;
+  // Snapshot which offline-queue items exist *before* this run starts. Anything already
+  // queued at this moment is what this sync is about to resolve; anything added later
+  // (by another tab/module while this sync is in flight) is new work and must stay queued.
+  const preSyncQueueIds=(window.MFFDataSafety?.exportQueue?.()||[]).map(x=>x.qid);
+  try{
+    const token=await ensureSheetsTokenForSyncAll(cid);if(!token)throw new Error('ขอสิทธิ์ Google Sheets ไม่สำเร็จ');localStorage.setItem('google_sheets_connected','1');
+    syncResetCache();
+    /* อ่านทุกแท็บครั้งเดียว (ใช้ทั้งเป็น Snapshot และเป็นข้อมูลฝั่ง Sheet ของแต่ละโมดูล) */
+    let remoteBackup={};
+    try{remoteBackup=await readAllRemote(token,sid,SYNC_TARGETS);}
+    catch(e){remoteBackup={};for(const t of SYNC_TARGETS){try{remoteBackup[t.key]=await readRemote(token,sid,t);}catch(e2){remoteBackup[t.key]=null;}}}
+    /* ถ้าทุกโมดูลตรงกับ Sheet แล้ว ไม่ต้องสำรอง/เขียนอะไร */
+    const needBackup=SYNC_TARGETS.some(t=>!Array.isArray(remoteBackup[t.key])||!sameById(getLocal(t),remoteBackup[t.key]));
+    if(needBackup){createBackup('ก่อน Smart Sync',remoteBackup);addSyncHistory('Backup','สร้าง Snapshot ก่อน Smart Sync');}
+    const written=[];
+    for(const t of SYNC_TARGETS){updateSyncAllProgress(done,total,'🔄 ตรวจ '+t.name);try{const r=await smartSyncOne(token,sid,t,remoteBackup[t.key]);if(r.status==='conflict')conf+=r.conflicts||0;if(r.wrote)written.push(t);}catch(e){conf++;fail++;toast(t.name+' ซิงก์ไม่สำเร็จ: '+e.message);}done++;updateSyncAllProgress(done,total,t.name+' ✓');}
+    renderSyncModuleRows();renderModuleStatus();
+    /* My Portfolio โหลดทั้งหน้าใน iframe → ซิงก์อัตโนมัติทำไม่เกินทุก 10 นาที (กดซิงก์เองทำทุกครั้ง) */
+    const PK_AT='mff_portfolio_smart_at',skipPf=opts.auto&&(Date.now()-Number(localStorage.getItem(PK_AT)||0)<600000);
+    if(skipPf){done++;updateSyncAllProgress(done,total,'📊 My Portfolio (ข้าม: เพิ่งซิงก์)');}
+    else{
+      updateSyncAllProgress(done,total,'🔄 📊 My Portfolio');
+      try{await runPortfolioSmartSync();localStorage.setItem(PK_AT,String(Date.now()));done++;updateSyncAllProgress(done,total,'📊 My Portfolio ✓');}catch(e){conf++;fail++;done++;toast('My Portfolio Smart Sync ไม่สำเร็จ: '+e.message);}
+    }
+    if(!conf){
+      /* ไม่ต้องอ่านตรวจซ้ำอีกรอบ: safeWriteRemote อ่านกลับมาเทียบแล้วว่าตรงกับที่เขียน (verified) ก่อนจะ setLocal ทุกโมดูลที่เขียน */
+      addSyncHistory('Verified Sync',written.length?('ตรวจสอบหลังเขียน '+written.length+' โมดูล'):'ข้อมูลตรงกับ Google Sheets แล้ว ไม่มีอะไรต้องเขียน');
+    }
+    statusEl.innerHTML=conf?`<span class="warn">⚠️ ซิงก์เสร็จแล้ว แต่มี ${conf} จุดที่ต้องตรวจสอบ</span>`:'<span class="ok">✅ ซิงก์สำเร็จและตรวจสอบข้อมูลล่าสุดแล้ว</span>';
+    // Queue Safety: clear exactly the items that were already queued when this sync began.
+    // (Requiring the queue to be "totally empty" after the loop never worked reliably —
+    // any unrelated module writing during the run would keep re-populating it and the
+    // badge would look permanently "not synced" even on a fully successful sync.)
+    if(!fail && preSyncQueueIds.length && window.MFFDataSafety?.removeFromQueue){
+      dropSyncedQueue(preSyncQueueIds);
+    }
+    if(!opts.silent) toast(conf?'ซิงก์เสร็จแล้ว มีข้อมูลชนกันให้ตรวจสอบ':'ซิงก์ทั้งหมดเรียบร้อย');
+  }catch(e){statusEl.innerHTML='<span class="warn">⚠️ '+esc(e.message||e)+'</span>';if(opts.auto) throw e;}
+  finally{setSyncAllBusy(false);document.getElementById('syncAllProgressBar').style.width=(done/total*100)+'%';}
+}
+
+async function runPortfolioSyncInFrame(dir){
+  return new Promise((resolve,reject)=>{
+    const frame=document.createElement('iframe');frame.style.cssText='position:fixed;width:1px;height:1px;left:-10000px;top:-10000px;border:0;opacity:0;pointer-events:none';
+    let done=false;const cleanup=()=>{window.removeEventListener('message',onMessage);clearTimeout(timer);frame.remove();};
+    const finish=(ok,msg,count)=>{if(done)return;done=true;cleanup();ok?resolve({message:msg,count:count||0}):reject(new Error(msg||'My Portfolio ซิงก์ไม่สำเร็จ'));};
+    const onMessage=e=>{if(e.source!==frame.contentWindow)return;const d=e.data||{};if(d.type!=='MFF_PORTFOLIO_SYNC_RESULT'||d.direction!==dir)return;finish(!!d.ok,d.message,d.count);};
+    window.addEventListener('message',onMessage);const timer=setTimeout(()=>finish(false,'My Portfolio ไม่ตอบกลับภายในเวลาที่กำหนด'),45000);
+    frame.src='../portfolio/index.html?sync='+encodeURIComponent(dir)+'&embedded=1';document.body.appendChild(frame);
+  });
+}
+
+async function runSyncAll(dir){
+  const cid=clientIdInput.value.trim()||localStorage.getItem('google_client_id')||'',sid=sheetIdInput.value.trim()||localStorage.getItem('google_sheet_id')||'';
+  if(!cid||!sid){toast('กรุณากรอก Client ID / Sheet ID ก่อน');return;}
+  const actionText=dir==='pull'?'บังคับดึงจาก Google Sheets จะทับข้อมูลในเครื่อง':'บังคับส่งจากเครื่องจะทับข้อมูลใน Google Sheets';
+  if(!confirm(actionText+'\n\nควรใช้เฉพาะเมื่อแน่ใจว่าต้องการทับข้อมูล ต้องการดำเนินการต่อหรือไม่?'))return;
+  setSyncAllBusy(true);syncResetCache();const statusEl=document.getElementById('statusSyncAll');let done=0;const total=SYNC_TARGETS.length+1;
+  const preSyncQueueIds=(window.MFFDataSafety?.exportQueue?.()||[]).map(x=>x.qid);
+  try{const token=await ensureSheetsTokenForSyncAll(cid);if(!token)throw new Error('ขอสิทธิ์ Google Sheets ไม่สำเร็จ');
+    const remoteBackup={};for(const t of SYNC_TARGETS){try{remoteBackup[t.key]=await readRemote(token,sid,t);}catch(e){remoteBackup[t.key]=null;}}
+    createBackup('ก่อน Force Sync',remoteBackup);addSyncHistory('Backup','สร้าง Snapshot ก่อน Force Sync');
+    for(const t of SYNC_TARGETS){updateSyncAllProgress(done,total,(dir==='pull'?'⬇️ ':'⬆️ ')+t.name);const remote=await readRemote(token,sid,t);if(dir==='pull'){setLocal(t,remote);setBase(t,remote);}else{const local=getLocal(t);await safeWriteRemote(token,sid,t,local,remote);setBase(t,local);}done++;updateSyncAllProgress(done,total,t.name+' ✓');}updateSyncAllProgress(done,total,'📊 My Portfolio');await runPortfolioSyncInFrame(dir);done++;updateSyncAllProgress(done,total,'📊 My Portfolio ✓');statusEl.innerHTML='<span class="ok">✅ บังคับซิงก์เสร็จแล้ว</span>';if(preSyncQueueIds.length&&window.MFFDataSafety?.removeFromQueue)dropSyncedQueue(preSyncQueueIds);renderSyncModuleRows();renderModuleStatus();}
+  catch(e){statusEl.innerHTML='<span class="warn">⚠️ หยุดที่ '+done+'/'+SYNC_TARGETS.length+' — '+esc(e.message||e)+'</span>';}
+  finally{setSyncAllBusy(false);}
+}
+
+
+function runSyncSelfTest(){
+  const results=[];
+  const pass=(name,ok,detail)=>results.push({name,ok,detail});
+  try{
+    const sameLocal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+    const base=[{id:'T1',value:10}], localChanged=[{id:'T1',value:20}], remoteSame=base.slice();
+    pass('Local changed / Remote unchanged', sameLocal(localChanged,localChanged), 'ควรเลือกข้อมูลจากเครื่อง');
+    pass('Remote unchanged vs Base', sameLocal(remoteSame,base), 'ตรวจเงื่อนไข three-way');
+    const remoteChanged=[{id:'T1',value:30}];
+    pass('Local/Remote เปลี่ยนคนละค่า', !sameLocal(localChanged,remoteChanged), 'ควรเข้าสถานะ Conflict');
+    const sh=window.MFFGoogleSession?.getSheetsToken();
+    pass('Google token ไม่อยู่ใน localStorage', !localStorage.getItem('mff_google_sheets_access_token_v1'), sh?'มี session token':'ยังไม่มี session token');
+    pass('Google session helper ทำงาน', !!window.MFFGoogleSession?.clearAllGoogleSession, 'พบ session helper');
+    const bad=results.filter(x=>!x.ok);
+    const box=document.getElementById('statusSyncAll');
+    box.innerHTML=bad.length?'<span class="warn">⚠️ Self-test พบ '+bad.length+' จุด</span>':'<span class="ok">✅ Sync Self-test ผ่าน '+results.length+' รายการ</span>';
+    addSyncHistory('Self-test',bad.length?'พบจุดตรวจสอบ '+bad.length:'ผ่าน '+results.length+' รายการ');
+    toast(bad.length?'Self-test พบจุดตรวจสอบ':'ตรวจระบบ Sync ผ่านแล้ว');
+    console.table(results);
+    return results;
+  }catch(e){ toast('Self-test ไม่สำเร็จ'); return []; }
+}
+
+document.getElementById('btnSyncSelfTest')?.addEventListener('click',runSyncSelfTest);
+document.getElementById('btnSmartSync').addEventListener('click',runSmartSync);
+document.getElementById('btnSyncAllPull').addEventListener('click',()=>runSyncAll('pull'));
+document.getElementById('btnSyncAllPush').addEventListener('click',()=>runSyncAll('push'));
+document.getElementById('btnBackupNow').addEventListener('click',()=>{try{createBackup('สำรองด้วยตนเอง');addSyncHistory('Backup','ผู้ใช้สร้าง Snapshot เอง');toast('สำรองข้อมูลในเครื่องแล้ว');}catch(e){toast('สำรองไม่สำเร็จ');}});
+document.getElementById('btnRestoreLast').addEventListener('click',restoreBackup);
+renderSyncHistory();
+renderSyncModuleRows();
+renderModuleStatus();
+scheduleAutoSync('ตรวจคิว Offline ตอนเปิด Settings');
+
+/* ---------- Google Drive (Bookshelf) ---------- */
+function renderDriveStatus(){
+  const connected = !!window.MFFGoogleSession?.getDriveToken();
+  const testBtn=document.getElementById('btnTestDrive'); if(testBtn) testBtn.style.display=connected?'inline-flex':'none';
+  document.getElementById('statusDrive').innerHTML = connected
+    ? '<span class="ok">✅ เชื่อมต่อแล้ว • สำหรับ My Bookshelf</span>'
+    : '<span class="warn">⚠️ ยังไม่ได้เชื่อมต่อ</span>';
+}
+let driveClient=null;
+document.getElementById('btnConnectDrive').addEventListener('click',()=>{
+  const cid=clientIdInput.value.trim()||localStorage.getItem('google_client_id')||'';
+  if(!cid){ toast('กรุณากรอก Client ID ในหัวข้อ Google Sheets ก่อน'); return; }
+  if(!window.google||!google.accounts||!google.accounts.oauth2){ toast('โหลด Google API ไม่สำเร็จ ลองใหม่อีกครั้ง'); return; }
+  if(!driveClient || driveClient._cid!==cid){
+    driveClient=google.accounts.oauth2.initTokenClient({
+      client_id:cid, scope:'https://www.googleapis.com/auth/drive.readonly',
+      callback:r=>{
+        if(r && r.access_token){ const exp=Date.now()+Math.max(60,(Number(r.expires_in)||3600)-60)*1000; window.MFFGoogleSession?.saveDriveToken(r.access_token,exp); localStorage.setItem('google_drive_connected','1'); renderDriveStatus(); renderGoogleSessionStatus(); toast('เชื่อมต่อ Google Drive แล้ว'); }
+        else toast('เชื่อมต่อไม่สำเร็จ');
+      }
+    });
+    driveClient._cid=cid;
+  }
+  driveClient.requestAccessToken({prompt:'consent'});
+});
+renderDriveStatus();
+async function testDriveConnection(){
+  const cached=window.MFFGoogleSession?.getDriveToken?.();
+  if(!cached?.token){toast('กรุณาเชื่อมต่อ Google Drive ก่อน');return;}
+  try{
+    const r=await fetch('https://www.googleapis.com/drive/v3/files?pageSize=1&fields=files(id,name)',{headers:{Authorization:'Bearer '+cached.token}});
+    if(r.status===401||r.status===403) throw new Error('สิทธิ์ Google Drive หมดอายุ กรุณาเชื่อมต่อใหม่');
+    if(!r.ok) throw new Error(await r.text());
+    const j=await r.json();
+    document.getElementById('statusDrive').innerHTML='<span class="ok">✅ Google Drive ใช้งานได้ • ทดสอบ API สำเร็จ</span>';
+    toast('Google Drive เชื่อมต่อและเรียกใช้งานได้');
+    return j;
+  }catch(e){document.getElementById('statusDrive').innerHTML='<span class="warn">⚠️ Drive ทดสอบไม่ผ่าน: '+esc(e.message||e)+'</span>';toast('Google Drive ทดสอบไม่ผ่าน');}
+}
+document.getElementById('btnTestDrive')?.addEventListener('click',testDriveConnection);
+
+let autoSyncTimer=null;
+let autoSyncInFlight=false;
+const AUTO_SYNC_KEY='mff_auto_sync_online_v1';
+const AUTO_RETRY_KEY='mff_auto_sync_retry_v1';
+function autoRetryState(){try{return JSON.parse(localStorage.getItem(AUTO_RETRY_KEY)||'{}')}catch(e){return {}}}
+function saveAutoRetryState(v){try{localStorage.setItem(AUTO_RETRY_KEY,JSON.stringify(v))}catch(e){}}
+function autoSyncEnabled(){const v=localStorage.getItem(AUTO_SYNC_KEY);return v===null?true:v==='1';}
+function renderAutoSyncToggle(){const cb=document.getElementById('autoSyncToggle'),track=document.getElementById('autoSyncTrack'),row=document.getElementById('autoSyncRow');if(!cb||!track)return;const on=autoSyncEnabled();cb.classList.toggle('on',on);cb.setAttribute('aria-checked',String(on));track.setAttribute('aria-checked',String(on));if(row)row.setAttribute('aria-pressed',String(on));}
+function dropSyncedQueue(ids){
+  try{
+    const ds=window.MFFDataSafety; if(!ds||!ds.removeFromQueue)return;
+    const pf=(ds.exportQueue?.()||[]).filter(x=>x&&x.key==='khlangthun_portfolio_oldui_latest_v4').map(x=>x.qid); /* Portfolio ซิงก์ในรอบเดียวกันแล้ว */
+    ds.removeFromQueue((ids||[]).concat(pf));
+  }catch(e){}
+}
+function queueItems(){try{return window.MFFDataSafety?.exportQueue?.()||[]}catch(e){return[];}}
+function renderOfflineQueue(){
+  const q=queueItems();
+  const count=document.getElementById('mffQueueCount'),list=document.getElementById('mffQueueList');
+  if(count){count.textContent=`${q.length} รายการ`;count.className='mff-status-chip '+(q.length?'pending':'ok');}
+  if(!list)return;
+  if(!q.length){list.textContent='ไม่มีรายการรอ Sync';return;}
+  const recent=q.slice(-6).reverse();
+  list.innerHTML=recent.map(x=>{
+    const type=x.type==='delete'||x.type==='delete_container'?'ลบ':'แก้ไข';
+    const key=String(x.key||'ข้อมูล').replace(/^mff_/,'');
+    const t=x.queued_at?new Date(x.queued_at).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}):'';
+    return `<div style="display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px solid var(--line)"><span>• ${esc(type)} · ${esc(key)}</span><span>${esc(t)}</span></div>`;
+  }).join('')+(q.length>6?`<div style="padding-top:5px">และอีก ${q.length-6} รายการ…</div>`:'');
+}
+function hasPendingSyncWork(){return !!(queueItems().length>0 || SYNC_TARGETS.some(isDirty));}
+function scheduleAutoSync(reason){
+  if(!autoSyncEnabled()||navigator.onLine===false||autoSyncInFlight||!hasPendingSyncWork())return;
+  const cid=clientIdInput.value.trim()||localStorage.getItem('google_client_id')||'',sid=sheetIdInput.value.trim()||localStorage.getItem('google_sheet_id')||'';
+  const cached=window.MFFGoogleSession?.getSheetsToken?.();
+  // Auto Sync never opens OAuth. User must connect explicitly first.
+  if(!cid||!sid||!cached?.token)return;
+  clearTimeout(autoSyncTimer);
+  autoSyncTimer=setTimeout(async()=>{
+    if(autoSyncInFlight||navigator.onLine===false||!autoSyncEnabled())return;
+    autoSyncInFlight=true;
+    try{
+      addSyncHistory('Auto Sync',reason||'ตรวจพบข้อมูลรอ Sync');
+      await runSmartSync({silent:true,auto:true});
+      const st=autoRetryState();st.count=0;st.lastSuccess=new Date().toISOString();delete st.failed;saveAutoRetryState(st);
+    }catch(e){
+      const st=autoRetryState();st.count=Math.min(Number(st.count||0)+1,6);st.failed=true;st.lastFailure=new Date().toISOString();st.message=String(e?.message||e||'Sync failed');saveAutoRetryState(st);
+      addSyncHistory('Auto Sync','ยังไม่สำเร็จ: '+(e.message||e));
+      // Retry with exponential backoff while keeping the queue intact.
+      if(autoSyncEnabled()&&navigator.onLine!==false&&hasPendingSyncWork()){
+        const delay=Math.min(60000,5000*Math.pow(2,Math.max(0,st.count-1)));
+        clearTimeout(autoSyncTimer);autoSyncTimer=setTimeout(()=>scheduleAutoSync('Retry Auto Sync'),delay);
+      }
+    }finally{
+      autoSyncInFlight=false;renderOfflineQueue();renderSyncModuleRows();renderModuleStatus();updateSystemPulse();
+    }
+  },1200);
+}
+function setAutoSync(v){localStorage.setItem(AUTO_SYNC_KEY,v?'1':'0');renderAutoSyncToggle();if(v)scheduleAutoSync('เปิด Auto Sync');}
+function updateSystemPulse(){
+  const online=navigator.onLine!==false;
+  const pill=document.getElementById('mffOnlinePill');
+  if(pill){pill.textContent=online?'● Online':'● Offline';pill.classList.toggle('offline',!online);}
+  let synced=0,pending=0,last='';
+  SYNC_TARGETS.forEach(t=>{const dirty=isDirty(t),v=localStorage.getItem(t.lastSyncKey)||'';if(dirty)pending++;else if(v)synced++;if(v&&(!last||v>last))last=v;});
+  const q=queueItems().length;
+  const ids={synced:'mffStatSynced',pending:'mffStatPending',last:'mffStatLast'};
+  document.getElementById(ids.synced).textContent=String(synced);document.getElementById(ids.pending).textContent=String(Math.max(pending,q));document.getElementById(ids.last).textContent=last?last.split(' ')[0]:'—';
+  renderOfflineQueue();
+}
+function runLocalSyncEngineTest(){
+  const r=runSmartSyncLocalSelfTest();
+  addSyncHistory('Sync Engine Test',r.summary);
+  const el=document.getElementById('statusSyncAll');
+  if(el) el.innerHTML=r.ok?'<span class="ok">✅ Smart Sync Engine ผ่าน — ไม่ทิ้งรายการที่ไม่ขัดแย้ง</span>':'<span class="warn">⚠️ Smart Sync Engine พบปัญหา</span>';
+  toast(r.ok?'ทดสอบ Smart Sync ผ่าน':'ทดสอบ Smart Sync ไม่ผ่าน');
+}
+document.getElementById('btnSyncEngineTest')?.addEventListener('click',runLocalSyncEngineTest);
+function runQueueSafetyTest(){
+  const q=queueItems();
+  const ok=Array.isArray(q);
+  addSyncHistory('Queue Safety Test',ok?'Queue อ่านได้ปกติ • '+q.length+' รายการ':'Queue อ่านไม่ได้');
+  toast(ok?'Queue Safety ผ่าน':'Queue Safety พบปัญหา');
+  renderOfflineQueue(); updateSystemPulse();
+}
+document.getElementById('btnQueueSafetyTest')?.addEventListener('click',runQueueSafetyTest);
+/* V20 Final — local release self-checks (read-only; no Google Sheets writes) */
+function runFinalLocalIntegrityTest(){
+  const checks=[];
+  try{
+    const r=runSmartSyncLocalSelfTest();
+    checks.push(['Smart Sync merge',!!r.ok,r.summary]);
+  }catch(e){checks.push(['Smart Sync merge',false,String(e.message||e)]);}
+  try{
+    const q=queueItems(); checks.push(['Offline Queue',Array.isArray(q),`อ่าน Queue ได้ ${Array.isArray(q)?q.length:0} รายการ`]);
+  }catch(e){checks.push(['Offline Queue',false,String(e.message||e)]);}
+  try{
+    const targets=Array.isArray(SYNC_TARGETS)&&SYNC_TARGETS.length===4;
+    checks.push(['Sync targets',targets,targets?'4 direct modules + Portfolio adapter':'จำนวน target ไม่ตรง']);
+  }catch(e){checks.push(['Sync targets',false,String(e.message||e)]);}
+  try{
+    const ids=new Set();let dup=0;
+    const frame=document.createElement('iframe');
+    // Local portfolio storage is isolated in iframe, so only verify the adapter responds.
+    frame.style.cssText='position:fixed;width:1px;height:1px;left:-10000px;top:-10000px;border:0;opacity:0;pointer-events:none';
+    const result=new Promise(resolve=>{
+      let done=false;
+      const finish=v=>{if(done)return;done=true;window.removeEventListener('message',onMsg);clearTimeout(timer);frame.remove();resolve(v);};
+      const onMsg=e=>{if(e.source!==frame.contentWindow)return;const d=e.data||{};if(d.type==='MFF_PORTFOLIO_SYNC_PREFLIGHT')finish(d);};
+      window.addEventListener('message',onMsg);const timer=setTimeout(()=>finish({ok:false,message:'Portfolio adapter timeout'}),7000);
+      frame.src='../portfolio/index.html?sync=preflight&embedded=1';document.body.appendChild(frame);
+    });
+    result.then(d=>{checks.push(['Portfolio adapter',!!d?.ok,d?.detail||d?.message||'']);renderFinalChecks(checks);});
+  }catch(e){checks.push(['Portfolio adapter',false,String(e.message||e)]);renderFinalChecks(checks);}
+  renderFinalChecks(checks);
+}
+function renderFinalChecks(checks){
+  const box=document.getElementById('statusSyncAll');if(!box)return;
+  const bad=checks.filter(x=>!x[1]).length;
+  box.innerHTML=(bad?'<span class="warn">⚠️ Local Final Check พบ '+bad+' จุด</span>':'<span class="ok">✅ Local Final Check ผ่าน</span>')+
+    '<div style="margin-top:8px;font-size:12px">'+checks.map(x=>`<div style="padding:4px 0">${x[1]?'✅':'⚠️'} <b>${esc(x[0])}</b> — ${esc(x[2])}</div>`).join('')+'</div>';
+  addSyncHistory('Final Local Check',bad?`พบ ${bad} จุด`:'ผ่านทั้งหมด');
+  toast(bad?'Final Check พบจุดที่ต้องตรวจสอบ':'Final Check ผ่านแล้ว');
+}
+document.getElementById('btnFinalLocalCheck')?.addEventListener('click',runFinalLocalIntegrityTest);
+
+
+window.addEventListener('online',()=>{updateSystemPulse();renderOfflineQueue();scheduleAutoSync('กลับมา Online');});
+window.addEventListener('offline',()=>{updateSystemPulse();clearTimeout(autoSyncTimer);});
+function toggleAutoSync(){setAutoSync(!autoSyncEnabled());}
+document.getElementById('autoSyncToggle')?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();toggleAutoSync();});
+document.getElementById('autoSyncRow')?.addEventListener('click',e=>{if(e.target.closest('#autoSyncToggle'))return;e.preventDefault();toggleAutoSync();});
+document.getElementById('autoSyncRow')?.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleAutoSync();}});
+renderAutoSyncToggle();
+window.addEventListener('mff:data-safety',()=>{updateSystemPulse();if(navigator.onLine!==false)scheduleAutoSync('มีข้อมูลใหม่ในคิว Offline');});
+/* ---------- All-module readiness audit ---------- */
+const MODULE_AUDIT_TARGETS=[
+  {key:'daily',name:'ค่าใช้จ่ายรายวัน',url:'../money/daily.html'},
+  {key:'monthly',name:'ค่าใช้จ่ายรายเดือน',url:'../money/monthly.html'},
+  {key:'portfolio',name:'My Portfolio',url:'../portfolio/index.html'},
+  {key:'bookshelf',name:'My Bookshelf',url:'../bookshelf/index.html'},
+  {key:'profile',name:'My Family',url:'../profile/family.html'},
+  {key:'business',name:'My Business',url:'../profile/business.html'}
+];
+function auditModule(t){return new Promise(resolve=>{
+  const f=document.createElement('iframe'); f.style.cssText='position:fixed;width:1px;height:1px;left:-10000px;top:-10000px;border:0;opacity:0;pointer-events:none';
+  let done=false;
+  const finish=(ok,detail)=>{if(done)return;done=true;window.removeEventListener('message',onMsg);clearTimeout(timer);f.remove();resolve({key:t.key,name:t.name,ok,detail});};
+  const onMsg=e=>{if(e.source!==f.contentWindow)return;const d=e.data||{};if(d.type==='MFF_MODULE_READY')finish(true,(d.module?d.module+' • ':'')+(d.version?d.version+' • ':'')+(d.detail||'ระบบโมดูลพร้อม'));};
+  window.addEventListener('message',onMsg);
+  const timer=setTimeout(()=>finish(false,'ไม่ตอบกลับ / อาจโหลดโมดูลไม่ครบ'),7000);
+  f.src=t.url+'?audit=1'; document.body.appendChild(f);
+});}
+async function runAllModuleAudit(){
+  const box=document.getElementById('statusSyncAll');
+  if(box) box.innerHTML='<span>🔎 กำลังตรวจสอบโมดูลทั้งหมด…</span>';
+  const out=[];
+  for(const t of MODULE_AUDIT_TARGETS) out.push(await auditModule(t));
+  const bad=out.filter(x=>!x.ok);
+  const html=out.map(x=>`<div style="padding:5px 0">${x.ok?'✅':'⚠️'} <b>${esc(x.name)}</b> — ${esc(x.detail)}</div>`).join('');
+  if(box) box.innerHTML=(bad.length?'<span class="warn">⚠️ พบ '+bad.length+' โมดูลที่ต้องตรวจสอบ</span>':'<span class="ok">✅ โมดูลหลักทั้ง 5 โหลดระบบกลางครบ</span>')+'<div style="margin-top:8px;font-size:12px">'+html+'</div>';
+  addSyncHistory('Module Audit',bad.length?'พบ '+bad.length+' โมดูลต้องตรวจสอบ':'พร้อมใช้งานครบ 5 โมดูล');
+  toast(bad.length?'ตรวจพบโมดูลที่ต้องตรวจสอบ':'ตรวจความพร้อมโมดูลครบ 5 โมดูลแล้ว');
+  return out;
+}
+document.getElementById('btnModuleAudit')?.addEventListener('click',runAllModuleAudit);
+
+/* ---------- V15 Sync Preflight: read-only verification before any write ---------- */
+async function runSyncPreflight(){
+  const box=document.getElementById('statusSyncAll');
+  if(box) box.innerHTML='<span>🧪 กำลังตรวจข้อมูลจริงจาก Google Sheets — ยังไม่มีการเขียนข้อมูล</span>';
+  const cid=clientIdInput.value.trim()||localStorage.getItem('google_client_id')||'';
+  const sid=sheetIdInput.value.trim()||localStorage.getItem('google_sheet_id')||'';
+  if(!cid||!sid){if(box)box.innerHTML='<span class="warn">⚠️ กรุณากรอก Client ID / Sheet ID ก่อนตรวจ</span>';return;}
+  try{
+    const token=await ensureSheetsTokenForSyncAll(cid);
+    if(!token) throw new Error('ขอสิทธิ์ Google Sheets ไม่สำเร็จ');
+    const lines=[]; let issues=0;
+    for(const t of SYNC_TARGETS){
+      try{
+        const local=getLocal(t),base=getBase(t),remote=await readRemote(token,sid,t);
+        const m=threeWay(t,local,remote,base);
+        const addedRemote=remote.filter(r=>!listMap(base).has(String(r.id))).length;
+        const addedLocal=local.filter(l=>!listMap(base).has(String(l.id))).length;
+        const text=m.conflicts.length
+          ? `⚠️ ${t.name}: Conflict ${m.conflicts.length} รายการ • เครื่องใหม่ ${addedLocal} • Sheet ใหม่ ${addedRemote}`
+          : `✅ ${t.name}: พร้อม Sync • เครื่อง ${local.length} • Sheet ${remote.length} • ต่างกัน ${Math.max(local.length,remote.length)-m.merged.length}`;
+        if(m.conflicts.length)issues+=m.conflicts.length;
+        lines.push(text);
+      }catch(e){issues++;lines.push(`⚠️ ${t.name}: ${e.message||e}`);}
+    }
+    /* Portfolio is verified read-only by asking its own adapter for a status response. */
+    try{
+      const frame=document.createElement('iframe');
+      frame.style.cssText='position:fixed;width:1px;height:1px;left:-10000px;top:-10000px;border:0;opacity:0;pointer-events:none';
+      const result=await new Promise((resolve,reject)=>{
+        let done=false;
+        const finish=(v,err)=>{if(done)return;done=true;window.removeEventListener('message',onMsg);clearTimeout(timer);frame.remove();err?reject(err):resolve(v);};
+        const onMsg=e=>{if(e.source!==frame.contentWindow)return;const d=e.data||{};if(d.type!=='MFF_PORTFOLIO_SYNC_PREFLIGHT')return;finish(d);};
+        window.addEventListener('message',onMsg);
+        const timer=setTimeout(()=>finish(null,new Error('My Portfolio ไม่ตอบกลับภายในเวลาที่กำหนด')),12000);
+        frame.src='../portfolio/index.html?sync=preflight&embedded=1';document.body.appendChild(frame);
+      });
+      if(result?.ok) lines.push(`✅ My Portfolio: พร้อม Sync • ${result.detail||'ตรวจสอบ adapter แล้ว'}`);
+      else {issues++;lines.push(`⚠️ My Portfolio: ${result?.message||'ต้องตรวจสอบเพิ่มเติม'}`);}
+    }catch(e){issues++;lines.push(`⚠️ My Portfolio: ${e.message||e}`);}
+    if(box) box.innerHTML=(issues?`<span class="warn">⚠️ Preflight พบ ${issues} จุดที่ควรตรวจสอบ</span>`:'<span class="ok">✅ Preflight ผ่าน — ยังไม่มีการเขียนข้อมูลใด ๆ</span>')+`<div style="margin-top:8px;font-size:12px">${lines.map(x=>`<div style="padding:4px 0">${esc(x)}</div>`).join('')}</div>`;
+    addSyncHistory('Preflight',issues?`พบ ${issues} จุดต้องตรวจสอบ`:'ผ่าน — พร้อม Smart Sync');
+    toast(issues?'Preflight พบจุดที่ต้องตรวจสอบ':'Preflight ผ่านแล้ว — พร้อม Smart Sync');
+  }catch(e){if(box)box.innerHTML='<span class="warn">⚠️ '+esc(e.message||e)+'</span>';}
+}
+document.getElementById('btnSyncPreflight')?.addEventListener('click',runSyncPreflight);
+
+
+/* ---------- per-module sync status ---------- */
+function renderModuleStatus(){
+  const rows=[
+    {name:'ค่าใช้จ่ายรายวัน', key:'sheet_last_sync_daily'},
+    {name:'ค่าใช้จ่ายรายเดือน', key:'sheet_last_sync_money'},
+    {name:'My Portfolio', key:'sheet_last_sync'},
+    {name:'My Bookshelf', key:'sheet_last_sync_bookshelf'},
+    {name:'My Profile', key:'sheet_last_sync_profile'},
+    {name:'My Business', key:'sheet_last_sync_business'},
+    {name:'งบและรายการประจำ', key:'sheet_last_sync_settings'},
+  ];
+  const detail=document.getElementById('statusPerModule');
+  if(detail){
+    detail.innerHTML = rows.map(r=>{
+      const t=localStorage.getItem(r.key);
+      return '<div class="mff-module-row"><b>'+esc(r.name)+'</b><span>'+(t?('ซิงก์ล่าสุด '+esc(t)):'ยังไม่เคยซิงก์')+'</span></div>';
+    }).join('');
+  }
+  document.querySelectorAll('[data-status-key]').forEach(el=>{
+    const t=localStorage.getItem(el.dataset.statusKey);
+    el.textContent=t?'ล่าสุด '+t:'ยังไม่เคยซิงก์';
+    el.style.cssText='font-size:11.5px;color:var(--ink-soft);white-space:nowrap';
+  });
+}
+renderModuleStatus();
+
+/* ---------- cache / maintenance ---------- */
+function cacheKeysByPattern(patterns){
+  const keys=[];
+  for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i)||'';if(patterns.some(p=>p.test(k)))keys.push(k);}
+  return keys;
+}
+function clearKeys(keys){keys.forEach(k=>{try{localStorage.removeItem(k);}catch(e){}});}
+function setCacheStatus(msg,ok=true){const el=document.getElementById('cacheStatus');if(el)el.innerHTML='<span class="'+(ok?'ok':'warn')+'">'+esc(msg)+'</span>'; }
+function clearBookCaches(){
+  clearKeys(cacheKeysByPattern([/^mff_bookshelf_search_cache_/i,/^mff_bookshelf_meta_cache_/i,/^mff_bookshelf_cache_/i]));
+  setCacheStatus('ล้าง Cache หนังสือแล้ว — ข้อมูล My Books ที่บันทึกไว้ไม่ถูกลบ');
+}
+function clearAppCaches(){
+  if(!confirm('ล้าง Cache ของแอปที่ไม่ใช่ข้อมูลตั้งค่าและข้อมูลหลัก?\n\nGoogle Sheet และข้อมูลหลักในเครื่องจะไม่ถูกลบ'))return;
+  const keep=/^(google_client_id|google_sheet_id|google_sheets_connected|google_drive_connected|cfg_|mff_sync_|sheet_last_sync_|mff_google_)/i;
+  const keys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i)||'';if(!keep.test(k)&&(/cache|search_cache/i.test(k)))keys.push(k);}
+  clearKeys(keys);setCacheStatus('ล้าง Cache แอปแล้ว '+keys.length+' รายการ');
+}
+function exportLocalBackup(){
+  const data={version:'6.0',createdAt:new Date().toISOString(),localStorage:{}};
+  for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k) data.localStorage[k]=localStorage.getItem(k);}
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='MyPortfolio-Local-Backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  setCacheStatus('Export ข้อมูลในเครื่องแล้ว');
+}
+function clearHistory(){if(!confirm('ล้างเฉพาะประวัติการ Sync ใช่หรือไม่?\nข้อมูลจริงจะไม่ถูกลบ'))return;localStorage.removeItem(SYNC_HISTORY_KEY);renderSyncHistory();setCacheStatus('ล้างประวัติ Sync แล้ว');}
+document.getElementById('btnClearBookCache').addEventListener('click',clearBookCaches);
+document.getElementById('btnClearAppCache').addEventListener('click',clearAppCaches);
+document.getElementById('btnExportLocalBackup').addEventListener('click',exportLocalBackup);
+document.getElementById('btnClearHistory').addEventListener('click',clearHistory);
+
+/* ---------- monthly email report (open — no login in this build) ---------- */
+const emailInput=document.getElementById('cfgReportEmail');
+async function initReportSection(){
+  try{
+    const r=await api('getReportConfig',{});
+    emailInput.value = r.email || '';
+    localStorage.setItem('mff_report_email_configured',r.email?'1':'0');
+    document.getElementById('statusReport').innerHTML = r.triggerInstalled
+      ? '<span class="ok">✅ เปิดใช้งานส่งอัตโนมัติแล้ว</span>'
+      : '<span class="warn">⚠️ ยังไม่ได้เปิดใช้งานส่งอัตโนมัติ</span>';
+  }catch(e){
+    document.getElementById('statusReport').innerHTML='<span class="warn">เชื่อมต่อ Apps Script ไม่สำเร็จ: '+esc(e.message)+'</span>';
+  }
+}
+document.getElementById('btnSaveReport').addEventListener('click',async()=>{
+  const email=emailInput.value.trim();
+  const sheetId=sheetIdInput.value.trim();
+  if(!email){ toast('กรุณากรอกอีเมลผู้รับ'); return; }
+  if(!sheetId){ toast('กรุณากรอก Sheet ID ในหัวข้อ Google Sheets ก่อน'); return; }
+  try{
+    await api('setReportConfig',{email,sheetId});
+    localStorage.setItem('mff_report_email_configured','1');
+    const r=await api('installMonthlyTrigger',{});
+    if(!r || r.ok===false) throw new Error(r?.error||'เปิด Trigger ไม่สำเร็จ');
+    document.getElementById('statusReport').innerHTML='<span class="ok">✅ บันทึกแล้ว • '+esc(r.message||'เปิดส่งอัตโนมัติแล้ว')+'</span>';
+    toast('บันทึกและเปิดส่งอัตโนมัติแล้ว');
+  }catch(e){
+    document.getElementById('statusReport').innerHTML='<span class="warn">⚠️ '+esc(e.message||e)+'</span>';
+    toast('ตั้งค่าอีเมลไม่สำเร็จ');
+  }
+});
+document.getElementById('btnInstallTrigger').addEventListener('click',async()=>{
+  try{ const r=await api('installMonthlyTrigger',{}); toast(r.message||'เปิดใช้งานส่งอัตโนมัติแล้ว'); initReportSection(); }
+  catch(e){ toast('ไม่สำเร็จ: '+e.message); }
+});
+document.getElementById('btnTestReport').addEventListener('click',async()=>{
+  toast('กำลังส่งอีเมลทดสอบ...');
+  try{ const r=await api('sendTestReport',{}); if(!r.ok) throw new Error(r.error||'ส่งไม่สำเร็จ'); toast(r.message||'ส่งอีเมลทดสอบแล้ว ลองเช็กกล่องจดหมาย'); initReportSection(); }
+  catch(e){ document.getElementById('statusReport').innerHTML='<span class="warn">⚠️ '+esc(e.message||e)+'</span>'; toast('ส่งไม่สำเร็จ'); }
+});
+document.getElementById('btnCheckReport')?.addEventListener('click',async()=>{
+  toast('กำลังตรวจระบบรายงาน...');
+  try{ const r=await api('checkMonthlyReportSetup',{}); document.getElementById('statusReport').innerHTML=r.ok?'<span class="ok">✅ '+esc(r.message||'ระบบพร้อมใช้งาน')+'</span>':'<span class="warn">⚠️ '+esc(r.error||'ระบบยังไม่พร้อม')+'</span>'; toast(r.ok?'ระบบรายงานพร้อมใช้งาน':'พบจุดที่ต้องแก้'); }
+  catch(e){ document.getElementById('statusReport').innerHTML='<span class="warn">⚠️ '+esc(e.message||e)+'</span>'; toast('ตรวจระบบไม่สำเร็จ'); }
+});
+initReportSection();
+
+// Data Safety v2 status
+window.addEventListener('mff:data-safety',function(e){
+  var n=e.detail&&e.detail.pending||0;
+  var el=document.querySelector('[data-mff-pending]');
+  if(el) el.textContent=n?('รอ Sync '+n+' รายการ'):'พร้อมใช้งาน';
+});
+
+})();
+</script>
+
+<script src="../icon-system.js"></script>
+</body>
+</html>

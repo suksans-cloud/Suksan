@@ -1,0 +1,30 @@
+const CACHE='mff-shell-v95-supply-style-icons';
+const SHELL=[
+  './index.html','./shell.css','./icon-system.js','./config.js','./data-safety.js','./admin-login.js','./settings-store.js','./themes.js','./reminders.js','./goals-core.js','./privacy-eye.js',
+  './money/index.html','./money/daily.html','./money/monthly.html',
+  './calendar/index.html','./my-plan/index.html','./tools/index.html','./tools/tools.css','./tools/tools.js','./tools/health.js','./tools/supply.js','./tools/tools-sync.js','./bookshelf/index.html','./profile/index.html','./profile/family.html','./profile/business.html','./vault/index.html','./vault/vault-sync.js','./settings/index.html','./notes/index.html','./diary/index.html','./goals/index.html',
+  './portfolio/index.html','./portfolio/dashboard.html','./portfolio/auth-open.js',
+  './portfolio/manifest.json','./manifest.json'
+];
+self.addEventListener('install',e=>{
+  e.waitUntil((async()=>{
+    const c=await caches.open(CACHE);
+    for(const u of SHELL){try{await c.add(u);}catch(_){}}
+    await self.skipWaiting();
+  })());
+});
+self.addEventListener('activate',e=>e.waitUntil((async()=>{const keep=new Set([CACHE]);const keys=await caches.keys();await Promise.all(keys.filter(k=>!keep.has(k)).map(k=>caches.delete(k)));await self.clients.claim();})()));
+self.addEventListener('fetch',e=>{
+  const u=new URL(e.request.url);
+  if(u.origin!==location.origin || e.request.method!=='GET')return;
+  e.respondWith((async()=>{
+    try{
+      const r=await fetch(e.request);
+      if(r.ok){const c=await caches.open(CACHE);c.put(e.request,r.clone()).catch(()=>{});}
+      return r;
+    }catch(_){
+      const hit=await caches.match(e.request);if(hit)return hit;
+      throw _;
+    }
+  })());
+});

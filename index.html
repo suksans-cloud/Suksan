@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My Family Funds — เมนูหลัก</title>
+<meta name="theme-color" content="#072340">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="portfolio/icon-192.png">
+<link rel="icon" href="portfolio/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shell.css">
+
+<script src="themes.js"></script>
+<style>
+/* ===== หน้าแรกแบบใหม่ (เลื่อนได้) ===== */
+.mff-home .mff-app{height:auto;min-height:100svh;display:block}
+.mff-home .mff-hero-wrap{padding-bottom:48px}
+.hm-menu{margin:-30px 16px 20px;position:relative;z-index:3;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:16px 10px 12px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 4px;box-shadow:var(--shadow-card)}
+.hm-mt{grid-column:1/-1;margin:0 8px 2px;font:700 17px Prompt,sans-serif;color:var(--primary)}
+.hm-mt small{display:block;font:400 11.5px 'Noto Sans Thai',sans-serif;color:var(--ink-soft);margin-top:2px}
+.hm-menu a{display:flex;flex-direction:column;align-items:center;text-align:center;text-decoration:none;color:var(--ink);border-radius:16px;padding:4px 2px 6px}
+.hm-menu a:active{background:var(--bg)}
+.hm-ico{width:64px;height:64px;border-radius:50%;margin:0 0 8px;background:radial-gradient(circle at 30% 25%,var(--bg),var(--primary-soft) 70%);box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center}
+.hm-ico svg{width:36px;height:36px;stroke:var(--primary);stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.hm-ico svg .ac{stroke:var(--primary-light)}
+.hm-ico svg .fl{fill:color-mix(in srgb,var(--primary-light) 20%,transparent);stroke:var(--primary-light)}
+.hm-menu strong{font:600 12.5px/1.35 Prompt,sans-serif}
+.hm-menu small.s{font-size:9.5px;color:var(--ink-faint);margin-top:2px}
+</style>
+</head>
+<body class="mff-home">
+
+<div class="mff-app">
+
+  <div class="mff-hero-wrap">
+    <div class="mff-topbar">
+      <span></span>
+      <div class="dots" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>
+      </div>
+    </div>
+
+    <div class="mff-hero">
+      <p class="eyebrow" id="mffGreetLine">สวัสดี 👋</p>
+      <h1>เลือกเมนูที่ต้องการ<br>ใช้งานได้เลย</h1>
+    </div>
+
+    <svg class="wave" viewBox="0 0 460 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,30 C 80,55 160,10 240,28 C 320,46 400,15 460,32 L460,60 L0,60 Z" fill="#ffffff" opacity="0.07"/>
+      <path d="M0,40 C 90,60 170,25 250,38 C 330,50 400,22 460,40 L460,60 L0,60 Z" fill="#ffffff" opacity="0.1"/>
+    </svg>
+  </div>
+
+
+
+  <nav class="hm-menu" aria-label="เมนูหลัก">
+    <div class="hm-mt">เมนูหลัก<small>เลือกฟังก์ชันที่ต้องการใช้งาน</small></div>
+    <a href="bookshelf/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><path class="fl" d="M4 4.5c0-.5.6-.9 1.3-.9H10a2 2 0 0 1 2 2V20a2 2 0 0 0-2-1.6H4z"/><path d="M20 4.5c0-.5-.6-.9-1.3-.9H14a2 2 0 0 0-2 2V20a2 2 0 0 1 2-1.6h6z"/><path class="ac" d="M7 8h2.5M7 11h2.5"/></svg></span><strong>My Bookshelf</strong><small class="s">คลังหนังสือ</small></a>
+    <a href="calendar/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><rect class="fl" x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path class="ac" d="M8.5 14.5h.01M12 14.5h.01M15.5 14.5h.01M8.5 17h.01M12 17h.01"/></svg></span><strong>My Calendar</strong><small class="s">ปฏิทิน</small></a>
+    <a href="diary/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><path class="fl" d="M6.5 3.5h11a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z"/><path d="M9 3.5v17"/><path class="ac" d="M12.5 8.5H16M12.5 12H16"/></svg></span><strong>My Diary</strong><small class="s">บันทึกประจำวัน</small></a>
+    <a href="tools/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><path class="fl" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/><path class="ac" d="M6.5 18.5h.01"/></svg></span><strong>My Tools</strong><small class="s">คำนวณ · สุขภาพ</small></a>
+    <a href="money/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><rect class="fl" x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><circle class="ac" cx="16.5" cy="14.5" r="1.3"/></svg></span><strong>My Money</strong><small class="s">สรุปรายรับรายจ่าย</small></a>
+    <a href="notes/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><path class="fl" d="M6 3.5h9l3.5 3.5V20a.5.5 0 0 1-.5.5H6a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5z"/><path d="M14.5 3.5V7.5h4"/><path class="ac" d="M9 12h6M9 15.5h4"/></svg></span><strong>My Notes</strong><small class="s">โน้ต · To-do</small></a>
+    <a href="my-plan/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><rect class="fl" x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4.5h6"/><path class="ac" d="M9 12.5l2 2 4-4.5M9 18h6"/></svg></span><strong>My Plan</strong><small class="s">ภาษี · เกษียณ</small></a>
+    <a href="portfolio/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><path d="M4 19V11M10 19V6M16 19v-6"/><path d="M3.5 19.5h17"/><path class="ac" d="M13 7l4-3 4 2.5M17 4v3.5h3.5"/></svg></span><strong>My Portfolio</strong><small class="s">พอร์ตกองทุน</small></a>
+    <a href="profile/index.html"><span class="hm-ico"><svg viewBox="0 0 24 24"><circle class="fl" cx="12" cy="8" r="4"/><path class="ac" d="M4.5 20c0-3.8 3.4-6 7.5-6s7.5 2.2 7.5 6"/></svg></span><strong>My Profile</strong><small class="s">ข้อมูล · ครอบครัว · ธุรกรรม</small></a>
+  </nav>
+</div>
+
+</div>
+
+<nav class="mff-bottomnav">
+  <a class="mff-navbtn active" href="index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9"/></svg>
+    หน้าแรก
+  </a>
+  <button type="button" class="mff-navbtn" id="navSearchBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    ค้นหา
+  </button>
+  <button type="button" class="mff-navbtn" id="navNotifBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M18 8a6 6 0 0 0-12 0c0 5-2 6-2 6h16s-2-1-2-6"/><path d="M9.5 20a2.5 2.5 0 0 0 5 0"/></svg>
+    <span id="notifBadge" class="mff-badge-dot" hidden></span>
+    แจ้งเตือน
+  </button>
+  <a class="mff-navbtn" href="settings/index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    Setting
+  </a>
+</nav>
+
+<script src="reminders.js"></script>
+<script src="goals-core.js"></script>
+<script src="config.js"></script>
+<script src="admin-login.js"></script>
+<script src="settings-store.js"></script>
+<script src="data-safety.js"></script>
+<script>
+(function(){
+  var h=new Date().getHours();
+  var g=h<11?'อรุณสวัสดิ์ ☀️':h<17?'สวัสดีตอนบ่าย 👋':'สวัสดีตอนเย็น 🌙';
+  var el=document.getElementById('mffGreetLine');
+  if(el) el.textContent=g;
+})();
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
+
+/* ===================== ค้นหา + แจ้งเตือน (bottom nav) =====================
+   ทั้งสองฟีเจอร์อ่านจาก localStorage cache ที่แต่ละโมดูลเก็บไว้ในเครื่องนี้
+   (โมดูลไหนยังไม่เคยเปิดก็จะยังไม่มี cache — ถือว่ายังไม่มีข้อมูล) ไม่ยิง
+   network เพิ่มและไม่ผูกกับ Google Sheets โดยตรง จึงเปิดได้เร็วและออฟไลน์ได้ */
+(function(){
+  'use strict';
+  function esc(s){return String(s==null?'':s).replace(/[&<>'"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c];});}
+  function readJSON(key,fallback){ try{ var raw=localStorage.getItem(key); return raw?JSON.parse(raw):fallback; }catch(e){ return fallback; } }
+
+  function openSheet(title,bodyHtml){
+    closeSheet();
+    var o=document.createElement('div'); o.className='mff-sheet-overlay'; o.id='mffSheetOverlay';
+    o.innerHTML='<div class="mff-sheet-card">'+
+      '<div class="mff-sheet-head"><h3>'+esc(title)+'</h3><button type="button" class="mff-sheet-close" id="mffSheetCloseBtn">×</button></div>'+
+      '<div class="mff-sheet-body" id="mffSheetBody">'+bodyHtml+'</div>'+
+    '</div>';
+    document.body.appendChild(o);
+    o.addEventListener('click',function(e){ if(e.target===o) closeSheet(); });
+    document.getElementById('mffSheetCloseBtn').onclick=closeSheet;
+    return o;
+  }
+  function closeSheet(){ var o=document.getElementById('mffSheetOverlay'); if(o) o.remove(); }
+
+  /* ---------- ค้นหา ---------- */
+  function monthLabelTH(key){
+    var THAI_MONTHS=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+    var parts=String(key||'').split('-'); var y=Number(parts[0]),m=Number(parts[1]);
+    if(!y||!m) return key||'';
+    return THAI_MONTHS[m-1]+' '+(y+543);
+  }
+  function collectSearchIndex(){
+    var groups=[];
+
+    var profiles=readJSON('mff_profiles_cache_v1',null);
+    if(Array.isArray(profiles)){
+      groups.push({key:'profile',title:'My Profile',icon:'👤',href:'profile/family.html',
+        items:profiles.map(function(p){ return {label:((p.firstName||'')+' '+(p.lastName||'')).trim()||'(ไม่มีชื่อ)', sub:p.relation||p.phone||''}; })});
+    }
+
+    var biz=readJSON('mff_business_cache_v1',null);
+    if(Array.isArray(biz)){
+      groups.push({key:'business',title:'My Business',icon:'💼',href:'profile/business.html',
+        items:biz.map(function(b){ return {label:b.name||'(รายการ)', sub:(b.kind==='debt'?'หนี้สิน':'สินทรัพย์')+(b.creditor?' · '+b.creditor:'')+(b.owner?' · '+b.owner:'')}; })});
+    }
+
+    var portfolio=readJSON('khlangthun_portfolio_oldui_latest_v4',null);
+    if(portfolio && Array.isArray(portfolio.funds)){
+      groups.push({key:'portfolio',title:'My Portfolio',icon:'📊',href:'portfolio/index.html',
+        items:portfolio.funds.map(function(f){ return {label:f.name||f.id||'(กองทุน)', sub:f.owner?('เจ้าของ: '+f.owner):''}; })});
+    }
+
+    var books=readJSON('mff_bookshelf_cache_v1',null);
+    if(Array.isArray(books)){
+      groups.push({key:'bookshelf',title:'My Bookshelf',icon:'📚',href:'bookshelf/index.html',
+        items:books.map(function(b){ return {label:b.title||'(ไม่มีชื่อ)', sub:b.status||''}; })});
+    }
+
+    var nts=readJSON('mff_notes_cache_v1',null);
+    if(Array.isArray(nts)){
+      groups.push({key:'notes',title:'My Notes',icon:'📝',href:'notes/index.html',
+        items:nts.filter(function(n){return !n.archived}).map(function(n){ return {label:n.title||(n.body||'').slice(0,30)||'(โน้ต)', sub:n.kind==='check'?'เช็กลิสต์':(n.due||'')}; })});
+    }
+    var wl=readJSON('mff_wishlist_cache_v1',null);
+    if(Array.isArray(wl)){
+      groups.push({key:'wishlist',title:'Wish List หนังสือ',icon:'🛒',href:'bookshelf/index.html',
+        items:wl.map(function(w){ return {label:w.title||'(หนังสือ)', sub:(w.author?w.author+' · ':'')+(w.status==='bought'?'ซื้อแล้ว':'รอซื้อ')}; })});
+    }
+    var gls=readJSON('mff_goals_cache_v1',null);
+    if(Array.isArray(gls)){
+      groups.push({key:'goals',title:'My Goals',icon:'🎯',href:'goals/index.html',
+        items:gls.map(function(g){ return {label:g.title||'(เป้าหมาย)', sub:'ปี '+g.year}; })});
+    }
+
+    var money=readJSON('mff_money_cache_v3',null);
+    if(Array.isArray(money)){
+      var seen={}, uniq=[];
+      money.forEach(function(t){
+        var k=(t.category||'')+'|'+(t.type||'');
+        if(t.category && !seen[k]){ seen[k]=true; uniq.push({label:t.category, sub:monthLabelTH(t.month)+' • ฿'+(Number(t.amount)||0).toLocaleString('th-TH')}); }
+      });
+      groups.push({key:'money',title:'My Money',icon:'💰',href:'money/monthly.html',items:uniq});
+    }
+
+    return groups;
+  }
+  function renderSearchResults(term){
+    var groups=collectSearchIndex();
+    var hasAnyCache=groups.length>0;
+    term=(term||'').trim().toLowerCase();
+    var resultsEl=document.getElementById('mffSearchResults');
+    if(!resultsEl) return;
+    if(!term){
+      resultsEl.innerHTML='<div class="mff-search-empty">พิมพ์ชื่อคน เบอร์โทร กองทุน หนังสือ หรือหมวดรายจ่าย เพื่อค้นหาในทุกโมดูล'+(hasAnyCache?'':'<br><br>ยังไม่มีข้อมูลให้ค้นหา — ลองเปิดใช้งานแต่ละโมดูลก่อนสักครั้ง')+'</div>';
+      return;
+    }
+    var html='', found=0;
+    groups.forEach(function(g){
+      var matches=g.items.filter(function(it){ return (it.label||'').toLowerCase().indexOf(term)!==-1 || (it.sub||'').toLowerCase().indexOf(term)!==-1; }).slice(0,8);
+      if(!matches.length) return;
+      found+=matches.length;
+      html+='<div class="mff-search-group"><h4>'+esc(g.title)+'</h4>'+
+        matches.map(function(it){
+          return '<a class="mff-search-item" href="'+g.href+'"><span class="ic">'+g.icon+'</span><span class="tx"><b>'+esc(it.label)+'</b>'+(it.sub?'<span>'+esc(it.sub)+'</span>':'')+'</span></a>';
+        }).join('')+
+      '</div>';
+    });
+    resultsEl.innerHTML=found?html:'<div class="mff-search-empty">ไม่พบรายการที่ตรงกับ "'+esc(term)+'"</div>';
+  }
+  var contactSeq=0;
+  function searchContacts(term){
+    var seq=++contactSeq,resultsEl=document.getElementById('mffSearchResults');
+    term=(term||'').trim();
+    if(!resultsEl||term.length<2||!window.MFFAuth||!MFFAuth.call) return;
+    var box=document.createElement('div');box.className='mff-search-group';box.id='mffContactBox';
+    box.innerHTML='<h4>รายชื่อติดต่อ (Google Contacts)</h4><div class="mff-search-empty" style="padding:8px 0">กำลังค้นหา…</div>';
+    resultsEl.appendChild(box);
+    MFFAuth.call('searchContacts',{q:term}).then(function(r){
+      var inp=document.getElementById('mffSearchInput');
+      if(seq!==contactSeq||!inp||inp.value.trim()!==term||!document.getElementById('mffContactBox')) return;
+      var b=document.getElementById('mffContactBox'),rows='';
+      if(r&&r.ok){
+        (r.items||[]).forEach(function(c){
+          (c.phones&&c.phones.length?c.phones:['']).forEach(function(p){
+            var tel=p.replace(/[^\d+]/g,'');
+            rows+='<a class="mff-search-item" '+(tel?'href="tel:'+esc(tel)+'"':'')+'><span class="ic">📞</span><span class="tx"><b>'+esc(c.name||p)+'</b>'+(p&&c.name?'<span>'+esc(p)+'</span>':'')+'</span></a>';
+          });
+        });
+        if(!rows){ b.innerHTML='<h4>รายชื่อติดต่อ (Google Contacts)</h4><div class="mff-search-empty" style="padding:8px 0">ไม่พบในรายชื่อติดต่อ</div>'; return; }
+        var emp=resultsEl.querySelector(':scope > .mff-search-empty'); if(emp) emp.remove();
+        b.innerHTML='<h4>รายชื่อติดต่อ (Google Contacts)</h4>'+rows;
+      }else{
+        b.innerHTML='<h4>รายชื่อติดต่อ (Google Contacts)</h4><div class="mff-search-empty" style="padding:8px 0;font-size:11.5px">ค้นหารายชื่อไม่ได้: '+esc((r&&r.error)||'ไม่ทราบสาเหตุ')+'</div>';
+      }
+    }).catch(function(){ var b=document.getElementById('mffContactBox'); if(b&&seq===contactSeq) b.remove(); });
+  }
+  function openSearch(){
+    openSheet('ค้นหา',
+      '<div class="mff-search-box">'+
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>'+
+        '<input id="mffSearchInput" placeholder="ค้นหาคน กองทุน หนังสือ รายจ่าย เบอร์โทร..." autocomplete="off">'+
+      '</div><div id="mffSearchResults"></div>');
+    var input=document.getElementById('mffSearchInput');
+    var timer=null;
+    input.addEventListener('input',function(){ clearTimeout(timer); var v=input.value; timer=setTimeout(function(){ renderSearchResults(v); searchContacts(v); },200); });
+    renderSearchResults('');
+    setTimeout(function(){ input.focus(); },150);
+  }
+
+  /* ---------- แจ้งเตือน ---------- */
+  function monthKeyNow(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+  function buildNotifications(){
+    var list=[];
+    try{ window.MFFSettings&&MFFSettings.hydrate(); }catch(e){}
+
+    var sheetsConnected = localStorage.getItem('google_sheets_connected')==='1';
+    if(!sheetsConnected){
+      list.push({level:'warn', icon:'⚠️', title:'ยังไม่ได้เชื่อมต่อ Google Sheets',
+        text:'ข้อมูลจะถูกเก็บในเครื่องนี้เท่านั้น ไปเชื่อมต่อได้จากหน้าโมดูลใดก็ได้ (ปุ่ม "เชื่อมต่อ")', href:null});
+    }
+
+    var money=readJSON('mff_money_cache_v3',null);
+    if(Array.isArray(money)){
+      var mk=monthKeyNow();
+      var hasThisMonth=money.some(function(t){ return t.month===mk; });
+      if(!hasThisMonth){
+        list.push({level:'warn', icon:'💰', title:'ยังไม่ได้บันทึกรายรับ-รายจ่ายเดือนนี้',
+          text:'ไปกรอกข้อมูลเดือนนี้ที่ My Money ได้เลย', href:'money/monthly.html', hrefLabel:'ไปที่ My Money →'});
+      }
+    }
+
+    var profiles=readJSON('mff_profiles_cache_v1',null);
+    if(Array.isArray(profiles) && profiles.length===0){
+      list.push({level:'info', icon:'👤', title:'ยังไม่มีข้อมูลสมาชิกครอบครัว',
+        text:'เพิ่มสมาชิกคนแรกได้ที่ My Profile', href:'profile/family.html', hrefLabel:'ไปที่ My Profile →'});
+    }
+
+    var portfolio=readJSON('khlangthun_portfolio_oldui_latest_v4',null);
+    if(portfolio && Array.isArray(portfolio.funds) && portfolio.funds.length===0){
+      list.push({level:'info', icon:'📊', title:'ยังไม่มีกองทุนในพอร์ต',
+        text:'เพิ่มกองทุนแรกได้ที่ My Portfolio', href:'portfolio/index.html', hrefLabel:'ไปที่ My Portfolio →'});
+    }
+
+    var books=readJSON('mff_bookshelf_cache_v1',null);
+    if(Array.isArray(books) && books.length===0){
+      list.push({level:'info', icon:'📚', title:'ชั้นหนังสือยังว่างอยู่',
+        text:'เพิ่มหนังสือเล่มแรกได้ที่ My Bookshelf', href:'bookshelf/index.html', hrefLabel:'ไปที่ My Bookshelf →'});
+    }
+
+    // เอกสารใกล้หมดอายุ (จาก My Profile)
+    try{
+      var ppl=readJSON('mff_profiles_cache_v1',[]), today=new Date(); today.setHours(0,0,0,0);
+      var TM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'], due=[];
+      (Array.isArray(ppl)?ppl:[]).forEach(function(pp){
+        (Array.isArray(pp.documents)?pp.documents:[]).forEach(function(d){
+          var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(d&&d.expiry||''); if(!m) return;
+          var days=Math.round((new Date(+m[1],+m[2]-1,+m[3])-today)/86400000);
+          if(days<=60) due.push({days:days,who:pp.firstName||'สมาชิก',type:d.type||'เอกสาร',date:(+m[3])+' '+TM[+m[2]-1]+' '+(+m[1]+543)});
+        });
+      });
+      due.sort(function(a,b){return a.days-b.days}).slice(0,5).forEach(function(x){
+        list.push({level:x.days<=30?'warn':'info', icon:'🪪',
+          title:x.who+' · '+x.type+(x.days<0?' หมดอายุแล้ว '+Math.abs(x.days)+' วัน':x.days===0?' หมดอายุวันนี้':' จะหมดอายุใน '+x.days+' วัน'),
+          text:'ครบกำหนด '+x.date+' — ต่ออายุก่อนครบกำหนด', href:'profile/family.html', hrefLabel:'เปิด My Profile →'});
+      });
+    }catch(e){}
+
+    // หนี้สินใกล้ครบกำหนดชำระ (จาก My Business)
+    try{
+      var biz2=readJSON('mff_business_cache_v1',[]), now0=new Date(); now0.setHours(0,0,0,0);
+      (Array.isArray(biz2)?biz2:[]).forEach(function(b){
+        var dd=parseInt(b&&b.dueDay,10); if(b.kind!=='debt'||!(dd>=1&&dd<=31)||!(Number(b.balance)>0)) return;
+        var d=new Date(now0.getFullYear(),now0.getMonth(),dd); if(d<now0) d=new Date(now0.getFullYear(),now0.getMonth()+1,dd);
+        var days=Math.round((d-now0)/86400000); if(days>3) return;
+        list.push({level:days<=1?'warn':'info',icon:'🧾',title:(b.name||'หนี้สิน')+(days===0?' ครบกำหนดชำระวันนี้':' ครบกำหนดชำระใน '+days+' วัน'),
+          text:(Number(b.monthly)?'งวดละ ฿'+Number(b.monthly).toLocaleString('th-TH')+' · ':'')+'ทุกวันที่ '+dd+' ของเดือน',href:'profile/business.html',hrefLabel:'เปิด My Business →'});
+      });
+    }catch(e){}
+
+    // หนังสือที่ให้ยืม ใกล้ครบกำหนด/เกินกำหนด (จาก My Bookshelf)
+    try{
+      var shelf=readJSON('mff_bookshelf_cache_v1',[]), t0=new Date(); t0.setHours(0,0,0,0);
+      var BM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'], lend=[];
+      (Array.isArray(shelf)?shelf:[]).forEach(function(bk){
+        var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(bk&&bk.dueDate||''); if(!bk.borrower||!m) return;
+        var days=Math.round((new Date(+m[1],+m[2]-1,+m[3])-t0)/86400000);
+        if(days<=3) lend.push({days:days,title:bk.title||'หนังสือ',who:bk.borrower,date:(+m[3])+' '+BM[+m[2]-1]+' '+(+m[1]+543)});
+      });
+      lend.sort(function(a,b){return a.days-b.days}).slice(0,4).forEach(function(x){
+        list.push({level:x.days<0?'warn':'info', icon:'📚',
+          title:x.who+' ยืม "'+x.title+'" '+(x.days<0?'เกินกำหนด '+Math.abs(x.days)+' วัน':x.days===0?'ครบกำหนดวันนี้':'ครบกำหนดใน '+x.days+' วัน'),
+          text:'กำหนดคืน '+x.date, href:'bookshelf/index.html', hrefLabel:'เปิด My Bookshelf →'});
+      });
+    }catch(e){}
+
+    try{ if(window.MFFRem){ MFFRem.upcoming().filter(function(x){return x.soon}).forEach(function(x){
+      list.push({level:x.days<=1?'warn':'info',icon:x.r.type==='dca'?'📈':'🧾',
+        title:(x.r.type==='dca'?'ถึงรอบ DCA: ':'ใกล้ครบกำหนดชำระ: ')+x.r.name+' ('+MFFRem.label(x)+')',
+        text:(x.r.amount?'฿'+Number(x.r.amount).toLocaleString('th-TH')+' · ':'')+'กำหนด '+x.date.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}),
+        href:'settings/index.html#reminders',hrefLabel:'จัดการการแจ้งเตือน →'});
+    }); } }catch(e){}
+
+    // Sync queue: แจ้งเตือนสิ่งที่แก้ไว้ตอน Offline และยังรอขึ้น Google Sheets
+    try{
+      var q=window.MFFDataSafety?.exportQueue?.()||[];
+      if(Array.isArray(q) && q.length){
+        list.push({level:'warn',icon:'☁️',title:'มีข้อมูลรอ Sync '+q.length+' รายการ',
+          text:'ข้อมูลบางรายการยังไม่ได้ขึ้น Google Sheets — เปิด Setting เพื่อตรวจและ Sync',href:'settings/index.html',hrefLabel:'ไปที่ Setting →'});
+      }
+    }catch(e){}
+
+    if(localStorage.getItem('mff_auto_sync_online_v1')==='0'){
+      list.push({level:'info',icon:'⚡',title:'Auto Sync ถูกปิดอยู่',
+        text:'เมื่อกลับมา Online ระบบจะไม่ Sync ให้อัตโนมัติ',href:'settings/index.html',hrefLabel:'เปิด Auto Sync →'});
+    }
+
+    if(localStorage.getItem('mff_retirement_latest_experiment_v1')){
+      try{
+        var rr=JSON.parse(localStorage.getItem('mff_retirement_latest_experiment_v1'));
+        var rd=rr&&rr.savedAt?new Date(rr.savedAt):null;
+        list.push({level:'info',icon:'🎯',title:'มีการทดลองแผนเกษียณที่บันทึกล่าสุด',
+          text:rd?'บันทึกล่าสุด '+rd.toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'}):'มีข้อมูลการทดลองเกษียณที่บันทึกไว้',href:'portfolio/index.html',hrefLabel:'เปิด Retirement →'});
+      }catch(e){}
+    }
+
+    return list;
+  }
+  function renderNotifBadge(){
+    var list=buildNotifications();
+    var badge=document.getElementById('notifBadge');
+    if(!badge) return;
+    if(list.length){ badge.hidden=false; badge.textContent=list.length>9?'9+':String(list.length); }
+    else { badge.hidden=true; }
+  }
+  function openNotifications(){
+    var list=buildNotifications();
+    var html = list.length
+      ? list.map(function(n){
+          return '<div class="mff-notif-item '+(n.level==='warn'?'warn':'info')+'"><span class="ic">'+n.icon+'</span><span class="tx"><b>'+esc(n.title)+'</b><span>'+esc(n.text)+'</span>'+(n.href?('<br><a href="'+n.href+'">'+esc(n.hrefLabel||'ไปที่หน้านั้น →')+'</a>'):'')+'</span></div>';
+        }).join('')
+      : '<div class="mff-notif-empty">ไม่มีการแจ้งเตือนใหม่ 🎉</div>';
+    openSheet('แจ้งเตือน', html);
+  }
+
+  document.getElementById('navSearchBtn').addEventListener('click', openSearch);
+  document.getElementById('navNotifBtn').addEventListener('click', openNotifications);
+  renderNotifBadge(); try{window.MFFRem&&MFFRem.fire()}catch(e){}
+  window.addEventListener('storage', renderNotifBadge);
+})();
+</script>
+
+<script>
+(function(){
+  'use strict';
+})();
+</script>
+<script src="icon-system.js"></script>
+</body>
+</html>
