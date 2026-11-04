@@ -1,4 +1,4 @@
-const CACHE='mff-shell-v95-supply-style-icons';
+const CACHE='mff-shell-v94-unified-icons';
 const SHELL=[
   './index.html','./shell.css','./icon-system.js','./config.js','./data-safety.js','./admin-login.js','./settings-store.js','./themes.js','./reminders.js','./goals-core.js','./privacy-eye.js',
   './money/index.html','./money/daily.html','./money/monthly.html',
