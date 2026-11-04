@@ -206,7 +206,7 @@ body{display:flex;flex-direction:column;min-height:100vh}.footer{order:99;margin
 html[data-theme="dark"] .primary,html[data-theme="dark"] .menu.menu-grid button.tag-new .ico:after{color:#12151C}
 html[data-theme="dark"] .hero{box-shadow:0 8px 24px #0006}
 </style><script src="../themes.js"></script><script>window.TC=function(n,f){try{return getComputedStyle(document.documentElement).getPropertyValue(n).trim()||f}catch(e){return f}};</script>
-</head><body>
+<style id="mff-no-flash">html{overscroll-behavior-y:contain;touch-action:manipulation}button,a,[role=button],.back{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}button,[role=button],.back,.hm-menu a{-webkit-user-select:none;user-select:none}</style><script src="../icon-system.js"></script></head><body>
 <header class="hero"><div class="top"><button class="back" onclick="location.href='../index.html'" aria-label="กลับหน้าหลัก">‹</button><div><p class="eyebrow">My Plan</p><h1>วางแผนการเงินครอบครัว</h1><p>วางแผนภาษี ประกันสังคม บ้าน รถ บัตรเครดิต เงินปันผล การลงทุน และเกษียณในที่เดียว</p></div></div></header>
 <main class="wrap"><button type="button" id="myPlanBack" class="secondary hidden" style="margin:0 0 14px;min-height:44px" aria-label="กลับไปหน้า My Plan">‹ กลับไปหน้า My Plan</button><nav class="menu menu-grid" aria-label="เลือกโปรแกรม"><div class="menu-title">โปรแกรมคำนวณ<small>เลือกเครื่องมือที่ต้องการวางแผน</small></div>
 <button data-tab="overview" class="tag-new"><span class="ico"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><path class="ac" d="M14 17h6M17 14v6"/></svg></span><strong>สรุปภาพรวมแผน</strong><small>Overview</small></button>
@@ -1287,7 +1287,7 @@ function wire(ids,fn){ids.forEach(id=>{const el=g(id);if(el){el.addEventListener
 function init(){
   if(document.body.dataset.mp3)return;document.body.dataset.mp3='1';
   dbBuild(debts);kidBuild(kids);chipsInit();
-  document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{const f=OPEN[b.dataset.tab];chipsRefresh();if(f)setTimeout(f,30)}));
+  document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{const f=OPEN[b.dataset.tab];chipsRefresh();if(f){try{f()}catch(e){console.error(e)}}}));
   document.querySelectorAll('[data-fsub]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-fsub]').forEach(x=>x.classList.toggle('active',x===b));g('famEdu').classList.toggle('hidden',b.dataset.fsub!=='famEdu');g('famIns').classList.toggle('hidden',b.dataset.fsub!=='famIns');setTimeout(()=>{edRender();insRender()},30)}));
   wire(['tvPV','tvPMT','tvRate','tvYears','tvInfl','tvbPmt','tvbRate','tvbYears'],tvmExtra);
   wire(['homePrice','homeRate','homeYears','mcRate','mcYears'],mortExtra);
@@ -1379,5 +1379,5 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 
-<script src="../icon-system.js"></script>
+
 </body></html>

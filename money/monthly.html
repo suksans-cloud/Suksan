@@ -12,7 +12,7 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>body.mff-hide-money .t-amt,body.mff-hide-money .mff-sheet-row .amt,body.mff-hide-money #liveBalance,body.mff-hide-money .money-amount,body.mff-hide-money .amount-value{filter:blur(7px);user-select:none}</style>
 <script src="../themes.js"></script>
-</head>
+<style id="mff-no-flash">html{overscroll-behavior-y:contain;touch-action:manipulation}button,a,[role=button],.back{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}button,[role=button],.back,.hm-menu a{-webkit-user-select:none;user-select:none}</style><script src="../icon-system.js"></script></head>
 <body>
 <button id="privacyEye" type="button" aria-label="ซ่อนหรือแสดงตัวเลข" title="ซ่อนหรือแสดงตัวเลข">👁</button>
 <script src="../privacy-eye.js"></script>
@@ -508,6 +508,6 @@ window.addEventListener('load', async ()=>{
 (function(){const p=new URLSearchParams(location.search);if(p.get('audit')!=='1')return;setTimeout(function(){if(!window.parent||window.parent===window)return;try{window.parent.postMessage({type:'MFF_MODULE_READY',module:'ค่าใช้จ่ายรายเดือน',version:'V14',detail:'ระบบโมดูลและ Google Sheets adapter พร้อม'},window.location.origin)}catch(e){}},80)})();
 </script>
 
-<script src="../icon-system.js"></script>
+
 </body>
 </html>

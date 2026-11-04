@@ -184,7 +184,7 @@ body{display:flex;flex-direction:column;min-height:100vh}.footer{order:99;margin
 html[data-theme="dark"] .primary,html[data-theme="dark"] .menu.menu-grid button.tag-new .ico:after{color:#12151C}
 html[data-theme="dark"] .hero{box-shadow:0 8px 24px #0006}
 </style><script src="../themes.js"></script><script>window.TC=function(n,f){try{return getComputedStyle(document.documentElement).getPropertyValue(n).trim()||f}catch(e){return f}};</script>
-<link rel="stylesheet" href="tools.css"></head><body>
+<link rel="stylesheet" href="tools.css"><style id="mff-no-flash">html{overscroll-behavior-y:contain;touch-action:manipulation}button,a,[role=button],.back{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}button,[role=button],.back,.hm-menu a{-webkit-user-select:none;user-select:none}</style><script src="../icon-system.js"></script></head><body>
 <header class="hero"><div class="top"><button class="back" onclick="location.href='../index.html'" aria-label="กลับหน้าหลัก">‹</button><div><p class="eyebrow">My Tools</p><h1>เครื่องมือช่วยคำนวณ</h1><p>เครื่องคิดเลข แปลงสกุลเงิน ราคาทองคำ สุขภาพ และคลังเสบียงฉุกเฉินในที่เดียว</p></div></div></header>
 <main class="wrap"><button type="button" id="myPlanBack" class="secondary hidden" style="margin:0 0 14px;min-height:44px" aria-label="กลับไปหน้า My Tools">‹ กลับไปหน้า My Tools</button><nav class="menu menu-grid" aria-label="เลือกเครื่องมือ"><div class="menu-title">เครื่องมือ<small>เลือกเครื่องมือที่ต้องการใช้งาน</small></div>
 <button data-tab="calc" class="tag-new"><span class="ico"><svg viewBox="0 0 24 24"><rect x="4.5" y="3.5" width="15" height="17" rx="2.6"/><rect class="ac" x="7.5" y="6.5" width="9" height="3.4" rx=".8"/><path class="ac" d="M8 13.5h.01M12 13.5h.01M16 13.5h.01M8 17h.01M12 17h.01M16 17h.01"/></svg></span><strong>เครื่องคิดเลข</strong><small>แปลงหน่วย</small></button>
@@ -232,5 +232,5 @@ $('myPlanBack').addEventListener('click',()=>{HEALTH.includes(cur)?showHealth():
 <script src="health.js"></script>
 <script src="supply.js"></script>
 <script>(function(){var h=location.hash.slice(1),p=h&&document.getElementById(h);if(p&&p.classList.contains("panel"))showTab(h)})();</script>
-<script src="../icon-system.js"></script>
+
 </body></html>

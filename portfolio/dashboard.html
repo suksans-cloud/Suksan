@@ -297,7 +297,7 @@ a{color:inherit;text-decoration:none;}
 <script src="../admin-login.js"></script>
 <script src="auth-open.js"></script>
 <script src="../themes.js"></script>
-</head>
+<style id="mff-no-flash">html{overscroll-behavior-y:contain;touch-action:manipulation}button,a,[role=button],.back{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}button,[role=button],.back,.hm-menu a{-webkit-user-select:none;user-select:none}</style><script src="../icon-system.js"></script></head>
 <body>
 
 <div class="overlay-bg" id="overlayBg"></div>
@@ -921,6 +921,6 @@ setInterval(()=>{ if(!document.hidden) checkForUpdates(); }, 3000);
 window.addEventListener('storage', e=>{ if(e.key===STORAGE_KEY) checkForUpdates(); });
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) checkForUpdates(); });
 </script>
-<script src="../icon-system.js"></script>
+
 </body>
 </html>

@@ -148,7 +148,13 @@
 .mff-auto-sync-row{cursor:pointer;touch-action:manipulation;}
 </style>
 <script src="../themes.js"></script>
-</head>
+<style id="mff-no-flash">html{overscroll-behavior-y:contain;touch-action:manipulation}button,a,[role=button],.back{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}button,[role=button],.back,.hm-menu a{-webkit-user-select:none;user-select:none}</style><script src="../icon-system.js"></script><style id="mff-sync-stable">
+.mff-sync-progress[hidden]{display:block!important;visibility:hidden;min-height:58px}
+#statusSyncAll{min-height:3.4em}
+.mff-sync-dir-btn,.mff-sync-bar-btn{min-height:40px;padding:10px 12px;display:inline-flex;align-items:center;justify-content:center;touch-action:manipulation}
+.mff-sync-all-btn,.mff-toggle,.mff-auto-sync-row{touch-action:manipulation}
+#autoSyncRow{min-height:44px}
+</style></head>
 <body>
 
 <div class="mff-app" style="padding-bottom:20px">
@@ -703,7 +709,7 @@ function setSyncAllBusy(busy){
 function updateSyncAllProgress(index,total,name){const pct=Math.round(index/total*100);document.getElementById('syncAllProgressTitle').textContent=name;document.getElementById('syncAllProgressCount').textContent=index+'/'+total;document.getElementById('syncAllProgressBar').style.width=pct+'%';}
 function renderSyncModuleRows(){
   const rows=SYNC_TARGETS.map(t=>{const v=localStorage.getItem(t.lastSyncKey);const dirty=isDirty(t);const chip=dirty?'<span class="mff-status-chip pending">🟠 รอซิงก์</span>':(v?'<span class="mff-status-chip ok">🟢 Synced</span>':'<span class="mff-status-chip neutral">⚪ ยังไม่เคยซิงก์</span>');return `<div class="mff-sync-module-row"><div class="mff-sync-module-name">${t.name}</div><div class="mff-module-sync-status">${chip}${v&&!dirty?`<div style="margin-top:3px">${esc(v)}</div>`:''}</div></div>`;}).join('')+`<div class="mff-sync-module-row"><div class="mff-sync-module-name">📊 My Portfolio</div><div class="mff-module-sync-status"><span class="mff-status-chip neutral">ดูจากโมดูล Portfolio</span></div></div>`;
-  document.getElementById('syncModuleRows').innerHTML=rows;
+  {const _el=document.getElementById('syncModuleRows');if(_el.dataset.h!==rows){_el.dataset.h=rows;_el.innerHTML=rows;}}
   updateSystemPulse();
 }
 async function runPortfolioSmartSync(){
@@ -1196,6 +1202,6 @@ window.addEventListener('mff:data-safety',function(e){
 })();
 </script>
 
-<script src="../icon-system.js"></script>
+
 </body>
 </html>
