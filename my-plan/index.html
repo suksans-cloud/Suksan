@@ -1362,7 +1362,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     Object.entries(data.fields||{}).forEach(([id,value])=>{const el=$(id);if(!el)return;if(el.type==='checkbox')el.checked=!!value;else if(value!==undefined&&value!==null)el.value=String(value);});
     if($('fundRows')&&Array.isArray(data.funds)&&data.funds.length){$('fundRows').innerHTML='';if(typeof addFund==='function'){data.funds.forEach(f=>addFund(f.name,Number(f.amount!==undefined?f.amount:f.share)||0));}}
     try{if(window.MP&&MP.setExtra)MP.setExtra(data.extra);}catch(e){}
-    showMyPlanMenu();
+    // Do not force the menu or scroll position during restore. The menu is already
+    // the default view; changing visibility here caused a visible flash on entry.
     if(data.activeSso){const btn=document.querySelector('[data-ssosub="'+data.activeSso+'"]');if(btn)btn.click();}
     if(data.retTab&&typeof openRetTab==='function')try{openRetTab(data.retTab);}catch(e){}
     try{if(typeof calcTax==='function')calcTax();if(typeof calcSSO==='function')calcSSO();if(typeof calcHome==='function')calcHome();if(typeof calcDCA==='function')calcDCA();if(typeof renderModel==='function')renderModel();if(typeof runSimulation==='function')runSimulation();}catch(e){console.warn('My Plan restore recalculation',e);}
@@ -1375,7 +1376,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   document.addEventListener('click',e=>{if(e.target.closest('[data-tab],[data-ssosub],[data-fsub],.ret-tab,#addFund,#equalFund,#dbAdd,#kidAdd,#dbFromCard,#dbFromCar,#dbFromHome')||e.target.closest('#fundRows button,#dbRows button,#kidRows button'))setTimeout(save,0);},true);
   window.addEventListener('pagehide',()=>{save();});
   restore();
-  document.addEventListener('DOMContentLoaded',()=>{setTimeout(()=>{try{if(window.MP)MP.refreshAll();}catch(e){}},200);});
+  // Initial calculations are performed once by the My Plan init() routine.
+  // Avoid a second delayed refresh that redraws charts immediately after entry.
 })();
 </script>
 
