@@ -196,7 +196,7 @@ body{background:var(--bg)}
 .mff-module .note b{color:var(--primary)}
 
 @media (max-width:380px){
-  .mff-hero h1{font-size:22px}
+  .mff-hero h1{font-size:19px}
   .mff-card{padding:18px 12px 14px}
 }
 

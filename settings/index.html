@@ -149,8 +149,13 @@
 </style>
 <script src="../themes.js"></script>
 <style id="mff-no-flash">html{overscroll-behavior-y:contain;touch-action:manipulation}button,a,[role=button],.back{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}button,[role=button],.back,.hm-menu a{-webkit-user-select:none;user-select:none}</style><script src="../icon-system.js"></script><style id="mff-sync-stable">
-.mff-sync-progress[hidden]{display:block!important;visibility:hidden;min-height:58px}
-#statusSyncAll{min-height:3.4em}
+/* v13: compact one-line module sync rows (like the System Status list) */
+.mff-sync-module-row{padding:5px 0!important;flex-wrap:nowrap!important;gap:6px!important;min-height:30px}
+.mff-sync-module-name{font-size:12.5px!important;min-width:0!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mff-module-sync-status{display:flex!important;align-items:center;gap:6px;white-space:nowrap;flex:none;font-size:10.5px}
+.mff-module-sync-status>div{margin:0!important;font-size:10.5px}
+.mff-status-chip{padding:2px 7px!important}
+#statusSyncAll{min-height:0!important}
 .mff-sync-dir-btn,.mff-sync-bar-btn{min-height:40px;padding:10px 12px;display:inline-flex;align-items:center;justify-content:center;touch-action:manipulation}
 .mff-sync-all-btn,.mff-toggle,.mff-auto-sync-row{touch-action:manipulation}
 #autoSyncRow{min-height:44px}
@@ -488,10 +493,10 @@ const SYNC_TARGETS = [
     headers:['ID','Title','Author','Year','Status','BoughtAt','CreatedAt','UpdatedAt'],
     toRow:w=>[w.id,w.title||'',w.author||'',w.year||'',w.status==='bought'?'bought':'want',w.boughtAt||'',w.createdAt||'',w.updatedAt||''],
     fromRow:r=>({id:r[0],title:r[1]||'',author:r[2]||'',year:Number(r[3])||new Date().getFullYear(),status:r[4]==='bought'?'bought':'want',boughtAt:r[5]||'',createdAt:r[6]||'',updatedAt:r[7]||''}), lastSyncKey:'sheet_last_sync_wishlist' },
-  { key:'diary', name:'📔 My Diary', cacheKey:'mff_diary_cache_v1', tab:'Diary', range:'A:G',
-    headers:['ID','Date','Title','Body','Mood','CreatedAt','UpdatedAt'],
-    toRow:e=>[e.id,"'"+(e.date||''),drGuard(e.title),drGuard(e.body),e.mood||0,e.createdAt||'',e.updatedAt||''],
-    fromRow:r=>({id:r[0],date:((String(r[1]||'').replace(/^'/,'').match(/^\d{4}-\d{2}-\d{2}$/)||[])[0])||String(r[0]||'').replace(/^dy_/,'').slice(0,10),title:r[2]||'',body:r[3]||'',mood:Number(r[4])||0,createdAt:r[5]||'',updatedAt:r[6]||''}), lastSyncKey:'sheet_last_sync_diary' },
+  { key:'diary', name:'📔 My Diary', cacheKey:'mff_diary_cache_v1', tab:'Diary', range:'A:H',
+    headers:['ID','Date','Title','Body','Mood','CreatedAt','UpdatedAt','Color'],
+    toRow:e=>[e.id,"'"+(e.date||''),drGuard(e.title),drGuard(e.body),e.mood||0,e.createdAt||'',e.updatedAt||'',e.color||''],
+    fromRow:r=>({id:r[0],date:((String(r[1]||'').replace(/^'/,'').match(/^\d{4}-\d{2}-\d{2}$/)||[])[0])||String(r[0]||'').replace(/^dy_/,'').slice(0,10),title:r[2]||'',body:r[3]||'',mood:Number(r[4])||0,createdAt:r[5]||'',updatedAt:r[6]||'',color:r[7]||''}), lastSyncKey:'sheet_last_sync_diary' },
   { key:'settings', name:'⚙️ งบและรายการประจำ', cacheKey:'mff_settings_cache_v1', tab:'AppSettings', range:'A:C',
     headers:['ID','Value','UpdatedAt'],
     toRow:s=>[s.id,s.value,s.updatedAt],

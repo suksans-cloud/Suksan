@@ -1045,25 +1045,26 @@ main{padding-top:0 !important}
 #view-dashboard .panel:has(#allocLegend) .panel-title{margin-bottom:6px}
 </style>
 <script src="../themes.js"></script>
-<style id="mff-no-flash">html{overscroll-behavior-y:contain;touch-action:manipulation}button,a,[role=button],.back{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}button,[role=button],.back,.hm-menu a{-webkit-user-select:none;user-select:none}</style><script src="../icon-system.js"></script></head>
+<style id="mff-no-flash">html{overscroll-behavior-y:contain;touch-action:manipulation}button,a,[role=button],.back{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}button,[role=button],.back,.hm-menu a{-webkit-user-select:none;user-select:none}</style><script src="../icon-system.js"></script><style id="mff-pf-hero">
+.topbar.pf-hero{position:static!important;padding:calc(14px + env(safe-area-inset-top,0px)) 20px 10px!important;background:var(--bg)}
+.pf-back{display:inline-flex;align-items:center;gap:6px;color:var(--ink);text-decoration:none;font-size:15px;font-weight:600;opacity:.85;margin-bottom:6px;min-height:32px}
+.pf-back svg{width:20px;height:20px}
+.pf-eyebrow{margin:0 0 2px;font-size:13px;font-weight:700;color:var(--primary)}
+.pf-title{margin:0;font-size:19px;line-height:1.3;font-weight:700;color:var(--ink)}
+.topbar.pf-hero .last-updated{margin-top:4px}
+</style></head>
 <body>
 <button id="privacyEye" type="button" aria-label="ซ่อนหรือแสดงตัวเลข" title="ซ่อนหรือแสดงตัวเลข">👁</button>
 <script src="../privacy-eye.js"></script>
 
-<div class="topbar">
-  <div class="brand">
-    <div class="brand-left">
-      <a href="../index.html" data-auth-allow="true" style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:var(--primary-soft,#e3ebf1);color:var(--primary,#072340);text-decoration:none;margin-right:2px;flex:none" aria-label="กลับเมนูหลัก" title="กลับเมนูหลัก">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M15 5 8 12l7 7"/></svg>
-      </a>
-      <div class="brand-mark">₿</div>
-      <div>
-        <div class="brand-name">My Portfolio</div>
-        <div class="brand-sub">พอร์ตการลงทุนรายเดือนของครอบครัว</div>
-        <div class="last-updated" id="lastUpdated">อัปเดตล่าสุด: -</div>
-      </div>
-    </div>
-  </div>
+<div class="topbar pf-hero">
+  <a class="pf-back" href="../index.html" data-auth-allow="true" aria-label="กลับเมนูหลัก">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 5 8 12l7 7"/></svg>
+    หน้าแรก
+  </a>
+  <p class="pf-eyebrow">My Portfolio</p>
+  <h1 class="pf-title">พอร์ตการลงทุนรายเดือนของครอบครัว</h1>
+  <div class="last-updated" id="lastUpdated">อัปเดตล่าสุด: -</div>
 </div>
 
 <main>

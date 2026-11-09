@@ -73,7 +73,19 @@
 .nt-rfoot{margin-top:26px;font-size:11.5px;color:#8A7458}
 .nt-th{width:100%;max-height:130px;object-fit:cover;border-radius:10px;margin-bottom:6px;display:block}
 </style>
-<style id="mff-no-flash">html{overscroll-behavior-y:contain;touch-action:manipulation}button,a,[role=button],.back{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}button,[role=button],.back,.hm-menu a{-webkit-user-select:none;user-select:none}</style><script src="../icon-system.js"></script></head>
+<style id="mff-no-flash">html{overscroll-behavior-y:contain;touch-action:manipulation}button,a,[role=button],.back{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}button,[role=button],.back,.hm-menu a{-webkit-user-select:none;user-select:none}</style><script src="../icon-system.js"></script><style id="mff-notes-compact">
+.nt-sheet .nt-row{margin:5px 0;gap:6px}
+.nt-sheet .nt-btn{height:34px;padding:0 12px;font-size:12.5px;border-radius:10px}
+.nt-sheet .nt-btn.p{height:40px;font-size:14px}
+.nt-sheet .nt-sw{width:24px;height:24px}
+.nt-sheet .nt-due{flex-wrap:nowrap}
+.nt-sheet .nt-due input[type=date],.nt-sheet .nt-due input[type=time]{width:auto!important;flex:none;height:34px;min-height:0;padding:0 6px;margin:0!important;font-size:13px;border-radius:10px;box-sizing:border-box}
+.nt-sheet .nt-due input[type=date]{width:112px!important}
+.nt-sheet .nt-due input[type=time]{width:84px!important}
+.nt-sheet .nt-row input[type=checkbox]{width:18px;height:18px;vertical-align:middle}
+.nt-sheet textarea{min-height:220px}
+.nt-sheet small{line-height:1.35}
+</style></head>
 <body>
 <div class="mff-app">
   <div class="mff-hero-wrap" style="padding-bottom:20px;border-radius:0 0 28px 28px">
@@ -253,8 +265,7 @@ function paintEditor(){
       +'<div class="nt-row"><button type="button" class="nt-btn" id="eKind">เปลี่ยนเป็นเช็กลิสต์</button></div>';
   }
   h+='<div class="nt-row"><label>สี</label>'+Object.keys(COLORS).map(function(c){return '<button type="button" class="nt-sw'+(e.color===c?' on':'')+'" data-c="'+c+'" aria-label="สี'+CNAME[c]+'" style="background:'+COLORS[c]+';border-color:'+(e.color===c?'var(--primary)':'#cfd6db')+'"></button>'}).join('')+'</div>';
-  h+='<div class="nt-row"><label for="eDue">วันที่ต้องทำ</label><input type="date" id="eDue" value="'+esc(e.due)+'" style="width:auto;margin:0"></div>';
-  h+='<div class="nt-row"><label for="eTime">เวลา</label><input type="time" id="eTime" value="'+esc(e.dueTime||'')+'" style="width:auto;margin:0"><button type="button" class="nt-btn" id="eTimeClr">ล้าง</button></div>';
+  h+='<div class="nt-row nt-due"><label for="eDue">วันที่</label><input type="date" id="eDue" value="'+esc(e.due)+'"><label for="eTime">เวลา</label><input type="time" id="eTime" value="'+esc(e.dueTime||'')+'"><button type="button" class="nt-btn" id="eTimeClr">ล้าง</button></div>';
   h+='<small style="display:block;color:var(--ink-soft);font-size:11px;margin:-4px 0 6px">ใส่เวลาแล้วจะปักลง Calendar เป็นนัดตามเวลา พร้อมแจ้งเตือนก่อน 10 นาทีและตอนถึงเวลา (ไม่ใส่ = กิจกรรมทั้งวัน)</small>';
   h+='<div class="nt-row"><label><input type="checkbox" id="ePin" '+(e.pinned?'checked':'')+'> ปักหมุด</label><label><input type="checkbox" id="eCal" '+(e.calId?'checked':'')+'> ปักลง Google Calendar</label></div>';
   h+='<div class="nt-row" style="margin-top:14px"><button type="button" class="nt-btn p" id="eSave" style="flex:1">บันทึก</button><button type="button" class="nt-btn" id="eArch">'+(e.archived?'นำกลับ':'เก็บถาวร')+'</button>'+(e._new?'':'<button type="button" class="nt-btn d" id="eDel">ลบ</button>')+'<button type="button" class="nt-btn" id="eCancel">ปิด</button></div>';

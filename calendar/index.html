@@ -136,6 +136,87 @@ body{background:linear-gradient(160deg,#fff0e4 0%,#f8f4ff 34%,#eaf7f8 100%);colo
 .color-swatch.standard{background:linear-gradient(135deg,#7986cb 0 20%,#33b679 20% 40%,#8e24aa 40% 60%,#e67c73 60% 80%,#f6bf26 80%)}
 @media(min-width:600px){.top,.sheet{max-width:620px;width:100%;margin-left:auto;margin-right:auto}.sheet{left:50%;transform:translateX(-50%)}#fab{right:max(18px,calc((100vw - 620px)/2 + 18px))}}
 
+
+/* V12.1 — My Calendar follows the active My Family Funds app theme.
+   Event/category colours selected by the user remain independent. */
+:root{
+  --cal-theme-primary:var(--primary,#072340);
+  --cal-theme-light:var(--primary-light,#3A6C93);
+  --cal-theme-soft:var(--primary-soft,#E3EBF1);
+  --cal-theme-bg:var(--bg,#F2F4F6);
+  --cal-theme-surface:var(--surface,#FFFFFF);
+  --cal-theme-ink:var(--ink,#2E3A42);
+  --cal-theme-muted:var(--ink-soft,#6B7B8C);
+  --cal-theme-line:var(--line,#E1E6EA);
+  --cal-theme-shadow:var(--shadow-card,0 4px 14px rgba(55,69,96,.08));
+}
+body{
+  background:var(--cal-theme-bg);
+  color:var(--cal-theme-ink);
+}
+.bar h1,.ib{color:var(--cal-theme-ink)}
+.nav{
+  background:var(--cal-theme-surface);
+  border-color:var(--cal-theme-line);
+}
+.nav b{color:var(--cal-theme-ink)}
+.nav .today{
+  background:var(--cal-theme-soft);
+  color:var(--cal-theme-primary);
+}
+.dow span{color:var(--cal-theme-muted)}
+.d{color:var(--cal-theme-ink)}
+.d.out{color:var(--cal-theme-muted);opacity:.55}
+.d.today i{
+  background:var(--cal-theme-soft);
+  box-shadow:inset 0 0 0 1.5px var(--cal-theme-light);
+}
+.d.today{color:var(--cal-theme-primary)}
+.d.sel i,.d.sel.today i{
+  background:var(--cal-theme-primary);
+  box-shadow:0 4px 12px color-mix(in srgb,var(--cal-theme-primary) 30%,transparent);
+}
+.d.sel,.d.sel.today{color:#fff}
+.d u b{background:var(--cal-theme-light)}
+.d.sel u b{background:#fff}
+.wk{background:var(--cal-theme-soft);color:var(--cal-theme-primary)}
+.sheet,.fsheet{
+  background:var(--cal-theme-surface);
+  color:var(--cal-theme-ink);
+  border-color:var(--cal-theme-line);
+}
+.sheet{box-shadow:0 -8px 30px color-mix(in srgb,var(--cal-theme-primary) 10%,transparent)}
+.sheet:before{background:var(--cal-theme-line)}
+.sh b,.fsheet h2{color:var(--cal-theme-ink)}
+.sh span,.msg,.fsheet small,.color-help{color:var(--cal-theme-muted)}
+.ev{box-shadow:var(--cal-theme-shadow)}
+#fab{
+  background:var(--cal-theme-primary);
+  box-shadow:0 8px 22px color-mix(in srgb,var(--cal-theme-primary) 32%,transparent);
+}
+.conn{
+  background:var(--cal-theme-soft);
+  color:var(--cal-theme-ink);
+  border:1px solid var(--cal-theme-line);
+}
+.btn{background:var(--cal-theme-primary);color:#fff}
+.btn.light{background:var(--cal-theme-soft);color:var(--cal-theme-primary)}
+.fsheet input[type=text],.fsheet input[type=date],.fsheet input[type=time],
+.fsheet textarea,.fsheet select{
+  border-color:var(--cal-theme-line);
+  background:var(--cal-theme-bg);
+  color:var(--cal-theme-ink);
+}
+.color-swatch[aria-pressed="true"]{
+  outline-color:var(--cal-theme-primary);
+}
+/* Dark theme: ensure text and controls stay legible. */
+html[data-theme="dark"] .ev{border-color:#343b4a}
+html[data-theme="dark"] .ev .av{background:#ffffff20}
+html[data-theme="dark"] .color-swatch[aria-pressed="true"]:after{
+  color:#172033;text-shadow:0 1px 2px #fff;
+}
+
 </style>
 <script src="../themes.js"></script>
 <style id="mff-no-flash">html{overscroll-behavior-y:contain;touch-action:manipulation}button,a,[role=button],.back{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}button,[role=button],.back,.hm-menu a{-webkit-user-select:none;user-select:none}</style><script src="../icon-system.js"></script></head>
