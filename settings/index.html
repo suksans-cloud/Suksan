@@ -823,10 +823,13 @@ function runSyncSelfTest(){
   }catch(e){ toast('Self-test ไม่สำเร็จ'); return []; }
 }
 
+let autoSyncInFlight=false;
+const AUTO_SYNC_KEY='mff_auto_sync_online_v1';
+const AUTO_RETRY_KEY='mff_auto_sync_retry_v1';
 document.getElementById('btnSyncSelfTest')?.addEventListener('click',runSyncSelfTest);
 document.getElementById('btnSmartSync').addEventListener('click',runSmartSync);
-document.getElementById('btnSyncAllPull').addEventListener('click',()=>runSyncAll('pull'));
-document.getElementById('btnSyncAllPush').addEventListener('click',()=>runSyncAll('push'));
+document.getElementById('btnSyncAllPull')?.addEventListener('click',()=>runSyncAll('pull'));
+document.getElementById('btnSyncAllPush')?.addEventListener('click',()=>runSyncAll('push'));
 document.getElementById('btnBackupNow').addEventListener('click',()=>{try{createBackup('สำรองด้วยตนเอง');addSyncHistory('Backup','ผู้ใช้สร้าง Snapshot เอง');toast('สำรองข้อมูลในเครื่องแล้ว');}catch(e){toast('สำรองไม่สำเร็จ');}});
 document.getElementById('btnRestoreLast').addEventListener('click',restoreBackup);
 renderSyncHistory();
@@ -876,9 +879,6 @@ async function testDriveConnection(){
 document.getElementById('btnTestDrive')?.addEventListener('click',testDriveConnection);
 
 let autoSyncTimer=null;
-let autoSyncInFlight=false;
-const AUTO_SYNC_KEY='mff_auto_sync_online_v1';
-const AUTO_RETRY_KEY='mff_auto_sync_retry_v1';
 function autoRetryState(){try{return JSON.parse(localStorage.getItem(AUTO_RETRY_KEY)||'{}')}catch(e){return {}}}
 function saveAutoRetryState(v){try{localStorage.setItem(AUTO_RETRY_KEY,JSON.stringify(v))}catch(e){}}
 function autoSyncEnabled(){const v=localStorage.getItem(AUTO_SYNC_KEY);return v===null?true:v==='1';}

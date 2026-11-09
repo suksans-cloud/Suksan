@@ -106,6 +106,36 @@ body{background:#D9F0F5;color:#072340}
 
 /* compact v31 */
 .ev{padding:8px 10px;margin-bottom:7px;border-radius:14px;gap:10px}.ev .av{width:34px;height:34px;font-size:14px}.ev h3{font-size:14px}.sh{margin:2px 2px 8px}
+
+/* My Calendar refresh: airy pastel planner inspired by the supplied references */
+:root{--cal-ink:#26364a;--cal-muted:#8291a4;--cal-line:#edf0f5;--cal-cream:#fff8f0}
+body{background:linear-gradient(160deg,#fff0e4 0%,#f8f4ff 34%,#eaf7f8 100%);color:var(--cal-ink)}
+.top{padding-left:14px;padding-right:14px}
+.bar h1,.ib{color:#34445b}.bar h1{font-size:18px}
+.nav{background:rgba(255,255,255,.88);border:1px solid #fff;box-shadow:0 6px 20px rgba(57,76,112,.08);border-radius:18px;height:50px;padding:0 7px}
+.nav b{color:#34445b;font-size:16px}.nav .today{background:#f8e6c9;color:#8c5a25;border-radius:12px;font-weight:600}
+.dow span{color:#8b98a8;font-weight:600}.grid{row-gap:5px;padding-bottom:14px}
+.d{height:43px;color:#34445b}.d.out{color:#c0c8d2}.d i{width:35px;height:35px;background:transparent}
+.d.today i{background:#dff2ee;box-shadow:inset 0 0 0 1px #8bcdbd}.d.today{color:#287e70;font-weight:700}
+.d.sel i,.d.sel.today i{background:#f2b66d;box-shadow:0 4px 12px #d9944b45}.d.sel,.d.sel.today{color:#fff;font-weight:700}
+.d u b{background:#8b79c8;width:5px;height:5px}.d.sel u b{background:#fff}
+.wk{background:#f1eafa;color:#8b79a9;border-radius:11px;font-weight:600}
+.sheet{background:rgba(255,255,255,.97);border-radius:28px 28px 0 0;box-shadow:0 -8px 30px rgba(57,76,112,.10);color:var(--cal-ink)}
+.sheet:before{background:#dfe5ed}.sh b{color:#34445b}.sh span,.msg{color:#8b98a8}
+.ev{border:1px solid rgba(255,255,255,.75);box-shadow:0 4px 14px rgba(55,69,96,.08);border-radius:17px;color:#34445b!important}
+.ev .av{background:#ffffffa8;color:inherit}.ev p{color:inherit;opacity:.78}.ev .desc{color:inherit}
+#fab{background:#e8a75d;box-shadow:0 8px 22px #d9944b55}
+.conn{background:#f5f0ff;border:1px solid #e9e0fa}.btn{background:#7968ad;border-radius:14px}.btn.light{background:#f1ecfa;color:#62538f}
+.fsheet{border-radius:28px 28px 0 0;background:#fffdfb}.fsheet h2{color:#34445b}
+.fsheet input[type=text],.fsheet input[type=date],.fsheet input[type=time],.fsheet textarea,.fsheet select{border-color:#e7eaf0;background:#fbfcfe;border-radius:14px}
+.color-help{font-size:11.5px;color:#8491a2;margin:-5px 0 9px 2px}
+.color-palette{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;margin:0 0 13px}
+.color-swatch{height:38px;border:2px solid #fff;border-radius:13px;box-shadow:0 1px 5px #23334a20;position:relative;cursor:pointer;display:grid;place-items:center}
+.color-swatch[aria-pressed="true"]{outline:2px solid #596b85;outline-offset:2px}
+.color-swatch[aria-pressed="true"]:after{content:'✓';font-weight:700;font-size:17px;color:#334155;text-shadow:0 1px 2px #fff}
+.color-swatch.standard{background:linear-gradient(135deg,#7986cb 0 20%,#33b679 20% 40%,#8e24aa 40% 60%,#e67c73 60% 80%,#f6bf26 80%)}
+@media(min-width:600px){.top,.sheet{max-width:620px;width:100%;margin-left:auto;margin-right:auto}.sheet{left:50%;transform:translateX(-50%)}#fab{right:max(18px,calc((100vw - 620px)/2 + 18px))}}
+
 </style>
 <script src="../themes.js"></script>
 <style id="mff-no-flash">html{overscroll-behavior-y:contain;touch-action:manipulation}button,a,[role=button],.back{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}button,[role=button],.back,.hm-menu a{-webkit-user-select:none;user-select:none}</style><script src="../icon-system.js"></script></head>
@@ -141,7 +171,13 @@ body{background:#D9F0F5;color:#072340}
   <small>แจ้งเตือนก่อนเริ่ม</small><select id="fRem"><option value="">ตามค่าเริ่มต้นของปฏิทิน</option><option value="0">ตอนเริ่ม</option><option value="10">10 นาที</option><option value="30">30 นาที</option><option value="60">1 ชั่วโมง</option><option value="1440">1 วัน</option><option value="none">ไม่แจ้งเตือน</option></select>
   <small>เชิญผู้ร่วมนัด (อีเมล คั่นด้วย ,)</small><input type="text" id="fGuests" placeholder="name@gmail.com" autocomplete="off" autocapitalize="none">
   <label class="row"><input type="checkbox" id="fMeet"> เพิ่มลิงก์ Google Meet</label>
-  <small>สีของนัด</small><select id="fColor"><option value="">สีของปฏิทิน</option><option value="1">ลาเวนเดอร์</option><option value="2">เสจ</option><option value="3">องุ่น</option><option value="4">ฟลามิงโก</option><option value="5">กล้วย</option><option value="6">ส้ม</option><option value="7">นกยูง</option><option value="8">กราไฟต์</option><option value="9">บลูเบอร์รี่</option><option value="10">ใบโหระพา</option><option value="11">มะเขือเทศ</option></select>
+  <small>สีของนัดหมาย</small>
+  <div class="color-help">เลือกสีจากชุดสีพาสเทล หรือใช้สีมาตรฐานของ Google Calendar</div>
+  <div id="colorPalette" class="color-palette" role="group" aria-label="เลือกสีปฏิทิน"></div>
+  <select id="fColor" aria-label="สีของนัดหมาย" style="display:none"><option value="">สีเริ่มต้นของปฏิทิน</option>
+    <option value="1">ลาเวนเดอร์</option><option value="2">เสจ</option><option value="3">องุ่น</option><option value="4">ฟลามิงโก</option><option value="5">กล้วย</option><option value="6">ส้ม</option><option value="7">นกยูง</option><option value="8">กราไฟต์</option><option value="9">บลูเบอร์รี่</option><option value="10">ใบโหระพา</option><option value="11">มะเขือเทศ</option>
+    <option value="custom:#F6C7D7">ชมพูกุหลาบ</option><option value="custom:#F7D7B5">พีช</option><option value="custom:#F8E7A1">วานิลลา</option><option value="custom:#CDECCF">มิ้นต์</option><option value="custom:#BFE5E8">ฟ้าอ่อน</option><option value="custom:#C9DDF8">ฟ้าคราม</option><option value="custom:#D9CCF5">ไลแลค</option><option value="custom:#E8C9E8">ม่วงชมพู</option><option value="custom:#D8DDE5">เทาหมอก</option><option value="custom:#E9B8A9">คอรัล</option><option value="custom:#B8D8C5">ยูคาลิปตัส</option><option value="custom:#F2C6A0">แอปริคอต</option>
+  </select>
   <small>บันทึกลงปฏิทิน</small><select id="fCal"></select>
   <div class="ferr" id="fErr" role="alert"></div>
   <div class="fbtn"><button type="button" class="btn light" id="fCancel">ยกเลิก</button><button type="button" class="btn" id="fSave">บันทึก</button></div>
@@ -156,6 +192,9 @@ var MTH=['มกราคม','กุมภาพันธ์','มีนาค�
 var DOW=['อา','จ','อ','พ','พฤ','ศ','ส'], MS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'], PAL=['#5b9cff','#1fb581','#d95d1a','#7c5cf0','#2a4a8f'];
 var CK='mff_calendar_cache_v1', TK='mff_cal_token', SCOPE='https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events';
 var EC={1:'#7986cb',2:'#33b679',3:'#8e24aa',4:'#e67c73',5:'#f6bf26',6:'#f4511e',7:'#039be5',8:'#616161',9:'#3f51b5',10:'#0b8043',11:'#d50000'};
+var CUSTOM_COLORS=['#F6C7D7','#F7D7B5','#F8E7A1','#CDECCF','#BFE5E8','#C9DDF8','#D9CCF5','#E8C9E8','#D8DDE5','#E9B8A9','#B8D8C5','#F2C6A0'];
+function paintColorPicker(){var box=$('colorPalette'),sel=$('fColor');if(!box||!sel)return;var h='<button type="button" class="color-swatch standard" data-value="" aria-label="สีเริ่มต้น" title="สีเริ่มต้นของปฏิทิน"></button>';CUSTOM_COLORS.forEach(function(c){h+='<button type="button" class="color-swatch" data-value="custom:'+c+'" style="background:'+c+'" aria-label="สี '+c+'" title="สีเพิ่มเติม '+c+'"></button>'});Object.keys(EC).forEach(function(k){h+='<button type="button" class="color-swatch" data-value="'+k+'" style="background:'+EC[k]+'" aria-label="สีมาตรฐาน '+k+'" title="สี Google Calendar '+k+'"></button>'});box.innerHTML=h;box.querySelectorAll('button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.value===sel.value?'true':'false')})}
+$('colorPalette').addEventListener('click',function(e){var b=e.target.closest('button[data-value]');if(!b)return;$('fColor').value=b.dataset.value;paintColorPicker()});
 var editing=null, today=new Date(), view=new Date(today.getFullYear(),today.getMonth(),1), sel=new Date(today.getFullYear(),today.getMonth(),today.getDate());
 var cache=load(), apiHelp='';
 function load(){try{return JSON.parse(localStorage.getItem(CK))||{months:{},updated:0}}catch(e){return {months:{},updated:0}}}
@@ -246,7 +285,7 @@ function sync(){
         return (r.items||[]).filter(function(x){return x.status!=='cancelled'}).map(function(x){
           var ad=!!(x.start&&x.start.date);
           var st=new Date(ad?x.start.date+'T00:00:00':x.start.dateTime).getTime(), en=new Date(ad?x.end.date+'T00:00:00':x.end.dateTime).getTime();
-          return {id:x.id,t:x.summary||'(ไม่มีชื่อ)',s:st,e:en,ad:ad,l:x.location||'',d:x.description||'',c:(/#holiday@group\.v\.calendar\.google\.com$/.test(c.id)?'#d95d1a':((x.colorId&&EC[x.colorId])||PAL[ci%PAL.length])),cid:c.id,w:c.accessRole==='owner'||c.accessRole==='writer',ci:x.colorId||'',at:(x.attendees||[]).map(function(a){return a.email}),mt:x.hangoutLink||''};
+          return {id:x.id,t:x.summary||'(ไม่มีชื่อ)',s:st,e:en,ad:ad,l:x.location||'',d:x.description||'',c:(/#holiday@group\.v\.calendar\.google\.com$/.test(c.id)?'#d95d1a':((x.extendedProperties&&x.extendedProperties.private&&x.extendedProperties.private.mffColor)|| (x.colorId&&EC[x.colorId])||PAL[ci%PAL.length])),cid:c.id,w:c.accessRole==='owner'||c.accessRole==='writer',ci:x.colorId||'',customColor:(x.extendedProperties&&x.extendedProperties.private&&x.extendedProperties.private.mffColor)||'',extendedProperties:x.extendedProperties||null,at:(x.attendees||[]).map(function(a){return a.email}),mt:x.hangoutLink||''};
         });}).catch(function(er){if(c.hol)return [];throw er});
     }));
   }).then(function(parts){
@@ -291,7 +330,7 @@ function openForm(ev,tpl){
   $('fTitle').value=E?E.t:'';$('fLoc').value=E?E.l:'';$('fDesc').value=E?E.d:'';$('fAll').checked=E?!!E.ad:false;
   $('fDate').value=E?key(new Date(E.s)):key(sel);$('fDate2').value=E?key(new Date(E.ad?E.e-1:E.e)):'';
   $('fS').value=E&&!E.ad?hm(E.s):'09:00';$('fE').value=E&&!E.ad?hm(E.e):'10:00';
-  $('fRep').value='';$('fRep').disabled=!!E;$('fRem').value='';$('fColor').value=E?E.ci:'';
+  $('fRep').value='';$('fRep').disabled=!!E;$('fRem').value='';$('fColor').value=E?(E.customColor?'custom:'+E.customColor:(E.ci||'')):'';paintColorPicker();
   $('fGuests').value=E?(E.at||[]).join(', '):'';$('fMeet').checked=!!(E&&E.mt);$('fMeet').disabled=!!(E&&E.mt);
   if(E)$('fCal').value=E.cid;$('fCal').disabled=!!E;
   $('fErr').textContent='';if(tpl)tpl();timeRow();$('frm').classList.add('on');
@@ -319,7 +358,7 @@ function saveEv(){
   if(em.length||E)b.attendees=em.map(function(x){return {email:x}});
   if(!E&&$('fRep').value)b.recurrence=['RRULE:FREQ='+$('fRep').value];
   var rv=$('fRem').value;if(rv==='none')b.reminders={useDefault:false,overrides:[]};else if(rv!=='')b.reminders={useDefault:false,overrides:[{method:'popup',minutes:+rv}]};
-  if(E)b.colorId=$('fColor').value||null;else if($('fColor').value)b.colorId=$('fColor').value;
+  var pickedColor=$('fColor').value; if(pickedColor.indexOf('custom:')===0){b.extendedProperties={private:{mffColor:pickedColor.slice(7)}};if(E&&E.extendedProperties&&E.extendedProperties.private){Object.keys(E.extendedProperties.private).forEach(function(k){if(k!=='mffColor')b.extendedProperties.private[k]=E.extendedProperties.private[k]})}}else if(pickedColor){b.colorId=pickedColor;}else if(E){b.colorId=null;}
   if($('fMeet').checked&&!(E&&E.mt))b.conferenceData={createRequest:{requestId:'mff'+Date.now(),conferenceSolutionKey:{type:'hangoutsMeet'}}};
   var tok=token();if(!tok||!canWrite()){connect(saveEv);return}
   var url='https://www.googleapis.com/calendar/v3/calendars/'+encodeURIComponent(E?E.cid:$('fCal').value)+'/events'+(E?'/'+encodeURIComponent(E.id):'')+'?conferenceDataVersion=1&sendUpdates='+(em.length?'all':'none');

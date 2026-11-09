@@ -1,4 +1,4 @@
-const CACHE='mff-shell-v99-open-sync';
+const CACHE='mff-shell-v101-settings-sync-fix';
 const SHELL=[
   './index.html','./shell.css','./icon-system.js','./config.js','./data-safety.js','./admin-login.js','./settings-store.js','./themes.js','./reminders.js','./goals-core.js','./privacy-eye.js',
   './money/index.html','./money/daily.html','./money/monthly.html',
