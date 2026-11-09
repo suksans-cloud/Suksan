@@ -1,8 +1,8 @@
-const CACHE='mff-shell-v104-myplan-to-tools';
+const CACHE='mff-shell-v103-ui-unify';
 const SHELL=[
   './index.html','./shell.css','./icon-system.js','./config.js','./data-safety.js','./admin-login.js','./settings-store.js','./themes.js','./reminders.js','./goals-core.js','./privacy-eye.js',
   './money/index.html','./money/daily.html','./money/monthly.html',
-  './calendar/index.html','./tools/index.html','./tools/tools.css','./tools/tools.js','./tools/health.js','./tools/supply.js','./tools/tools-sync.js','./bookshelf/index.html','./profile/index.html','./profile/family.html','./profile/business.html','./vault/index.html','./vault/vault-sync.js','./settings/index.html','./notes/index.html','./diary/index.html','./goals/index.html',
+  './calendar/index.html','./my-plan/index.html','./tools/index.html','./tools/tools.css','./tools/tools.js','./tools/health.js','./tools/supply.js','./tools/tools-sync.js','./bookshelf/index.html','./profile/index.html','./profile/family.html','./profile/business.html','./vault/index.html','./vault/vault-sync.js','./settings/index.html','./notes/index.html','./diary/index.html','./goals/index.html',
   './portfolio/index.html','./portfolio/dashboard.html','./portfolio/auth-open.js',
   './portfolio/manifest.json','./manifest.json'
 ];
