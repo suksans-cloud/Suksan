@@ -30,6 +30,25 @@
 .mbk-goal-num span{font-size:17px}
 .mbk-bar.big{height:6px;margin-top:5px}
 .mbk-goal-set{padding:7px;font-size:12.5px;border-radius:12px}
+
+/* Thai online book discovery */
+.mbk-online-search{margin:16px 0 18px;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:16px}
+.mbk-online-search h3{font-size:16px;color:var(--ink)}
+.mbk-online-note,.mbk-online-status{font-size:12px;color:var(--ink-soft);line-height:1.6}
+.mbk-store-links{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
+.mbk-store-link{display:inline-flex;align-items:center;padding:7px 10px;border:1px solid var(--line);border-radius:999px;color:var(--primary);text-decoration:none;font-size:12px;background:var(--bg)}
+.mbk-online-results{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+.mbk-online-card{display:flex;gap:12px;padding:10px;border:1px solid var(--line);border-radius:13px;background:var(--bg);min-width:0}
+.mbk-online-cover{width:76px;height:108px;object-fit:contain;flex:none;border-radius:7px;background:var(--surface)}
+.mbk-online-no-cover{display:grid;place-items:center;font-size:28px}
+.mbk-online-info{min-width:0;flex:1;font-size:13px;line-height:1.5}
+.mbk-online-info>b{display:block;color:var(--ink);font-size:14px}
+.mbk-online-meta,.mbk-online-source{font-size:11.5px;color:var(--ink-soft);overflow-wrap:anywhere;margin-top:3px}
+.mbk-online-source{color:var(--primary)}
+.mbk-online-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:8px}
+.mbk-online-actions .mff-btn{min-height:34px;padding:6px 10px;font-size:12px}
+.mbk-online-actions a{font-size:12px;color:var(--primary);text-decoration:none}
+@media(min-width:760px){.mbk-online-results{grid-template-columns:repeat(2,minmax(0,1fr))}.mbk-online-card{min-height:128px}}
 </style>
 <style id="mff-no-flash">html{overscroll-behavior-y:contain;touch-action:manipulation}button,a,[role=button],.back{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}button,[role=button],.back,.hm-menu a{-webkit-user-select:none;user-select:none}</style><script src="../icon-system.js"></script></head>
 <body>
@@ -87,6 +106,10 @@ let wishes=[], wishYear=new Date().getFullYear();
 let books=[]; // {id,title,status,driveFileId,driveFileName,mimeType,size,webViewLink,addedAt,updatedAt}
 let view={mode:'home'}; // 'home' | 'search'
 let searchResults=[];
+let onlineBookResults=[];
+let onlineSearchMessage='';
+let onlineSearchBusy=false;
+let lastBookSearchTerm='';
 let searchTimer=null;
 let selectedFileIds=new Set();
 
@@ -324,28 +347,144 @@ async function driveQuickSearch(term){
   const j=await r.json();
   return j.files||[];
 }
+
+/* ===================== ค้นหาหนังสือออนไลน์: Google Books + Open Library ===================== */
+function normalizeExternalBook(b){
+  return {
+    source:b.source||'catalog', sourceId:b.sourceId||'',
+    title:b.title||'', subtitle:b.subtitle||'', authors:b.authors||'',
+    publisher:b.publisher||'', published:b.published||'', pages:b.pages||'',
+    isbn:b.isbn||'', lang:b.lang||'', desc:b.desc||'',
+    cover:(b.cover||'').replace(/^http:/,'https:'), link:b.link||''
+  };
+}
+async function searchThaiOnlineBooks(term){
+  const q=String(term||'').trim();
+  if(!q) return [];
+  const tasks=[
+    (async()=>{
+      const params=new URLSearchParams({q,printType:'books',maxResults:'12',langRestrict:'th'});
+      const key=localStorage.getItem('google_books_api_key')||'';
+      if(key) params.set('key',key);
+      const r=await fetch('https://www.googleapis.com/books/v1/volumes?'+params.toString());
+      if(!r.ok) throw new Error('Google Books HTTP '+r.status);
+      const j=await r.json();
+      return (j.items||[]).map(it=>{
+        const b=normBook(it), v=it.volumeInfo||{};
+        return normalizeExternalBook({source:'Google Books',sourceId:it.id,title:b.title,subtitle:b.subtitle,authors:b.authors,
+          publisher:b.publisher,published:b.published,pages:b.pages,isbn:((v.industryIdentifiers||[]).find(x=>x.type==='ISBN_13')||(v.industryIdentifiers||[]).find(x=>x.type==='ISBN_10')||{}).identifier||'',
+          lang:b.lang,desc:b.desc,cover:b.cover,link:b.link});
+      });
+    })(),
+    (async()=>{
+      const fields='title,author_name,first_publish_year,edition_key,isbn,publisher,number_of_pages_median,cover_i,key,language';
+      const url='https://openlibrary.org/search.json?'+new URLSearchParams({q:q+' language:tha',fields,limit:'12'});
+      const r=await fetch(url);
+      if(!r.ok) throw new Error('Open Library HTTP '+r.status);
+      const j=await r.json();
+      return (j.docs||[]).map(d=>normalizeExternalBook({
+        source:'Open Library',sourceId:d.key||'',title:d.title||'',authors:(d.author_name||[]).join(', '),
+        publisher:(d.publisher||[]).slice(0,2).join(', '),published:d.first_publish_year||'',
+        pages:d.number_of_pages_median||'',isbn:(d.isbn||[]).find(x=>/^978|^979/.test(x))||(d.isbn||[])[0]||'',
+        lang:(d.language||[]).join(', '),cover:d.cover_i?'https://covers.openlibrary.org/b/id/'+d.cover_i+'-M.jpg':'',
+        link:d.key?'https://openlibrary.org'+d.key:''
+      }));
+    })()
+  ];
+  const settled=await Promise.allSettled(tasks);
+  let all=settled.flatMap(x=>x.status==='fulfilled'?x.value:[]);
+  // Google Books is prioritized for Thai editions; remove duplicate ISBN/title results.
+  const seen=new Set();
+  all=all.filter(b=>{
+    const k=(b.isbn||((b.title||'').toLowerCase()+'|'+(b.authors||'').toLowerCase())).replace(/\s+/g,'');
+    if(!k||seen.has(k)) return false; seen.add(k); return true;
+  });
+  if(!all.length && settled.every(x=>x.status==='rejected')) throw new Error('แหล่งข้อมูลหนังสือออนไลน์ไม่ตอบสนอง');
+  return all.slice(0,18);
+}
+function thaiBookStoreLinks(term){
+  const sites=[
+    ['SE-ED','se-ed.com'],['นายอินทร์','naiin.com'],['B2S','b2s.co.th'],
+    ['MEB','mebmarket.com'],['Chulabook','chulabook.com']
+  ];
+  return sites.map(([name,domain])=>`<a href="https://www.google.com/search?q=${encodeURIComponent('site:'+domain+' '+String(term||''))}" target="_blank" rel="noopener" class="mbk-store-link">${name} ↗</a>`).join('');
+}
+function onlineBookCardHtml(b,i){
+  const meta=[b.authors,b.publisher,b.published].filter(Boolean).join(' · ');
+  return `<article class="mbk-online-card">
+    ${b.cover?`<img class="mbk-online-cover" src="${esc(b.cover)}" alt="ปกหนังสือ" loading="lazy" onerror="this.style.display='none'">`:`<div class="mbk-online-cover mbk-online-no-cover">📚</div>`}
+    <div class="mbk-online-info"><b>${esc(b.title||'ไม่ระบุชื่อหนังสือ')}</b>
+      ${meta?`<div class="mbk-online-meta">${esc(meta)}</div>`:''}
+      ${b.isbn?`<div class="mbk-online-meta">ISBN: ${esc(b.isbn)}</div>`:''}
+      ${b.pages?`<div class="mbk-online-meta">${esc(b.pages)} หน้า</div>`:''}
+      <div class="mbk-online-source">แหล่งข้อมูล: ${esc(b.source)}</div>
+      <div class="mbk-online-actions"><button type="button" class="mff-btn mff-btn-primary" data-save-online="${i}">＋ เก็บเข้าคลัง</button>
+      ${b.link?`<a href="${esc(b.link)}" target="_blank" rel="noopener">รายละเอียด ↗</a>`:''}</div>
+    </div></article>`;
+}
+function bookIdentityText(value){
+  return String(value||'').normalize('NFKC').toLocaleLowerCase('th').replace(/[\s\p{P}\p{S}]+/gu,'');
+}
+function bookIdentityIsbn(value){ return String(value||'').replace(/[^0-9Xx]/g,'').toUpperCase(); }
+function mergeOnlineBookInfo(previous, incoming, now){
+  const merged=Object.assign({},previous||{});
+  Object.entries(incoming||{}).forEach(([key,value])=>{
+    if(value!==undefined && value!==null && String(value).trim()!=='') merged[key]=value;
+  });
+  merged.fetchedAt=now;
+  return merged;
+}
+function saveOnlineBookToWish(index){
+  const b=onlineBookResults[index]; if(!b) return;
+  const now=new Date().toISOString(), info=loadInfo();
+  const isbn=bookIdentityIsbn(b.isbn), title=bookIdentityText(b.title), author=bookIdentityText(b.authors);
+  const exists=wishes.find(w=>{
+    const old=info[w.id]||{};
+    const oldIsbn=bookIdentityIsbn(old.isbn);
+    if(isbn && oldIsbn && isbn===oldIsbn) return true;
+    const oldTitle=bookIdentityText(w.title||old.title);
+    if(!title || !oldTitle || title!==oldTitle) return false;
+    const oldAuthor=bookIdentityText(w.author||old.authors);
+    return !author || !oldAuthor || author===oldAuthor;
+  });
+  if(exists){
+    info[exists.id]=mergeOnlineBookInfo(info[exists.id],b,now);
+    if(!exists.title && b.title) exists.title=b.title;
+    if(!exists.author && b.authors) exists.author=b.authors;
+    exists.updatedAt=now;
+    saveInfo(info); saveWish(); render();
+    toast('พบหนังสือเดิมแล้ว อัปเดตข้อมูลและรูปปกให้เรียบร้อย');
+    openWishDetail(exists.id); return;
+  }
+  const id=uuid();
+  wishes.push({id,title:b.title,author:b.authors,year:new Date().getFullYear(),status:'want',createdAt:now,updatedAt:now});
+  info[id]=mergeOnlineBookInfo({},b,now);
+  saveInfo(info); saveWish(); toast('เพิ่มหนังสือพร้อมข้อมูลและรูปปกแล้ว'); render();
+}
+
 async function doSearch(term,force=false){
-  const box=document.getElementById('searchStatus');
+  lastBookSearchTerm=String(term||'');
   const key=normalizeSearchTerm(term);
-  if(!key){ searchResults=[]; selectedFileIds.clear(); renderSearchView(); return; }
+  if(!key){ searchResults=[]; onlineBookResults=[]; selectedFileIds.clear(); renderSearchView(); return; }
+  onlineSearchBusy=true; onlineSearchMessage='กำลังค้นหาฐานข้อมูลหนังสือออนไลน์...';
+  searchResults=[]; onlineBookResults=[]; renderSearchView();
   const cache=loadSearchCache();
-  if(!force && cache[key]?.results){
-    searchResults=cache[key].results;
-    renderSearchView();
-    return;
-  }
-  const ok=await ensureDriveAccess();
-  if(!ok){ if(box) box.textContent='ยังไม่ได้เชื่อมต่อ Google Drive'; renderDriveConnectPrompt(); return; }
-  if(box) box.textContent='กำลังค้นหาครั้งแรก...';
-  try{
-    searchResults=await driveQuickSearch(term);
-    cache[key]={results:searchResults,fetchedAt:new Date().toISOString()};
-    saveSearchCache(cache);
-    renderSearchView();
-  }catch(e){
-    console.error(e);
-    if(box) box.textContent='ค้นหาไม่สำเร็จ: '+e.message;
-  }
+  const driveTask=(async()=>{
+    if(!force && cache[key]?.results){ searchResults=cache[key].results; return; }
+    const ok=await ensureDriveAccess();
+    if(!ok) return;
+    const found=await driveQuickSearch(term);
+    searchResults=found; cache[key]={results:found,fetchedAt:new Date().toISOString()}; saveSearchCache(cache);
+  })().catch(e=>{ console.warn('Drive search:',e); });
+  const onlineTask=(async()=>{
+    try{
+      onlineBookResults=await searchThaiOnlineBooks(term);
+      onlineSearchMessage=onlineBookResults.length?'พบหนังสือจากฐานข้อมูลออนไลน์':'ยังไม่พบในฐานข้อมูลหนังสือออนไลน์';
+    }catch(e){ onlineSearchMessage='ค้นฐานข้อมูลออนไลน์ไม่สำเร็จ • ลองใช้ลิงก์ค้นหาร้านหนังสือไทยด้านล่าง'; }
+  })();
+  await Promise.all([driveTask,onlineTask]);
+  onlineSearchBusy=false;
+  renderSearchView();
 }
 async function downloadDriveFile(file, btnEl){
   btnEl?.classList.add('loading');
@@ -572,7 +711,7 @@ function render(){
   root.innerHTML=`
     <div class="mff-search-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input id="bookSearch" class="mff-search-input" placeholder="ค้นหาชื่อหนังสือใน Google Drive..." autocomplete="off">
+      <input id="bookSearch" class="mff-search-input" placeholder="ค้นหาหนังสือ / ผู้แต่ง / ISBN (Drive + ออนไลน์)..." autocomplete="off">
     </div>
     ${renderGoalCard()}
     ${renderWish()}
@@ -820,9 +959,16 @@ function renderSearchView(){
     </div>
     <div class="mff-search-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input id="searchInput2" class="mff-search-input" placeholder="ค้นหาชื่อหนังสือใน Google Drive..." autocomplete="off">
+      <input id="searchInput2" class="mff-search-input" placeholder="ค้นหาหนังสือ / ผู้แต่ง / ISBN (Drive + ออนไลน์)..." autocomplete="off">
     </div>
     <div class="mff-search-status" id="searchStatus" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>${searchResults.length?`พบ ${searchResults.length} รายการ${selCount?` • เลือกไว้ ${selCount} เล่ม`:''}`:'พิมพ์ชื่อหนังสือเพื่อค้นหา'}</span><button type="button" id="refreshBookSearch" style="border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:5px 8px;font:inherit;font-size:11px;color:var(--primary)">↻ อัปเดตข้อมูล</button></div>
+    <section class="mbk-online-search">
+      <h3 style="margin:16px 0 6px">🌐 ค้นหาหนังสือออนไลน์ (เน้นภาษาไทย)</h3>
+      <div class="mbk-online-note">ค้นจาก Google Books และ Open Library พร้อมลิงก์ค้นหาร้านหนังสือไทย 5 แห่ง</div>
+      <div class="mbk-store-links">${thaiBookStoreLinks(lastBookSearchTerm||'')}</div>
+      <div class="mbk-online-status">${onlineSearchBusy?'⏳ กำลังค้นหา...':esc(onlineSearchMessage)}</div>
+      <div class="mbk-online-results">${onlineBookResults.map(onlineBookCardHtml).join('')||(!onlineSearchBusy?'<div class="mff-shelf-empty">ไม่พบข้อมูลจากฐานข้อมูลหนังสือออนไลน์ ลองค้นด้วย ISBN หรือใช้ลิงก์ร้านหนังสือด้านบน</div>':'')}</div>
+    </section>
     <div class="mff-file-list" style="padding-bottom:${selCount?90:30}px">
       ${searchResults.map(f=>{
         const picked=selectedFileIds.has(f.id);
@@ -854,7 +1000,7 @@ function renderSearchView(){
   document.getElementById('bookBack').addEventListener('click',e=>{ e.preventDefault(); view={mode:'home'}; render(); });
   document.getElementById('refreshBookSearch').addEventListener('click',()=>doSearch(document.getElementById('searchInput2').value,true));
   const input2=document.getElementById('searchInput2');
-  input2.value=document.getElementById('bookSearch')?.value || input2.value;
+  input2.value=lastBookSearchTerm || document.getElementById('bookSearch')?.value || input2.value;
   input2.addEventListener('input',()=>{
     clearTimeout(searchTimer);
     const term=input2.value;
@@ -862,6 +1008,9 @@ function renderSearchView(){
   });
   input2.addEventListener('keydown',e=>{ if(e.key==='Enter'){ clearTimeout(searchTimer); doSearch(input2.value); } });
 
+  root.querySelectorAll('[data-save-online]').forEach(btn=>{
+    btn.addEventListener('click',()=>saveOnlineBookToWish(Number(btn.dataset.saveOnline)));
+  });
   root.querySelectorAll('[data-open]').forEach(btn=>{
     btn.addEventListener('click',()=>{ if(btn.dataset.open) window.open(btn.dataset.open,'_blank','noopener'); else toast('ไม่มีลิงก์เปิดดูสำหรับไฟล์นี้'); });
   });
