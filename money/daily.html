@@ -121,7 +121,7 @@ function weekLabel(dkey){
   const THAI_MONTHS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
   return sd+' '+THAI_MONTHS[sm-1]+' – '+ed+' '+THAI_MONTHS[em-1];
 }
-function fmtBaht(n){ return (Number(n)||0).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+function fmtBaht(n){ return (Number(n)||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 
 function getGoogleClientId(){return localStorage.getItem('google_client_id')||'';}
 function sheetHeaders(extra){return Object.assign({'Authorization':'Bearer '+sheetsToken},extra||{});}

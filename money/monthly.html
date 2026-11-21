@@ -49,8 +49,8 @@
 
 /* ===================== categories — exact names from the user's real budget sheet ===================== */
 const INCOME_OPTIONS=['เงินค่าจ้าง','โบนัส OIP','ดอกเบี้ย','อื่นๆ'];
-const FIXED_OPTIONS=['ค่าใช้จ่ายประจำเดือน','เงินเก็บสำรองฉุกเฉิน (SCBTMPLUS-I)','เงินเก็บลูกชาย (SCBFIXEDA)','ค่าส่วนกลางบ้าน (รายปี) KKP','ฌาปนกิจ พ่อ+แม่ (รายปี) KKP','ประกันชีวิตลูก (รายปี) KKP','ประกันรถ City (รายปี) KKP','ค่าเทอม ลูกชาย (16000) KKP','ส่งให้เมีย','โอนให้แม่','โอนให้แม่ยาย','ค่าโทรศัพท์แม่','ค่าโทรศัพท์เมีย','ค่าโทรศัพท์ตัวเอง + ค่า Net บ้าน AIS Fiber','ค่าไฟฟ้า','ค่าน้ำ','บัตรเครดิต Lotus','SPayLater (Shopee)','ประกันรถ City','Service รถใหญ่','อาหารหมา','ค่าน้ำมันมอไซค์','อื่นๆ'];
-const VARIABLE_OPTIONS=['กองทุนรวม (SCBAM) + WelthX','กองทุนลูกชาย (SCBAM)','เงินกองทุน RMF KKP CorePath Balanced RMF','อื่นๆ ฝาก Small bank','อื่นๆ'];
+const FIXED_OPTIONS=['ค่าใช้จ่ายประจำเดือน','โอนให้เมีย','โอนให้แม่','โอนให้แม่ยายค่าเลี้ยงดูลูก','เงินสำรองฉุกเฉินของฉัน (Innovestx)','เงินเก็บลูกชาย (Innovestx)','ค่าส่วนกลางหมู่บ้านไลฟ์บางละมุง','ค่าฌาปนกิจ รายปี ของพ่อ + แม่','ค่าประกันชีวิตลูกชาย','ค่าประกันรถยนต์','ค่าเทอมลูกชาย','ค่าโทรศัพท์แม่','ค่าโทรศัพท์เมีย','ค่าโทรศัพท์ของฉัน','ค่าAISFiber','ค่าไฟฟ้า','ค่าน้ำประปา','ค่าบัตรเครดิต','ค่า Shopee(SpayLater)','ค่า Service รถยนต์','ค่าน้ำมันรถยนต์','ค่าน้ำมันมอเตอร์ไซค์','ค่าอาหารแมว + สุนัข','อื่นๆ'];
+const VARIABLE_OPTIONS=['กองทุนรวม (SCBAM)','กองทุนรวม (WelthX)','กองทุนลูกชาย (WelthX)','กองทุนรวม RMF (SCBAM)','กองทุนรวม RMF (WelthX)','กองทุนรวม Core patch balance RMF (KKP)','เงินสำรองฉุกเฉิน (E-Saving)','อื่นๆ'];
 
 const SECTIONS=[
   {key:'income', title:'รายรับ (Income)', cls:'income', opts:INCOME_OPTIONS},
@@ -83,7 +83,7 @@ function shiftMonth(key,delta){
   const d=new Date(y, m-1+delta, 1);
   return monthKey(d);
 }
-function fmtBaht(n){ return (Number(n)||0).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+function fmtBaht(n){ return (Number(n)||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 
 function getGoogleClientId(){return localStorage.getItem('google_client_id')||'';}
 function sheetHeaders(extra){return Object.assign({'Authorization':'Bearer '+sheetsToken},extra||{});}
@@ -439,16 +439,53 @@ async function saveEditPopup(){
 
 /* ===================== รายการประจำ (ลงให้เองทุกต้นเดือน) ===================== */
 const REC_TYPE_LABEL={income:'รายรับ',fixed:'รายจ่ายคงที่',variable:'รายจ่ายผันแปร'};
-function recList(){ try{ return (window.MFFSettings&&MFFSettings.get('recurring',[]))||[]; }catch(e){ return []; } }
+const RECURRING_KEY='mff_money_recurring_v1';
+function normalizeRecurring(list){
+  if(!Array.isArray(list)) return [];
+  return list.filter(t=>t&&['income','fixed','variable'].includes(t.type)&&String(t.category||'').trim()&&(Number(t.amount)||0)>0)
+    .map(t=>({id:String(t.id||('rec_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7))),type:t.type,category:String(t.category).trim(),amount:Number(t.amount)}));
+}
+function recList(){
+  let localData=null, localTime=0, settingData=null, settingTime=0;
+  try{
+    const raw=JSON.parse(localStorage.getItem(RECURRING_KEY)||'null');
+    if(Array.isArray(raw)){ localData=raw; localTime=0; } // migrate older dedicated-cache format
+    else if(raw&&Array.isArray(raw.items)){ localData=raw.items; localTime=Date.parse(raw.updatedAt)||0; }
+  }catch(e){}
+  try{
+    const all=JSON.parse(localStorage.getItem('mff_settings_cache_v1')||'[]');
+    const row=Array.isArray(all)?all.find(x=>x.id==='recurring'):null;
+    if(row){ settingData=JSON.parse(row.value||'[]'); settingTime=Date.parse(row.updatedAt)||0; }
+    else if(window.MFFSettings) settingData=MFFSettings.get('recurring',[]);
+  }catch(e){}
+  if(Array.isArray(settingData)&&(!Array.isArray(localData)||settingTime>localTime)){
+    try{ localStorage.setItem(RECURRING_KEY,JSON.stringify({items:settingData,updatedAt:new Date(settingTime||Date.now()).toISOString()})); }catch(e){}
+    return normalizeRecurring(settingData);
+  }
+  if(Array.isArray(localData)) return normalizeRecurring(localData);
+  return normalizeRecurring(settingData||[]);
+}
+function saveRecurring(list){
+  const clean=normalizeRecurring(list), stamp=new Date().toISOString();
+  if(window.MFFSettings&&typeof MFFSettings.set==='function') MFFSettings.set('recurring',clean);
+  else throw new Error('ระบบตั้งค่ากลางยังไม่พร้อม');
+  localStorage.setItem(RECURRING_KEY,JSON.stringify({items:clean,updatedAt:stamp}));
+  try{ localStorage.setItem('mff_sync_dirty_v1_settings','1'); }catch(e){}
+  const verify=JSON.parse(localStorage.getItem(RECURRING_KEY)||'null');
+  if(!verify||!Array.isArray(verify.items)||verify.items.length!==clean.length) throw new Error('ตรวจสอบข้อมูลที่บันทึกไม่สำเร็จ');
+  return clean;
+}
 function realMonthKey(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
 function applyRecurring(){
   const list=recList(); if(!list.length) return 0;
   let applied={}; try{ applied=JSON.parse(localStorage.getItem('mff_recurring_applied_v1')||'{}')||{}; }catch(e){}
-  const mk=realMonthKey(), now=new Date().toISOString(); let n=0;
+  const mk=realMonthKey(), now=new Date().toISOString(); let n=0, changed=false;
   list.forEach(t=>{
-    const key=t.id+'|'+mk; if(applied[key]) return; applied[key]=1;
-    if(items.some(x=>x.month===mk&&x.type===t.type&&x.category===t.category)) return;
-    items.push({id:'rec_'+t.id+'_'+mk, month:mk, type:t.type, category:t.category, amount:Number(t.amount)||0, createdAt:now, updatedAt:now}); n++;
+    const key=t.id+'|'+mk;
+    if(items.some(x=>x.month===mk&&x.type===t.type&&x.category===t.category)){ applied[key]=1; changed=true; return; }
+    if(applied[key]) return;
+    items.push({id:'rec_'+t.id+'_'+mk, month:mk, type:t.type, category:t.category, amount:Number(t.amount)||0, createdAt:now, updatedAt:now});
+    applied[key]=1; n++; changed=true;
   });
   try{ localStorage.setItem('mff_recurring_applied_v1',JSON.stringify(applied)); }catch(e){}
   if(n){ saveCache(); try{ localStorage.setItem('mff_sync_dirty_v1_money','1'); }catch(e){} }
@@ -459,7 +496,7 @@ function openRecurringPopup(){
   let list=recList().slice();
   const catOpts=[...new Set(SECTIONS.reduce((a,s)=>a.concat(s.opts),[]))];
   const body=()=>`
-    <p class="mfr-hint">รายการที่ใส่ไว้จะถูกเพิ่มให้เองในเดือนปัจจุบัน (เปิดแอปครั้งแรกของเดือน) และแก้ยอดแต่ละเดือนได้ตามปกติ</p>
+    <p class="mfr-hint">รายการนี้เป็นแม่แบบถาวร บันทึกแล้วจะยังแสดงเมื่อเปิดใหม่ และระบบจะเพิ่มรายการให้อัตโนมัติในแต่ละเดือนเมื่อเปิดหน้านี้ครั้งแรกของเดือน โดยแก้ยอดของแต่ละเดือนได้แยกกัน</p>
     <div class="mfr-list">${list.length?list.map((t,i)=>`<div class="mfr-row"><div><b>${esc(t.category)}</b><small>${esc(REC_TYPE_LABEL[t.type]||t.type)}</small></div><span>฿${fmtBaht(t.amount)}</span><button type="button" data-del="${i}" aria-label="ลบ">×</button></div>`).join(''):'<div class="mfr-empty">ยังไม่มีรายการประจำ</div>'}</div>
     <div class="mfr-add">
       <select id="mfrType">${SECTIONS.map(s=>`<option value="${s.key}">${esc(REC_TYPE_LABEL[s.key]||s.title)}</option>`).join('')}</select>
@@ -470,9 +507,10 @@ function openRecurringPopup(){
   modal('รายการประจำรายเดือน', '<div id="mfrBox"></div>', [
     {label:'ปิด', ghost:true, onClick:closeModal},
     {label:'บันทึก', onClick:()=>{
-      MFFSettings.set('recurring', list); closeModal();
-      const n=applyRecurring(); render();
-      toast(n?('เพิ่มรายการประจำของเดือนนี้ '+n+' รายการ'):'บันทึกรายการประจำแล้ว');
+      try{ saveRecurring(list); closeModal();
+        const n=applyRecurring(); render();
+        toast(n?('บันทึกรายการประจำแล้ว • เพิ่มในเดือนนี้ '+n+' รายการ'):'บันทึกรายการประจำแล้ว');
+      }catch(err){ toast('บันทึกไม่สำเร็จ: '+(err.message||'ลองอีกครั้ง')); }
     }}
   ]);
   const box=document.getElementById('mfrBox');
