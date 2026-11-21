@@ -711,7 +711,8 @@ function render(){
   root.innerHTML=`
     <div class="mff-search-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input id="bookSearch" class="mff-search-input" placeholder="ค้นหาหนังสือ / ผู้แต่ง / ISBN (Drive + ออนไลน์)..." autocomplete="off">
+      <input id="bookSearch" class="mff-search-input" style="padding-right:88px" placeholder="ค้นหาหนังสือ / ผู้แต่ง / ISBN (Drive + ออนไลน์)..." autocomplete="off">
+      <button type="button" id="bookSearchGo" style="position:absolute;right:7px;top:50%;transform:translateY(-50%);border:0;border-radius:10px;padding:8px 12px;background:var(--primary);color:#fff;font:inherit;font-size:13px;cursor:pointer">ค้นหา</button>
     </div>
     ${renderGoalCard()}
     ${renderWish()}
@@ -719,14 +720,20 @@ function render(){
   `;
   document.getElementById('bookBack')?.remove();
   const input=document.getElementById('bookSearch');
-  input.addEventListener('input',()=>{
+  // Do not navigate while the user is still typing. Start only on explicit search.
+  const startHomeSearch=()=>{
+    const term=input.value.trim();
+    if(!term) return;
     clearTimeout(searchTimer);
-    const term=input.value;
-    searchTimer=setTimeout(()=>{
-      if(term.trim()){ view={mode:'search'}; doSearch(term); }
-    },450);
+    lastBookSearchTerm=term;
+    view={mode:'search'};
+    doSearch(term);
+  };
+  document.getElementById('bookSearchGo').addEventListener('click',startHomeSearch);
+  input.addEventListener('keydown',e=>{
+    // Ignore Enter used by Thai/other IME to choose a candidate word.
+    if(e.key==='Enter' && !e.isComposing && e.keyCode!==229){ e.preventDefault(); startHomeSearch(); }
   });
-  input.addEventListener('keydown',e=>{ if(e.key==='Enter'){ clearTimeout(searchTimer); view={mode:'search'}; doSearch(input.value); } });
 
   wireShelfEvents();
   wireWish();
